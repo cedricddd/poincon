@@ -42,6 +42,7 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'Missing recordId or departureTime' }, { status: 400 })
     }
 
+    // Update the clock record
     const record = await prisma.clockRecord.update({
       where: { id: recordId },
       data: {
@@ -49,6 +50,30 @@ export async function PATCH(req: NextRequest) {
         duration: Math.round(duration * 60), // Store duration in minutes
       },
     })
+
+    // Get user's standard hours
+    const userSchedule = await prisma.userSchedule.findUnique({
+      where: { userId: session.user.id },
+    })
+
+    const hoursStandard = userSchedule?.hoursPerDay || 8 // Default to 8 hours
+    const hoursWorked = record.duration! / 60 // Convert minutes to hours
+
+    // If worked more than standard, create DetectedOvertime
+    if (hoursWorked > hoursStandard) {
+      const overtimeHours = hoursWorked - hoursStandard
+
+      await prisma.detectedOvertime.create({
+        data: {
+          userId: session.user.id,
+          date: record.date,
+          hoursWorked,
+          hoursStandard,
+          overtimeHours,
+          status: 'PENDING',
+        },
+      })
+    }
 
     return NextResponse.json(record, { status: 200 })
   } catch (error) {
