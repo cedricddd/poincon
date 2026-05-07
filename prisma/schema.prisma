@@ -1,9 +1,10 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -32,6 +33,7 @@ model User {
   approvedDetectedOvertimes DetectedOvertime[] @relation("ApprovedDetectedOvertimes")
   rttRequests           RTTRequest[] @relation("RTTRequests")
   approvedRTTs          RTTRequest[] @relation("ApprovedRTTs")
+  notifications         Notification[]
   company               Company?        @relation("CompanyAdmin")
   companyId             String?
 
@@ -244,4 +246,18 @@ model RTTRequest {
   @@index([status])
   @@index([date])
   @@index([approvedBy])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  message   String
+  type      String   @default("info")  // "success" | "error" | "info"
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([read])
 }

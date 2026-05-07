@@ -32,6 +32,12 @@ export async function PATCH(req: NextRequest) {
     const now = new Date()
     let result
 
+    const typeLabels: Record<string, string> = {
+      overtime: "d'heures supplémentaires",
+      timeoff: 'de congé',
+      rtt: 'RTT',
+    }
+
     switch (type) {
       case 'overtime':
         result = await prisma.detectedOvertime.update({
@@ -72,6 +78,20 @@ export async function PATCH(req: NextRequest) {
       default:
         return NextResponse.json({ error: 'Invalid type' }, { status: 400 })
     }
+
+    // Create notification for the employee
+    const notifMessage =
+      action === 'approve'
+        ? `Votre demande ${typeLabels[type]} a été approuvée.`
+        : `Votre demande ${typeLabels[type]} a été refusée.${rejectionReason ? ` Motif : ${rejectionReason}` : ''}`
+
+    await prisma.notification.create({
+      data: {
+        userId: result.userId,
+        message: notifMessage,
+        type: action === 'approve' ? 'success' : 'error',
+      },
+    })
 
     // Log the action in audit log
     await prisma.auditLog.create({

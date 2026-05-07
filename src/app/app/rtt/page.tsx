@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
+import { showToast } from '@/hooks/useToast'
 
 interface RTTRequest {
   id: string
@@ -18,7 +19,6 @@ export default function RTTPage() {
   const [requests, setRequests] = useState<RTTRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
-  const [notification, setNotification] = useState('')
 
   const [formData, setFormData] = useState({
     date: '',
@@ -31,14 +31,6 @@ export default function RTTPage() {
     loadRequests()
   }, [])
 
-  // Hide notification after 3 seconds
-  useEffect(() => {
-    if (notification) {
-      const timer = setTimeout(() => setNotification(''), 3000)
-      return () => clearTimeout(timer)
-    }
-  }, [notification])
-
   const loadRequests = async () => {
     try {
       setLoading(true)
@@ -49,7 +41,7 @@ export default function RTTPage() {
       }
     } catch (error) {
       console.error('Failed to load requests:', error)
-      setNotification('Erreur lors du chargement')
+      showToast('Erreur lors du chargement', 'error')
     } finally {
       setLoading(false)
     }
@@ -59,13 +51,13 @@ export default function RTTPage() {
     e.preventDefault()
 
     if (!formData.date || !formData.hoursToRecover) {
-      setNotification('Veuillez remplir les champs obligatoires')
+      showToast('Veuillez remplir les champs obligatoires', 'warning')
       return
     }
 
     const hours = parseFloat(formData.hoursToRecover)
     if (hours <= 0 || hours > 8) {
-      setNotification('Les heures doivent être entre 0.5 et 8')
+      showToast('Les heures doivent être entre 0.5 et 8', 'warning')
       return
     }
 
@@ -74,7 +66,7 @@ export default function RTTPage() {
     today.setHours(0, 0, 0, 0)
 
     if (selectedDate < today) {
-      setNotification('La date doit être dans le futur')
+      showToast('La date doit être dans le futur', 'warning')
       return
     }
 
@@ -94,12 +86,12 @@ export default function RTTPage() {
         throw new Error('Failed to create request')
       }
 
-      setNotification('Demande RTT créée ✓')
+      showToast('Demande RTT créée ✓', 'success')
       setFormData({ date: '', hoursToRecover: '', reason: '' })
       await loadRequests()
     } catch (error) {
       console.error('Error:', error)
-      setNotification('Erreur lors de la création')
+      showToast('Erreur lors de la création', 'error')
     } finally {
       setSubmitting(false)
     }
@@ -160,13 +152,6 @@ export default function RTTPage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 pt-8">
-        {/* Notification */}
-        {notification && (
-          <div className="mb-6 p-4 rounded-lg bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)] text-[var(--pp-pos)] text-center font-medium animate-in fade-in">
-            {notification}
-          </div>
-        )}
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Form Column */}
           <div className="lg:col-span-1">

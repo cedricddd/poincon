@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
+import { showToast } from '@/hooks/useToast'
 
 interface TimeOffRequest {
   id: string
@@ -18,7 +19,6 @@ export default function TimeOffPage() {
   const [requests, setRequests] = useState<TimeOffRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
-  const [notification, setNotification] = useState('')
 
   const [formData, setFormData] = useState({
     startDate: '',
@@ -31,14 +31,6 @@ export default function TimeOffPage() {
     loadRequests()
   }, [])
 
-  // Hide notification after 3 seconds
-  useEffect(() => {
-    if (notification) {
-      const timer = setTimeout(() => setNotification(''), 3000)
-      return () => clearTimeout(timer)
-    }
-  }, [notification])
-
   const loadRequests = async () => {
     try {
       setLoading(true)
@@ -49,7 +41,7 @@ export default function TimeOffPage() {
       }
     } catch (error) {
       console.error('Failed to load requests:', error)
-      setNotification('Erreur lors du chargement')
+      showToast('Erreur lors du chargement', 'error')
     } finally {
       setLoading(false)
     }
@@ -59,7 +51,7 @@ export default function TimeOffPage() {
     e.preventDefault()
 
     if (!formData.startDate || !formData.endDate) {
-      setNotification('Veuillez sélectionner les dates')
+      showToast('Veuillez sélectionner les dates', 'warning')
       return
     }
 
@@ -67,7 +59,7 @@ export default function TimeOffPage() {
     const end = new Date(formData.endDate)
 
     if (end < start) {
-      setNotification('La date de fin doit être après la date de début')
+      showToast('La date de fin doit être après la date de début', 'warning')
       return
     }
 
@@ -83,12 +75,12 @@ export default function TimeOffPage() {
         throw new Error('Failed to create request')
       }
 
-      setNotification('Demande de congé créée ✓')
+      showToast('Demande de congé créée ✓', 'success')
       setFormData({ startDate: '', endDate: '', reason: '' })
       await loadRequests()
     } catch (error) {
       console.error('Error:', error)
-      setNotification('Erreur lors de la création')
+      showToast('Erreur lors de la création', 'error')
     } finally {
       setSubmitting(false)
     }
@@ -146,13 +138,6 @@ export default function TimeOffPage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 pt-8">
-        {/* Notification */}
-        {notification && (
-          <div className="mb-6 p-4 rounded-lg bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)] text-[var(--pp-pos)] text-center font-medium animate-in fade-in">
-            {notification}
-          </div>
-        )}
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Form Column */}
           <div className="lg:col-span-1">

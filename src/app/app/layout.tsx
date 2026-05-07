@@ -1,6 +1,7 @@
 'use client'
 
 import { Sidebar } from '@/components/Sidebar'
+import { ToastContainer } from '@/components/Toast'
 import React from 'react'
 
 export default function AppLayout({
@@ -14,6 +15,7 @@ export default function AppLayout({
       <main className="flex-1 md:ml-64">
         {children}
       </main>
+      <ToastContainer />
     </div>
   )
 }

@@ -5,6 +5,7 @@ import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 import { MonthlyCalendar } from '@/components/MonthlyCalendar'
 import { BalanceWidget } from '@/components/BalanceWidget'
+import { showToast } from '@/hooks/useToast'
 
 interface ClockRecord {
   id: string
@@ -41,7 +42,6 @@ export default function ClockPage() {
     { date: 'Thu', day: 'Jeu', hours: 0 },
     { date: 'Fri', day: 'Ven', hours: 0 },
   ])
-  const [notification, setNotification] = useState('')
   const [loading, setLoading] = useState(false)
   const [viewMode, setViewMode] = useState<'week' | 'month'>('week')
 
@@ -105,13 +105,6 @@ export default function ClockPage() {
     return () => clearInterval(timer)
   }, [])
 
-  // Hide notification after 3 seconds
-  useEffect(() => {
-    if (notification) {
-      const timer = setTimeout(() => setNotification(''), 3000)
-      return () => clearTimeout(timer)
-    }
-  }, [notification])
 
   const formatTime = (date: Date | null) => {
     if (!date) return '--:--:--'
@@ -150,7 +143,7 @@ export default function ClockPage() {
         })
 
         if (!res.ok) {
-          setNotification('Erreur lors de l\'enregistrement')
+          showToast('Erreur lors de l\'enregistrement', 'error')
           setLoading(false)
           return
         }
@@ -160,7 +153,7 @@ export default function ClockPage() {
         setArrivalTime(timeStr)
         setDepartureTime(null)
         setIsClockedIn(true)
-        setNotification(`Arrivée enregistrée à ${timeStr} ✓`)
+        showToast(`Arrivée enregistrée à ${timeStr} ✓`, 'success')
         setSessions(prev => [...prev, record])
       } else {
         // DÉPART
@@ -193,7 +186,7 @@ export default function ClockPage() {
         })
 
         if (!res.ok) {
-          setNotification('Erreur lors de l\'enregistrement du départ')
+          showToast('Erreur lors de l\'enregistrement du départ', 'error')
           setLoading(false)
           return
         }
@@ -202,7 +195,7 @@ export default function ClockPage() {
         setDepartureTime(timeStr)
         setIsClockedIn(false)
         setDailyHours(prev => prev + durationHours)
-        setNotification(`Départ enregistré à ${timeStr} ✓`)
+        showToast(`Départ enregistré à ${timeStr} ✓`, 'success')
         setCurrentRecordId(null)
 
         // Update sessions list
@@ -210,7 +203,7 @@ export default function ClockPage() {
       }
     } catch (error) {
       console.error('Clock toggle error:', error)
-      setNotification('Erreur de connexion')
+      showToast('Erreur de connexion', 'error')
     } finally {
       setLoading(false)
     }
@@ -298,13 +291,6 @@ export default function ClockPage() {
                 {formatDate(currentTime)}
               </div>
             </div>
-
-            {/* Notification Toast */}
-            {notification && (
-              <div className="p-4 rounded-lg bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)] text-[var(--pp-pos)] text-center font-medium animate-in fade-in">
-                {notification}
-              </div>
-            )}
 
             {/* Location Selector */}
             <div>
