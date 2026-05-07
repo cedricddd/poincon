@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -14,7 +14,7 @@ model User {
   emailVerified         DateTime?
   password              String?
   image                 String?
-  role                  UserRole        @default(EMPLOYEE)
+  role                  String          @default("EMPLOYEE")
   active                Boolean         @default(true)
   createdAt             DateTime        @default(now())
   updatedAt             DateTime        @updatedAt
@@ -25,6 +25,13 @@ model User {
   clockRecords          ClockRecord[]
   auditLogs             AuditLog[]
   userConsents          UserConsent[]
+  userSchedule          UserSchedule?
+  timeOffRequests       TimeOffRequest[] @relation("TimeOffRequests")
+  approvedTimeOffs      TimeOffRequest[] @relation("ApprovedTimeOffs")
+  detectedOvertimes     DetectedOvertime[] @relation("DetectedOvertimes")
+  approvedDetectedOvertimes DetectedOvertime[] @relation("ApprovedDetectedOvertimes")
+  rttRequests           RTTRequest[] @relation("RTTRequests")
+  approvedRTTs          RTTRequest[] @relation("ApprovedRTTs")
   company               Company?        @relation("CompanyAdmin")
   companyId             String?
 
@@ -32,11 +39,6 @@ model User {
   @@index([companyId])
 }
 
-enum UserRole {
-  ADMIN
-  MANAGER
-  EMPLOYEE
-}
 
 model Account {
   id                    String          @id @default(cuid())
@@ -89,7 +91,6 @@ model Company {
 
   admin                 User            @relation("CompanyAdmin", fields: [adminId], references: [id])
   teams                 Team[]
-  users                 User[]
 
   @@index([adminId])
 }
@@ -142,13 +143,13 @@ model AuditLog {
   action                String
   resource              String
   resourceId            String?
-  changes               Json?
+  changes               String?
   ipAddress             String?
   userAgent             String?
   status                String          @default("success")
   createdAt             DateTime        @default(now())
 
-  user                  User            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user                  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([action])
@@ -165,4 +166,82 @@ model UserConsent {
   user                  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model TimeOffRequest {
+  id                    String          @id @default(cuid())
+  userId                String
+  startDate             DateTime
+  endDate               DateTime
+  reason                String?
+  status                String          @default("PENDING") // PENDING, APPROVED, REJECTED
+  approvedBy            String?
+  approvedAt            DateTime?
+  rejectionReason       String?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  user                  User            @relation("TimeOffRequests", fields: [userId], references: [id], onDelete: Cascade)
+  approver              User?           @relation("ApprovedTimeOffs", fields: [approvedBy], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([approvedBy])
+}
+
+model UserSchedule {
+  id                    String          @id @default(cuid())
+  userId                String          @unique
+  hoursPerDay           Float           @default(8) // Heures standards par jour (4, 5, 8, etc.)
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  user                  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model DetectedOvertime {
+  id                    String          @id @default(cuid())
+  userId                String
+  date                  DateTime
+  hoursWorked           Float           // Heures réellement travaillées
+  hoursStandard         Float           // Heures configurées pour cet employé
+  overtimeHours         Float           // hoursWorked - hoursStandard
+  status                String          @default("PENDING") // PENDING, APPROVED, REJECTED
+  approvedBy            String?
+  approvedAt            DateTime?
+  rejectionReason       String?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  user                  User            @relation("DetectedOvertimes", fields: [userId], references: [id], onDelete: Cascade)
+  approver              User?           @relation("ApprovedDetectedOvertimes", fields: [approvedBy], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([date])
+  @@index([approvedBy])
+}
+
+model RTTRequest {
+  id                    String          @id @default(cuid())
+  userId                String
+  date                  DateTime        // Date du RTT
+  hoursToRecover        Float           // Heures à récupérer (0.5 à 8)
+  reason                String?         // Raison optionnelle
+  status                String          @default("PENDING") // PENDING, APPROVED, REJECTED
+  approvedBy            String?
+  approvedAt            DateTime?
+  rejectionReason       String?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  user                  User            @relation("RTTRequests", fields: [userId], references: [id], onDelete: Cascade)
+  approver              User?           @relation("ApprovedRTTs", fields: [approvedBy], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([date])
+  @@index([approvedBy])
 }

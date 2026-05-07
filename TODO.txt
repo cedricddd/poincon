@@ -1,0 +1,292 @@
+================================================================================
+                    POINÇON - TODO LIST (MVP & FEATURES)
+================================================================================
+
+STATUT: MVP Heures Sup/RTT terminé, Admin Dashboard en cours demain
+Date: 2026-05-06
+Version: 0.1.0
+
+RÉSUMÉ DU JOUR (2026-05-06):
+✓ Complété: RTT system (Approche 2), Balance API, Heures Sup education page
+→ Prochainement: Admin Dashboard pour valider requests (DetectedOvertime, TimeOffRequest, RTTRequest)
+→ Puis: Page Rapports avec filtres et export
+
+================================================================================
+PHASE 1: MVP (COMPLÉTÉ ✓)
+================================================================================
+
+✓ [x] Authentification NextAuth v4 (email/password)
+✓ [x] Pages login/signup fonctionnelles
+✓ [x] Pointage arrivée/départ (ARRIVÉE/DÉPART buttons)
+✓ [x] Calcul durée réelle (pas d'approximation)
+✓ [x] Sauvegarde en base de données SQLite
+✓ [x] Design responsive (mobile → desktop 3-colonnes)
+✓ [x] Historique hebdomadaire (bar chart)
+✓ [x] Calendrier mensuel avec heures
+✓ [x] Système heures sup + congés (backend)
+✓ [x] Widget Solde Heures sur dashboard
+
+================================================================================
+PHASE 2: DEMANDES DE CONGÉ (COMPLÉTÉ ✓)
+================================================================================
+
+✓ [x] Page "Demandes de Congé"
+    ✓ [x] Formulaire pour créer demande (date début/fin + raison)
+    ✓ [x] Calcul automatique du nombre de jours
+    ✓ [x] Affichage liste: Pending / Approved / Rejected
+    ✓ [x] Statut visuel par couleur
+    ✓ [x] Notifications toast
+
+PHASE 2B: HEURES SUPPLÉMENTAIRES & RTT (PARTIELLEMENT COMPLÉTÉ)
+================================================================================
+
+✓ [x] Modèle `UserSchedule` avec `hoursPerDay` créé
+✓ [x] Modèle `DetectedOvertime` créé (userId, date, hoursWorked, hoursStandard, overtimeHours, status)
+✓ [x] Page éducative Heures Supplémentaires (overtime/page.tsx)
+✓ [x] APPROCHE 2: RTT (Récupération Temps Travail) COMPLÈTE
+    ✓ [x] Modèle: `RTTRequest` (date, hoursToRecover 0.5-8h, reason, status)
+    ✓ [x] Page "Demandes RTT" pour l'employé (/app/rtt/page.tsx)
+    ✓ [x] Formulaire: date + heures à partir plus tôt (0.5h à 8h)
+    ✓ [x] API RTT: POST (créer demande), GET (lister demandes)
+    ✓ [x] Validation: date future, heures 0.5-8h
+    ✓ [x] Status colors: PENDING (bleu), APPROVED (vert), REJECTED (rouge)
+✓ [x] Widget Solde mis à jour
+    ✓ [x] Affiche: Heures sup approuvées
+    ✓ [x] Affiche: Heures RTT approuvées
+    ✓ [x] Affiche: Jours congé approuvés
+    ✓ [x] Calcul solde net: heures_sup - rtt - (daysOff × 8)
+✓ [x] Balance API complète (/api/user/balance/route.ts)
+    ✓ [x] Récupère DetectedOvertime approuvés
+    ✓ [x] Récupère RTTRequest approuvés
+    ✓ [x] Récupère TimeOffRequest approuvés
+    ✓ [x] Compte requêtes en attente
+    ✓ [x] Retourne solde complexe avec tous les détails
+
+[ ] APPROCHE 1: Conversion en jours de congé bonus
+    [ ] Modèle: HeuresSupConversion (heures_sup → jour_congé)
+    [ ] 8h heures_sup = 1 jour congé bonus
+    [ ] Affichage: "X heures sup = Y jours de congé"
+    [ ] Employé peut créer demande congé avec source "bonus"
+    [ ] Solde inclut ces jours bonus
+
+[ ] Configuration heures standard (Admin)
+    [ ] API pour configurer hoursPerDay par employé
+    [ ] Dashboard admin pour gérer par employé
+
+[ ] Détection automatique heures sup (CRITIQUE - À FAIRE)
+    [ ] Calculer auto lors du pointage: heures_travaillées - heures_standard
+    [ ] Stocker dans table `DetectedOvertime`
+    [ ] Afficher dans dashboard admin (en attente de validation)
+    [ ] Pas de page demande pour l'employé (auto-détecté)
+
+[ ] Dashboard Admin complet (CRITIQUE - À FAIRE)
+    [ ] Page /admin/dashboard (accès admin seulement)
+    [ ] Vue heures sup détectées: Pending / Approved / Rejected
+    [ ] Vue RTT demandées: Pending / Approved / Rejected
+    [ ] Vue congés: Pending / Approved / Rejected
+    [ ] Boutons Approuver/Rejeter pour chaque type
+    [ ] Solde employé: heures_sup - congés - RTT = solde_net
+    [ ] Endpoint: /api/admin/approve (PATCH pour approver/reject)
+
+[ ] Notifications
+    [ ] Toast quand admin approuve heures sup/RTT/congé
+    [ ] Email quand RTT approuvé
+    [ ] Mise à jour solde en temps réel
+
+================================================================================
+PHASE 3: ADMIN DASHBOARD (PROCHAINE PRIORITÉ - DEMAIN)
+================================================================================
+
+[ ] Page Admin Dashboard (accès restreint) - NEXT
+    [ ] /admin/dashboard page
+    [ ] Vue globale de l'équipe
+    [ ] Statistiques: total heures, congés, heures sup
+
+[ ] Admin - Gestion des demandes (NEXT) - PRIORITÉ 1
+    [ ] Tableau des demandes en attente (3 sections: DetectedOvertime, TimeOffRequest, RTTRequest)
+    [ ] Filters: type, employé, date
+    [ ] Actions: Approuver / Rejeter avec raison
+    [ ] Endpoint: /api/admin/approve (PATCH pour validation)
+    [ ] Historique des validations
+
+[ ] Admin - Configuration heures (NEXT) - PRIORITÉ 2
+    [ ] Vue employés avec hoursPerDay configurable
+    [ ] Form pour éditer hoursPerDay par employé
+    [ ] Sauvegarde dans UserSchedule
+    [ ] Validation: heures > 0
+
+[ ] Admin - Vue employé
+    [ ] Profil et solde de chaque employé
+    [ ] Historique complet des pointages
+    [ ] Demandes créées et validées
+    [ ] Édition du solde (ajustement manuel)
+
+[ ] Admin - Configuration avancée
+    [ ] Jours fériés de l'année
+    [ ] Politique congés (jours/an, approbation auto/manuel)
+    [ ] Définir jours de travail par employé (5j, 6j, 7j, décalé)
+
+================================================================================
+PHASE 4: RAPPORTS & EXPORT (APRÈS ADMIN DASHBOARD)
+================================================================================
+
+[ ] Page Rapports (placeholder actuellement - en développement)
+    [ ] Filtres: date début/fin, employé, localisation
+    [ ] Tableau complet des pointages
+    [ ] Statistiques: total heures, moyenne/jour, heures sup
+    [ ] Graphiques: tendances horaires, jours complets/partiels
+
+[ ] Export CSV
+    [ ] Export pointages
+    [ ] Export congés approuvés
+    [ ] Export heures sup
+    [ ] Format compatible comptabilité/paie
+
+[ ] PDF Reports
+    [ ] Rapport mensuel par employé
+    [ ] Récapitulatif heures + congés + heures sup
+    [ ] Signatures admin
+
+================================================================================
+PHASE 5: AMÉLIORATIONS UX/FEATURES
+================================================================================
+
+[ ] Localisation
+    [ ] Selector: Sur site / Télétravail / Déplacement
+    [ ] Affichage par localisation dans les rapports
+    [ ] Statistiques par lieu de travail
+
+[ ] Notifications & Reminders
+    [ ] Notification quand oubli de départ
+    [ ] Rappel fin de journée: "Avez-vous quitté?"
+    [ ] Email quand demande approuvée/rejetée
+
+[ ] Mobile App (PWA)
+    [ ] Manifest.json pour installation
+    [ ] Service Worker pour offline
+    [ ] Icônes et splash screen
+    [ ] Sync automatique quand connexion revient
+
+[ ] Améliorations Dashboard
+    [ ] Widget "Présents aujourd'hui" (admin)
+    [ ] Widget "Prochains congés" (team view)
+    [ ] Widget "Heures restantes ce mois"
+    [ ] Mini graphique tendance
+
+[ ] Sécurité & Audit
+    [ ] AuditLog pour toutes les actions
+    [ ] Log des approbations admin
+    [ ] Historique des modifications manuelles
+    [ ] Trail complet pour conformité légale
+
+================================================================================
+PHASE 6: ÉQUIPES & GESTION
+================================================================================
+
+[ ] Gestion Équipes
+    [ ] Créer/modifier équipes
+    [ ] Assigner employés aux équipes
+    [ ] Manager par équipe (sous-admin)
+    [ ] Vue consolidée par équipe
+
+[ ] Rôles & Permissions
+    [ ] Admin (tout)
+    [ ] Manager (équipe seulement)
+    [ ] Employé (soi-même seulement)
+    [ ] Approver (valide les demandes)
+
+[ ] Intégrations
+    [ ] Slack notifications (demandes approuvées, etc.)
+    [ ] Google Calendar sync (ajouter congés au calendrier)
+    [ ] Webhook pour systèmes externes
+
+================================================================================
+PHASE 7: DÉPLOIEMENT & PRODUCTION
+================================================================================
+
+[ ] Base de données
+    [ ] Migration SQLite → PostgreSQL (Vercel Postgres)
+    [ ] Backup strategy
+    [ ] Database versioning
+
+[ ] Déploiement
+    [ ] Configuration Vercel
+    [ ] Variables d'environnement
+    [ ] SSL/HTTPS
+    [ ] CDN pour assets
+
+[ ] Monitoring & Maintenance
+    [ ] Sentry pour error tracking
+    [ ] Uptime monitoring
+    [ ] Performance metrics
+    [ ] Log aggregation
+
+[ ] Documentation
+    [ ] README avec setup instructions
+    [ ] API documentation
+    [ ] User guide (admin + employé)
+    [ ] Troubleshooting guide
+
+[ ] Tests
+    [ ] Unit tests (logique métier)
+    [ ] Integration tests (API)
+    [ ] E2E tests (workflows complets)
+    [ ] Load testing
+
+================================================================================
+BUGS & OPTIMISATIONS CONNUS
+================================================================================
+
+[ ] Améliorer gestion des jours de congé (calcul exact)
+[ ] Optimiser requêtes mensuelles (index DB)
+[ ] Cache côté client pour balance widget
+[ ] Recharger balance après approbation admin
+[ ] Gérer chevauchements demandes congés
+[ ] Validation dates (date fin > date début)
+
+================================================================================
+NOTES IMPORTANTES
+================================================================================
+
+- Respect RGPD: pseudo-anonymisation des audit logs
+- Conformité légale: audit trail complet de toutes les actions
+- Flexibilité horaires: supporter 5j, 6j, 7j, roulements 3+1
+- Multi-tenant: chaque entreprise a ses propres paramètres
+- Timezone: tous les timestamps en UTC + affichage local
+
+================================================================================
+DEMAIN - PLAN (2026-05-07)
+================================================================================
+
+PRIORITÉ 1: Admin Dashboard - Validation des demandes
+[ ] Créer /src/app/admin/layout.tsx (check admin role)
+[ ] Créer /src/app/admin/dashboard/page.tsx
+[ ] Implémenter tableau avec 3 sections:
+    - DetectedOvertime (PENDING/APPROVED/REJECTED)
+    - TimeOffRequest (PENDING/APPROVED/REJECTED)
+    - RTTRequest (PENDING/APPROVED/REJECTED)
+[ ] Créer /api/admin/approve endpoint (PATCH pour approver/reject)
+[ ] Tester approval flow avec mise à jour balance
+
+PRIORITÉ 2: Détection automatique heures sup
+[ ] Implémenter logique de détection lors du pointage (departure)
+[ ] Calculer: hoursWorked - hoursStandard (de UserSchedule)
+[ ] Créer DetectedOvertime record si > 0
+[ ] Afficher dans dashboard admin
+
+BONUS: Configuration heures par employé
+[ ] Ajouter UI pour éditer hoursPerDay dans admin dashboard
+[ ] API endpoint pour PATCH UserSchedule
+
+================================================================================
+DÉPENDANCES ACTUELLES
+================================================================================
+
+- Next.js 15.5
+- NextAuth v4 (v5 migration possible)
+- Prisma ORM 5.22
+- SQLite (dev) → PostgreSQL (prod)
+- Tailwind CSS
+- TypeScript 5.9
+
+================================================================================

@@ -1,11 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 
 export default function LoginPage() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
@@ -18,8 +21,17 @@ export default function LoginPage() {
     setError('')
 
     try {
-      // TODO: Implement NextAuth login
-      console.log('Login attempt', { email, password })
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      })
+
+      if (result?.error) {
+        setError(result.error || 'Erreur de connexion.')
+      } else if (result?.ok) {
+        router.push('/app/clock')
+      }
     } catch (err) {
       setError('Erreur de connexion. Vérifiez vos identifiants.')
     } finally {
@@ -28,9 +40,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--pp-bg)] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[var(--pp-bg)] flex items-center justify-center px-4" suppressHydrationWarning>
       <div className="w-full max-w-lg">
-        <div className="text-center mb-8">
+        <div className="text-center mb-8" suppressHydrationWarning>
           <Link href="/" className="text-3xl font-bold text-[var(--pp-ink)]">
             PoinçOn
           </Link>
@@ -38,18 +50,18 @@ export default function LoginPage() {
         </div>
 
         <Card>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" suppressHydrationWarning>
             {error && (
               <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
                 {error}
               </div>
             )}
 
-            <div>
+            <div suppressHydrationWarning>
               <label htmlFor="email" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
                 Email
               </label>
-              <input
+              <input suppressHydrationWarning
                 id="email"
                 type="email"
                 value={email}
@@ -60,11 +72,11 @@ export default function LoginPage() {
               />
             </div>
 
-            <div>
+            <div suppressHydrationWarning>
               <label htmlFor="password" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
                 Mot de passe
               </label>
-              <input
+              <input suppressHydrationWarning
                 id="password"
                 type="password"
                 value={password}

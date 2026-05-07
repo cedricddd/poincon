@@ -1,11 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 
 export default function SignupPage() {
+  const router = useRouter()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -15,6 +18,7 @@ export default function SignupPage() {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -32,8 +36,27 @@ export default function SignupPage() {
 
     setLoading(true)
     try {
-      // TODO: Implement NextAuth signup
-      console.log('Signup attempt', formData)
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.error || 'Erreur lors de l\'inscription.')
+        return
+      }
+
+      setSuccess(true)
+      // Auto-login après inscription
+      await signIn('credentials', {
+        email: formData.email,
+        password: formData.password,
+        redirect: false,
+      })
+      router.push('/app/clock')
     } catch (err) {
       setError('Erreur lors de l\'inscription.')
     } finally {
@@ -42,9 +65,9 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--pp-bg)] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[var(--pp-bg)] flex items-center justify-center px-4" suppressHydrationWarning>
       <div className="w-full max-w-lg">
-        <div className="text-center mb-8">
+        <div className="text-center mb-8" suppressHydrationWarning>
           <Link href="/" className="text-3xl font-bold text-[var(--pp-ink)]">
             PoinçOn
           </Link>
@@ -52,18 +75,18 @@ export default function SignupPage() {
         </div>
 
         <Card>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" suppressHydrationWarning>
             {error && (
               <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
                 {error}
               </div>
             )}
 
-            <div>
+            <div suppressHydrationWarning>
               <label htmlFor="name" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
                 Nom complet
               </label>
-              <input
+              <input suppressHydrationWarning
                 id="name"
                 type="text"
                 name="name"
@@ -75,11 +98,11 @@ export default function SignupPage() {
               />
             </div>
 
-            <div>
+            <div suppressHydrationWarning>
               <label htmlFor="company" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
                 Entreprise
               </label>
-              <input
+              <input suppressHydrationWarning
                 id="company"
                 type="text"
                 name="company"
@@ -90,11 +113,11 @@ export default function SignupPage() {
               />
             </div>
 
-            <div>
+            <div suppressHydrationWarning>
               <label htmlFor="email" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
                 Email professionnel
               </label>
-              <input
+              <input suppressHydrationWarning
                 id="email"
                 type="email"
                 name="email"
@@ -106,11 +129,11 @@ export default function SignupPage() {
               />
             </div>
 
-            <div>
+            <div suppressHydrationWarning>
               <label htmlFor="password" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
                 Mot de passe
               </label>
-              <input
+              <input suppressHydrationWarning
                 id="password"
                 type="password"
                 name="password"
@@ -122,11 +145,11 @@ export default function SignupPage() {
               />
             </div>
 
-            <div>
+            <div suppressHydrationWarning>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
                 Confirmez le mot de passe
               </label>
-              <input
+              <input suppressHydrationWarning
                 id="confirmPassword"
                 type="password"
                 name="confirmPassword"

@@ -1,0 +1,54 @@
+'use client'
+
+import { SessionProvider, useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import React, { useEffect } from 'react'
+import { Sidebar } from '@/components/Sidebar'
+
+function AdminLayoutContent({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (status === 'loading') return
+
+    if (!session || !session.user) {
+      router.push('/login')
+      return
+    }
+
+    if ((session.user as any).role !== 'ADMIN') {
+      router.push('/app')
+      return
+    }
+  }, [session, status, router])
+
+  if (status === 'loading' || !session || (session.user as any).role !== 'ADMIN') {
+    return null
+  }
+
+  return (
+    <div className="flex">
+      <Sidebar />
+      <main className="flex-1 md:ml-64">
+        {children}
+      </main>
+    </div>
+  )
+}
+
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <SessionProvider>
+      <AdminLayoutContent>{children}</AdminLayoutContent>
+    </SessionProvider>
+  )
+}

@@ -1,0 +1,88 @@
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '@/auth'
+import { prisma } from '@/lib/prisma'
+import { NextRequest, NextResponse } from 'next/server'
+
+export async function POST(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { arrivalTime, location } = await req.json()
+    if (!arrivalTime) {
+      return NextResponse.json({ error: 'Missing arrivalTime' }, { status: 400 })
+    }
+
+    const record = await prisma.clockRecord.create({
+      data: {
+        userId: session.user.id,
+        arrivalTime: new Date(arrivalTime),
+        location: location || 'Sur site',
+      },
+    })
+
+    return NextResponse.json(record, { status: 201 })
+  } catch (error) {
+    console.error('Clock POST error:', error)
+    return NextResponse.json({ error: 'Failed to create clock record' }, { status: 500 })
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { recordId, departureTime, duration } = await req.json()
+    if (!recordId || !departureTime) {
+      return NextResponse.json({ error: 'Missing recordId or departureTime' }, { status: 400 })
+    }
+
+    const record = await prisma.clockRecord.update({
+      where: { id: recordId },
+      data: {
+        departureTime: new Date(departureTime),
+        duration: Math.round(duration * 60), // Store duration in minutes
+      },
+    })
+
+    return NextResponse.json(record, { status: 200 })
+  } catch (error) {
+    console.error('Clock PATCH error:', error)
+    return NextResponse.json({ error: 'Failed to update clock record' }, { status: 500 })
+  }
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+
+    const records = await prisma.clockRecord.findMany({
+      where: {
+        userId: session.user.id,
+        date: {
+          gte: today,
+          lt: tomorrow,
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+    })
+
+    return NextResponse.json(records, { status: 200 })
+  } catch (error) {
+    console.error('Clock GET error:', error)
+    return NextResponse.json({ error: 'Failed to fetch clock records' }, { status: 500 })
+  }
+}
