@@ -11,8 +11,11 @@ export async function GET(req: NextRequest) {
     }
 
     const { searchParams } = new URL(req.url)
-    const year = parseInt(searchParams.get('year') || new Date().getFullYear().toString())
-    const month = parseInt(searchParams.get('month') || (new Date().getMonth() + 1).toString())
+    const year = parseInt(searchParams.get('year') ?? String(new Date().getFullYear()))
+    const month = parseInt(searchParams.get('month') ?? String(new Date().getMonth() + 1))
+    if (isNaN(year) || isNaN(month) || month < 1 || month > 12 || year < 2000 || year > 2100) {
+      return NextResponse.json({ error: 'Paramètres year/month invalides' }, { status: 400 })
+    }
 
     const startDate = new Date(year, month - 1, 1)
     const endDate = new Date(year, month, 0, 23, 59, 59)

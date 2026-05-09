@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { sendApprovalEmail } from '@/lib/mail'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function PATCH(req: NextRequest) {
@@ -92,6 +93,21 @@ export async function PATCH(req: NextRequest) {
         type: action === 'approve' ? 'success' : 'error',
       },
     })
+
+    // Send email notification (fire and forget — ne bloque pas la réponse)
+    const employee = await prisma.user.findUnique({
+      where: { id: result.userId },
+      select: { email: true, name: true },
+    })
+    if (employee) {
+      sendApprovalEmail({
+        to: employee.email,
+        name: employee.name,
+        type: type as 'overtime' | 'timeoff' | 'rtt',
+        action: action as 'approve' | 'reject',
+        rejectionReason,
+      }).catch(err => console.error('Mail send failed:', err))
+    }
 
     // Log the action in audit log
     await prisma.auditLog.create({

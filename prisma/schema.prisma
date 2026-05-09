@@ -36,6 +36,10 @@ model User {
   notifications         Notification[]
   company               Company?        @relation("CompanyAdmin")
   companyId             String?
+  companyMember         Company?        @relation("CompanyMembers", fields: [companyId], references: [id])
+  teamMemberships       TeamMember[]
+  defaultSiteId         String?
+  defaultSite           Site?           @relation("DefaultSite", fields: [defaultSiteId], references: [id])
 
   @@index([email])
   @@index([companyId])
@@ -83,18 +87,56 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+model Site {
+  id           String        @id @default(cuid())
+  name         String
+  address      String?
+  active       Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  users        User[]        @relation("DefaultSite")
+  clockRecords ClockRecord[]
+
+  @@index([active])
+}
+
+model Plan {
+  id                    String          @id @default(cuid())
+  name                  String          @unique // FREE | SOLO | TEAM | ENTERPRISE
+  maxEmployees          Int             // -1 = illimité
+  maxManagers           Int             // 0 = pas de managers
+  maxCsvExportsPerMonth Int             // -1 = illimité, 0 = désactivé
+  scheduledExport       String?         // null | "monthly" | "weekly"
+  hasTeams              Boolean         @default(false)
+  hasAdvancedReports    Boolean         @default(false)
+  stripePriceIdMonthly  String?
+  stripePriceIdYearly   String?
+  createdAt             DateTime        @default(now())
+
+  companies             Company[]
+}
+
 model Company {
   id                    String          @id @default(cuid())
   name                  String
   domain                String?         @unique
   adminId               String          @unique
+  planId                String?
+  stripeCustomerId      String?
+  stripeSubscriptionId  String?
+  planExpiresAt         DateTime?
   createdAt             DateTime        @default(now())
   updatedAt             DateTime        @updatedAt
 
   admin                 User            @relation("CompanyAdmin", fields: [adminId], references: [id])
+  members               User[]          @relation("CompanyMembers")
+  plan                  Plan?           @relation(fields: [planId], references: [id])
   teams                 Team[]
 
   @@index([adminId])
+  @@index([planId])
+  @@index([stripeCustomerId])
 }
 
 model Team {
@@ -117,9 +159,11 @@ model TeamMember {
   role                  String          @default("member")
   createdAt             DateTime        @default(now())
 
+  user                  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   team                  Team            @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   @@unique([userId, teamId])
+  @@index([userId])
   @@index([teamId])
 }
 
@@ -133,15 +177,22 @@ model ClockRecord {
   date                  DateTime        @default(now())
   createdAt             DateTime        @default(now())
 
+  siteId                String?
+  site                  Site?           @relation(fields: [siteId], references: [id])
   user                  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([date])
+  @@index([siteId])
+  @@index([userId, date])       // requêtes mensuelles par employé
+  @@index([userId, departureTime]) // détection pointages ouverts
 }
 
 model AuditLog {
   id                    String          @id @default(cuid())
-  userId                String
+  userId                String?         // nullable : mis à null lors de l'anonymisation RGPD
+  anonymizedToken       String?         // hash opaque remplaçant userId après anonymisation
+  anonymized            Boolean         @default(false)
   action                String
   resource              String
   resourceId            String?
@@ -151,11 +202,12 @@ model AuditLog {
   status                String          @default("success")
   createdAt             DateTime        @default(now())
 
-  user                  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                  User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([action])
   @@index([createdAt])
+  @@index([anonymized])
 }
 
 model UserConsent {
@@ -189,18 +241,43 @@ model TimeOffRequest {
   @@index([userId])
   @@index([status])
   @@index([approvedBy])
+  @@index([userId, status])     // calcul solde : approved timeoffs par user
+  @@index([userId, startDate])  // chevauchement congés
+  @@index([status, startDate, endDate])  // calendrier équipe : congés approuvés par plage
+}
+
+model WorkSchedule {
+  id            String         @id @default(cuid())
+  name          String
+  type          String         // JOURNEE | 2X8 | 3X8 | 4X8 | 5X8 | 2X12 | NUIT | PARTIEL | VARIABLE
+  startTime     String         // "06:00"
+  endTime       String         // "14:00"
+  hoursPerDay   Float          @default(8)
+  weeklyHours   Float          @default(38)
+  daysOfWeek    String         @default("[1,2,3,4,5]") // JSON: 1=Lun … 7=Dim
+  description   String?
+  isPreset      Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  userSchedules UserSchedule[]
+
+  @@index([type])
 }
 
 model UserSchedule {
-  id                    String          @id @default(cuid())
-  userId                String          @unique
-  hoursPerDay           Float           @default(8) // Heures standards par jour (4, 5, 8, etc.)
-  createdAt             DateTime        @default(now())
-  updatedAt             DateTime        @updatedAt
+  id             String        @id @default(cuid())
+  userId         String        @unique
+  hoursPerDay    Float         @default(8)
+  scheduleId     String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
-  user                  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workSchedule   WorkSchedule? @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
 
   @@index([userId])
+  @@index([scheduleId])
 }
 
 model DetectedOvertime {
@@ -224,6 +301,7 @@ model DetectedOvertime {
   @@index([status])
   @@index([date])
   @@index([approvedBy])
+  @@index([userId, status])     // calcul solde : approved overtimes par user
 }
 
 model RTTRequest {
@@ -246,6 +324,7 @@ model RTTRequest {
   @@index([status])
   @@index([date])
   @@index([approvedBy])
+  @@index([userId, status])     // calcul solde : approved RTTs par user
 }
 
 model Notification {
@@ -260,4 +339,5 @@ model Notification {
 
   @@index([userId])
   @@index([read])
+  @@index([userId, read])       // cloche : notifications non lues par user
 }

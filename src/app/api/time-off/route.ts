@@ -15,11 +15,37 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing dates' }, { status: 400 })
     }
 
+    const start = new Date(startDate)
+    const end = new Date(endDate)
+
+    if (end < start) {
+      return NextResponse.json(
+        { error: 'La date de fin doit être après la date de début' },
+        { status: 400 }
+      )
+    }
+
+    // Vérifier chevauchement avec demandes existantes (PENDING ou APPROVED)
+    const overlap = await prisma.timeOffRequest.findFirst({
+      where: {
+        userId: session.user.id,
+        status: { in: ['PENDING', 'APPROVED'] },
+        startDate: { lte: end },
+        endDate: { gte: start },
+      },
+    })
+    if (overlap) {
+      return NextResponse.json(
+        { error: 'Cette période chevauche une demande de congé existante' },
+        { status: 409 }
+      )
+    }
+
     const request = await prisma.timeOffRequest.create({
       data: {
         userId: session.user.id,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
+        startDate: start,
+        endDate: end,
         reason: reason || '',
       },
     })

@@ -25,28 +25,46 @@ const features = [
 const pricingTiers = [
   {
     name: 'Free',
+    planKey: 'FREE',
     price: 'Gratuit',
-    limit: '1 admin + 3 employés',
-    features: ['Export 1×/mois', 'Rapports basiques']
+    limit: '1 admin + 3 employes',
+    features: ['Export CSV 1×/mois', 'Rapports basiques', 'Pointage mobile (PWA)'],
+    cta: 'Commencer gratuitement',
+    ctaHref: '/signup',
+    highlight: false,
   },
   {
     name: 'Solo',
-    price: '49€/mois',
-    limit: '1 admin + 10 employés',
-    features: ['Export illimité', 'Support email']
+    planKey: 'SOLO',
+    price: '49€',
+    period: '/mois',
+    limit: '1 admin +10 employés',
+    features: ['Export CSV/PDF illimité', 'Rapports avancés', 'Notifications email', 'Support email'],
+    cta: 'Choisir Solo',
+    ctaHref: '/api/stripe/checkout?plan=solo&billing=monthly',
+    highlight: false,
   },
   {
     name: 'Team',
-    price: '99€/mois',
-    limit: '5 managers + 50 employés',
-    features: ['API RH', 'Support prioritaire', 'Personnalisation']
+    planKey: 'TEAM',
+    price: '99€',
+    period: '/mois',
+    limit: '5 managers +50 employés',
+    features: ['Tout Solo inclus', 'Gestion d\'équipes', 'Rôle Manager', 'Export planifié mensuel', 'Support prioritaire'],
+    cta: 'Choisir Team',
+    ctaHref: '/api/stripe/checkout?plan=team&billing=monthly',
+    highlight: true,
   },
   {
     name: 'Enterprise',
+    planKey: 'ENTERPRISE',
     price: 'Devis',
-    limit: '100+ employés',
-    features: ['SLA', 'Intégrations', 'Support dédié']
-  }
+    limit: 'Employés illimités',
+    features: ['Tout Team inclus', 'Export planifié hebdomadaire', 'Managers illimités', 'SLA garanti', 'Support dédié'],
+    cta: 'Nous contacter',
+    ctaHref: 'mailto:contact@ced-it.be',
+    highlight: false,
+  },
 ]
 
 const faqs = [
@@ -96,7 +114,7 @@ export default function Home() {
                 PoinçOn est l'outil que vous attendiez pour enregistrer le temps légalement, sans complications.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg">Démarrer gratuitement</Button>
+                <a href="/login"><Button size="lg">Se connecter</Button></a>
                 <Button variant="outline" size="lg">Voir une démo</Button>
               </div>
             </div>
@@ -154,27 +172,43 @@ export default function Home() {
           </p>
           <div className="grid md:grid-cols-4 gap-6">
             {pricingTiers.map(tier => (
-              <Card key={tier.name} className="flex flex-col">
-                <h3 className="text-2xl font-bold mb-2 text-[var(--pp-ink)]">
-                  {tier.name}
-                </h3>
-                <div className="text-3xl font-bold mb-2 text-[var(--pp-pos)]">
-                  {tier.price}
+              <div key={tier.name} className={[
+                'rounded-lg border bg-[var(--pp-bg)] p-6 flex flex-col relative',
+                tier.highlight
+                  ? 'border-[var(--pp-info)] ring-2 ring-[var(--pp-info)]'
+                  : 'border-[var(--pp-line)]',
+              ].join(' ')}>
+                {tier.highlight && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[var(--pp-info)] text-white text-xs font-bold px-3 py-1 rounded-full">
+                    Populaire
+                  </div>
+                )}
+                <h3 className="text-2xl font-bold mb-2 text-[var(--pp-ink)]">{tier.name}</h3>
+                <div className="flex items-end gap-1 mb-2">
+                  <span className="text-3xl font-bold text-[var(--pp-pos)]">{tier.price}</span>
+                  {(tier as any).period && <span className="text-sm text-[var(--pp-muted)] mb-1">{(tier as any).period}</span>}
                 </div>
                 <p className="text-sm text-[var(--pp-muted)] mb-6 pb-6 border-b border-[var(--pp-line)]">
                   {tier.limit}
                 </p>
                 <ul className="space-y-3 mb-8 flex-grow">
                   {tier.features.map(feature => (
-                    <li key={feature} className="text-[var(--pp-muted)] text-sm">
-                      ✓ {feature}
+                    <li key={feature} className="text-[var(--pp-muted)] text-sm flex gap-2">
+                      <span className="text-[var(--pp-pos)] shrink-0">✓</span>
+                      <span>{feature}</span>
                     </li>
                   ))}
                 </ul>
-                <Button variant="secondary" size="md" className="w-full">
-                  Essayer
-                </Button>
-              </Card>
+                <a href={tier.ctaHref} className="w-full">
+                  <Button
+                    variant={tier.highlight ? 'primary' : 'secondary'}
+                    size="md"
+                    className="w-full"
+                  >
+                    {tier.cta}
+                  </Button>
+                </a>
+              </div>
             ))}
           </div>
         </div>

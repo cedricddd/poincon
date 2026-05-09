@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/end-of-day-reminder",
+      "schedule": "0 15 * * 1-5"
+    },
+    {
+      "path": "/api/cron/anonymize-old-logs",
+      "schedule": "0 3 1 1 *"
+    }
+  ]
+}

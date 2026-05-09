@@ -16,17 +16,34 @@ export async function POST(req: NextRequest) {
     }
 
     const hours = parseFloat(hoursToRecover)
-    if (hours <= 0 || hours > 8) {
+    if (hours <= 0 || hours > 24) {
       return NextResponse.json(
-        { error: 'Hours must be between 0.5 and 8' },
+        { error: 'Le nombre d\'heures doit être entre 0.5 et 24' },
         { status: 400 }
+      )
+    }
+
+    const rttDate = new Date(date)
+
+    // Vérifier doublon sur la même date (PENDING ou APPROVED)
+    const overlap = await prisma.rTTRequest.findFirst({
+      where: {
+        userId: session.user.id,
+        status: { in: ['PENDING', 'APPROVED'] },
+        date: rttDate,
+      },
+    })
+    if (overlap) {
+      return NextResponse.json(
+        { error: 'Une demande RTT existe déjà pour cette date' },
+        { status: 409 }
       )
     }
 
     const request = await prisma.rTTRequest.create({
       data: {
         userId: session.user.id,
-        date: new Date(date),
+        date: rttDate,
         hoursToRecover: hours,
         reason: reason || '',
       },

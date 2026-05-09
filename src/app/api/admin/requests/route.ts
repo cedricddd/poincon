@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
           },
         },
       },
-      orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
+      orderBy: { createdAt: 'desc' },
     })
 
     // Get all time off requests with user info
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
           },
         },
       },
-      orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
+      orderBy: { createdAt: 'desc' },
     })
 
     // Get all RTT requests with user info
@@ -57,11 +57,16 @@ export async function GET(req: NextRequest) {
           },
         },
       },
-      orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
+      orderBy: { createdAt: 'desc' },
     })
 
+    const statusOrder = (s: string) => (s === 'PENDING' ? 0 : 1)
+
+    const sort = <T extends { status: string; createdAt?: Date }>(arr: T[]) =>
+      [...arr].sort((a, b) => statusOrder(a.status) - statusOrder(b.status))
+
     return NextResponse.json({
-      overtimes: overtimes.map(ot => ({
+      overtimes: sort(overtimes).map(ot => ({
         id: ot.id,
         userId: ot.userId,
         date: ot.date.toISOString(),
@@ -72,7 +77,7 @@ export async function GET(req: NextRequest) {
         userName: ot.user.name || 'Sans nom',
         userEmail: ot.user.email,
       })),
-      timeOffs: timeOffs.map(to => ({
+      timeOffs: sort(timeOffs).map(to => ({
         id: to.id,
         userId: to.userId,
         startDate: to.startDate.toISOString(),
@@ -82,7 +87,7 @@ export async function GET(req: NextRequest) {
         userName: to.user.name || 'Sans nom',
         userEmail: to.user.email,
       })),
-      rtts: rtts.map(rtt => ({
+      rtts: sort(rtts).map(rtt => ({
         id: rtt.id,
         userId: rtt.userId,
         date: rtt.date.toISOString(),

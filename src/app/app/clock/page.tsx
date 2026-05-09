@@ -24,6 +24,11 @@ interface WeeklyRecord {
   hours: number
 }
 
+interface Site {
+  id: string
+  name: string
+}
+
 const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven']
 
 export default function ClockPage() {
@@ -44,6 +49,19 @@ export default function ClockPage() {
   ])
   const [loading, setLoading] = useState(false)
   const [viewMode, setViewMode] = useState<'week' | 'month'>('week')
+  const [sites, setSites] = useState<Site[]>([])
+  const [selectedSiteId, setSelectedSiteId] = useState<string>('')
+
+  // Load sites and default site
+  useEffect(() => {
+    fetch('/api/user/sites')
+      .then(r => r.json())
+      .then(({ sites, defaultSiteId }) => {
+        setSites(sites)
+        setSelectedSiteId(defaultSiteId ?? '')
+      })
+      .catch(() => {})
+  }, [])
 
   // Load clock records for today
   useEffect(() => {
@@ -139,6 +157,7 @@ export default function ClockPage() {
           body: JSON.stringify({
             arrivalTime: currentTime.toISOString(),
             location,
+            ...(selectedSiteId && { siteId: selectedSiteId }),
           }),
         })
 
@@ -256,7 +275,7 @@ export default function ClockPage() {
                 <h3 className="text-sm font-bold text-[var(--pp-ink)] mb-4">
                   Historique semaine
                 </h3>
-                <div className="grid grid-cols-5 gap-2">
+                <div className="grid grid-cols-5 gap-1 sm:gap-2">
                   {weeklyRecords.map((record, idx) => (
                     <div key={idx} className="text-center">
                       <div className="text-xs text-[var(--pp-muted)] mb-2">
@@ -284,7 +303,7 @@ export default function ClockPage() {
           <div className="lg:order-2 order-first space-y-8" suppressHydrationWarning>
             {/* Current Time */}
             <div className="text-center" suppressHydrationWarning>
-              <div className="text-6xl font-bold font-mono text-[var(--pp-ink)] mb-2">
+              <div className="text-5xl md:text-6xl font-bold font-mono text-[var(--pp-ink)] mb-2">
                 {formatTime(currentTime)}
               </div>
               <div className="text-lg text-[var(--pp-muted)] capitalize">
@@ -292,10 +311,30 @@ export default function ClockPage() {
               </div>
             </div>
 
+            {/* Site Selector */}
+            {sites.length > 0 && (
+              <div>
+                <label className="block text-sm font-medium text-[var(--pp-ink)] mb-3">
+                  Site
+                </label>
+                <select
+                  value={selectedSiteId}
+                  onChange={e => setSelectedSiteId(e.target.value)}
+                  disabled={isClockedIn}
+                  className="w-full px-4 py-3 border border-[var(--pp-line)] rounded-lg bg-[var(--pp-bg)] text-[var(--pp-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] disabled:opacity-60"
+                >
+                  <option value="">— Aucun site —</option>
+                  {sites.map(s => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             {/* Location Selector */}
             <div>
               <label className="block text-sm font-medium text-[var(--pp-ink)] mb-3">
-                Localisation
+                Mode de travail
               </label>
               <select
                 value={location}
@@ -332,7 +371,7 @@ export default function ClockPage() {
             <Button
               onClick={handleClockToggle}
               disabled={loading}
-              className="w-full h-40 text-2xl font-bold"
+              className="w-full h-28 md:h-40 text-xl md:text-2xl font-bold"
               variant={isClockedIn ? 'primary' : 'primary'}
               size="lg"
               style={{

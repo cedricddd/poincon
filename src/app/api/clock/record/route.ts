@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { arrivalTime, location } = await req.json()
+    const { arrivalTime, location, siteId } = await req.json()
     if (!arrivalTime) {
       return NextResponse.json({ error: 'Missing arrivalTime' }, { status: 400 })
     }
@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
         userId: session.user.id,
         arrivalTime: new Date(arrivalTime),
         location: location || 'Sur site',
+        ...(siteId && { siteId }),
       },
     })
 

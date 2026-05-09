@@ -35,6 +35,12 @@ export function BalanceWidget() {
     }
 
     loadBalance()
+    const interval = setInterval(loadBalance, 60000)
+    window.addEventListener('balance:refresh', loadBalance)
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener('balance:refresh', loadBalance)
+    }
   }, [])
 
   if (loading || !balance) {

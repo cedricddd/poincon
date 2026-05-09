@@ -24,8 +24,12 @@ export function NotificationBell() {
       const res = await fetch('/api/notifications')
       if (res.ok) {
         const data = await res.json()
+        const newUnread = data.filter((n: Notification) => !n.read).length
         setNotifications(data)
-        setUnreadCount(data.filter((n: Notification) => !n.read).length)
+        setUnreadCount(prev => {
+          if (newUnread > prev) window.dispatchEvent(new Event('balance:refresh'))
+          return newUnread
+        })
       }
     } catch (error) {
       console.error('Failed to fetch notifications:', error)
@@ -86,7 +90,7 @@ export function NotificationBell() {
 
       {/* Dropdown Menu */}
       {open && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 w-96 max-w-[calc(100vw-32px)] bg-[var(--pp-bg)] rounded-lg shadow-2xl border border-[var(--pp-line)] z-50">
+        <div className="absolute left-0 top-full mt-2 w-80 bg-white rounded-lg shadow-2xl border border-[var(--pp-line)] z-[9999]">
           {/* Header */}
           <div className="p-4 border-b border-[var(--pp-line)] bg-[var(--pp-info)]/5">
             <div className="flex items-center justify-between">
@@ -112,15 +116,15 @@ export function NotificationBell() {
                 {notifications.slice(0, 5).map(notif => (
                   <div
                     key={notif.id}
-                    className={`p-4 border-l-4 transition-colors ${
+                    className={`p-4 border-l-4 transition-colors bg-white ${
                       notif.type === 'success'
-                        ? 'bg-[var(--pp-pos)]/5 border-l-[var(--pp-pos)] text-[var(--pp-pos)]'
+                        ? 'border-l-[var(--pp-pos)] text-[var(--pp-pos)]'
                         : notif.type === 'error'
-                          ? 'bg-[var(--pp-neg)]/5 border-l-[var(--pp-neg)] text-[var(--pp-neg)]'
-                          : 'bg-[var(--pp-info)]/5 border-l-[var(--pp-info)] text-[var(--pp-info)]'
-                    } hover:bg-opacity-10 cursor-pointer`}
+                          ? 'border-l-[var(--pp-neg)] text-[var(--pp-neg)]'
+                          : 'border-l-[var(--pp-info)] text-[var(--pp-info)]'
+                    } hover:bg-gray-50 cursor-pointer`}
                   >
-                    <div className={`text-sm font-medium ${!notif.read ? 'font-bold' : ''}`}>
+                    <div className={`text-sm font-medium break-words ${!notif.read ? 'font-bold' : ''}`}>
                       {notif.message}
                     </div>
                     <div className="text-xs opacity-60 mt-2 flex items-center justify-between">

@@ -137,15 +137,15 @@ export default function RTTPage() {
       {/* Header */}
       <header className="sticky top-0 border-b border-[var(--pp-line)] bg-[var(--pp-bg)]/95 backdrop-blur py-4">
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Demandes RTT</h1>
-            <p className="text-sm text-[var(--pp-muted)] mt-1">
+          <div className="min-w-0">
+            <h1 className="text-xl md:text-2xl font-bold text-[var(--pp-ink)]">Demandes RTT</h1>
+            <p className="text-xs md:text-sm text-[var(--pp-muted)] mt-1 hidden sm:block">
               Récupération Temps Travail - Partir plus tôt avec vos heures sup
             </p>
           </div>
-          <div className="text-right">
-            <p className="text-xs text-[var(--pp-muted)]">Heures RTT approuvées</p>
-            <p className="text-2xl font-bold text-[var(--pp-pos)]">{totalApprovedHours.toFixed(1)}h</p>
+          <div className="text-right shrink-0">
+            <p className="text-xs text-[var(--pp-muted)]">RTT approuvés</p>
+            <p className="text-xl md:text-2xl font-bold text-[var(--pp-pos)]">{totalApprovedHours.toFixed(1)}h</p>
           </div>
         </div>
       </header>
@@ -306,12 +306,12 @@ export default function RTTPage() {
                       {request.status === 'PENDING' && (
                         <div className="mt-3 flex gap-2">
                           <button
-                            className="flex-1 px-3 py-1 text-xs rounded-lg bg-current/20 hover:bg-current/30 transition font-medium"
+                            className="flex-1 px-3 py-2 text-sm rounded-lg bg-current/20 hover:bg-current/30 transition font-medium"
                           >
                             Détails
                           </button>
                           <button
-                            className="flex-1 px-3 py-1 text-xs rounded-lg bg-[var(--pp-neg)]/20 text-[var(--pp-neg)] hover:bg-[var(--pp-neg)]/30 transition font-medium"
+                            className="flex-1 px-3 py-2 text-sm rounded-lg bg-[var(--pp-neg)]/20 text-[var(--pp-neg)] hover:bg-[var(--pp-neg)]/30 transition font-medium"
                           >
                             Annuler
                           </button>

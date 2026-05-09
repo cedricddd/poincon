@@ -3,100 +3,78 @@ import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(req: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+async function requireAdmin() {
+  const session = await getServerSession(authOptions)
+  if (!session?.user?.id) return null
+  const user = await prisma.user.findUnique({ where: { id: session.user.id } })
+  return user?.role === 'ADMIN' ? session : null
+}
 
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-    })
+export async function GET() {
+  const session = await requireAdmin()
+  if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-    if (user?.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
-
-    // Get all employees with their schedules
-    const schedules = await prisma.userSchedule.findMany({
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
+  // Return all users with their schedule (or null if none assigned)
+  const users = await prisma.user.findMany({
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      userSchedule: {
+        include: { workSchedule: true },
       },
-      orderBy: { user: { name: 'asc' } },
-    })
+    },
+    orderBy: { name: 'asc' },
+  })
 
-    return NextResponse.json({ schedules })
-  } catch (error) {
-    console.error('Failed to fetch schedules:', error)
-    return NextResponse.json({ error: 'Failed to fetch schedules' }, { status: 500 })
-  }
+  // Shape to match previous API + new data
+  const schedules = users.map(u => ({
+    userId: u.id,
+    user: { id: u.id, name: u.name, email: u.email },
+    hoursPerDay: u.userSchedule?.hoursPerDay ?? 8,
+    scheduleId: u.userSchedule?.scheduleId ?? null,
+    workSchedule: u.userSchedule?.workSchedule ?? null,
+  }))
+
+  return NextResponse.json({ schedules })
 }
 
 export async function PATCH(req: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+  const session = await requireAdmin()
+  if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-    const admin = await prisma.user.findUnique({
-      where: { id: session.user.id },
+  const { userId, scheduleType } = await req.json()
+  if (!userId) return NextResponse.json({ error: 'userId requis' }, { status: 400 })
+
+  let resolvedHours = 8
+  let resolvedScheduleId: string | null = null
+
+  if (scheduleType) {
+    // Find canonical preset for this type to get hoursPerDay
+    const preset = await prisma.workSchedule.findFirst({
+      where: { type: scheduleType, isPreset: true },
     })
-
-    if (admin?.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
-
-    const { userId, hoursPerDay } = await req.json()
-
-    if (!userId || hoursPerDay === undefined) {
-      return NextResponse.json({ error: 'Missing userId or hoursPerDay' }, { status: 400 })
-    }
-
-    if (hoursPerDay <= 0 || hoursPerDay > 24) {
-      return NextResponse.json({ error: 'Hours must be between 0 and 24' }, { status: 400 })
-    }
-
-    // Update or create schedule
-    const schedule = await prisma.userSchedule.upsert({
-      where: { userId },
-      update: { hoursPerDay },
-      create: {
-        userId,
-        hoursPerDay,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
-    })
-
-    // Log audit
-    await prisma.auditLog.create({
-      data: {
-        userId: session.user.id,
-        action: 'admin_update_schedule',
-        resource: 'UserSchedule',
-        resourceId: userId,
-        changes: JSON.stringify({ hoursPerDay }),
-      },
-    })
-
-    return NextResponse.json(schedule)
-  } catch (error) {
-    console.error('Failed to update schedule:', error)
-    return NextResponse.json({ error: 'Failed to update schedule' }, { status: 500 })
+    if (!preset) return NextResponse.json({ error: 'Type d\'horaire inconnu' }, { status: 400 })
+    resolvedHours = preset.hoursPerDay
+    resolvedScheduleId = preset.id
   }
+
+  const schedule = await prisma.userSchedule.upsert({
+    where: { userId },
+    update: { hoursPerDay: resolvedHours, scheduleId: resolvedScheduleId },
+    create: { userId, hoursPerDay: resolvedHours, scheduleId: resolvedScheduleId },
+    include: { workSchedule: true },
+  })
+
+  await prisma.auditLog.create({
+    data: {
+      userId: session.user.id,
+      action: 'admin_update_schedule',
+      resource: 'UserSchedule',
+      resourceId: userId,
+      changes: JSON.stringify({ scheduleType, hoursPerDay: resolvedHours }),
+    },
+  })
+
+  return NextResponse.json(schedule)
 }

@@ -1,91 +1,54 @@
-# PoinCon — Next.js 15 Legal Compliance App
+# PoinçOn — Next.js 15 · Pointage légal belge
 
-**Golden Rule**: Always prefix commands with `rtk`. Safe on all commands — passes through if no filter exists.
-
-```bash
-rtk npm install && rtk next dev
-rtk next build && rtk next start
-rtk git add . && rtk git commit -m "msg" && rtk git push
-```
+**Golden Rule**: Always prefix commands with `rtk`.
+`rtk git add . && rtk git commit -m "msg" && rtk git push`
 
 ## Stack
 
-| Layer | Tech | Why |
-|-------|------|-----|
-| **Frontend** | Next.js 15 (App Router) | SSR, mobile-ready, fast deploy |
-| **Database** | PostgreSQL | Audit trail, legal compliance |
-| **Auth** | NextAuth v5 | JWT + session, RGPD-compliant |
-| **Styling** | CSS Modules + Tailwind | Responsive + theme variables |
-| **Deploy** | Vercel + Docker | Scalable, EU residency option |
-| **Mobile** | PWA (responsive web) | No app store friction |
-| **Logging** | Prisma + audit table | Legal traceability |
+Next.js 15 App Router · PostgreSQL · NextAuth v5 · Tailwind · Docker · PWA · Prisma · Stripe
 
-## Key Skills & Triggers
+## Docker Workflow (app runs ONLY in Docker — Prisma Windows incompatible)
 
-**Activate with context:**
-- `/rtk-dev` — when building/testing/linting
-- `/frontend-design` — when building UI components
-- `/backend-patterns` — repository/service layer, auth, rate limiting
-- `/nextjs-app-router-patterns` — App Router patterns, layouts, middleware
-- `/security-review` — audit routes, auth, API endpoints
-- `/deploy-portainer` — deploy to Docker/NAS when ready
-
-## Commands
-
-```bash
-# Dev server (watches file changes)
-rtk npm run dev
-
-# Build for production
-rtk next build
-
-# Start production server
-rtk npm start
-
-# Prisma migrations
-rtk npx prisma migrate dev --name <name>
-rtk npx prisma generate
-
-# Database seed (if applicable)
-rtk npx prisma db seed
-
-# Testing
-rtk npm test
-rtk npm run test:watch
-
-# Linting
-rtk npm run lint
-rtk npm run lint:fix
+```powershell
+docker-compose -f docker-compose.dev.yml up -d          # start
+docker-compose -f docker-compose.dev.yml down            # stop
+docker-compose -f docker-compose.dev.yml logs -f app     # logs
+docker-compose -f docker-compose.dev.yml run --rm -e DATABASE_URL=postgresql://poincon:poincon_dev_password@db:5432/poincon app sh -c "apk add --no-cache openssl && npx prisma db push --skip-generate"  # schema sync
 ```
 
-## Deployment
+## Key Facts
 
-- **Vercel**: Auto-deploy on git push to main
-- **Docker/NAS**: Manual via `/deploy-portainer`
-- **Database**: PostgreSQL (Vercel Postgres or self-hosted)
+- **DB port**: 5433 externe (5432 pris par Veeam)
+- **DB interne Docker**: `postgresql://poincon:poincon_dev_password@db:5432/poincon`
+- **Migrations**: `db push` (pas `migrate dev` — shadow DB incompatible)
+- **Hot reload**: `WATCHPACK_POLLING=true`
+- **Seed plans**: `node prisma/seed.js` (dans container)
 
-## Project Structure
+## Roles: ADMIN | MANAGER | EMPLOYEE
 
-```
-src/
-├── app/              # Next.js 15 App Router
-│   ├── layout.tsx    # Root layout
-│   ├── page.tsx      # Home
-│   └── api/          # API routes
-├── components/       # React components
-├── lib/              # Utilities, helpers
-├── styles/           # Global + CSS Modules
-└── prisma/           # Database schema
-```
+- ADMIN → `/admin/dashboard/*` (full access)
+- MANAGER → `/manager/dashboard` (équipe uniquement)
+- EMPLOYEE → `/app/*`
 
-## Time Tracking
+## Plans: FREE | SOLO | TEAM | ENTERPRISE
 
-Sessions logged to `project-time.json`. Auto-sync with Obsidian.
+- Helper: `src/lib/plan.ts` → `planCanAccess(plan, feature)`
+- Stripe: `/api/stripe/checkout?plan=solo&billing=monthly`
+- Webhook: `/api/stripe/webhook`
 
-```bash
-/track-time "Task description"  # Log current session
-```
+## Crons (busybox crond en Docker prod)
 
----
+- `0 15 * * 1-5` → `/api/cron/end-of-day-reminder` (17h belge)
+- `0 5 * * 1` → `/api/cron/scheduled-export` (lundi, Enterprise)
+- `0 5 1 * *` → `/api/cron/scheduled-export` (1er mois, Team)
+- `0 3 1 1 *` → `/api/cron/anonymize-old-logs` (1er jan, RGPD 3 ans)
+- Secret: `CRON_SECRET` header `x-cron-secret`
 
-**Next**: Initialize git, create .env.local, set up Prisma schema.
+## Key Skills
+
+`/poincon-dev` · `/rtk-dev` · `/security-review` · `/deploy-portainer` · `/nextjs-app-router-patterns`
+
+## Deploy
+
+- Vercel: auto push to main
+- Docker/NAS: `/deploy-portainer`

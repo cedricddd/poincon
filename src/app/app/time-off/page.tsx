@@ -283,12 +283,12 @@ export default function TimeOffPage() {
                       {request.status === 'PENDING' && (
                         <div className="mt-3 flex gap-2">
                           <button
-                            className="flex-1 px-3 py-1 text-xs rounded-lg bg-current/20 hover:bg-current/30 transition font-medium"
+                            className="flex-1 px-3 py-2 text-sm rounded-lg bg-current/20 hover:bg-current/30 transition font-medium"
                           >
                             Détails
                           </button>
                           <button
-                            className="flex-1 px-3 py-1 text-xs rounded-lg bg-[var(--pp-neg)]/20 text-[var(--pp-neg)] hover:bg-[var(--pp-neg)]/30 transition font-medium"
+                            className="flex-1 px-3 py-2 text-sm rounded-lg bg-[var(--pp-neg)]/20 text-[var(--pp-neg)] hover:bg-[var(--pp-neg)]/30 transition font-medium"
                           >
                             Annuler
                           </button>

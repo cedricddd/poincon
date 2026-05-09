@@ -1,0 +1,177 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { showToast } from '@/hooks/useToast'
+
+interface RequestUser { id: string; name: string | null; email: string }
+interface Overtime { id: string; userId: string; date: string; overtimeHours: number; status: string; user: RequestUser }
+interface TimeOff { id: string; userId: string; startDate: string; endDate: string; reason?: string; status: string; user: RequestUser }
+interface RTT { id: string; userId: string; date: string; hoursToRecover: number; reason?: string; status: string; user: RequestUser }
+
+const STATUS_COLORS: Record<string, string> = {
+  PENDING: 'bg-yellow-100 text-yellow-800',
+  APPROVED: 'bg-green-100 text-green-800',
+  REJECTED: 'bg-red-100 text-red-800',
+}
+
+export default function ManagerDashboard() {
+  const [overtimes, setOvertimes] = useState<Overtime[]>([])
+  const [timeOffs, setTimeOffs] = useState<TimeOff[]>([])
+  const [rtts, setRtts] = useState<RTT[]>([])
+  const [upcomingLeaves, setUpcomingLeaves] = useState<TimeOff[]>([])
+  const [loading, setLoading] = useState(true)
+  const [acting, setActing] = useState<string | null>(null)
+
+  const fetchData = async () => {
+    const [reqRes, calRes] = await Promise.all([
+      fetch('/api/manager/requests'),
+      fetch('/api/manager/team-calendar'),
+    ])
+    if (reqRes.ok) {
+      const data = await reqRes.json()
+      setOvertimes(data.overtimes ?? [])
+      setTimeOffs(data.timeOffs ?? [])
+      setRtts(data.rtts ?? [])
+    }
+    if (calRes.ok) {
+      const data = await calRes.json()
+      setUpcomingLeaves(data.timeOffs ?? [])
+    }
+    setLoading(false)
+  }
+
+  useEffect(() => { fetchData() }, [])
+
+  const act = async (type: string, requestId: string, action: 'approve' | 'reject') => {
+    setActing(requestId)
+    const res = await fetch('/api/manager/approve', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, requestId, action }),
+    })
+    if (res.ok) {
+      showToast(action === 'approve' ? 'Approuvé' : 'Refusé', action === 'approve' ? 'success' : 'error')
+      fetchData()
+    } else {
+      showToast('Erreur', 'error')
+    }
+    setActing(null)
+  }
+
+  const fmtDate = (d: string) => new Date(d).toLocaleDateString('fr-BE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+
+  const pendingCount = [...overtimes, ...timeOffs, ...rtts].filter(r => r.status === 'PENDING').length
+
+  if (loading) return <div className="p-8 text-center">Chargement...</div>
+
+  return (
+    <div className="p-6 max-w-5xl mx-auto space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Dashboard Manager</h1>
+        <p className="text-sm text-[var(--pp-muted)] mt-1">
+          {pendingCount > 0 ? `${pendingCount} demande${pendingCount > 1 ? 's' : ''} en attente` : 'Aucune demande en attente'}
+        </p>
+      </div>
+
+      {/* Prochains congés de l'équipe */}
+      <div className="bg-white border border-[var(--pp-line)] rounded-xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-[var(--pp-line)] flex items-center justify-between bg-[var(--pp-info)]/5">
+          <h2 className="font-semibold text-[var(--pp-ink)]">Prochains congés — 30 jours</h2>
+          <span className="text-xs text-[var(--pp-muted)]">{upcomingLeaves.length} absence{upcomingLeaves.length !== 1 ? 's' : ''}</span>
+        </div>
+        {upcomingLeaves.length === 0 ? (
+          <p className="px-5 py-4 text-sm text-[var(--pp-muted)]">Aucun congé prévu dans les 30 prochains jours.</p>
+        ) : (
+          <div className="divide-y divide-[var(--pp-line)]">
+            {upcomingLeaves.map(t => (
+              <div key={t.id} className="flex items-center justify-between px-5 py-3">
+                <div>
+                  <span className="text-sm font-medium text-[var(--pp-ink)]">{t.user.name ?? t.user.email}</span>
+                  {t.reason && <span className="text-xs text-[var(--pp-muted)] ml-2">— {t.reason}</span>}
+                </div>
+                <span className="text-xs text-[var(--pp-muted)] shrink-0">
+                  {fmtDate(t.startDate)} → {fmtDate(t.endDate)}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Heures supplémentaires */}
+      <Section title="Heures Supplémentaires" count={overtimes.filter(o => o.status === 'PENDING').length}>
+        {overtimes.map(o => (
+          <Row key={o.id} user={o.user} status={o.status}
+            detail={`${fmtDate(o.date)} — ${o.overtimeHours.toFixed(1)}h sup`}
+            onApprove={() => act('overtime', o.id, 'approve')}
+            onReject={() => act('overtime', o.id, 'reject')}
+            loading={acting === o.id}
+          />
+        ))}
+      </Section>
+
+      {/* Congés */}
+      <Section title="Demandes de Congé" count={timeOffs.filter(t => t.status === 'PENDING').length}>
+        {timeOffs.map(t => (
+          <Row key={t.id} user={t.user} status={t.status}
+            detail={`${fmtDate(t.startDate)} → ${fmtDate(t.endDate)}${t.reason ? ` — ${t.reason}` : ''}`}
+            onApprove={() => act('timeoff', t.id, 'approve')}
+            onReject={() => act('timeoff', t.id, 'reject')}
+            loading={acting === t.id}
+          />
+        ))}
+      </Section>
+
+      {/* RTT */}
+      <Section title="Demandes RTT" count={rtts.filter(r => r.status === 'PENDING').length}>
+        {rtts.map(r => (
+          <Row key={r.id} user={r.user} status={r.status}
+            detail={`${fmtDate(r.date)} — ${r.hoursToRecover}h${r.reason ? ` — ${r.reason}` : ''}`}
+            onApprove={() => act('rtt', r.id, 'approve')}
+            onReject={() => act('rtt', r.id, 'reject')}
+            loading={acting === r.id}
+          />
+        ))}
+      </Section>
+    </div>
+  )
+}
+
+function Section({ title, count, children }: { title: string; count: number; children: React.ReactNode }) {
+  return (
+    <div className="bg-white border border-[var(--pp-line)] rounded-xl overflow-hidden">
+      <div className="px-5 py-4 border-b border-[var(--pp-line)] flex items-center justify-between bg-[var(--pp-info)]/5">
+        <h2 className="font-semibold text-[var(--pp-ink)]">{title}</h2>
+        {count > 0 && (
+          <span className="text-xs font-medium px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded-full">{count} en attente</span>
+        )}
+      </div>
+      <div className="divide-y divide-[var(--pp-line)]">{children}</div>
+    </div>
+  )
+}
+
+function Row({ user, status, detail, onApprove, onReject, loading }: {
+  user: RequestUser; status: string; detail: string
+  onApprove: () => void; onReject: () => void; loading: boolean
+}) {
+  return (
+    <div className="flex items-center justify-between px-5 py-3 gap-4">
+      <div className="min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-[var(--pp-ink)] truncate">{user.name ?? user.email}</span>
+          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[status] ?? ''}`}>{status}</span>
+        </div>
+        <p className="text-xs text-[var(--pp-muted)] mt-0.5 truncate">{detail}</p>
+      </div>
+      {status === 'PENDING' && (
+        <div className="flex gap-2 shrink-0">
+          <button onClick={onApprove} disabled={loading}
+            className="w-8 h-8 flex items-center justify-center bg-green-100 text-green-700 rounded-lg hover:bg-green-200 disabled:opacity-50">✓</button>
+          <button onClick={onReject} disabled={loading}
+            className="w-8 h-8 flex items-center justify-center bg-red-100 text-red-700 rounded-lg hover:bg-red-200 disabled:opacity-50">✗</button>
+        </div>
+      )}
+    </div>
+  )
+}

@@ -1,0 +1,69 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: poincon-db
+    environment:
+      POSTGRES_USER: ${DB_USER:-poincon}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-poincon_dev_password}
+      POSTGRES_DB: ${DB_NAME:-poincon}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-poincon}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - poincon-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: poincon-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${DB_USER:-poincon}:${DB_PASSWORD:-poincon_dev_password}@db:5432/${DB_NAME:-poincon}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:?NEXTAUTH_SECRET must be set}
+      CRON_SECRET: ${CRON_SECRET:?CRON_SECRET must be set}
+      BREVO_SMTP_USER: ${BREVO_SMTP_USER:-}
+      BREVO_SMTP_KEY: ${BREVO_SMTP_KEY:-}
+      BREVO_FROM_EMAIL: ${BREVO_FROM_EMAIL:-noreply@example.com}
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    networks:
+      - poincon-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  cron:
+    image: busybox:latest
+    container_name: poincon-cron
+    depends_on:
+      - app
+    environment:
+      CRON_SECRET: ${CRON_SECRET:?CRON_SECRET must be set}
+    command: >
+      sh -c "printf '0 15 * * 1-5 wget -q -O /dev/null --header=\"x-cron-secret: $${CRON_SECRET}\" http://app:3000/api/cron/end-of-day-reminder\n0 5 * * 1 wget -q -O /dev/null --header=\"x-cron-secret: $${CRON_SECRET}\" http://app:3000/api/cron/scheduled-export\n0 5 1 * * wget -q -O /dev/null --header=\"x-cron-secret: $${CRON_SECRET}\" http://app:3000/api/cron/scheduled-export\n' > /etc/crontabs/root
+      && crond -f -d 8"
+    restart: unless-stopped
+    networks:
+      - poincon-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  poincon-network:
+    driver: bridge

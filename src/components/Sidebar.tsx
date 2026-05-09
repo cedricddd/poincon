@@ -2,8 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useSession } from 'next-auth/react'
-import { NotificationBell } from './NotificationBell'
+import { useSession, signOut } from 'next-auth/react'
 
 export function Sidebar() {
   const pathname = usePathname()
@@ -18,22 +17,23 @@ export function Sidebar() {
     { href: '/app/reports', label: '📊 Rapports', icon: '📈' },
   ]
 
-  const isAdminSection = (session?.user as any)?.role === 'ADMIN'
+  const role = (session?.user as any)?.role
+  const isAdminSection = role === 'ADMIN'
+  const isManagerSection = role === 'MANAGER' || role === 'ADMIN'
   const adminSubLinks = [
     { href: '/admin/dashboard/overtimes', label: '⏱️ Heures Sup.' },
     { href: '/admin/dashboard/timeoffs', label: '🏖️ Congés' },
     { href: '/admin/dashboard/rtts', label: '🚀 RTT' },
     { href: '/admin/dashboard/schedules', label: '📅 Horaires' },
+    { href: '/admin/dashboard/presence', label: '🟢 Présences' },
+    { href: '/admin/dashboard/users', label: '👥 Utilisateurs' },
+    { href: '/admin/dashboard/sites', label: '🏢 Sites' },
+    { href: '/admin/dashboard/teams', label: '🫂 Équipes' },
+    { href: '/admin/dashboard/reports', label: '📊 Rapports' },
   ]
 
   return (
     <aside className="hidden md:block fixed left-0 top-0 w-64 h-screen border-r border-[var(--pp-line)] bg-[var(--pp-bg)] pt-20 overflow-y-auto">
-      {/* Top Bar with Notifications */}
-      {session && (
-        <div className="px-4 py-4 border-b border-[var(--pp-line)] flex items-center justify-end">
-          <NotificationBell />
-        </div>
-      )}
 
       <nav className="px-4 py-6 space-y-2">
         {links.map(link => (
@@ -50,13 +50,36 @@ export function Sidebar() {
             <span>{link.label}</span>
           </Link>
         ))}
+        {isManagerSection && !isAdminSection && (
+          <>
+            <div className="border-t border-[var(--pp-line)] my-4" />
+            <Link
+              href="/manager/dashboard"
+              className={`flex items-center gap-3 px-4 py-2 text-sm font-semibold rounded-lg transition ${
+                pathname.startsWith('/manager/dashboard')
+                  ? 'text-[var(--pp-ink)]'
+                  : 'text-[var(--pp-muted)] hover:text-[var(--pp-ink)]'
+              }`}
+            >
+              <span className="text-lg">🫂</span>
+              <span>Mon Équipe</span>
+            </Link>
+          </>
+        )}
         {isAdminSection && (
           <>
             <div className="border-t border-[var(--pp-line)] my-4" />
-            <div className="flex items-center gap-3 px-4 py-2 text-sm font-semibold text-[var(--pp-muted)]">
+            <Link
+              href="/admin/dashboard"
+              className={`flex items-center gap-3 px-4 py-2 text-sm font-semibold rounded-lg transition ${
+                pathname.startsWith('/admin/dashboard')
+                  ? 'text-[var(--pp-ink)]'
+                  : 'text-[var(--pp-muted)] hover:text-[var(--pp-ink)]'
+              }`}
+            >
               <span className="text-lg">⚙️</span>
               <span>Admin Dashboard</span>
-            </div>
+            </Link>
             {adminSubLinks.map(link => (
               <Link
                 key={link.href}
@@ -75,10 +98,19 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="px-4 py-6 border-t border-[var(--pp-line)] mt-auto">
-        <p className="text-xs text-[var(--pp-muted)]">
-          PoinçOn v0.1.0
-        </p>
+      <div className="px-4 py-6 border-t border-[var(--pp-line)] mt-auto space-y-3">
+        {session && (
+          <div>
+            <p className="text-xs text-[var(--pp-muted)] truncate">{session.user?.email}</p>
+            <button
+              onClick={() => signOut({ callbackUrl: '/login' })}
+              className="mt-2 w-full text-left text-xs text-[var(--pp-neg)] hover:underline"
+            >
+              Se déconnecter
+            </button>
+          </div>
+        )}
+        <p className="text-xs text-[var(--pp-muted)]">PoinçOn v0.1.0</p>
       </div>
     </aside>
   )
