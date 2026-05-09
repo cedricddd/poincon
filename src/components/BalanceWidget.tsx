@@ -46,7 +46,12 @@ export function BalanceWidget() {
   if (loading || !balance) {
     return (
       <Card>
-        <div className="text-sm text-[var(--pp-muted)]">Chargement...</div>
+        <div className="pp-skel h-4 w-24 mb-4" />
+        <div className="pp-skel h-16 mb-3" />
+        <div className="grid grid-cols-2 gap-2">
+          <div className="pp-skel h-14" />
+          <div className="pp-skel h-14" />
+        </div>
       </Card>
     )
   }

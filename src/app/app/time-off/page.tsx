@@ -15,32 +15,38 @@ interface TimeOffRequest {
   rejectionReason?: string
 }
 
+function StatusBadge({ status }: { status: TimeOffRequest['status'] }) {
+  const cfg = {
+    APPROVED: { label: 'Approuvé',   bg: 'bg-[var(--pp-pos)]/12',  text: 'text-[var(--pp-pos)]',  dot: 'bg-[var(--pp-pos)]' },
+    REJECTED: { label: 'Rejeté',     bg: 'bg-[var(--pp-neg)]/12',  text: 'text-[var(--pp-neg)]',  dot: 'bg-[var(--pp-neg)]' },
+    PENDING:  { label: 'En attente', bg: 'bg-[var(--pp-info)]/12', text: 'text-[var(--pp-info)]', dot: 'bg-[var(--pp-info)]' },
+  }[status]
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${cfg.bg} ${cfg.text}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+      {cfg.label}
+    </span>
+  )
+}
+
+function daysBetween(start: string, end: string) {
+  return Math.ceil((new Date(end).getTime() - new Date(start).getTime()) / 86400000) + 1
+}
+
 export default function TimeOffPage() {
   const [requests, setRequests] = useState<TimeOffRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [formData, setFormData] = useState({ startDate: '', endDate: '', reason: '' })
 
-  const [formData, setFormData] = useState({
-    startDate: '',
-    endDate: '',
-    reason: '',
-  })
-
-  // Load requests on mount
-  useEffect(() => {
-    loadRequests()
-  }, [])
+  useEffect(() => { loadRequests() }, [])
 
   const loadRequests = async () => {
     try {
       setLoading(true)
       const res = await fetch('/api/time-off')
-      if (res.ok) {
-        const data = await res.json()
-        setRequests(data)
-      }
-    } catch (error) {
-      console.error('Failed to load requests:', error)
+      if (res.ok) setRequests(await res.json())
+    } catch {
       showToast('Erreur lors du chargement', 'error')
     } finally {
       setLoading(false)
@@ -49,20 +55,12 @@ export default function TimeOffPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
     if (!formData.startDate || !formData.endDate) {
-      showToast('Veuillez sélectionner les dates', 'warning')
-      return
+      showToast('Veuillez sélectionner les dates', 'warning'); return
     }
-
-    const start = new Date(formData.startDate)
-    const end = new Date(formData.endDate)
-
-    if (end < start) {
-      showToast('La date de fin doit être après la date de début', 'warning')
-      return
+    if (new Date(formData.endDate) < new Date(formData.startDate)) {
+      showToast('La date de fin doit être après le début', 'warning'); return
     }
-
     setSubmitting(true)
     try {
       const res = await fetch('/api/time-off', {
@@ -70,229 +68,137 @@ export default function TimeOffPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       })
-
-      if (!res.ok) {
-        throw new Error('Failed to create request')
-      }
-
+      if (!res.ok) throw new Error()
       showToast('Demande de congé créée ✓', 'success')
       setFormData({ startDate: '', endDate: '', reason: '' })
       await loadRequests()
-    } catch (error) {
-      console.error('Error:', error)
+    } catch {
       showToast('Erreur lors de la création', 'error')
     } finally {
       setSubmitting(false)
     }
   }
 
-  const getDaysBetween = (start: string, end: string) => {
-    const s = new Date(start)
-    const e = new Date(end)
-    const days = Math.ceil((e.getTime() - s.getTime()) / (1000 * 60 * 60 * 24)) + 1
-    return days
-  }
+  const fmt = (d: string) => new Date(d).toLocaleDateString('fr-BE', {
+    weekday: 'short', day: '2-digit', month: 'short', year: 'numeric',
+  })
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'APPROVED':
-        return 'bg-[var(--pp-pos)]/10 text-[var(--pp-pos)] border-[var(--pp-pos)]/20'
-      case 'REJECTED':
-        return 'bg-[var(--pp-neg)]/10 text-[var(--pp-neg)] border-[var(--pp-neg)]/20'
-      default:
-        return 'bg-[var(--pp-info)]/10 text-[var(--pp-info)] border-[var(--pp-info)]/20'
-    }
-  }
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'APPROVED':
-        return '✓ Approuvé'
-      case 'REJECTED':
-        return '✗ Rejeté'
-      default:
-        return '⏳ En attente'
-    }
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('fr-BE', {
-      weekday: 'short',
-      day: '2-digit',
-      month: '2-digit',
-      year: '2-digit',
-    })
-  }
+  const totalApproved = requests.filter(r => r.status === 'APPROVED')
+    .reduce((s, r) => s + daysBetween(r.startDate, r.endDate), 0)
 
   return (
     <div className="min-h-screen bg-[var(--pp-bg)] pb-20">
-      {/* Header */}
-      <header className="sticky top-0 border-b border-[var(--pp-line)] bg-[var(--pp-bg)]/95 backdrop-blur py-4">
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 pt-8">
+
+        {/* Page header */}
+        <div className="flex items-start justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Demandes de Congé</h1>
-            <p className="text-sm text-[var(--pp-muted)] mt-1">Gérez vos demandes de congé</p>
+            <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Demandes de congé</h1>
+            <p className="text-sm text-[var(--pp-muted)] mt-0.5">Gérez vos absences et congés</p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-[var(--pp-muted)]">Jours approuvés</p>
+            <p className="text-2xl font-bold text-[var(--pp-pos)]">{totalApproved}j</p>
           </div>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 pt-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Form Column */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          {/* Form */}
           <div className="lg:col-span-1">
             <Card>
-              <h2 className="text-lg font-bold text-[var(--pp-ink)] mb-4">
-                Nouvelle Demande
-              </h2>
-
+              <h2 className="text-base font-semibold text-[var(--pp-ink)] mb-4">Nouvelle demande</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Start Date */}
                 <div>
-                  <label className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    Date de début
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.startDate}
+                  <label className="block text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1.5">Date de début</label>
+                  <input type="date" value={formData.startDate}
                     onChange={e => setFormData({ ...formData, startDate: e.target.value })}
-                    className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg bg-[var(--pp-bg)] text-[var(--pp-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
-                    required
-                  />
+                    className="w-full px-4 py-3.5 border border-[var(--pp-line)] rounded-xl bg-[var(--pp-bg)] text-[var(--pp-ink)] text-base focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)] touch-manipulation"
+                    required />
                 </div>
-
-                {/* End Date */}
                 <div>
-                  <label className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    Date de fin
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.endDate}
+                  <label className="block text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1.5">Date de fin</label>
+                  <input type="date" value={formData.endDate}
                     onChange={e => setFormData({ ...formData, endDate: e.target.value })}
-                    className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg bg-[var(--pp-bg)] text-[var(--pp-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
-                    required
-                  />
+                    className="w-full px-4 py-3.5 border border-[var(--pp-line)] rounded-xl bg-[var(--pp-bg)] text-[var(--pp-ink)] text-base focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)] touch-manipulation"
+                    required />
                 </div>
 
-                {/* Days Preview */}
                 {formData.startDate && formData.endDate && (
-                  <div className="p-3 rounded-lg bg-[var(--pp-info)]/10 border border-[var(--pp-info)]/20">
-                    <p className="text-sm text-[var(--pp-muted)] mb-1">Durée</p>
-                    <p className="text-lg font-bold text-[var(--pp-info)]">
-                      {getDaysBetween(formData.startDate, formData.endDate)} jour(s)
+                  <div className="p-3 rounded-xl bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)]/20">
+                    <p className="text-xs text-[var(--pp-muted)] mb-0.5">Durée</p>
+                    <p className="text-base font-bold text-[var(--pp-pos)]">
+                      {daysBetween(formData.startDate, formData.endDate)} jour{daysBetween(formData.startDate, formData.endDate) > 1 ? 's' : ''}
                     </p>
                   </div>
                 )}
 
-                {/* Reason */}
                 <div>
-                  <label className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    Motif (optionnel)
-                  </label>
-                  <textarea
-                    value={formData.reason}
+                  <label className="block text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1.5">Motif (optionnel)</label>
+                  <textarea value={formData.reason}
                     onChange={e => setFormData({ ...formData, reason: e.target.value })}
-                    placeholder="Ex: Vacances, Rendez-vous médical, etc."
-                    className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg bg-[var(--pp-bg)] text-[var(--pp-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] resize-none"
-                    rows={3}
-                  />
+                    placeholder="Vacances, rendez-vous médical…"
+                    className="w-full px-3 py-2.5 border border-[var(--pp-line)] rounded-lg bg-[var(--pp-bg)] text-[var(--pp-ink)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)] resize-none"
+                    rows={3} />
                 </div>
 
-                {/* Submit Button */}
-                <Button
-                  type="submit"
-                  disabled={submitting}
-                  className="w-full"
-                  style={{
-                    opacity: submitting ? 0.6 : 1,
-                  }}
-                >
-                  {submitting ? 'Création...' : 'Demander un Congé'}
+                <Button type="submit" disabled={submitting} className="w-full"
+                  style={{ backgroundColor: 'var(--pp-pos)', opacity: submitting ? 0.7 : 1 }}>
+                  {submitting ? 'Envoi…' : 'Demander un congé'}
                 </Button>
               </form>
 
-              {/* Info Box */}
-              <div className="mt-6 p-3 rounded-lg bg-[var(--pp-muted)]/10 text-xs text-[var(--pp-muted)]">
-                <p className="font-medium mb-2">💡 Info</p>
-                <p>Votre demande sera soumise à validation par l'administration.</p>
-                <p className="mt-1">Les demandes approuvées apparaîtront dans votre solde de congés.</p>
+              <div className="mt-5 p-3 rounded-xl bg-[var(--pp-bg2)] text-xs text-[var(--pp-muted)]">
+                <p className="font-semibold text-[var(--pp-ink)] mb-1">Info</p>
+                <p>Votre demande sera soumise à validation. Les congés approuvés apparaissent dans votre solde.</p>
               </div>
             </Card>
           </div>
 
-          {/* Requests List Column */}
+          {/* List */}
           <div className="lg:col-span-2">
             <Card>
-              <h2 className="text-lg font-bold text-[var(--pp-ink)] mb-4">
-                Mes Demandes
-              </h2>
+              <h2 className="text-base font-semibold text-[var(--pp-ink)] mb-4">Mes demandes</h2>
 
               {loading ? (
-                <div className="text-sm text-[var(--pp-muted)]">Chargement...</div>
+                <div className="space-y-3">
+                  {[1, 2, 3].map(i => <div key={i} className="pp-skel h-16" />)}
+                </div>
               ) : requests.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-[var(--pp-muted)] mb-2">Aucune demande</p>
-                  <p className="text-xs text-[var(--pp-muted)]">
-                    Créez votre première demande de congé avec le formulaire
-                  </p>
+                <div className="text-center py-12">
+                  <div className="w-12 h-12 rounded-full bg-[var(--pp-line)] flex items-center justify-center mx-auto mb-3">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--pp-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="4" width="18" height="18" rx="2"/>
+                      <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+                      <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                  </div>
+                  <p className="text-[var(--pp-muted)] font-medium">Aucune demande de congé</p>
+                  <p className="text-xs text-[var(--pp-muted)] mt-1">Créez votre première demande avec le formulaire</p>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {requests.map(request => (
-                    <div
-                      key={request.id}
-                      className={`p-4 rounded-lg border ${getStatusColor(request.status)}`}
-                    >
-                      {/* Status Badge */}
-                      <div className="flex items-start justify-between mb-3">
+                  {requests.map(req => (
+                    <div key={req.id} className="p-4 rounded-xl border border-[var(--pp-line)] bg-[var(--pp-bg)] hover:border-[var(--pp-info)]/30 transition">
+                      <div className="flex items-start justify-between gap-3">
                         <div>
-                          <p className="text-sm font-medium mb-1">
-                            {formatDate(request.startDate)} → {formatDate(request.endDate)}
+                          <p className="text-sm font-semibold text-[var(--pp-ink)]">
+                            {fmt(req.startDate)} → {fmt(req.endDate)}
                           </p>
-                          <p className="text-xs text-current opacity-75">
-                            {getDaysBetween(request.startDate, request.endDate)} jour(s)
+                          <p className="text-xs text-[var(--pp-muted)] mt-0.5">
+                            {daysBetween(req.startDate, req.endDate)} jour{daysBetween(req.startDate, req.endDate) > 1 ? 's' : ''}
                           </p>
+                          {req.reason && <p className="text-xs text-[var(--pp-muted)] mt-1 italic">« {req.reason} »</p>}
                         </div>
-                        <span className="text-xs font-bold px-2 py-1 rounded-full bg-current/20">
-                          {getStatusLabel(request.status)}
-                        </span>
+                        <StatusBadge status={req.status} />
                       </div>
-
-                      {/* Reason */}
-                      {request.reason && (
-                        <p className="text-sm mb-2 opacity-75">{request.reason}</p>
-                      )}
-
-                      {/* Rejection Reason */}
-                      {request.status === 'REJECTED' && request.rejectionReason && (
-                        <div className="mt-2 p-2 rounded bg-current/10 text-xs">
-                          <p className="font-medium mb-1">Motif du rejet:</p>
-                          <p>{request.rejectionReason}</p>
+                      {req.status === 'REJECTED' && req.rejectionReason && (
+                        <div className="mt-3 p-2.5 rounded-lg bg-[var(--pp-neg)]/8 text-xs text-[var(--pp-neg)]">
+                          <span className="font-medium">Motif : </span>{req.rejectionReason}
                         </div>
                       )}
-
-                      {/* Approval Date */}
-                      {request.status === 'APPROVED' && request.approvedAt && (
-                        <p className="text-xs opacity-75 mt-2">
-                          Approuvé le {formatDate(request.approvedAt)}
-                        </p>
-                      )}
-
-                      {/* Actions */}
-                      {request.status === 'PENDING' && (
-                        <div className="mt-3 flex gap-2">
-                          <button
-                            className="flex-1 px-3 py-2 text-sm rounded-lg bg-current/20 hover:bg-current/30 transition font-medium"
-                          >
-                            Détails
-                          </button>
-                          <button
-                            className="flex-1 px-3 py-2 text-sm rounded-lg bg-[var(--pp-neg)]/20 text-[var(--pp-neg)] hover:bg-[var(--pp-neg)]/30 transition font-medium"
-                          >
-                            Annuler
-                          </button>
-                        </div>
+                      {req.status === 'APPROVED' && req.approvedAt && (
+                        <p className="mt-2 text-xs text-[var(--pp-muted)]">Approuvé le {fmt(req.approvedAt)}</p>
                       )}
                     </div>
                   ))}

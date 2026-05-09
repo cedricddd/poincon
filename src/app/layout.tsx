@@ -1,6 +1,10 @@
 import type { Metadata, Viewport } from 'next'
+import { Syne, DM_Sans } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
+
+const syne = Syne({ subsets: ['latin'], variable: '--font-syne', display: 'swap' })
+const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-dm-sans', display: 'swap' })
 
 export const metadata: Metadata = {
   title: 'PoinçOn - Pointeuse Légale Belgique 2027',
@@ -17,7 +21,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  themeColor: '#2563eb',
+  themeColor: '#10b981',
 }
 
 export default function RootLayout({
@@ -26,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="fr" suppressHydrationWarning>
+    <html lang="fr" suppressHydrationWarning className={`${syne.variable} ${dmSans.variable}`}>
       <head>
         <meta charSet="utf-8" />
         <link rel="apple-touch-icon" href="/icon-192.svg" />
@@ -34,10 +38,17 @@ export default function RootLayout({
       <body className="antialiased" suppressHydrationWarning>
         <Providers>{children}</Providers>
         <script dangerouslySetInnerHTML={{ __html: `
+          (function() {
+            try {
+              var t = localStorage.getItem('pp-theme');
+              if (t === 'dark') document.documentElement.classList.add('dark');
+              else if (t === 'light') document.documentElement.classList.add('light');
+            } catch(e) {}
+          })();
           if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-              navigator.serviceWorker.register('/sw.js')
-            })
+            window.addEventListener('load', function() {
+              navigator.serviceWorker.register('/sw.js');
+            });
           }
         `}} />
       </body>

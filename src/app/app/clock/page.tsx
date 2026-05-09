@@ -1,11 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 import { MonthlyCalendar } from '@/components/MonthlyCalendar'
 import { BalanceWidget } from '@/components/BalanceWidget'
 import { showToast } from '@/hooks/useToast'
+import { useOfflineSync } from '@/hooks/useOfflineSync'
 
 interface ClockRecord {
   id: string
@@ -29,9 +31,9 @@ interface Site {
   name: string
 }
 
-const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven']
-
 export default function ClockPage() {
+  const { data: session } = useSession()
+  const { isOnline, savePendingAction } = useOfflineSync()
   const [isClockedIn, setIsClockedIn] = useState(false)
   const [currentTime, setCurrentTime] = useState<Date | null>(null)
   const [location, setLocation] = useState('Sur site')
@@ -39,6 +41,8 @@ export default function ClockPage() {
   const [arrivalTime, setArrivalTime] = useState<string | null>(null)
   const [departureTime, setDepartureTime] = useState<string | null>(null)
   const [currentRecordId, setCurrentRecordId] = useState<string | null>(null)
+  const [clockedInAt, setClockedInAt] = useState<Date | null>(null)
+  const [elapsed, setElapsed] = useState('')
   const [sessions, setSessions] = useState<ClockRecord[]>([])
   const [weeklyRecords, setWeeklyRecords] = useState<WeeklyRecord[]>([
     { date: 'Mon', day: 'Lun', hours: 8.5 },
@@ -52,7 +56,7 @@ export default function ClockPage() {
   const [sites, setSites] = useState<Site[]>([])
   const [selectedSiteId, setSelectedSiteId] = useState<string>('')
 
-  // Load sites and default site
+  // Load sites
   useEffect(() => {
     fetch('/api/user/sites')
       .then(r => r.json())
@@ -65,384 +69,387 @@ export default function ClockPage() {
 
   // Load clock records for today
   useEffect(() => {
-    const loadTodayRecords = async () => {
+    const load = async () => {
       try {
         const res = await fetch('/api/clock/record')
-        if (res.ok) {
-          const records = await res.json()
-          setSessions(records)
+        if (!res.ok) return
+        const records: ClockRecord[] = await res.json()
+        setSessions(records)
 
-          // Calculate daily hours and set state based on last record
-          let totalHours = 0
-          let currentlyClocked = false
-          let lastRecordId = null
-          let lastArrival = null
-          let lastDeparture = null
+        let totalHours = 0
+        let currentlyClocked = false
+        let lastRecordId = null
+        let lastArrival = null
+        let lastArrivalDate: Date | null = null
+        let lastDeparture = null
 
-          for (const record of records) {
-            if (record.departureTime && record.duration) {
-              totalHours += record.duration / 60 // duration is in minutes
-            }
-            if (!record.departureTime) {
-              currentlyClocked = true
-              lastRecordId = record.id
-              lastArrival = new Date(record.arrivalTime).toLocaleTimeString('fr-BE', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-              })
-            } else {
-              lastDeparture = new Date(record.departureTime).toLocaleTimeString('fr-BE', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-              })
-            }
+        for (const record of records) {
+          if (record.departureTime && record.duration) {
+            totalHours += record.duration / 60
           }
-
-          setDailyHours(totalHours)
-          setIsClockedIn(currentlyClocked)
-          setCurrentRecordId(lastRecordId)
-          setArrivalTime(lastArrival)
-          setDepartureTime(lastDeparture)
+          if (!record.departureTime) {
+            currentlyClocked = true
+            lastRecordId = record.id
+            lastArrivalDate = new Date(record.arrivalTime)
+            lastArrival = lastArrivalDate.toLocaleTimeString('fr-BE', {
+              hour: '2-digit', minute: '2-digit', second: '2-digit',
+            })
+          } else {
+            lastDeparture = new Date(record.departureTime).toLocaleTimeString('fr-BE', {
+              hour: '2-digit', minute: '2-digit', second: '2-digit',
+            })
+          }
         }
-      } catch (error) {
-        console.error('Failed to load records:', error)
+
+        setDailyHours(totalHours)
+        setIsClockedIn(currentlyClocked)
+        setCurrentRecordId(lastRecordId)
+        setArrivalTime(lastArrival)
+        setDepartureTime(lastDeparture)
+        if (currentlyClocked && lastArrivalDate) setClockedInAt(lastArrivalDate)
+      } catch (e) {
+        console.error('Failed to load records:', e)
       }
     }
-
-    loadTodayRecords()
+    load()
   }, [])
 
-  // Initialize time after hydration
+  // Live clock
   useEffect(() => {
     setCurrentTime(new Date())
-    const timer = setInterval(() => {
-      setCurrentTime(new Date())
-    }, 1000)
-    return () => clearInterval(timer)
+    const t = setInterval(() => setCurrentTime(new Date()), 1000)
+    return () => clearInterval(t)
   }, [])
 
+  // Elapsed timer
+  useEffect(() => {
+    if (!isClockedIn || !clockedInAt) { setElapsed(''); return }
+    const update = () => {
+      const diff = Math.floor((Date.now() - clockedInAt.getTime()) / 1000)
+      const h = Math.floor(diff / 3600)
+      const m = Math.floor((diff % 3600) / 60)
+      const s = diff % 60
+      setElapsed(
+        `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+      )
+    }
+    update()
+    const t = setInterval(update, 1000)
+    return () => clearInterval(t)
+  }, [isClockedIn, clockedInAt])
 
   const formatTime = (date: Date | null) => {
     if (!date) return '--:--:--'
-    return date.toLocaleTimeString('fr-BE', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    })
+    return date.toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
   }
 
   const formatDate = (date: Date | null) => {
     if (!date) return ''
-    return date.toLocaleDateString('fr-BE', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-    }).replace(/^\w/, c => c.toUpperCase())
+    return date.toLocaleDateString('fr-BE', { weekday: 'long', day: 'numeric', month: 'long' })
+      .replace(/^\w/, c => c.toUpperCase())
   }
+
+  const greeting = () => {
+    const h = currentTime?.getHours() ?? 12
+    if (h < 12) return 'Bonjour'
+    if (h < 18) return 'Bon après-midi'
+    return 'Bonsoir'
+  }
+
+  const firstName = session?.user?.name?.split(' ')[0] ?? session?.user?.email?.split('@')[0] ?? ''
 
   const handleClockToggle = async () => {
     if (!currentTime || loading) return
-
     setLoading(true)
     const timeStr = formatTime(currentTime)
 
     try {
       if (!isClockedIn) {
-        // ARRIVÉE
-        const res = await fetch('/api/clock/record', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            arrivalTime: currentTime.toISOString(),
-            location,
-            ...(selectedSiteId && { siteId: selectedSiteId }),
-          }),
-        })
+        const payload = {
+          arrivalTime: currentTime.toISOString(),
+          location,
+          ...(selectedSiteId && { siteId: selectedSiteId }),
+        }
 
-        if (!res.ok) {
-          showToast('Erreur lors de l\'enregistrement', 'error')
-          setLoading(false)
+        if (!isOnline) {
+          // Offline: save to IndexedDB for later sync
+          await savePendingAction('punch_in', payload)
+          setArrivalTime(timeStr)
+          setDepartureTime(null)
+          setIsClockedIn(true)
+          setClockedInAt(currentTime)
+          showToast(`Arrivée enregistrée à ${timeStr} (mode offline) ⏳`, 'info')
           return
         }
 
+        const res = await fetch('/api/clock/record', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+        if (!res.ok) { showToast("Erreur lors de l'enregistrement", 'error'); return }
         const record = await res.json()
         setCurrentRecordId(record.id)
         setArrivalTime(timeStr)
         setDepartureTime(null)
         setIsClockedIn(true)
+        setClockedInAt(currentTime)
         showToast(`Arrivée enregistrée à ${timeStr} ✓`, 'success')
         setSessions(prev => [...prev, record])
       } else {
-        // DÉPART
-        if (!currentRecordId || !arrivalTime) {
-          setLoading(false)
-          return
-        }
+        if (!currentRecordId || !arrivalTime) return
 
         const [arrH, arrM, arrS] = arrivalTime.split(':').map(Number)
         const [depH, depM, depS] = timeStr.split(':').map(Number)
+        let duration = (depH * 60 + depM + depS / 60) - (arrH * 60 + arrM + arrS / 60)
+        if (duration < 0) duration += 24 * 60
 
-        const arrivalMinutes = arrH * 60 + arrM + arrS / 60
-        const departureMinutes = depH * 60 + depM + depS / 60
-        let durationMinutes = departureMinutes - arrivalMinutes
-
-        if (durationMinutes < 0) {
-          durationMinutes += 24 * 60
+        const payload = {
+          recordId: currentRecordId,
+          departureTime: currentTime.toISOString(),
+          duration: duration / 60,
         }
 
-        const durationHours = durationMinutes / 60
+        if (!isOnline) {
+          // Offline: save to IndexedDB for later sync
+          await savePendingAction('punch_out', payload)
+          setDepartureTime(timeStr)
+          setIsClockedIn(false)
+          setClockedInAt(null)
+          setElapsed('')
+          setDailyHours(prev => prev + duration / 60)
+          showToast(`Départ enregistré à ${timeStr} (mode offline) ⏳`, 'info')
+          setCurrentRecordId(null)
+          return
+        }
 
         const res = await fetch('/api/clock/record', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            recordId: currentRecordId,
-            departureTime: currentTime.toISOString(),
-            duration: durationHours,
-          }),
+          body: JSON.stringify(payload),
         })
-
-        if (!res.ok) {
-          showToast('Erreur lors de l\'enregistrement du départ', 'error')
-          setLoading(false)
-          return
-        }
-
+        if (!res.ok) { showToast('Erreur lors du départ', 'error'); return }
         const record = await res.json()
         setDepartureTime(timeStr)
         setIsClockedIn(false)
-        setDailyHours(prev => prev + durationHours)
+        setClockedInAt(null)
+        setElapsed('')
+        setDailyHours(prev => prev + duration / 60)
         showToast(`Départ enregistré à ${timeStr} ✓`, 'success')
         setCurrentRecordId(null)
-
-        // Update sessions list
         setSessions(prev => prev.map(s => s.id === record.id ? record : s))
       }
-    } catch (error) {
-      console.error('Clock toggle error:', error)
+    } catch {
       showToast('Erreur de connexion', 'error')
     } finally {
       setLoading(false)
     }
   }
 
+  const maxHours = Math.max(...weeklyRecords.map(r => r.hours), 1)
+
   return (
-    <div className="min-h-screen bg-[var(--pp-bg)] pb-20" suppressHydrationWarning>
-      {/* Header */}
-      <header className="sticky top-0 border-b border-[var(--pp-line)] bg-[var(--pp-bg)]/95 backdrop-blur py-4" suppressHydrationWarning>
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
-          <div className="text-xl font-bold text-[var(--pp-ink)]">PoinçOn</div>
-          <button className="text-[var(--pp-muted)] hover:text-[var(--pp-ink)]">⚙️</button>
+    <div className="min-h-screen bg-[var(--pp-bg)] pb-24 md:pb-10" suppressHydrationWarning>
+      <div className="max-w-7xl mx-auto px-4 pt-6 md:pt-8" suppressHydrationWarning>
+
+        {/* Greeting */}
+        <div className="mb-6" suppressHydrationWarning>
+          <h1 className="text-xl md:text-2xl font-bold text-[var(--pp-ink)]">
+            {greeting()}{firstName ? `, ${firstName}` : ''} 👋
+          </h1>
+          <p className="text-[var(--pp-muted)] capitalize mt-0.5 text-sm">{formatDate(currentTime)}</p>
         </div>
-      </header>
 
-      {/* Main Clock Section */}
-      <div className="max-w-7xl mx-auto px-4 pt-8" suppressHydrationWarning>
-        {/* Grid Layout: Mobile vertical, Tablet 2-col, Desktop 3-col */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" suppressHydrationWarning>
+        {/* Desktop: 3-col grid | Mobile: single column, logical order */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" suppressHydrationWarning>
 
-          {/* LEFT COLUMN: History (week or month toggle) */}
-          <div className="lg:order-1 order-last space-y-4" suppressHydrationWarning>
-            {/* Toggle Buttons */}
-            <div className="flex gap-2">
-              <button
-                onClick={() => setViewMode('week')}
-                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition ${
-                  viewMode === 'week'
-                    ? 'bg-[var(--pp-info)] text-white'
-                    : 'bg-[var(--pp-line)]/30 text-[var(--pp-muted)] hover:bg-[var(--pp-line)]/50'
-                }`}
-              >
-                Semaine
-              </button>
-              <button
-                onClick={() => setViewMode('month')}
-                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition ${
-                  viewMode === 'month'
-                    ? 'bg-[var(--pp-info)] text-white'
-                    : 'bg-[var(--pp-line)]/30 text-[var(--pp-muted)] hover:bg-[var(--pp-line)]/50'
-                }`}
-              >
-                Mois
-              </button>
-            </div>
-
-            {/* Weekly View */}
-            {viewMode === 'week' && (
-              <Card>
-                <h3 className="text-sm font-bold text-[var(--pp-ink)] mb-4">
-                  Historique semaine
-                </h3>
-                <div className="grid grid-cols-5 gap-1 sm:gap-2">
-                  {weeklyRecords.map((record, idx) => (
-                    <div key={idx} className="text-center">
-                      <div className="text-xs text-[var(--pp-muted)] mb-2">
-                        {record.day}
-                      </div>
-                      <div className="h-20 bg-gradient-to-t from-[var(--pp-pos)] to-[var(--pp-info)] rounded-lg opacity-60 mb-2" style={{
-                        height: `${Math.max(record.hours * 2, 10)}px`,
-                      }} />
-                      <div className="text-xs font-medium text-[var(--pp-ink)]">
-                        {record.hours === 0 ? '-' : `${record.hours}h`}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            )}
-
-            {/* Monthly View */}
-            {viewMode === 'month' && (
-              <MonthlyCalendar />
-            )}
-          </div>
-
-          {/* CENTER COLUMN: Main Clock (stays in center) */}
-          <div className="lg:order-2 order-first space-y-8" suppressHydrationWarning>
-            {/* Current Time */}
-            <div className="text-center" suppressHydrationWarning>
-              <div className="text-5xl md:text-6xl font-bold font-mono text-[var(--pp-ink)] mb-2">
+          {/* CENTER — Clock (first on mobile) */}
+          <div className="lg:order-2 order-1 space-y-4" suppressHydrationWarning>
+            {/* Time display */}
+            <div className="text-center py-2" suppressHydrationWarning>
+              <div className="text-6xl md:text-6xl font-bold font-mono text-[var(--pp-ink)] tabular-nums" style={{ letterSpacing: '-0.02em' }}>
                 {formatTime(currentTime)}
               </div>
-              <div className="text-lg text-[var(--pp-muted)] capitalize">
-                {formatDate(currentTime)}
-              </div>
             </div>
 
-            {/* Site Selector */}
-            {sites.length > 0 && (
-              <div>
-                <label className="block text-sm font-medium text-[var(--pp-ink)] mb-3">
-                  Site
-                </label>
-                <select
-                  value={selectedSiteId}
-                  onChange={e => setSelectedSiteId(e.target.value)}
-                  disabled={isClockedIn}
-                  className="w-full px-4 py-3 border border-[var(--pp-line)] rounded-lg bg-[var(--pp-bg)] text-[var(--pp-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] disabled:opacity-60"
-                >
-                  <option value="">— Aucun site —</option>
-                  {sites.map(s => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
-                  ))}
-                </select>
+            {/* Elapsed / status */}
+            {isClockedIn && elapsed ? (
+              <div className="text-center p-4 rounded-2xl bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)]/20">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <span className="w-2 h-2 rounded-full bg-[var(--pp-pos)] animate-pulse" />
+                  <p className="text-xs font-semibold text-[var(--pp-pos)] uppercase tracking-widest">En cours</p>
+                </div>
+                <p className="text-3xl font-mono font-bold text-[var(--pp-pos)] tabular-nums">{elapsed}</p>
+                <p className="text-xs text-[var(--pp-muted)] mt-1">depuis {arrivalTime}</p>
               </div>
-            )}
-
-            {/* Location Selector */}
-            <div>
-              <label className="block text-sm font-medium text-[var(--pp-ink)] mb-3">
-                Mode de travail
-              </label>
-              <select
-                value={location}
-                onChange={e => setLocation(e.target.value)}
-                className="w-full px-4 py-3 border border-[var(--pp-line)] rounded-lg bg-[var(--pp-bg)] text-[var(--pp-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
-              >
-                <option>Sur site</option>
-                <option>Télétravail</option>
-                <option>Déplacement</option>
-              </select>
-            </div>
-
-            {/* Times Display */}
-            {(arrivalTime || departureTime) && (
+            ) : departureTime ? (
               <Card>
                 <div className="grid grid-cols-2 gap-4">
-                  {arrivalTime && (
-                    <div>
-                      <p className="text-xs text-[var(--pp-muted)] mb-1">Arrivée</p>
-                      <p className="text-xl font-bold text-[var(--pp-pos)]">{arrivalTime}</p>
-                    </div>
-                  )}
-                  {departureTime && (
-                    <div>
-                      <p className="text-xs text-[var(--pp-muted)] mb-1">Départ</p>
-                      <p className="text-xl font-bold text-[var(--pp-neg)]">{departureTime}</p>
-                    </div>
-                  )}
+                  <div>
+                    <p className="text-xs text-[var(--pp-muted)] mb-1">Arrivée</p>
+                    <p className="text-xl font-bold text-[var(--pp-pos)]">{arrivalTime}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[var(--pp-muted)] mb-1">Départ</p>
+                    <p className="text-xl font-bold text-[var(--pp-neg)]">{departureTime}</p>
+                  </div>
                 </div>
               </Card>
-            )}
+            ) : null}
 
-            {/* Big Clock Button */}
-            <Button
-              onClick={handleClockToggle}
-              disabled={loading}
-              className="w-full h-28 md:h-40 text-xl md:text-2xl font-bold"
-              variant={isClockedIn ? 'primary' : 'primary'}
-              size="lg"
-              style={{
-                backgroundColor: isClockedIn ? 'var(--pp-neg)' : 'var(--pp-pos)',
-                opacity: loading ? 0.6 : 1,
-              }}
-            >
-              {loading ? 'Traitement...' : isClockedIn ? 'DÉPART' : 'ARRIVÉE'}
-            </Button>
+            {/* Site + Mode side-by-side on mobile */}
+            <div className={`grid gap-3 ${sites.length > 0 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+              {sites.length > 0 && (
+                <div>
+                  <label className="block text-[10px] font-semibold text-[var(--pp-muted)] mb-1.5 uppercase tracking-wider">Site</label>
+                  <select
+                    value={selectedSiteId}
+                    onChange={e => setSelectedSiteId(e.target.value)}
+                    disabled={isClockedIn}
+                    className="w-full px-3 py-3 border border-[var(--pp-line)] rounded-xl bg-[var(--pp-bg)] text-[var(--pp-ink)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)] disabled:opacity-50 touch-manipulation"
+                  >
+                    <option value="">— Aucun —</option>
+                    {sites.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  </select>
+                </div>
+              )}
+              <div>
+                <label className="block text-[10px] font-semibold text-[var(--pp-muted)] mb-1.5 uppercase tracking-wider">Mode</label>
+                <select
+                  value={location}
+                  onChange={e => setLocation(e.target.value)}
+                  className="w-full px-3 py-3 border border-[var(--pp-line)] rounded-xl bg-[var(--pp-bg)] text-[var(--pp-ink)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)] touch-manipulation"
+                >
+                  <option>Sur site</option>
+                  <option>Télétravail</option>
+                  <option>Déplacement</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Main button */}
+            <div className={isClockedIn ? 'pp-clock-active rounded-2xl' : ''}>
+              <Button
+                onClick={handleClockToggle}
+                disabled={loading}
+                className="w-full h-24 md:h-32 text-2xl md:text-3xl font-bold tracking-wide rounded-2xl touch-manipulation"
+                variant="primary"
+                style={{
+                  backgroundColor: isClockedIn ? 'var(--pp-neg)' : 'var(--pp-pos)',
+                  opacity: loading ? 0.7 : 1,
+                  letterSpacing: '0.1em',
+                  fontSize: 'clamp(1.25rem, 5vw, 1.875rem)',
+                }}
+              >
+                {loading ? '…' : isClockedIn ? 'DÉPART ✕' : 'ARRIVÉE ✓'}
+              </Button>
+            </div>
           </div>
 
-          {/* RIGHT COLUMN: Daily Summary + Sessions (appears on right on desktop, bottom on mobile) */}
-          <div className="lg:order-3 order-last space-y-8" suppressHydrationWarning>
-            {/* Balance Widget */}
+          {/* RIGHT — Summary (second on mobile) */}
+          <div className="lg:order-3 order-2 space-y-4" suppressHydrationWarning>
             <BalanceWidget />
 
-            {/* Daily Summary */}
             <Card>
-              <h3 className="text-sm font-medium text-[var(--pp-muted)] mb-2">
-                Pointé aujourd'hui
-              </h3>
-              <div className="text-3xl font-bold text-[var(--pp-ink)]">
-                {Math.floor(dailyHours)}h{String(Math.round((dailyHours % 1) * 60)).padStart(2, '0')}m
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1">Pointé aujourd'hui</p>
+                  <div className="text-3xl font-bold text-[var(--pp-ink)]">
+                    {Math.floor(dailyHours)}h{String(Math.round((dailyHours % 1) * 60)).padStart(2, '0')}
+                  </div>
+                </div>
+                <span className="text-xs px-2.5 py-1 rounded-full font-medium" style={{ background: 'var(--pp-pos)18', color: 'var(--pp-pos)' }}>
+                  {location}
+                </span>
               </div>
-              <p className="text-xs text-[var(--pp-muted)] mt-2">
-                Localisation: {location}
-              </p>
             </Card>
 
-            {/* Sessions Today */}
             {sessions.length > 0 && (
               <Card>
-                <h3 className="text-sm font-bold text-[var(--pp-ink)] mb-4">
-                  Séances du jour
-                </h3>
+                <h3 className="text-sm font-semibold text-[var(--pp-ink)] mb-3">Séances du jour</h3>
                 <div className="space-y-3">
                   {sessions.map((session, idx) => {
-                    const arrivalTime = new Date(session.arrivalTime).toLocaleTimeString('fr-BE', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      second: '2-digit',
-                    })
-                    const departureTime = session.departureTime
-                      ? new Date(session.departureTime).toLocaleTimeString('fr-BE', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          second: '2-digit',
-                        })
-                      : 'En cours...'
-                    const durationMinutes = session.duration || 0
-
+                    const arr = new Date(session.arrivalTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
+                    const dep = session.departureTime
+                      ? new Date(session.departureTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
+                      : null
+                    const dur = session.duration ?? 0
                     return (
-                      <div key={session.id} className="flex justify-between items-center pb-3 border-b border-[var(--pp-line)] last:border-b-0">
+                      <div key={session.id} className="flex justify-between items-center pb-3 border-b border-[var(--pp-line)] last:border-b-0 last:pb-0">
                         <div>
                           <p className="text-xs text-[var(--pp-muted)]">Séance {idx + 1}</p>
                           <p className="text-sm font-medium text-[var(--pp-ink)]">
-                            {arrivalTime} → {departureTime}
+                            {arr} → {dep ?? <span className="text-[var(--pp-pos)] animate-pulse">En cours</span>}
                           </p>
                         </div>
-                        <div className="text-right">
-                          <p className="text-xs text-[var(--pp-muted)]">Durée</p>
-                          <p className="text-sm font-bold text-[var(--pp-pos)]">
-                            {Math.floor(durationMinutes)}m {Math.round((durationMinutes % 1) * 60)}s
-                          </p>
-                        </div>
+                        {dep && (
+                          <span className="text-xs font-semibold px-2 py-1 rounded-full bg-[var(--pp-pos)]/10 text-[var(--pp-pos)]">
+                            {Math.floor(dur)}h{String(Math.round((dur % 1) * 60)).padStart(2, '0')}
+                          </span>
+                        )}
                       </div>
                     )
                   })}
                 </div>
               </Card>
             )}
+          </div>
+
+          {/* LEFT — History (last on mobile) */}
+          <div className="lg:order-1 order-3 space-y-4" suppressHydrationWarning>
+            <div className="flex gap-2">
+              {(['week', 'month'] as const).map(mode => (
+                <button
+                  key={mode}
+                  onClick={() => setViewMode(mode)}
+                  className={`flex-1 py-2.5 px-3 rounded-xl text-sm font-semibold transition touch-manipulation ${
+                    viewMode === mode
+                      ? 'bg-[var(--pp-pos)] text-white'
+                      : 'bg-[var(--pp-bg2)] text-[var(--pp-muted)] hover:bg-[var(--pp-line)]'
+                  }`}
+                >
+                  {mode === 'week' ? 'Semaine' : 'Mois'}
+                </button>
+              ))}
+            </div>
+
+            {viewMode === 'week' && (
+              <Card>
+                <h3 className="text-sm font-semibold text-[var(--pp-ink)] mb-4">Semaine en cours</h3>
+                <div className="flex items-end gap-2 h-24">
+                  {weeklyRecords.map((record, idx) => {
+                    const pct = record.hours > 0 ? (record.hours / maxHours) * 100 : 0
+                    const isToday = idx === new Date().getDay() - 1
+                    return (
+                      <div key={idx} className="flex-1 flex flex-col items-center gap-1">
+                        <span className="text-[10px] font-medium text-[var(--pp-muted)]">
+                          {record.hours > 0 ? `${record.hours}h` : ''}
+                        </span>
+                        <div className="w-full flex items-end" style={{ height: 64 }}>
+                          <div
+                            className="w-full rounded-md transition-all"
+                            style={{
+                              height: `${Math.max(pct, record.hours > 0 ? 8 : 2)}%`,
+                              background: isToday
+                                ? 'var(--pp-pos)'
+                                : record.hours > 0
+                                  ? 'linear-gradient(to top, var(--pp-pos), var(--pp-info))'
+                                  : 'var(--pp-line)',
+                              opacity: record.hours > 0 ? 0.85 : 0.3,
+                            }}
+                          />
+                        </div>
+                        <span className={`text-[10px] font-medium ${isToday ? 'text-[var(--pp-pos)]' : 'text-[var(--pp-muted)]'}`}>
+                          {record.day}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </Card>
+            )}
+
+            {viewMode === 'month' && <MonthlyCalendar />}
           </div>
         </div>
       </div>
