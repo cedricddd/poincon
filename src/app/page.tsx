@@ -185,8 +185,8 @@ const faqs = [
     a: 'Plan Free illimité sans engagement. Essayez gratuitement, aucune carte requise.',
   },
   {
-    q: 'Le système fonctionne hors ligne?',
-    a: 'Oui. PWA installable. Enregistre offline, synchronisation automatique à la reconnexion.',
+    q: 'Que se passe-t-il si je pointe hors ligne?',
+    a: 'Votre pointage est sauvegardé localement et marqué "⏳ en attente de sync". Dès reconnexion, il synchronise automatiquement au serveur et devient officiel. Le tableau de présence ne compte que les pointages synchronisés.',
   },
 ]
 
@@ -346,10 +346,11 @@ function HeroClockWidget() {
           {/* Today's session */}
           <div className="mx-5 mb-4">
             <div
-              className="text-[9px] font-bold tracking-[0.18em] uppercase mb-3"
+              className="text-[9px] font-bold tracking-[0.18em] uppercase mb-3 flex items-center justify-between"
               style={{ color: muted }}
             >
-              Aujourd&apos;hui
+              <span>Aujourd&apos;hui</span>
+              <span className="text-[9px] px-2 py-0.5 rounded-full bg-amber-100/20 text-amber-600 font-semibold">⏳ en attente</span>
             </div>
             <div className="space-y-2.5">
               <div className="flex justify-between items-center">

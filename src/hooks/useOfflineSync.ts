@@ -1,35 +1,34 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 
 interface PendingAction {
   id: string
   type: 'punch_in' | 'punch_out' | 'rtt' | 'time_off'
   data: Record<string, unknown>
   timestamp: number
-  synced: boolean
+  status: 'pending' | 'syncing' | 'synced' | 'failed'
+  retries: number
 }
 
 const DB_NAME = 'PoinconDB'
 const STORE_NAME = 'pendingActions'
+const MAX_RETRIES = 5
+const RETRY_DELAY = 2000 // 2 secondes
 
 export function useOfflineSync() {
-  const [isOnline, setIsOnline] = useState(true)
   const [pendingCount, setPendingCount] = useState(0)
   const [isSyncing, setIsSyncing] = useState(false)
+  const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
-    setIsOnline(navigator.onLine)
-    window.addEventListener('online', () => setIsOnline(true))
-    window.addEventListener('offline', () => setIsOnline(false))
+    countPendingActions()
 
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.ready.then(() => {
-        countPendingActions()
-      })
-    }
+    // Sync au démarrage et tous les 3 secondes
+    const syncInterval = setInterval(syncPendingActions, 3000)
+    syncPendingActions() // sync immédiat
 
     return () => {
-      window.removeEventListener('online', () => setIsOnline(true))
-      window.removeEventListener('offline', () => setIsOnline(false))
+      clearInterval(syncInterval)
+      if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current)
     }
   }, [])
 
@@ -53,11 +52,12 @@ export function useOfflineSync() {
       try {
         const db = await openDB()
         const action: PendingAction = {
-          id: `${type}-${Date.now()}`,
+          id: `${type}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
           type,
           data,
           timestamp: Date.now(),
-          synced: false,
+          status: 'pending',
+          retries: 0,
         }
 
         await new Promise((resolve, reject) => {
@@ -70,19 +70,16 @@ export function useOfflineSync() {
 
         countPendingActions()
 
-        if (isOnline && 'serviceWorker' in navigator) {
-          navigator.serviceWorker.controller?.postMessage({
-            type: 'SYNC_PENDING',
-          })
-        }
+        // Synchro immédiate après sauvegarde
+        syncPendingActions()
 
         return action
       } catch (error) {
-        console.error('Failed to save pending action:', error)
+        console.error('Erreur sauvegarde pointage:', error)
         throw error
       }
     },
-    [openDB, isOnline]
+    [openDB]
   )
 
   const countPendingActions = useCallback(async () => {
@@ -97,7 +94,7 @@ export function useOfflineSync() {
       })
       setPendingCount(count as number)
     } catch (error) {
-      console.error('Failed to count pending actions:', error)
+      console.error('Erreur comptage:', error)
     }
   }, [openDB])
 
@@ -112,10 +109,40 @@ export function useOfflineSync() {
         request.onsuccess = () => resolve(request.result as PendingAction[])
       })
     } catch (error) {
-      console.error('Failed to get pending actions:', error)
+      console.error('Erreur récupération:', error)
       return []
     }
   }, [openDB])
+
+  const updateActionStatus = useCallback(
+    async (id: string, status: PendingAction['status'], retries?: number) => {
+      try {
+        const db = await openDB()
+        const action = await new Promise<PendingAction>((resolve, reject) => {
+          const transaction = db.transaction([STORE_NAME], 'readonly')
+          const store = transaction.objectStore(STORE_NAME)
+          const request = store.get(id)
+          request.onerror = () => reject(request.error)
+          request.onsuccess = () => resolve(request.result)
+        })
+
+        if (action) {
+          const updated = { ...action, status, ...(retries !== undefined && { retries }) }
+          await new Promise((resolve, reject) => {
+            const transaction = db.transaction([STORE_NAME], 'readwrite')
+            const store = transaction.objectStore(STORE_NAME)
+            const request = store.put(updated)
+            request.onerror = () => reject(request.error)
+            request.onsuccess = () => resolve(request.result)
+          })
+          countPendingActions()
+        }
+      } catch (error) {
+        console.error('Erreur mise à jour:', error)
+      }
+    },
+    [openDB, countPendingActions]
+  )
 
   const removePendingAction = useCallback(async (id: string) => {
     try {
@@ -129,69 +156,75 @@ export function useOfflineSync() {
       })
       countPendingActions()
     } catch (error) {
-      console.error('Failed to remove pending action:', error)
-      throw error
+      console.error('Erreur suppression:', error)
     }
   }, [openDB, countPendingActions])
 
   const syncPendingActions = useCallback(async () => {
-    if (!isOnline || isSyncing) return
+    if (isSyncing) return
 
     setIsSyncing(true)
     try {
       const actions = await getPendingActions()
-      let synced = 0
+      const pending = actions.filter(a => a.status === 'pending' || a.status === 'failed')
 
-      for (const action of actions) {
+      for (const action of pending) {
+        if (action.retries >= MAX_RETRIES) {
+          await updateActionStatus(action.id, 'failed')
+          continue
+        }
+
         try {
+          await updateActionStatus(action.id, 'syncing')
+
           const endpoint = `/api/${
             action.type === 'punch_in' || action.type === 'punch_out'
-              ? 'clock/punch'
+              ? 'clock/record'
               : action.type === 'rtt'
               ? 'rtt'
               : 'time-off'
           }`
 
-          const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(action.data),
-          })
+          const response = await Promise.race([
+            fetch(endpoint, {
+              method: action.type === 'punch_in' ? 'POST' : 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(action.data),
+            }),
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('Timeout')), 5000)
+            ),
+          ])
 
-          if (response.ok) {
+          if ((response as Response).ok) {
             await removePendingAction(action.id)
-            synced++
+            console.log(`✓ Synced: ${action.id}`)
+          } else {
+            throw new Error(`HTTP ${(response as Response).status}`)
           }
         } catch (error) {
-          console.error(`Failed to sync action ${action.id}:`, error)
+          // Retry avec délai exponentiel
+          const nextRetry = action.retries + 1
+          await updateActionStatus(action.id, 'pending', nextRetry)
+          console.warn(`Retry ${nextRetry}/${MAX_RETRIES}: ${action.id}`)
+
+          if (nextRetry >= MAX_RETRIES) {
+            await updateActionStatus(action.id, 'failed')
+          }
         }
       }
-
-      if (synced > 0) {
-        console.log(`Synced ${synced} pending actions`)
-      }
     } catch (error) {
-      console.error('Sync failed:', error)
+      console.error('Sync error:', error)
     } finally {
       setIsSyncing(false)
     }
-  }, [isOnline, isSyncing, getPendingActions, removePendingAction])
-
-  // Auto-sync when coming back online
-  useEffect(() => {
-    if (isOnline && pendingCount > 0) {
-      const timeout = setTimeout(syncPendingActions, 1000)
-      return () => clearTimeout(timeout)
-    }
-  }, [isOnline, pendingCount, syncPendingActions])
+  }, [isSyncing, getPendingActions, updateActionStatus, removePendingAction])
 
   return {
-    isOnline,
     pendingCount,
     isSyncing,
     savePendingAction,
     getPendingActions,
-    removePendingAction,
     syncPendingActions,
   }
 }

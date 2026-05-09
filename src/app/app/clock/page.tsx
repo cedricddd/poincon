@@ -33,8 +33,9 @@ interface Site {
 
 export default function ClockPage() {
   const { data: session } = useSession()
-  const { isOnline, savePendingAction } = useOfflineSync()
+  const { savePendingAction, getPendingActions } = useOfflineSync()
   const [isClockedIn, setIsClockedIn] = useState(false)
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set())
   const [currentTime, setCurrentTime] = useState<Date | null>(null)
   const [location, setLocation] = useState('Sur site')
   const [dailyHours, setDailyHours] = useState(0)
@@ -55,6 +56,20 @@ export default function ClockPage() {
   const [viewMode, setViewMode] = useState<'week' | 'month'>('week')
   const [sites, setSites] = useState<Site[]>([])
   const [selectedSiteId, setSelectedSiteId] = useState<string>('')
+
+  // Load pending actions
+  useEffect(() => {
+    const loadPending = async () => {
+      const pending = await getPendingActions()
+      setPendingIds(new Set(pending.map(p => {
+        const dataStr = JSON.stringify(p.data)
+        return dataStr.includes('arrivalTime') ? `arrival-${p.timestamp}` : `departure-${p.timestamp}`
+      })))
+    }
+    loadPending()
+    const interval = setInterval(loadPending, 1000)
+    return () => clearInterval(interval)
+  }, [getPendingActions])
 
   // Load sites
   useEffect(() => {
@@ -171,31 +186,42 @@ export default function ClockPage() {
           ...(selectedSiteId && { siteId: selectedSiteId }),
         }
 
-        if (!isOnline) {
-          // Offline: save to IndexedDB for later sync
-          await savePendingAction('punch_in', payload)
-          setArrivalTime(timeStr)
-          setDepartureTime(null)
-          setIsClockedIn(true)
-          setClockedInAt(currentTime)
-          showToast(`Arrivée enregistrée à ${timeStr} (mode offline) ⏳`, 'info')
-          return
+        // Try sync immediately (timeout 5s), fallback to pending
+        try {
+          const res = await Promise.race([
+            fetch('/api/clock/record', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            }),
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('Timeout')), 5000)
+            ),
+          ])
+
+          if ((res as Response).ok) {
+            const record = await (res as Response).json()
+            setCurrentRecordId(record.id)
+            setArrivalTime(timeStr)
+            setDepartureTime(null)
+            setIsClockedIn(true)
+            setClockedInAt(currentTime)
+            showToast(`Arrivée enregistrée à ${timeStr} ✓`, 'success')
+            setSessions(prev => [...prev, record])
+            return
+          }
+        } catch (err) {
+          // Sync failed, save locally
+          console.warn('Sync failed, saving locally:', err)
         }
 
-        const res = await fetch('/api/clock/record', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        })
-        if (!res.ok) { showToast("Erreur lors de l'enregistrement", 'error'); return }
-        const record = await res.json()
-        setCurrentRecordId(record.id)
+        // Fallback: save locally + retry en background
+        await savePendingAction('punch_in', payload)
         setArrivalTime(timeStr)
         setDepartureTime(null)
         setIsClockedIn(true)
         setClockedInAt(currentTime)
-        showToast(`Arrivée enregistrée à ${timeStr} ✓`, 'success')
-        setSessions(prev => [...prev, record])
+        showToast(`Arrivée enregistrée à ${timeStr} (⏳ en attente de sync)`, 'info')
       } else {
         if (!currentRecordId || !arrivalTime) return
 
@@ -210,34 +236,45 @@ export default function ClockPage() {
           duration: duration / 60,
         }
 
-        if (!isOnline) {
-          // Offline: save to IndexedDB for later sync
-          await savePendingAction('punch_out', payload)
-          setDepartureTime(timeStr)
-          setIsClockedIn(false)
-          setClockedInAt(null)
-          setElapsed('')
-          setDailyHours(prev => prev + duration / 60)
-          showToast(`Départ enregistré à ${timeStr} (mode offline) ⏳`, 'info')
-          setCurrentRecordId(null)
-          return
+        // Try sync immediately (timeout 5s)
+        try {
+          const res = await Promise.race([
+            fetch('/api/clock/record', {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            }),
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('Timeout')), 5000)
+            ),
+          ])
+
+          if ((res as Response).ok) {
+            const record = await (res as Response).json()
+            setDepartureTime(timeStr)
+            setIsClockedIn(false)
+            setClockedInAt(null)
+            setElapsed('')
+            setDailyHours(prev => prev + duration / 60)
+            showToast(`Départ enregistré à ${timeStr} ✓`, 'success')
+            setCurrentRecordId(null)
+            setSessions(prev => prev.map(s => s.id === record.id ? record : s))
+            return
+          }
+        } catch (err) {
+          // Sync failed, save locally
+          console.warn('Sync failed, saving locally:', err)
         }
 
-        const res = await fetch('/api/clock/record', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        })
-        if (!res.ok) { showToast('Erreur lors du départ', 'error'); return }
-        const record = await res.json()
+        // Fallback: save locally + retry en background
+        await savePendingAction('punch_out', payload)
         setDepartureTime(timeStr)
         setIsClockedIn(false)
         setClockedInAt(null)
         setElapsed('')
         setDailyHours(prev => prev + duration / 60)
-        showToast(`Départ enregistré à ${timeStr} ✓`, 'success')
+        showToast(`Départ enregistré à ${timeStr} (⏳ en attente de sync)`, 'info')
         setCurrentRecordId(null)
-        setSessions(prev => prev.map(s => s.id === record.id ? record : s))
       }
     } catch {
       showToast('Erreur de connexion', 'error')
@@ -354,8 +391,15 @@ export default function ClockPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1">Pointé aujourd'hui</p>
-                  <div className="text-3xl font-bold text-[var(--pp-ink)]">
-                    {Math.floor(dailyHours)}h{String(Math.round((dailyHours % 1) * 60)).padStart(2, '0')}
+                  <div className="flex items-baseline gap-2">
+                    <div className="text-3xl font-bold text-[var(--pp-ink)]">
+                      {Math.floor(dailyHours)}h{String(Math.round((dailyHours % 1) * 60)).padStart(2, '0')}
+                    </div>
+                    {pendingIds.size > 0 && (
+                      <span className="text-xs px-2 py-1 rounded-full font-semibold bg-amber-100 text-amber-700">
+                        ⏳ {pendingIds.size} en attente
+                      </span>
+                    )}
                   </div>
                 </div>
                 <span className="text-xs px-2.5 py-1 rounded-full font-medium" style={{ background: 'var(--pp-pos)18', color: 'var(--pp-pos)' }}>

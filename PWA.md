@@ -1,120 +1,159 @@
 # PoinçOn PWA — Mobile-First Progressive Web App
 
+## 🎯 Architecture: Aggressive Sync Avec Fallback PENDING
+
+L'approche prioritaire **sécurité légale** :
+- ✅ Essayer synchroniser **immédiatement** (timeout 5s)
+- ✅ Si échec → sauvegarder localement avec statut **PENDING**
+- ✅ Retry automatiquement **toutes les 3 secondes**
+- ✅ Tableau de présence n'affiche que les pointages **SYNCED** (fiables)
+- ✅ Pointages PENDING affichent badge **"⏳ en attente de sync"**
+
 ## Features Implemented
 
 ### ✅ Service Worker (`public/sw.js`)
-- **Install**: Caches static assets on first load
-- **Cache Strategies**:
-  - **API routes**: Network-first with cache fallback (fresh data priority)
-  - **Images**: Cache-first with network update
-  - **Static assets** (JS, CSS, fonts): Cache-first
-  - **HTML pages**: Network-first with offline fallback
-- **Offline Handling**: Shows offline page when network unavailable
-- **Cache Cleanup**: Removes old cache versions on activation
+- **Install**: Cache des assets au premier chargement
+- **Stratégies**:
+  - **API**: Network-first avec fallback cache (données fraîches prioritaires)
+  - **Images**: Cache-first avec update réseau
+  - **Assets statiques** (JS, CSS, fonts): Cache-first
+  - **HTML**: Network-first avec page offline fallback
+- **Offline**: Affiche page offline si réseau indisponible
+- **Cleanup**: Supprime anciennes versions de cache
 
-### ✅ Offline Data Persistence (`src/hooks/useOfflineSync.ts`)
-- Stores pending actions in IndexedDB (clock punches, RTT, time-off)
-- Auto-syncs to API when back online
-- Tracks sync status with visual indicator
+### ✅ Synchronisation Agressive (`src/hooks/useOfflineSync.ts`)
+- **Timeout court** : 5 secondes pour chaque sync
+- **Retry automatique** : toutes les 3 secondes
+- **Statuts** : `pending` | `syncing` | `synced` | `failed`
+- **Max retries** : 5 tentatives avant marquer comme échoué
+- **IndexedDB** : stockage local des pointages en attente
+- **Backoff** : augmente délai entre retries
 
-### ✅ Offline UI
-- **Offline Indicator** (`src/components/OfflineIndicator.tsx`): Shows connection status and pending sync count
-- **Offline Page** (`src/app/offline.tsx`): Fallback page when offline
-- **Toast Notifications**: "mode offline" badges on clock actions
+### ✅ UI avec Statuts PENDING
+- **OfflineIndicator** : badge "Synchronisation en cours..." ou "N pointage(s) en attente"
+- **Badge PENDING** : "⏳ en attente" sur les pointages non-synced
+- **Page offline** : fallback avec messaging rassurant
+- **Toast notifications** : indique si pointage est officiel ou en attente
 
-### ✅ Clock Integration
-- `src/app/app/clock/page.tsx` updated to:
-  - Detect offline status via `useOfflineSync()`
-  - Save punch times to IndexedDB when offline
-  - Show "mode offline" indicator in toast
-  - Auto-sync when connection restored
+### ✅ Intégration Horloge
+- Détecte réseau avec timeout court
+- Affiche "en attente de sync" si sync échoue
+- UI update immédiat (optimistic)
+- Badge visible du statut PENDING
+- Auto-sync chaque 3 secondes
 
-### ✅ Mobile-First PWA Metadata
-- `manifest.json`: App name, icons, start URL, display mode (standalone)
-- Meta tags: Apple Web App capable, theme colors, viewport configuration
-- Icons: 192x192 and 512x512 SVG icons for all device sizes
+### ✅ PWA Metadata Complet
+- `manifest.json` : app name, icônes, standalone mode
+- Meta tags : Apple Web App, theme colors, viewport
+- Icons : 192x192 et 512x512 SVG maskable
 
-## How It Works
+## 📊 Flux de Synchronisation
 
-### Online Scenario
-1. User clicks "ARRIVÉE" or "DÉPART"
-2. App sends POST/PATCH request to `/api/clock/record`
-3. Server returns record with ID
-4. Data cached in API_CACHE
+### Scénario Online (Idéal)
+```
+User click "ARRIVÉE"
+  ↓
+Fetch POST /api/clock/record (timeout 5s)
+  ↓
+✓ Success → Record sauvegardé au serveur
+  ↓
+Toast : "Arrivée enregistrée à 09:42 ✓"
+```
 
-### Offline Scenario
-1. User clicks "ARRIVÉE" or "DÉPART"
-2. App detects offline (`navigator.onLine === false`)
-3. Action saved to IndexedDB with `savePendingAction()`
-4. Toast shows "mode offline ⏳"
-5. UI updates immediately (optimistic)
+### Scénario Timeout (Réseau lent)
+```
+User click "ARRIVÉE"
+  ↓
+Fetch POST /api/clock/record (5s timeout)
+  ↓
+✗ Timeout/Erreur → Fallback local
+  ↓
+Save to IndexedDB with status: "pending"
+  ↓
+Toast : "Arrivée enregistrée à 09:42 (⏳ en attente de sync)"
+  ↓
+Auto-retry loop : toutes les 3 secondes
+```
 
-### Reconnection Scenario
-1. Network restored, `online` event fires
-2. `useOfflineSync()` detects `isOnline` change
-3. Auto-triggers `syncPendingActions()`
-4. Each pending action POSTed to API
-5. Successful actions removed from IndexedDB
-6. Toast shows "Synchronisation N action(s)..."
+### Scénario Reconnexion
+```
+Network restored
+  ↓
+useOfflineSync() détecte changement
+  ↓
+syncPendingActions() boucle execute
+  ↓
+Chaque action PENDING : POST to /api/clock/record
+  ↓
+✓ Success → Update status to "synced" + remove from DB
+✗ Fail → status: "pending", retries++
+  ↓
+Badge update : "Synchronisation 2 action(s)..."
+  ↓
+Après sync : badge disparaît
+```
 
-## Cache Versioning
+## 🔍 Tableau de Présence
 
-Caches are version-pinned:
-- `poincon-app-v1`: HTML, static assets
-- `poincon-api-v1`: API responses
-- `poincon-images-v1`: Images
+**Important** : Le tableau affiche **SEULEMENT** les pointages `synced: true`
+- Pointages PENDING n'apparaissent PAS dans comptage
+- User voit badge "⏳" pour rappel
+- Manager/Admin voient seulement officiel
+- Conforme légal belgique (comptage réel seulement)
 
-To bust cache, increment version: `poincon-app-v2`, etc.
-
-## Testing Offline
+## 🧪 Testing Offline
 
 ### Chrome DevTools
-1. Open DevTools → Application → Service Workers
-2. Check "Offline" checkbox
-3. Try clock punch → should save to IndexedDB
-4. Uncheck "Offline" → should auto-sync
+1. DevTools → Application → Service Workers
+2. Check "Offline"
+3. Click "ARRIVÉE" → badge "⏳ en attente"
+4. Uncheck "Offline" → auto-sync en 3s
 
 ### Real Network
 ```bash
-docker-compose -f docker-compose.dev.yml down  # stop network
-# Use app offline
-docker-compose -f docker-compose.dev.yml up -d  # restore network
-# App auto-syncs pending actions
+docker-compose -f docker-compose.dev.yml down
+# App en offline, pointages sauvegardés localement
+docker-compose -f docker-compose.dev.yml up -d
+# Auto-sync démarre, badge disparaît
 ```
 
-### View IndexedDB (Chrome DevTools)
-1. Application → IndexedDB → poincon
-2. View `pendingActions` store
-3. See pending punch times with timestamps
+### View IndexedDB
+1. DevTools → Application → IndexedDB → poincon
+2. `pendingActions` store
+3. Voir les actions avec `status: "pending"` ou `"syncing"`
 
-## API Requirements
-
-For offline sync to work, these endpoints must:
-- Accept POST requests with offline-saved payloads
-- Return 200 status on success
-- Idempotent (safe to retry)
-
-Current endpoints:
-- `POST /api/clock/record` (punch)
-- `POST /api/rtt` (rest/recovery time)
-- `POST /api/time-off` (time off)
-
-## Installation on Devices
+## 📱 Installation
 
 ### iOS (Safari)
-1. Open Safari
-2. Share menu → Add to Home Screen
-3. Opens as standalone app (no browser chrome)
+1. Safari → Share → Add to Home Screen
+2. App mode standalone
 
 ### Android (Chrome)
-1. Open Chrome → menu → "Install app"
-2. Or: three dots → "Install PoinçOn"
-3. Opens as standalone app
+1. Chrome → menu → "Install app"
+2. App mode standalone
+
+## ⚠️ Important pour Légalité
+
+- **Pointage officiel** = synced au serveur seulement
+- **Audit trail** = indexé uniquement les synced
+- **Export certifié** = exclut les PENDING
+- **RH/Manager** = voit seulement synced dans tableau présence
+- **User** = voit badge "⏳" pour rappel sync en cours
+
+## 🔄 Retry Logic
+
+```
+Retry 1 : 2s
+Retry 2 : 2s
+Retry 3 : 2s
+Retry 4 : 2s
+Retry 5 : 2s → si échoue, status = "failed" (marquer rouge)
+```
 
 ## Next Steps
 
-- [ ] Add RTT page offline support (follow clock pattern)
-- [ ] Add time-off page offline support
-- [ ] Implement push notifications for sync completion
-- [ ] Add settings page for cache management ("Clear offline data")
-- [ ] Monitor IndexedDB size limits (typically 50% of storage quota)
+- [ ] Ajouter support offline pour page RTT
+- [ ] Ajouter support offline pour page congés
+- [ ] Push notification quand sync complete
+- [ ] Page settings : "Clear offline data"
+- [ ] Monitor IndexedDB quota (soft limit ~50MB)
