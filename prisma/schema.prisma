@@ -125,6 +125,7 @@ model Company {
   planId                String?
   stripeCustomerId      String?
   stripeSubscriptionId  String?
+  stripeSubscriptionBillingCycle String? // "monthly" | "yearly" — null si pas de subscription active
   planExpiresAt         DateTime?
   contactEmail          String?         // email de contact pour rappels paiement
   lastActivityAt        DateTime?       // mis à jour après chaque pointage (timestamp uniquement)

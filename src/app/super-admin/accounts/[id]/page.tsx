@@ -14,6 +14,7 @@ interface CompanyDetail {
   contactEmail?: string
   marketingConsent: boolean
   plan: string
+  billingCycle?: string
   activeMembers: number
   maxEmployees: number
   createdAt: string
@@ -190,6 +191,14 @@ export default function AccountDetail() {
                 </button>
               )}
             </div>
+            {company.billingCycle && (
+              <div>
+                <label className="text-[var(--pp-muted)] block mb-1">Cycle de facturation</label>
+                <p className="text-lg font-bold">
+                  {company.billingCycle === 'monthly' ? '📅 Mensuel' : '📆 Annuel'}
+                </p>
+              </div>
+            )}
             <div>
               <label className="text-[var(--pp-muted)] block mb-1">Utilisateurs actifs</label>
               <p className="text-lg font-bold">

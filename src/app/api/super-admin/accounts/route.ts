@@ -45,6 +45,7 @@ export async function GET(req: NextRequest) {
         adminName: company.admin.name,
         contactEmail: company.contactEmail,
         plan: company.plan?.name ?? 'FREE',
+        billingCycle: company.stripeSubscriptionBillingCycle,
         activeMembers,
         maxEmployees,
         isOverQuota,

@@ -22,6 +22,15 @@ export async function POST(req: NextRequest) {
   const getPlanByName = async (name: string) =>
     prisma.plan.findUnique({ where: { name: name.toUpperCase() } })
 
+  const getBillingCycle = (sub: any): string | null => {
+    // Extract billing cycle from subscription items (monthly or yearly)
+    if (sub.items?.data?.[0]?.price?.recurring?.interval) {
+      const interval = sub.items.data[0].price.recurring.interval
+      return interval === 'month' ? 'monthly' : interval === 'year' ? 'yearly' : null
+    }
+    return null
+  }
+
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object as any
@@ -31,12 +40,17 @@ export async function POST(req: NextRequest) {
       if (!companyId || !plan) break
 
       const planRecord = await getPlanByName(plan)
+      // Get subscription to extract billing cycle
+      const stripe = getStripe()
+      const sub = await stripe.subscriptions.retrieve(session.subscription as string)
+      const billingCycle = getBillingCycle(sub)
 
       await prisma.company.update({
         where: { id: companyId },
         data: {
           stripeCustomerId: session.customer,
           stripeSubscriptionId: session.subscription,
+          stripeSubscriptionBillingCycle: billingCycle,
           planId: planRecord?.id ?? undefined,
         },
       })
@@ -50,11 +64,13 @@ export async function POST(req: NextRequest) {
 
       const planName = sub.metadata?.plan?.toUpperCase()
       const planRecord = planName ? await getPlanByName(planName) : null
+      const billingCycle = getBillingCycle(sub)
 
       await prisma.company.update({
         where: { id: company.id },
         data: {
           stripeSubscriptionId: sub.id,
+          stripeSubscriptionBillingCycle: billingCycle,
           planExpiresAt: sub.status === 'active' ? null : new Date(sub.current_period_end * 1000),
           ...(planRecord ? { planId: planRecord.id } : {}),
         },
@@ -73,6 +89,7 @@ export async function POST(req: NextRequest) {
         data: {
           planId: freePlan?.id ?? null,
           stripeSubscriptionId: null,
+          stripeSubscriptionBillingCycle: null,
           planExpiresAt: null,
         },
       })
