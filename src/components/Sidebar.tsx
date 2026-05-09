@@ -125,9 +125,10 @@ export function Sidebar() {
   const { data: session } = useSession()
 
   const isActive = (path: string) => pathname === path
-  const role = (session?.user as any)?.role
+  const role = session?.user?.role
   const isAdmin = role === 'ADMIN'
   const isManager = role === 'MANAGER' || role === 'ADMIN'
+  const isSuperAdmin = role === 'SUPER_ADMIN'
 
   const userName = session?.user?.name ?? session?.user?.email?.split('@')[0] ?? '?'
   const userEmail = session?.user?.email ?? ''
@@ -213,6 +214,61 @@ export function Sidebar() {
                   </Link>
                 )
               })}
+            </div>
+          </>
+        )}
+
+        {isSuperAdmin && (
+          <>
+            <div className="border-t border-[var(--pp-line)] my-3" />
+            <Link
+              href="/super-admin/dashboard"
+              className="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold rounded-lg transition-all text-[var(--pp-muted)] hover:text-[#a78bfa] hover:bg-[#a78bfa]/10"
+              style={pathname.startsWith('/super-admin') ? { color: '#a78bfa', background: '#a78bfa18' } : {}}
+            >
+              <IconBarChart />
+              Super-Admin
+            </Link>
+            <div className="space-y-0.5 mt-0.5">
+              <Link
+                href="/super-admin/dashboard"
+                className="flex items-center gap-3 pl-8 pr-3 py-2 rounded-lg transition-all text-xs font-medium"
+                style={pathname === '/super-admin/dashboard'
+                  ? { background: '#a78bfa18', color: '#a78bfa' }
+                  : { color: 'var(--pp-muted)' }
+                }
+                onMouseEnter={e => { if (!pathname.startsWith('/super-admin')) (e.currentTarget as HTMLElement).style.color = '#a78bfa' }}
+                onMouseLeave={e => { if (!pathname.startsWith('/super-admin')) (e.currentTarget as HTMLElement).style.color = 'var(--pp-muted)' }}
+              >
+                <IconBarChart />
+                Overview
+              </Link>
+              <Link
+                href="/super-admin/accounts"
+                className="flex items-center gap-3 pl-8 pr-3 py-2 rounded-lg transition-all text-xs font-medium"
+                style={pathname === '/super-admin/accounts'
+                  ? { background: '#a78bfa18', color: '#a78bfa' }
+                  : { color: 'var(--pp-muted)' }
+                }
+                onMouseEnter={e => { if (!pathname.startsWith('/super-admin')) (e.currentTarget as HTMLElement).style.color = '#a78bfa' }}
+                onMouseLeave={e => { if (!pathname.startsWith('/super-admin')) (e.currentTarget as HTMLElement).style.color = 'var(--pp-muted)' }}
+              >
+                <IconUsers />
+                Comptes
+              </Link>
+              <Link
+                href="/super-admin/email"
+                className="flex items-center gap-3 pl-8 pr-3 py-2 rounded-lg transition-all text-xs font-medium"
+                style={pathname === '/super-admin/email'
+                  ? { background: '#a78bfa18', color: '#a78bfa' }
+                  : { color: 'var(--pp-muted)' }
+                }
+                onMouseEnter={e => { if (!pathname.startsWith('/super-admin')) (e.currentTarget as HTMLElement).style.color = '#a78bfa' }}
+                onMouseLeave={e => { if (!pathname.startsWith('/super-admin')) (e.currentTarget as HTMLElement).style.color = 'var(--pp-muted)' }}
+              >
+                <IconLog />
+                Email
+              </Link>
             </div>
           </>
         )}

@@ -21,13 +21,13 @@ export default function SuperAdminLayout({
       return
     }
 
-    if ((session.user as any).role !== 'SUPER_ADMIN') {
+    if (session.user.role !== 'SUPER_ADMIN') {
       router.push('/app')
       return
     }
   }, [session, status, router])
 
-  if (status === 'loading' || !session || (session.user as any).role !== 'SUPER_ADMIN') {
+  if (status === 'loading' || !session || session.user.role !== 'SUPER_ADMIN') {
     return null
   }
 

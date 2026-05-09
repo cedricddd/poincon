@@ -41,7 +41,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-[var(--pp-bg)] flex items-center justify-center px-4" suppressHydrationWarning>
-      <div className="w-full max-w-lg">
+      <div className="w-full max-w-lg" suppressHydrationWarning>
         <div className="text-center mb-8" suppressHydrationWarning>
           <Link href="/" className="text-3xl font-bold text-[var(--pp-ink)]">
             PoinçOn
@@ -61,7 +61,7 @@ export default function LoginPage() {
               <label htmlFor="email" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
                 Email
               </label>
-              <input suppressHydrationWarning
+              <input
                 id="email"
                 type="email"
                 value={email}
@@ -76,7 +76,7 @@ export default function LoginPage() {
               <label htmlFor="password" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
                 Mot de passe
               </label>
-              <input suppressHydrationWarning
+              <input
                 id="password"
                 type="password"
                 value={password}

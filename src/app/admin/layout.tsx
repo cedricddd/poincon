@@ -21,13 +21,13 @@ export default function AdminLayout({
       return
     }
 
-    if ((session.user as any).role !== 'ADMIN') {
+    if (session.user.role !== 'ADMIN') {
       router.push('/app')
       return
     }
   }, [session, status, router])
 
-  if (status === 'loading' || !session || (session.user as any).role !== 'ADMIN') {
+  if (status === 'loading' || !session || session.user.role !== 'ADMIN') {
     return null
   }
 
