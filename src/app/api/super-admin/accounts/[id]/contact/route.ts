@@ -1,0 +1,53 @@
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '@/auth'
+import { prisma } from '@/lib/prisma'
+import { NextRequest, NextResponse } from 'next/server'
+import { logAudit } from '@/lib/audit'
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id || (session.user as any).role !== 'SUPER_ADMIN') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    const { contactEmail, marketingConsent } = await req.json()
+
+    const company = await prisma.company.findUnique({
+      where: { id: params.id },
+    })
+
+    if (!company) {
+      return NextResponse.json({ error: 'Company not found' }, { status: 404 })
+    }
+
+    const updated = await prisma.company.update({
+      where: { id: params.id },
+      data: {
+        ...(contactEmail && { contactEmail }),
+        ...(marketingConsent !== undefined && { marketingConsent }),
+      },
+      include: { admin: { select: { email: true } } },
+    })
+
+    await logAudit({
+      userId: session.user.id,
+      action: 'SUPER_ADMIN_UPDATE_CONTACT',
+      resource: 'Company',
+      resourceId: params.id,
+      changes: {
+        contactEmail: contactEmail || company.contactEmail,
+        marketingConsent: marketingConsent ?? company.marketingConsent,
+        companyName: company.name,
+      },
+    })
+
+    return NextResponse.json(updated)
+  } catch (error) {
+    console.error('Super-admin contact update error:', error)
+    return NextResponse.json({ error: 'Failed to update contact' }, { status: 500 })
+  }
+}

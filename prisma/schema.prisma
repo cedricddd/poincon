@@ -1,6 +1,6 @@
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x", "linux-musl"]
 }
 
 datasource db {
@@ -126,17 +126,26 @@ model Company {
   stripeCustomerId      String?
   stripeSubscriptionId  String?
   planExpiresAt         DateTime?
+  contactEmail          String?         // email de contact pour rappels paiement
+  lastActivityAt        DateTime?       // mis à jour après chaque pointage (timestamp uniquement)
+  marketingConsent      Boolean         @default(false) // pour les emails marketing
   createdAt             DateTime        @default(now())
   updatedAt             DateTime        @updatedAt
+  deletedAt             DateTime?       // soft delete pour RGPD
 
   admin                 User            @relation("CompanyAdmin", fields: [adminId], references: [id])
   members               User[]          @relation("CompanyMembers")
   plan                  Plan?           @relation(fields: [planId], references: [id])
   teams                 Team[]
+  featureFlags          CompanyFeatureFlag[]
+  planHistory           PlanHistory[]
 
   @@index([adminId])
   @@index([planId])
   @@index([stripeCustomerId])
+  @@index([createdAt])
+  @@index([lastActivityAt])
+  @@index([deletedAt])
 }
 
 model Team {
@@ -165,6 +174,35 @@ model TeamMember {
   @@unique([userId, teamId])
   @@index([userId])
   @@index([teamId])
+}
+
+model CompanyFeatureFlag {
+  id         String   @id @default(cuid())
+  companyId  String
+  flag       String   // ex: "early_access_api", "extended_export"
+  enabled    Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, flag])
+  @@index([companyId])
+}
+
+model PlanHistory {
+  id        String   @id @default(cuid())
+  companyId String
+  fromPlan  String?
+  toPlan    String
+  changedBy String   // "SUPER_ADMIN" ou "STRIPE_WEBHOOK"
+  reason    String?
+  createdAt DateTime @default(now())
+
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([createdAt])
 }
 
 model ClockRecord {

@@ -98,3 +98,14 @@ export async function sendEndOfDayReminderEmail(params: { to: string; name: stri
 
   await transporter.sendMail({ from: FROM, to, subject, html: body })
 }
+
+export async function sendEmail(params: {
+  to: string
+  subject: string
+  html: string
+}) {
+  if (!process.env.BREVO_SMTP_KEY) return
+
+  const { to, subject, html } = params
+  await transporter.sendMail({ from: FROM, to, subject, html })
+}
