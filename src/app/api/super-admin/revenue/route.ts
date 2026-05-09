@@ -26,7 +26,6 @@ export async function GET() {
     // Calculate MRR and ARR
     let mrrMonthly = 0 // Monthly subscriptions converted to monthly value
     let mrrYearly = 0 // Yearly subscriptions converted to monthly value (divided by 12)
-    let arrTotal = 0 // Total annual recurring revenue
 
     const monthlyCount = { SOLO: 0, TEAM: 0, ENTERPRISE: 0 }
     const yearlyCount = { SOLO: 0, TEAM: 0, ENTERPRISE: 0 }
