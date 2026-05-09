@@ -88,6 +88,13 @@ function IconUserCheck() {
     </svg>
   )
 }
+function IconLog() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="13" x2="8" y2="13"/><line x1="12" y1="17" x2="8" y2="17"/>
+    </svg>
+  )
+}
 
 /* ── Nav config — chaque lien a sa couleur propre ───────────────────────── */
 
@@ -107,6 +114,7 @@ const adminSubLinks = [
   { href: '/admin/dashboard/users',     label: 'Utilisateurs', Icon: IconUsers,     color: '#6366f1' },
   { href: '/admin/dashboard/sites',     label: 'Sites',        Icon: IconBuilding,  color: '#8b5cf6' },
   { href: '/admin/dashboard/teams',     label: 'Équipes',      Icon: IconUsers,     color: '#ec4899' },
+  { href: '/admin/dashboard/audit',     label: 'Audit Trail',  Icon: IconLog,       color: '#a855f7' },
   { href: '/admin/dashboard/reports',   label: 'Rapports',     Icon: IconBarChart,  color: '#6366f1' },
 ]
 

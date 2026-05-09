@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { logAudit } from '@/lib/audit'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
@@ -22,6 +23,28 @@ export async function POST(req: NextRequest) {
         location: location || 'Sur site',
         ...(siteId && { siteId }),
       },
+    })
+
+    // Update company's lastActivityAt for super-admin dashboard
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { companyId: true },
+    })
+    if (user?.companyId) {
+      await prisma.company.update({
+        where: { id: user.companyId },
+        data: { lastActivityAt: new Date() },
+      })
+    }
+
+    await logAudit({
+      userId: session.user.id,
+      action: 'clock_in',
+      resource: 'clockRecord',
+      resourceId: record.id,
+      changes: { arrivalTime, location: location || 'Sur site', siteId: siteId ?? null },
+      ipAddress: req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? undefined,
+      userAgent: req.headers.get('user-agent') ?? undefined,
     })
 
     return NextResponse.json(record, { status: 201 })
@@ -52,6 +75,18 @@ export async function PATCH(req: NextRequest) {
       },
     })
 
+    // Update company's lastActivityAt for super-admin dashboard
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { companyId: true },
+    })
+    if (user?.companyId) {
+      await prisma.company.update({
+        where: { id: user.companyId },
+        data: { lastActivityAt: new Date() },
+      })
+    }
+
     // Get user's standard hours
     const userSchedule = await prisma.userSchedule.findUnique({
       where: { userId: session.user.id },
@@ -75,6 +110,16 @@ export async function PATCH(req: NextRequest) {
         },
       })
     }
+
+    await logAudit({
+      userId: session.user.id,
+      action: 'clock_out',
+      resource: 'clockRecord',
+      resourceId: record.id,
+      changes: { departureTime, duration: record.duration },
+      ipAddress: req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? undefined,
+      userAgent: req.headers.get('user-agent') ?? undefined,
+    })
 
     return NextResponse.json(record, { status: 200 })
   } catch (error) {
