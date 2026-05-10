@@ -4,28 +4,23 @@ const bcrypt = require('bcryptjs')
 const prisma = new PrismaClient()
 
 async function main() {
-  // Utiliser un hash pré-généré pour éviter les problèmes async
-  // Hash de 'password123' avec bcrypt (salt 10)
-  const hashedPassword = '$2a$10$K9P.FWmVyL0A3oWlBhNLX.ZkH8vH0Vd7vH5M0V5M0V5M0V5M0'
+  // Hash pré-généré de 'password123' avec bcrypt (salt 10)
+  const hashedPassword = '$2a$10$qmAeOx1y8JeUodYtEFVxzu6Zn426LIBDK.lkFgLJBrUJPMDz1CUoG'
 
-  // Ou regénérer le hash
   try {
-    const newHash = await bcrypt.hash('password123', 10)
-    console.log('Hashed password:', newHash)
-
     const user = await prisma.user.upsert({
       where: { email: 'admin@poincon.be' },
-      update: { password: newHash },
+      update: { password: hashedPassword },
       create: {
         email: 'admin@poincon.be',
         name: 'Admin User',
-        password: newHash,
+        password: hashedPassword,
         role: 'ADMIN',
         active: true,
       },
     })
 
-    console.log('✅ User created/updated:', user.email, 'with hash:', newHash.substring(0, 20) + '...')
+    console.log('✅ User created/updated:', user.email)
   } catch (e) {
     console.error('❌ Error creating user:', e.message)
     throw e
