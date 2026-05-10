@@ -12,8 +12,9 @@ export async function middleware(request: NextRequest) {
   if (AUTH_ROUTES.some(r => pathname.startsWith(r)) && request.method === 'POST') {
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
       ?? request.headers.get('x-real-ip')
+      ?? request.ip
       ?? 'unknown'
-    const { allowed, remaining } = rateLimit(`auth:${ip}`, 10, 5 * 60 * 1000)
+    const { allowed, remaining } = rateLimit(`auth:${ip}`, 20, 5 * 60 * 1000)
     if (!allowed) {
       return NextResponse.json(
         { error: 'Trop de tentatives. Réessayez dans 5 minutes.' },
