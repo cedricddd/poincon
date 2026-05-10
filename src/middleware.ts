@@ -14,7 +14,6 @@ export async function middleware(request: NextRequest) {
     if (request.method === 'POST') {
       const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
         ?? request.headers.get('x-real-ip')
-        ?? request.ip
         ?? 'unknown'
       const { allowed, remaining } = rateLimit(`auth:${ip}`, 10, 5 * 60 * 1000)
       if (!allowed) {
