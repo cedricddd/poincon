@@ -14,17 +14,19 @@ export async function middleware(request: NextRequest) {
     if (request.method === 'POST') {
       const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
         ?? request.headers.get('x-real-ip')
-        ?? 'unknown'
-      const { allowed, remaining } = rateLimit(`auth:${ip}`, 10, 5 * 60 * 1000)
-      if (!allowed) {
-        return NextResponse.json(
-          { error: 'Trop de tentatives. Réessayez dans 5 minutes.' },
-          { status: 429, headers: { 'Retry-After': '300' } }
-        )
+      // Utiliser l'IP seulement si disponible — sans IP on ne rate-limite pas (Docker sans proxy)
+      if (ip) {
+        const { allowed, remaining } = rateLimit(`auth:${ip}`, 10, 5 * 60 * 1000)
+        if (!allowed) {
+          return NextResponse.json(
+            { error: 'Trop de tentatives. Réessayez dans 5 minutes.' },
+            { status: 429, headers: { 'Retry-After': '300' } }
+          )
+        }
+        const res = NextResponse.next()
+        res.headers.set('X-RateLimit-Remaining', String(remaining))
+        return res
       }
-      const res = NextResponse.next()
-      res.headers.set('X-RateLimit-Remaining', String(remaining))
-      return res
     }
     return NextResponse.next()
   }
