@@ -4,8 +4,8 @@ const bcrypt = require('bcryptjs')
 const prisma = new PrismaClient()
 
 async function main() {
-  // Hash pré-généré de 'password123' avec bcrypt (salt 10)
-  const hashedPassword = '$2a$10$qmAeOx1y8JeUodYtEFVxzu6Zn426LIBDK.lkFgLJBrUJPMDz1CUoG'
+  // Générer un nouveau hash à chaque fois pour éviter les problèmes d'échappement
+  const hashedPassword = await bcrypt.hash('password123', 10)
 
   try {
     const user = await prisma.user.upsert({
