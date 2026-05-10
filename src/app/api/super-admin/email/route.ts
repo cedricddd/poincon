@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
           return 0
         }
       })
-    ).then((results) => results.reduce((a, b) => a + b, 0))
+    ).then((results) => results.reduce((a: number, b: number) => a + b, 0))
 
     await logAudit({
       userId: session.user.id,
