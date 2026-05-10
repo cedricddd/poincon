@@ -66,7 +66,7 @@ export async function PATCH(
         toPlan: newPlan.name,
         reason,
         companyName: company.name,
-        adminEmail: company.admin.email,
+        adminEmail: updated.admin?.email,
       },
     })
 
