@@ -11,11 +11,12 @@ async function requireAdmin() {
 }
 
 export async function GET() {
-  const session = await requireAdmin()
-  if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const session = await requireAdminWithCompany()
+  if (!auth) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   // Return all users with their schedule (or null if none assigned)
   const users = await prisma.user.findMany({
+    where: { companyId: auth.admin.companyId },
     select: {
       id: true,
       name: true,
@@ -40,8 +41,8 @@ export async function GET() {
 }
 
 export async function PATCH(req: NextRequest) {
-  const session = await requireAdmin()
-  if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const session = await requireAdminWithCompany()
+  if (!auth) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const { userId, scheduleType } = await req.json()
   if (!userId) return NextResponse.json({ error: 'userId requis' }, { status: 400 })
@@ -78,3 +79,4 @@ export async function PATCH(req: NextRequest) {
 
   return NextResponse.json(schedule)
 }
+
