@@ -84,14 +84,16 @@ self.addEventListener('fetch', e => {
       caches.open(IMAGE_CACHE).then(cache => {
         return cache.match(request).then(cached => {
           if (cached) return cached
-          return fetch(request).then(res => {
-            if (res.status === 200) {
-              cache.put(request, res.clone())
-            }
-            return res
-          })
+          return fetch(request)
+            .then(res => {
+              if (res.status === 200) {
+                cache.put(request, res.clone())
+              }
+              return res
+            })
+            .catch(() => caches.match(request) || new Response('Image not found', { status: 404 }))
         })
-      }).catch(() => caches.match(request))
+      })
     )
     return
   }
@@ -123,13 +125,18 @@ self.addEventListener('fetch', e => {
     request.destination === 'font'
   ) {
     e.respondWith(
-      caches.match(request).then(cached => cached || fetch(request).then(res => {
-        if (res.ok && request.method === 'GET') {
-          const resClone = res.clone()
-          caches.open(CACHE_NAME).then(c => c.put(request, resClone))
-        }
-        return res
-      }))
+      caches.match(request).then(cached => {
+        if (cached) return cached
+        return fetch(request)
+          .then(res => {
+            if (res.ok && request.method === 'GET') {
+              const resClone = res.clone()
+              caches.open(CACHE_NAME).then(c => c.put(request, resClone))
+            }
+            return res
+          })
+          .catch(() => caches.match('/offline'))
+      })
     )
     return
   }
