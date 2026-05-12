@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     where: { id: session.user.id },
     select: { role: true, companyId: true },
   })
-  if (user?.role !== 'ADMIN') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  if (!user?.companyId) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const { searchParams } = req.nextUrl
   const plan = searchParams.get('plan')?.toUpperCase()
