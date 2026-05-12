@@ -66,6 +66,24 @@ export const authOptions: NextAuthOptions = {
       if (session.user && token.sub) {
         session.user.id = token.sub
         session.user.role = token.role
+
+        // Ensure user has a company (create if needed)
+        const user = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { companyId: true },
+        })
+        if (!user?.companyId) {
+          const company = await prisma.company.create({
+            data: {
+              name: `Company of ${session.user.name || session.user.email}`,
+              adminId: token.sub,
+            },
+          })
+          await prisma.user.update({
+            where: { id: token.sub },
+            data: { companyId: company.id },
+          })
+        }
       }
       return session
     },
