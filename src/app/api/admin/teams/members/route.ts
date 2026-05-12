@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { getUserPlan, planCanAccess } from '@/lib/plan'
 import { NextRequest, NextResponse } from 'next/server'
 
 async function requireAdmin() {
@@ -14,6 +15,11 @@ async function requireAdmin() {
 export async function POST(req: NextRequest) {
   const session = await requireAdmin()
   if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  const plan = await getUserPlan(session.user.id)
+  if (!planCanAccess(plan, 'teams')) {
+    return NextResponse.json({ error: 'Plan insuffisant' }, { status: 403 })
+  }
 
   const { teamId, userId, role } = await req.json()
   if (!teamId || !userId) return NextResponse.json({ error: 'teamId et userId requis' }, { status: 400 })
@@ -39,6 +45,11 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const session = await requireAdmin()
   if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  const plan = await getUserPlan(session.user.id)
+  if (!planCanAccess(plan, 'teams')) {
+    return NextResponse.json({ error: 'Plan insuffisant' }, { status: 403 })
+  }
 
   const { searchParams } = new URL(req.url)
   const teamId = searchParams.get('teamId')

@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { getUserPlan, planCanAccess } from '@/lib/plan'
 import { NextRequest, NextResponse } from 'next/server'
 
 async function requireManager() {
@@ -13,6 +14,11 @@ async function requireManager() {
 export async function GET(req: NextRequest) {
   const session = await requireManager()
   if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  const plan = await getUserPlan(session.user.id)
+  if (!planCanAccess(plan, 'managers')) {
+    return NextResponse.json({ error: 'Plan insuffisant' }, { status: 403 })
+  }
 
   // Trouver les équipes où cet utilisateur est manager
   const managedTeams = await prisma.teamMember.findMany({

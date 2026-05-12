@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { getUserPlan, planCanAccess } from '@/lib/plan'
 import { NextRequest, NextResponse } from 'next/server'
 
 async function requireAdmin() {
@@ -13,6 +14,11 @@ async function requireAdmin() {
 export async function GET(req: NextRequest) {
   const session = await requireAdmin()
   if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  const plan = await getUserPlan(session.user.id)
+  if (!planCanAccess(plan, 'advanced_reports')) {
+    return NextResponse.json({ error: 'Plan insuffisant' }, { status: 403 })
+  }
 
   const { searchParams } = new URL(req.url)
   const userId = searchParams.get('userId') || undefined

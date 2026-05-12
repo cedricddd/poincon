@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { getUserPlan, planCanAccess } from '@/lib/plan'
 import { NextResponse } from 'next/server'
 
 export async function GET() {
@@ -10,6 +11,11 @@ export async function GET() {
   const user = await prisma.user.findUnique({ where: { id: session.user.id } })
   if (user?.role !== 'MANAGER' && user?.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  const plan = await getUserPlan(session.user.id)
+  if (!planCanAccess(plan, 'managers')) {
+    return NextResponse.json({ error: 'Plan insuffisant' }, { status: 403 })
   }
 
   const managedTeams = await prisma.teamMember.findMany({

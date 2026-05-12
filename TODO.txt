@@ -2,7 +2,7 @@
                     POINÇON - TODO LIST (MVP & FEATURES)
 ================================================================================
 
-Dernière mise à jour: 2026-05-08
+Dernière mise à jour: 2026-05-10
 Version: 0.1.0
 
 ================================================================================
@@ -118,16 +118,105 @@ PHASE 7: UX & FEATURES EMPLOYÉ (COMPLÉTÉ ✓)
         — en attente du nom définitif de l'application
 
 ================================================================================
-PHASE 8: ÉQUIPES & PERMISSIONS
+PHASE 8: ÉQUIPES & PERMISSIONS (COMPLÉTÉ ✓ partiel)
 ================================================================================
 
-[ ] Gestion Équipes
-    [ ] Créer/modifier équipes
-    [ ] Assigner employés aux équipes
-    [ ] Manager par équipe (sous-admin)
-
-[ ] Rôles : Admin / Manager / Employé / Approver
+✓ Modèle Team + assignation employés
+✓ Rôle MANAGER (/manager/dashboard) — sous-admin équipe uniquement
+✓ Rôles : ADMIN / MANAGER / EMPLOYEE
 [ ] Widget "Prochains congés" (team view)
+
+================================================================================
+PHASE 9: PLANS & MONÉTISATION (À VÉRIFIER)
+================================================================================
+
+[ ] Vérifier intégration Stripe (FREE / SOLO / TEAM / ENTERPRISE)
+[ ] Helper planCanAccess(plan, feature) appliqué partout
+[ ] Page pricing publique
+[ ] Webhook Stripe → mise à jour plan en base
+
+================================================================================
+PHASE 10: INTÉGRATIONS ERP (ENTERPRISE) — À FAIRE PLUS TARD
+================================================================================
+
+[ ] API publique REST /api/v1/* (Enterprise uniquement)
+    [ ] Modèle ApiKey (hash + scopes + teamId)
+    [ ] Middleware auth Bearer + check plan
+    [ ] Endpoints : timeEntries, employees, exports, overtimes
+    [ ] Rate limiting par clé
+    [ ] Doc OpenAPI auto-générée
+
+[ ] Webhooks sortants (push vers ERP client)
+    [ ] Modèle Webhook (url, events, secret HMAC)
+    [ ] Events : time.clocked_in, time.clocked_out, overtime.approved,
+                timeoff.approved, rtt.approved
+    [ ] Retry exponentiel + dead letter queue
+    [ ] UI gestion clés API + webhooks (/admin/dashboard/integrations)
+
+But : éviter le double encodage côté client (sync auto avec leur ERP)
+
+================================================================================
+PHASE 11: HEURES SUPPLÉMENTAIRES — MODE PRÉ-AUTORISATION (À FAIRE PLUS TARD)
+================================================================================
+
+Contexte : aujourd'hui DetectedOvertime fonctionne en a posteriori
+(détection au pointage départ + approbation après coup).
+Nouveau besoin : autorisation a priori pour cadrer les HS avant qu'elles
+arrivent (anti-abus, conformité légale BE).
+
+[ ] Modèle OvertimeAuthorization
+    [ ] userId, date, maxHours, reason, status (PENDING/APPROVED/REJECTED)
+    [ ] approverId, approvedAt, rejectionReason
+[ ] Flow employé : demande "le 15/05 j'autorise jusqu'à 3h sup"
+[ ] Flow manager : approbation depuis /manager/dashboard
+[ ] Côté pointage : check au clockOut
+    [ ] Si dépassement ET autorisation valide → accepté silencieusement
+    [ ] Si dépassement SANS autorisation → bloque OU marque unauthorized
+[ ] Choix mode par entreprise/employé :
+    [ ] Mode souple (DetectedOvertime existant)
+    [ ] Mode strict (OvertimeAuthorization obligatoire)
+    [ ] Mode mixte (autorisation optionnelle, sinon détection auto)
+[ ] Page /app/overtime → ajouter onglet "Demander autorisation"
+[ ] Page /manager/dashboard/overtime → file d'attente autorisations
+
+================================================================================
+PHASE 12: MODE KIOSQUE TABLETTE (À FAIRE)
+================================================================================
+
+Contexte : tablette partagée à l'entrée d'un site. Écran d'accueil avec
+deux choix : VISITEUR (encodage sur place) ou EMPLOYÉ (pointage rapide).
+
+[ ] Route publique /kiosk (pas d'auth user, device-level uniquement)
+    [ ] Verrou device : token KIOSK_TOKEN en cookie/localStorage
+    [ ] Lien d'appairage admin : /admin/dashboard/kiosks (générer token + siteId)
+    [ ] Modèle Kiosk (id, siteId, token hash, label, lastSeenAt)
+[ ] Écran d'accueil kiosque
+    [ ] Deux gros boutons : VISITEUR / EMPLOYÉ
+    [ ] Plein écran, gros tactile, branding site
+    [ ] Auto-retour accueil après 30s d'inactivité
+[ ] Flow EMPLOYÉ
+    [ ] Saisie PIN 4-6 chiffres (ou scan badge plus tard)
+    [ ] Pointage IN/OUT auto selon dernier état
+    [ ] Toast succès + retour accueil 3s
+    [ ] Champ User.kioskPin (hashé) + UI admin pour le définir
+[ ] Flow VISITEUR
+    [ ] Modèle Visitor (nom, société, motif, personneVisitée, siteId,
+        checkInAt, checkOutAt, signatureBase64?)
+    [ ] Formulaire encodage (clavier tactile-friendly)
+    [ ] Notification email à la personne visitée (Brevo)
+    [ ] Bouton "départ visiteur" sur l'accueil (liste visiteurs présents)
+    [ ] Impression badge visiteur (option par site)
+        [ ] Template badge A6/étiquette (nom, société, hôte, date, QR code)
+        [ ] Génération PDF côté serveur (jsPDF, déjà installé)
+        [ ] Impression via navigateur (window.print) ou imprimante thermique
+            réseau (Brother QL / Zebra, IPP/CUPS)
+        [ ] Config par site : Site.badgePrinterEnabled + format/template
+        [ ] QR code = visitorId → scan au départ pour check-out rapide
+[ ] Page admin /admin/dashboard/visitors
+    [ ] Liste filtrée par site/date + export CSV
+    [ ] Registre légal (rétention 1 an, RGPD)
+[ ] PWA : install fullscreen + lock orientation paysage
+[ ] Mode hors-ligne : queue locale des pointages si réseau coupé
 
 ================================================================================
 BUGS & OPTIMISATIONS CONNUS

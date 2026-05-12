@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { sendApprovalEmail } from '@/lib/mail'
+import { getUserPlan, planCanAccess } from '@/lib/plan'
 import { NextRequest, NextResponse } from 'next/server'
 
 async function getManagerTeamMemberIds(managerId: string): Promise<string[]> {
@@ -27,6 +28,11 @@ export async function PATCH(req: NextRequest) {
     const user = await prisma.user.findUnique({ where: { id: session.user.id } })
     if (user?.role !== 'MANAGER' && user?.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    const plan = await getUserPlan(session.user.id)
+    if (!planCanAccess(plan, 'managers')) {
+      return NextResponse.json({ error: 'Plan insuffisant' }, { status: 403 })
     }
 
     const { type, requestId, action, rejectionReason } = await req.json()
