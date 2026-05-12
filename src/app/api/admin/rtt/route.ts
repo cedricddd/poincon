@@ -1,22 +1,36 @@
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '@/auth'
+import { requireAdminWithCompany, canAccessUser, forbiddenError } from '@/lib/admin-security'
 import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 
-async function requireAdmin() {
-  const session = await getServerSession(authOptions)
-  if (!session?.user?.id) return null
-  const user = await prisma.user.findUnique({ where: { id: session.user.id } })
-  return user?.role === 'ADMIN' ? session : null
+export async function GET(req: NextRequest) {
+  const auth = await requireAdminWithCompany()
+  if (!auth) return forbiddenError()
+
+  const requests = await prisma.rTTRequest.findMany({
+    where: {
+      user: { companyId: auth.admin.companyId },
+    },
+    include: {
+      user: { select: { id: true, name: true, email: true } },
+      approvedBy: { select: { name: true } },
+    },
+    orderBy: { createdAt: 'desc' },
+  })
+
+  return NextResponse.json({ requests })
 }
 
 export async function POST(req: NextRequest) {
-  const session = await requireAdmin()
-  if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const auth = await requireAdminWithCompany()
+  if (!auth) return forbiddenError()
 
   const { userId, date, hoursToRecover, reason, status } = await req.json()
   if (!userId || !date || !hoursToRecover) {
     return NextResponse.json({ error: 'userId, date et hoursToRecover sont requis' }, { status: 400 })
+  }
+
+  if (!await canAccessUser(auth.admin.companyId, userId)) {
+    return forbiddenError()
   }
 
   const record = await prisma.rTTRequest.create({
@@ -26,7 +40,7 @@ export async function POST(req: NextRequest) {
       hoursToRecover: parseFloat(hoursToRecover),
       reason: reason ?? null,
       status: status ?? 'APPROVED',
-      approvedBy: session.user.id,
+      approvedBy: auth.session.user.id,
       approvedAt: new Date(),
     },
   })
@@ -41,7 +55,7 @@ export async function POST(req: NextRequest) {
 
   await prisma.auditLog.create({
     data: {
-      userId: session.user.id,
+      userId: auth.session.user.id,
       action: 'admin_create',
       resource: 'rtt',
       resourceId: record.id,
@@ -53,14 +67,18 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const session = await requireAdmin()
-  if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const auth = await requireAdminWithCompany()
+  if (!auth) return forbiddenError()
 
   const { id, date, hoursToRecover, reason, status } = await req.json()
   if (!id) return NextResponse.json({ error: 'id requis' }, { status: 400 })
 
-  const existing = await prisma.rTTRequest.findUnique({ where: { id } })
+  const existing = await prisma.rTTRequest.findUnique({
+    where: { id },
+    include: { user: { select: { companyId: true } } },
+  })
   if (!existing) return NextResponse.json({ error: 'RTT introuvable' }, { status: 404 })
+  if (existing.user.companyId !== auth.admin.companyId) return forbiddenError()
 
   const record = await prisma.rTTRequest.update({
     where: { id },
@@ -74,7 +92,7 @@ export async function PATCH(req: NextRequest) {
 
   await prisma.auditLog.create({
     data: {
-      userId: session.user.id,
+      userId: auth.session.user.id,
       action: 'admin_edit',
       resource: 'rtt',
       resourceId: id,
@@ -86,17 +104,23 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const session = await requireAdmin()
-  if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const auth = await requireAdminWithCompany()
+  if (!auth) return forbiddenError()
 
   const id = new URL(req.url).searchParams.get('id')
   if (!id) return NextResponse.json({ error: 'id requis' }, { status: 400 })
+
+  const existing = await prisma.rTTRequest.findUnique({
+    where: { id },
+    include: { user: { select: { companyId: true } } },
+  })
+  if (!existing || existing.user.companyId !== auth.admin.companyId) return forbiddenError()
 
   await prisma.rTTRequest.delete({ where: { id } })
 
   await prisma.auditLog.create({
     data: {
-      userId: session.user.id,
+      userId: auth.session.user.id,
       action: 'admin_delete',
       resource: 'rtt',
       resourceId: id,
