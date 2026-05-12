@@ -49,7 +49,8 @@ self.addEventListener('fetch', e => {
       fetch(request)
         .then(res => {
           if (res.status === 200 && request.method === 'GET') {
-            caches.open(API_CACHE).then(c => c.put(request, res.clone()))
+            const resClone = res.clone()
+            caches.open(API_CACHE).then(c => c.put(request, resClone))
           }
           return res
         })
@@ -101,7 +102,8 @@ self.addEventListener('fetch', e => {
       fetch(request)
         .then(res => {
           if (res.status === 200) {
-            caches.open(CACHE_NAME).then(c => c.put(request, res.clone()))
+            const resClone = res.clone()
+            caches.open(CACHE_NAME).then(c => c.put(request, resClone))
           }
           return res
         })
@@ -123,7 +125,8 @@ self.addEventListener('fetch', e => {
     e.respondWith(
       caches.match(request).then(cached => cached || fetch(request).then(res => {
         if (res.ok && request.method === 'GET') {
-          caches.open(CACHE_NAME).then(c => c.put(request, res.clone()))
+          const resClone = res.clone()
+          caches.open(CACHE_NAME).then(c => c.put(request, resClone))
         }
         return res
       }))
