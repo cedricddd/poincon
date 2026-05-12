@@ -18,7 +18,14 @@ export async function GET(req: NextRequest) {
     const session = await requireAdmin(req)
     if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
+    const admin = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { companyId: true },
+    })
+    if (!admin?.companyId) return NextResponse.json({ error: 'Company not found' }, { status: 400 })
+
     const users = await prisma.user.findMany({
+      where: { companyId: admin.companyId },
       select: {
         id: true, name: true, email: true, role: true, createdAt: true,
         defaultSiteId: true,
@@ -41,6 +48,20 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json()
     const { id, name, email, role, password, defaultSiteId } = body
     if (!id) return NextResponse.json({ error: 'ID requis' }, { status: 400 })
+
+    const admin = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { companyId: true },
+    })
+    if (!admin?.companyId) return NextResponse.json({ error: 'Company not found' }, { status: 400 })
+
+    const targetUser = await prisma.user.findUnique({
+      where: { id },
+      select: { companyId: true },
+    })
+    if (!targetUser || targetUser.companyId !== admin.companyId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     const allowedRoles = ['EMPLOYEE', 'ADMIN']
     const data: Record<string, unknown> = {}
@@ -79,6 +100,20 @@ export async function DELETE(req: NextRequest) {
 
     if (id === session.user.id) {
       return NextResponse.json({ error: 'Impossible de supprimer votre propre compte' }, { status: 400 })
+    }
+
+    const admin = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { companyId: true },
+    })
+    if (!admin?.companyId) return NextResponse.json({ error: 'Company not found' }, { status: 400 })
+
+    const targetUser = await prisma.user.findUnique({
+      where: { id },
+      select: { companyId: true },
+    })
+    if (!targetUser || targetUser.companyId !== admin.companyId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     // Anonymiser les audit logs avant suppression (RGPD)

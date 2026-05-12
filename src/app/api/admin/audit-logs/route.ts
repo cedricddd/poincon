@@ -14,6 +14,12 @@ export async function GET(req: NextRequest) {
   const session = await requireAdmin()
   if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
+  const admin = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { companyId: true },
+  })
+  if (!admin?.companyId) return NextResponse.json({ error: 'Company not found' }, { status: 400 })
+
   const url = new URL(req.url)
   const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1'))
   const limit = Math.min(100, parseInt(url.searchParams.get('limit') ?? '50'))
@@ -24,7 +30,11 @@ export async function GET(req: NextRequest) {
   const from = url.searchParams.get('from')
   const to = url.searchParams.get('to')
 
-  const where: any = {}
+  const where: any = {
+    user: {
+      companyId: admin.companyId,
+    },
+  }
   if (userId) where.userId = userId
   if (action) where.action = action
   if (from || to) {

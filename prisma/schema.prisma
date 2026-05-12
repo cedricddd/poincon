@@ -120,6 +120,8 @@ model Plan {
 model Company {
   id                    String          @id @default(cuid())
   name                  String
+  address               String?         // adresse pour facturation
+  vatNumber             String?         // numéro de TVA
   domain                String?         @unique
   adminId               String          @unique
   planId                String?
