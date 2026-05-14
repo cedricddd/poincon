@@ -37,6 +37,8 @@ services:
       BREVO_FROM_EMAIL: ${BREVO_FROM_EMAIL:-noreply@example.com}
     ports:
       - "3100:3000"
+    volumes:
+      - uploads_data:/app/public/uploads
     restart: unless-stopped
     networks:
       - poincon-network
@@ -62,6 +64,8 @@ services:
 
 volumes:
   postgres_data:
+    driver: local
+  uploads_data:
     driver: local
 
 networks:
