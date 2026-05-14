@@ -356,7 +356,7 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="shrink-0 px-2 py-3 border-t border-[var(--pp-line)] space-y-1">
+      <div className="shrink-0 px-2 py-3 pb-20 md:pb-3 border-t border-[var(--pp-line)] space-y-1">
         {/* Expand button when collapsed */}
         {c && (
           <button
