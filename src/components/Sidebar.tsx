@@ -50,6 +50,15 @@ function IconChevronRight() {
 function IconLogOut() {
   return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
 }
+function IconMenu() {
+  return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+}
+function IconX() {
+  return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+}
+function IconHome() {
+  return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+}
 
 /* ── Nav config ──────────────────────────────────────────────────────────── */
 
@@ -61,6 +70,7 @@ const links = [
 ]
 
 const adminSubLinks = [
+  { href: '/admin/dashboard',           label: 'Tableau de bord', Icon: IconHome,   color: '#8b5cf6' },
   { href: '/admin/dashboard/overtimes', label: 'Heures Sup.',  Icon: IconTimer,     color: '#fb923c' },
   { href: '/admin/dashboard/timeoffs',  label: 'Congés',       Icon: IconCalendar,  color: '#0ea5e9' },
   { href: '/admin/dashboard/rtts',      label: 'RTT',          Icon: IconZap,       color: '#fb923c' },
@@ -98,6 +108,9 @@ export function Sidebar() {
   const initials = userName.slice(0, 2).toUpperCase()
 
   const [openSections, setOpenSections] = useState({ employee: true, admin: true, superadmin: true })
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  useEffect(() => { setMobileOpen(false) }, [pathname])
 
   // Load saved state + set CSS variable
   useEffect(() => {
@@ -125,14 +138,42 @@ export function Sidebar() {
 
   const isActive = (path: string) => pathname === path
 
-  const w = collapsed ? 'w-14' : 'w-64'
+  // When the mobile drawer is open, always show the expanded layout regardless
+  // of the desktop collapsed preference.
+  const c = collapsed && !mobileOpen
 
   return (
-    <aside className={`hidden md:flex flex-col fixed left-0 top-0 ${w} h-screen border-r border-[var(--pp-line)] bg-[var(--pp-bg)] z-40 transition-all duration-200 overflow-hidden`}>
+    <>
+      {/* Mobile hamburger trigger */}
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="md:hidden fixed top-3 left-3 z-30 p-2 rounded-lg bg-[var(--pp-bg2)] border border-[var(--pp-line)] text-[var(--pp-ink)] shadow-sm"
+        aria-label="Ouvrir le menu"
+      >
+        <IconMenu />
+      </button>
+
+      {/* Mobile backdrop */}
+      {mobileOpen && (
+        <div
+          className="md:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+    <aside className={`flex flex-col fixed left-0 top-0 w-64 h-screen border-r border-[var(--pp-line)] bg-[var(--pp-bg)] z-50 transition-transform md:transition-all duration-200 overflow-hidden ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 ${c ? 'md:w-14' : 'md:w-64'}`}>
+      {/* Mobile close button */}
+      <button
+        onClick={() => setMobileOpen(false)}
+        className="md:hidden absolute top-3 right-3 z-10 p-2 rounded-lg text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)]/40"
+        aria-label="Fermer le menu"
+      >
+        <IconX />
+      </button>
 
       {/* Logo + toggle */}
       <div className="flex items-center h-16 border-b border-[var(--pp-line)] shrink-0 px-3 justify-between">
-        {!collapsed && (
+        {!c && (
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-lg bg-[var(--pp-pos)] flex items-center justify-center shrink-0 shadow-sm">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -142,14 +183,14 @@ export function Sidebar() {
             <span className="font-bold text-[var(--pp-ink)] tracking-tight text-lg">PoinçOn</span>
           </div>
         )}
-        {collapsed && (
+        {c && (
           <div className="w-8 h-8 rounded-lg bg-[var(--pp-pos)] flex items-center justify-center mx-auto shadow-sm">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
             </svg>
           </div>
         )}
-        {!collapsed && (
+        {!c && (
           <button
             onClick={() => setCollapsed(true)}
             className="p-1.5 rounded-lg text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)]/40 transition shrink-0"
@@ -164,7 +205,7 @@ export function Sidebar() {
       <nav className="flex-1 px-2 py-4 overflow-y-auto overflow-x-hidden">
 
         {/* Section Pointage */}
-        {!collapsed && (
+        {!c && (
           <button
             onClick={() => toggleSection('employee')}
             className="w-full flex items-center justify-between px-2.5 py-1.5 mb-1 rounded-lg text-xs font-semibold uppercase tracking-wider text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)]/30 transition-all"
@@ -175,7 +216,7 @@ export function Sidebar() {
             </span>
           </button>
         )}
-        {(collapsed || openSections.employee) && (
+        {(c || openSections.employee) && (
           <div className="space-y-0.5 mb-2">
             {links.map(({ href, label, Icon, color, bg }) => {
               const active = isActive(href)
@@ -183,14 +224,14 @@ export function Sidebar() {
                 <Link
                   key={href}
                   href={href}
-                  title={collapsed ? label : undefined}
-                  className={`flex items-center gap-3 px-2.5 py-2.5 rounded-lg transition-all text-sm font-medium ${collapsed ? 'justify-center' : ''}`}
+                  title={c ? label : undefined}
+                  className={`flex items-center gap-3 px-2.5 py-2.5 rounded-lg transition-all text-sm font-medium ${c ? 'justify-center' : ''}`}
                   style={active ? { background: bg, color } : { color: 'var(--pp-muted)' }}
                   onMouseEnter={e => { if (!active) (e.currentTarget as HTMLElement).style.color = color }}
                   onMouseLeave={e => { if (!active) (e.currentTarget as HTMLElement).style.color = 'var(--pp-muted)' }}
                 >
                   <span style={active ? { color } : {}} className="shrink-0"><Icon /></span>
-                  {!collapsed && label}
+                  {!c && label}
                 </Link>
               )
             })}
@@ -203,12 +244,12 @@ export function Sidebar() {
             <div className="border-t border-[var(--pp-line)] my-2" />
             <Link
               href="/manager/dashboard"
-              title={collapsed ? 'Mon Équipe' : undefined}
-              className={`flex items-center gap-3 px-2.5 py-2.5 text-sm font-medium rounded-lg transition-all text-[var(--pp-muted)] hover:text-[#ec4899] hover:bg-[rgba(236,72,153,0.10)] ${collapsed ? 'justify-center' : ''}`}
+              title={c ? 'Mon Équipe' : undefined}
+              className={`flex items-center gap-3 px-2.5 py-2.5 text-sm font-medium rounded-lg transition-all text-[var(--pp-muted)] hover:text-[#ec4899] hover:bg-[rgba(236,72,153,0.10)] ${c ? 'justify-center' : ''}`}
               style={pathname.startsWith('/manager/dashboard') ? { color: '#ec4899', background: 'rgba(236,72,153,0.10)' } : {}}
             >
               <span className="shrink-0"><IconUsers /></span>
-              {!collapsed && 'Mon Équipe'}
+              {!c && 'Mon Équipe'}
             </Link>
           </>
         )}
@@ -217,7 +258,7 @@ export function Sidebar() {
         {isAdmin && (
           <>
             <div className="border-t border-[var(--pp-line)] my-2" />
-            {!collapsed ? (
+            {!c ? (
               <button
                 onClick={() => toggleSection('admin')}
                 className="w-full flex items-center justify-between px-2.5 py-1.5 mb-1 rounded-lg text-xs font-semibold uppercase tracking-wider text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)]/30 transition-all"
@@ -240,7 +281,7 @@ export function Sidebar() {
                 <IconSettings />
               </Link>
             )}
-            {!collapsed && openSections.admin && (
+            {!c && openSections.admin && (
               <div className="space-y-0.5">
                 {adminSubLinks.map(({ href, label, Icon, color }) => {
                   const active = isActive(href)
@@ -267,7 +308,7 @@ export function Sidebar() {
         {isSuperAdmin && (
           <>
             <div className="border-t border-[var(--pp-line)] my-2" />
-            {!collapsed ? (
+            {!c ? (
               <button
                 onClick={() => toggleSection('superadmin')}
                 className="w-full flex items-center justify-between px-2.5 py-1.5 mb-1 rounded-lg text-xs font-semibold uppercase tracking-wider text-[var(--pp-muted)] hover:text-[#a78bfa] hover:bg-[#a78bfa]/10 transition-all"
@@ -290,7 +331,7 @@ export function Sidebar() {
                 <IconBarChart />
               </Link>
             )}
-            {!collapsed && openSections.superadmin && (
+            {!c && openSections.superadmin && (
               <div className="space-y-0.5">
                 {superAdminSubLinks.map(({ href, label, Icon, color }) => {
                   const active = isActive(href)
@@ -317,7 +358,7 @@ export function Sidebar() {
       {/* Footer */}
       <div className="shrink-0 px-2 py-3 border-t border-[var(--pp-line)] space-y-1">
         {/* Expand button when collapsed */}
-        {collapsed && (
+        {c && (
           <button
             onClick={() => setCollapsed(false)}
             className="w-full flex items-center justify-center p-2 rounded-lg text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)]/40 transition"
@@ -327,14 +368,14 @@ export function Sidebar() {
           </button>
         )}
 
-        {!collapsed && <ThemeToggle />}
+        {!c && <ThemeToggle />}
 
         {session && (
-          <div className={`flex items-center gap-3 px-2 py-2 rounded-lg ${collapsed ? 'justify-center' : ''}`}>
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--pp-info)] to-[var(--pp-pos)] flex items-center justify-center shrink-0" title={collapsed ? userName : undefined}>
+          <div className={`flex items-center gap-3 px-2 py-2 rounded-lg ${c ? 'justify-center' : ''}`}>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--pp-info)] to-[var(--pp-pos)] flex items-center justify-center shrink-0" title={c ? userName : undefined}>
               <span className="text-white text-xs font-bold leading-none">{initials}</span>
             </div>
-            {!collapsed && (
+            {!c && (
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium text-[var(--pp-ink)] truncate leading-tight">{userName}</p>
                 <p className="text-xs text-[var(--pp-muted)] truncate leading-tight">{userEmail}</p>
@@ -345,13 +386,14 @@ export function Sidebar() {
 
         <button
           onClick={() => signOut({ callbackUrl: '/login' })}
-          title={collapsed ? 'Se déconnecter' : undefined}
-          className={`w-full flex items-center gap-2 px-2 py-2 text-xs text-[var(--pp-muted)] hover:text-[var(--pp-neg)] transition rounded-lg hover:bg-[var(--pp-neg)]/8 ${collapsed ? 'justify-center' : ''}`}
+          title={c ? 'Se déconnecter' : undefined}
+          className={`w-full flex items-center gap-2 px-2 py-2 text-xs text-[var(--pp-muted)] hover:text-[var(--pp-neg)] transition rounded-lg hover:bg-[var(--pp-neg)]/8 ${c ? 'justify-center' : ''}`}
         >
           <IconLogOut />
-          {!collapsed && 'Se déconnecter'}
+          {!c && 'Se déconnecter'}
         </button>
       </div>
     </aside>
+    </>
   )
 }
