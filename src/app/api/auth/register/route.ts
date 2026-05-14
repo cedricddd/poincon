@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { firstName, lastName, email, password, phone, companyName, companyAddress, companyVAT } = body
 
-    if (!firstName || !lastName || !email || !password || !companyName || !companyVAT) {
+    if (!firstName || !lastName || !email || !password || !phone || !companyName || !companyAddress || !companyVAT) {
       return NextResponse.json(
         { error: 'Tous les champs obligatoires doivent être remplis' },
         { status: 400 }
@@ -56,8 +56,8 @@ export async function POST(req: NextRequest) {
       const company = await tx.company.create({
         data: {
           name: companyName,
-          address: companyAddress || null,
-          phone: phone || null,
+          address: companyAddress,
+          phone,
           vatNumber: companyVAT,
           contactEmail: email,
           adminId: user.id,

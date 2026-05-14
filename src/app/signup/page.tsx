@@ -162,11 +162,12 @@ export default function SignupPage() {
 
                 <div suppressHydrationWarning>
                   <label htmlFor="phone" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    Téléphone
+                    Téléphone <span className="text-red-500">*</span>
                   </label>
                   <input
                     id="phone"
                     type="tel"
+                    required
                     value={phone}
                     onChange={e => setPhone(e.target.value)}
                     placeholder="+32 470 00 00 00"
@@ -247,11 +248,12 @@ export default function SignupPage() {
 
                 <div suppressHydrationWarning>
                   <label htmlFor="companyAddress" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    Adresse
+                    Adresse <span className="text-red-500">*</span>
                   </label>
                   <input
                     id="companyAddress"
                     type="text"
+                    required
                     value={companyAddress}
                     onChange={e => setCompanyAddress(e.target.value)}
                     placeholder="Rue Example 123, 1000 Bruxelles"

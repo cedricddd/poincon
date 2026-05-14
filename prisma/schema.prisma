@@ -123,9 +123,9 @@ model Plan {
 model Company {
   id                    String          @id @default(cuid())
   name                  String
-  address               String?
-  phone                 String?
-  vatNumber             String?
+  address               String
+  phone                 String
+  vatNumber             String
   domain                String?         @unique
   adminId               String          @unique
   planId                String?
