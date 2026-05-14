@@ -1,11 +1,10 @@
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '@/auth'
+import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { isAdminRole } from '@/lib/roles'
 import { NextRequest, NextResponse } from 'next/server'
 
 async function requireAdmin() {
-  const session = await getServerSession(authOptions)
+  const session = await auth()
   if (!session?.user?.id) return null
   const user = await prisma.user.findUnique({ where: { id: session.user.id } })
   return isAdminRole(user?.role) ? session : null

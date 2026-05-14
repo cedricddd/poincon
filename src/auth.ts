@@ -1,39 +1,27 @@
-import type { NextAuthOptions } from 'next-auth'
-import CredentialsProvider from 'next-auth/providers/credentials'
+import NextAuth, { type NextAuthConfig } from 'next-auth'
+import Credentials from 'next-auth/providers/credentials'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 
-export const authOptions: NextAuthOptions = {
+export const authConfig: NextAuthConfig = {
   providers: [
-    CredentialsProvider({
+    Credentials({
       name: 'Credentials',
       credentials: {
         email: { label: 'Email', type: 'email', placeholder: 'vous@entreprise.be' },
         password: { label: 'Mot de passe', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          console.log('[AUTH] Missing credentials')
-          return null
-        }
+        const email = credentials?.email as string | undefined
+        const password = credentials?.password as string | undefined
+        if (!email || !password) return null
 
         try {
-          console.log('[AUTH] Looking up user:', credentials.email)
-          const user = await prisma.user.findUnique({
-            where: { email: credentials.email },
-          })
+          const user = await prisma.user.findUnique({ where: { email } })
+          if (!user || !user.password) return null
 
-          if (!user || !user.password) {
-            console.log('[AUTH] User not found or no password:', { found: !!user, hasPassword: !!user?.password })
-            return null
-          }
-
-          console.log('[AUTH] User found, comparing password...')
-          const isValid = await bcrypt.compare(credentials.password, user.password)
-          console.log('[AUTH] Password valid:', isValid)
-          if (!isValid) {
-            return null
-          }
+          const isValid = await bcrypt.compare(password, user.password)
+          if (!isValid) return null
 
           return {
             id: user.id,
@@ -52,46 +40,29 @@ export const authOptions: NextAuthOptions = {
     signIn: '/login',
     error: '/login',
   },
+  session: {
+    strategy: 'jwt',
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.sub = user.id
         token.email = user.email
         token.name = user.name
-        token.role = user.role
+        token.role = (user as { role: string }).role
       }
       return token
     },
     async session({ session, token }) {
       if (session.user && token.sub) {
         session.user.id = token.sub
-        session.user.role = token.role
-
-        // SUPER_ADMIN n'a pas besoin de Company
-        if (token.role !== 'SUPER_ADMIN') {
-          const user = await prisma.user.findUnique({
-            where: { id: token.sub },
-            select: { companyId: true },
-          })
-          if (!user?.companyId) {
-            const company = await prisma.company.create({
-              data: {
-                name: `Company of ${session.user.name || session.user.email}`,
-                adminId: token.sub,
-              },
-            })
-            await prisma.user.update({
-              where: { id: token.sub },
-              data: { companyId: company.id },
-            })
-          }
-        }
+        session.user.role = token.role as string
       }
       return session
     },
   },
-  session: {
-    strategy: 'jwt',
-  },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+  trustHost: true,
 }
+
+export const { handlers, auth, signIn, signOut } = NextAuth(authConfig)

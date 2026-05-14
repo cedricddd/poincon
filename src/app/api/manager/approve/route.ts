@@ -1,5 +1,4 @@
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '@/auth'
+import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { sendApprovalEmail } from '@/lib/mail'
 import { getUserPlan, planCanAccess } from '@/lib/plan'
@@ -22,7 +21,7 @@ async function getManagerTeamMemberIds(managerId: string): Promise<string[]> {
 
 export async function PATCH(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const user = await prisma.user.findUnique({ where: { id: session.user.id } })

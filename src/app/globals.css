@@ -15,8 +15,7 @@
   --pp-sky: #0ea5e9;
 }
 
-/* Dark mode — appliqué par classe (toggle manuel) OU préférence système */
-.dark,
+/* Dark mode — préférence système (la classe .dark est gérée plus bas) */
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
     --pp-bg: #111827;
