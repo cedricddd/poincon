@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
   const buffer = Buffer.from(await file.arrayBuffer())
   await writeFile(path.join(UPLOAD_DIR, filename), buffer)
 
-  const logoUrl = `/uploads/logos/${filename}`
+  const logoUrl = `/api/uploads/logos/${filename}`
   await prisma.company.update({
     where: { id: auth.admin.companyId },
     data: { logoUrl },
