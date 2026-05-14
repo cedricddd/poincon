@@ -4,11 +4,13 @@ import { prisma } from "@/lib/prisma"
 
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
   const auth = await requireAdminWithCompany()
-  if (!auth) {
-    return forbiddenError()
+  if (!auth) return forbiddenError()
+
+  const site = await prisma.site.findUnique({ where: { id: params.id }, select: { companyId: true } })
+  if (!site || site.companyId !== auth.admin.companyId) {
+    return NextResponse.json({ error: "Site introuvable" }, { status: 404 })
   }
 
-  // TODO: Site model doesn't have companyId yet — add to schema and filter here
   const { name, address, active } = await request.json()
   if (!name?.trim()) {
     return NextResponse.json({ error: "Le nom du site est requis" }, { status: 400 })
@@ -28,11 +30,13 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
 export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
   const auth = await requireAdminWithCompany()
-  if (!auth) {
-    return forbiddenError()
+  if (!auth) return forbiddenError()
+
+  const site = await prisma.site.findUnique({ where: { id: params.id }, select: { companyId: true } })
+  if (!site || site.companyId !== auth.admin.companyId) {
+    return NextResponse.json({ error: "Site introuvable" }, { status: 404 })
   }
 
-  // TODO: Site model doesn't have companyId yet — add to schema and filter here
   const usersCount = await prisma.user.count({ where: { defaultSiteId: params.id } })
   if (usersCount > 0) {
     return NextResponse.json(

@@ -92,13 +92,16 @@ model Site {
   name         String
   address      String?
   active       Boolean       @default(true)
+  companyId    String
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
+  company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
   users        User[]        @relation("DefaultSite")
   clockRecords ClockRecord[]
 
   @@index([active])
+  @@index([companyId])
 }
 
 model Plan {
@@ -143,6 +146,7 @@ model Company {
   members               User[]          @relation("CompanyMembers")
   plan                  Plan?           @relation(fields: [planId], references: [id])
   teams                 Team[]
+  sites                 Site[]
   featureFlags          CompanyFeatureFlag[]
   planHistory           PlanHistory[]
   invitations           UserInvitation[]

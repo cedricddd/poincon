@@ -16,9 +16,12 @@ export async function POST(req: NextRequest) {
     if (!isAdminRole(requester?.role)) {
       return NextResponse.json({ error: 'Réservé aux administrateurs' }, { status: 403 })
     }
+    if (!requester?.companyId) {
+      return NextResponse.json({ error: 'Compagnie introuvable pour cet admin' }, { status: 400 })
+    }
 
     const body = await req.json()
-    const { email, password, name, company, role, defaultSiteId } = body
+    const { email, password, name, role, defaultSiteId } = body
 
     if (!email || !password || !name) {
       return NextResponse.json({ error: 'Email, mot de passe et nom sont requis' }, { status: 400 })
@@ -56,19 +59,10 @@ export async function POST(req: NextRequest) {
         name,
         role: userRole,
         emailVerified: new Date(),
+        companyId: requester.companyId,
         ...(defaultSiteId && { defaultSiteId }),
       },
     })
-
-    // Créer la compagnie si fournie
-    if (company) {
-      await prisma.company.create({
-        data: {
-          name: company,
-          adminId: user.id,
-        },
-      })
-    }
 
     return NextResponse.json(
       { message: 'Inscription réussie', userId: user.id },

@@ -3,26 +3,28 @@
 ================================================================================
 
 Dernière mise à jour: 2026-05-14
-Version: 0.2.1 (après audit complet)
+Version: 0.2.2 (post-déploiement Portainer)
 
 ================================================================================
-🔥 IMMÉDIAT CRITIQUE - SÉCURITÉ (BLOQUANT!)
+🔥 IMMÉDIAT CRITIQUE - SÉCURITÉ (RÉSOLU ✓)
 ================================================================================
 
-⚠️ DATA LEAK: Routes sans companyId filter - admin A peut voir/approuver data de company B
-   [ ] FIX: /api/admin/requests - ajouter WHERE { user: { companyId: auth.admin.companyId } }
-   [ ] FIX: /api/admin/approve - vérifier companyId avant approuver toute requête (overtime/timeoff/rtt)
-   [ ] VÉRIFIER: /api/admin/presence, /api/admin/sites/[id], /api/admin/users/anonymize
-   [ ] AUDIT: Toutes les routes /api/admin/* - ajouter company filtering si manquant
-   [ ] TEST: Admin A cannot see/edit/delete data de company B (security test suite)
+✓ DATA LEAK FIXED: routes /api/admin/* filtrées par companyId
+   ✓ /api/admin/requests - companyId filter (commit d02872f)
+   ✓ /api/admin/approve - vérifie companyId
+   ✓ /api/admin/presence, /api/admin/sites/[id], /api/admin/users/anonymize
+   ✓ /api/admin/rtt, /api/admin/time-off, /api/admin/clock-records
+   ✓ Helper requireAdminWithCompany() dans src/lib/admin-security.ts
+   [ ] TEST: Admin A cannot see/edit/delete data de company B (test suite manquant)
 
 ================================================================================
-🔥 IMMÉDIAT (NON-COMMITTÉ)
+🔥 IMMÉDIAT (POST-DÉPLOIEMENT)
 ================================================================================
 
-⚙️ Commit all: Super-admin + Company isolation + Invitations + Stripe improvements (37+ files)
-⚙️ Test Stripe flows (cancel/reactivate/webhook) end-to-end
-⚙️ Verify all admin routes properly filter by company (after security fixes above)
+✓ Commit all: Super-admin + Company isolation + Invitations + Stripe improvements
+✓ Push GitHub + redéploiement Portainer (2026-05-14)
+[ ] Test Stripe flows (cancel/reactivate/webhook) end-to-end EN PROD
+[ ] Smoke test post-déploiement (login, pointage, invitations, upload logo)
 
 ================================================================================
 PHASE 1: MVP (COMPLÉTÉ ✓)
@@ -190,11 +192,11 @@ PHASE 9.5: INVITATIONS EMPLOYÉS & AUTHENTIFICATION (PARTIELLEMENT FAIT ⚙️)
 ✓ API /api/auth/company-lookup?email=xxx - lookup company par email (pour signup)
 ✓ Email invitation template (sendInvitationEmail() en Brevo)
 
-[ ] Page UI /admin/dashboard/users/invite - formulaire inviter avec validation
-    [ ] Champs : email, name (optional), role (select EMPLOYEE/MANAGER)
-    [ ] Toast confirmation + liste invitations envoyées
-    [ ] Pouvoir annuler/renvoyer invitation
-[ ] Page UI /admin/dashboard/invitations (ou dans users/invite) - gestion complète
+✓ Page UI /admin/dashboard/users/invite - formulaire inviter avec validation
+    ✓ Champs : email, name (optional), role (select EMPLOYEE/MANAGER)
+    ✓ Toast confirmation + liste invitations envoyées
+    [ ] Pouvoir annuler/renvoyer invitation (UI manquante)
+[ ] Page UI /admin/dashboard/invitations - gestion complète
     [ ] Liste des invitations (email, role, status (en attente/utilisée), date expiration)
     [ ] Boutons : Renvoyer / Annuler / Copier lien
 
@@ -394,11 +396,11 @@ ROUTES API MANQUANTES OU INCOMPLÈTES
 [ ] Webhook pour invoice.payment_succeeded (pour future intégration Peppol)
 
 **Autres routes existantes à vérifier**:
-[ ] /api/admin/requests - AJOUTER companyId filter (DATA LEAK!)
-[ ] /api/admin/approve - VÉRIFIER companyId (DATA LEAK!)
-[ ] /api/admin/presence - Vérifier companyId filter
-[ ] /api/admin/sites/[id] - Vérifier companyId filter
-[ ] /api/admin/users/anonymize - Vérifier companyId filter
+✓ /api/admin/requests - companyId filter ajouté
+✓ /api/admin/approve - companyId vérifié
+✓ /api/admin/presence - companyId filter
+✓ /api/admin/sites/[id] - companyId filter
+✓ /api/admin/users/anonymize - companyId filter
 
 ================================================================================
 TÂCHES BLOQUÉES & DÉPENDANCES EXTERNES
@@ -688,78 +690,50 @@ DÉPLOIEMENT PRODUCTION (À FAIRE)
     [ ] Tester deploy end-to-end (push petit changement, vérifier sur prod)
 
 ================================================================================
-FICHIERS MODIFIÉS À COMMITTER (37+ files)
+DERNIER DÉPLOIEMENT (2026-05-14)
 ================================================================================
 
-**Configuration & Docs:**
-- CLAUDE.md — Deploy section updated (Hostinger only)
-- TODO.txt — Updated version 0.2.0 → 0.2.1
-- prisma/schema.prisma — Multi-tenancy changes? (verify)
+✓ Tout committé et pushé sur GitHub (main)
+✓ Redéployé sur Portainer
+✓ ~60 fichiers : multi-tenancy + invitations + Stripe cancel/reactivate +
+   super-admin profile + uploads volume Docker + company logo upload
+✓ Commits clés : d02872f (company isolation complete), 38c6f9d (uploads volume),
+   c78c786 (uploaded files via API route)
 
-**Auth & Security:**
-- src/auth.ts — Company isolation in session
-- src/lib/admin-security.ts — New security middleware (requireAdminWithCompany)
-- src/lib/roles.ts — NEW file: role helper functions
-- src/lib/mail.ts — sendInvitationEmail + improvements
-- src/app/api/auth/register/route.ts — Company-aware registration
-- src/app/api/auth/signup/route.ts — Multi-tenant signup
-- src/app/api/auth/set-password/route.ts — NEW: invitation fulfillment
-- src/app/api/auth/company-lookup/route.ts — NEW: lookup company by email
+À VALIDER en prod :
+✓ Smoke test signup admin (créé "Test Admin" company "Test PoinçOn SA")
+✓ Test upload logo company (persisté après reload — fix c78c786 OK)
+[ ] Test invitation employé end-to-end EN PROD
+    ⚠️ BLOQUÉ: BREVO_SMTP_USER/KEY vides dans /opt/poincon/.env sur NAS
+    → Validé en LOCAL : email reçu, lien set-password OK, auto-login OK
+    → ACTION: SSH NAS, ajouter clés Brevo dans /opt/poincon/.env, restart app
+    ⚠️ NEXTAUTH_URL=http://192.168.1.124:3100 (LAN only) → liens email
+       inaccessibles depuis l'extérieur. À changer quand domaine prod prêt.
+[ ] Test Stripe checkout + cancel + reactivate
+✓ Test isolation multi-tenant validé en LOCAL (2026-05-14)
+   ✓ Users : Admin A ne voit pas users Company B
+   ✓ Sites : Admin A ne voit pas sites Company B
+   ✓ Audit : Admin A ne voit pas actions Company B
+   🐛 Bugs trouvés et fixés pendant le test :
+      ✓ /api/auth/signup ne passait pas companyId au user créé (orphelins)
+      ✓ Site model n'avait pas de companyId → schema + 3 routes refaites
+      ✓ POST /api/admin/sites manquait complètement
+[ ] Refaire le même test EN PROD après config Brevo + déploiement du fix sites
 
-**Admin APIs (company-filtered):**
-- src/app/api/admin/approve/route.ts — MUST FIX: add companyId filter
-- src/app/api/admin/requests/route.ts — MUST FIX: add companyId filter
-- src/app/api/admin/audit-logs/route.ts
-- src/app/api/admin/presence/route.ts — Verify companyId filter
-- src/app/api/admin/reports/route.ts
-- src/app/api/admin/reports/export/route.ts
-- src/app/api/admin/schedule/route.ts
-- src/app/api/admin/sites/[id]/route.ts — Verify companyId filter
-- src/app/api/admin/teams/route.ts
-- src/app/api/admin/teams/members/route.ts
-- src/app/api/admin/users/route.ts
-- src/app/api/admin/users/[id]/route.ts
-- src/app/api/admin/users/anonymize/route.ts — Verify companyId filter
-- src/app/api/admin/work-schedules/route.ts
-- src/app/api/admin/company/route.ts — NEW: company management (logo, settings)
-- src/app/api/admin/invitations/route.ts — NEW: POST create, GET list, DELETE
+================================================================================
+PROD CONFIG TODO (NAS Portainer)
+================================================================================
 
-**Manager APIs:**
-- src/app/api/manager/approve/route.ts
-- src/app/api/manager/requests/route.ts
-- src/app/api/manager/team-calendar/route.ts
-
-**Stripe APIs:**
-- src/app/api/stripe/checkout/route.ts
-- src/app/api/stripe/cancel/route.ts — NEW
-- src/app/api/stripe/reactivate/route.ts — NEW
-- src/app/api/stripe/portal/route.ts
-- src/app/api/stripe/webhook/route.ts
-
-**Pages & Components:**
-- src/app/page.tsx — Landing page (updated)
-- src/app/login/page.tsx
-- src/app/signup/page.tsx
-- src/app/set-password/page.tsx — NEW: invitation flow UI
-- src/app/app/layout.tsx
-- src/app/admin/layout.tsx
-- src/app/admin/dashboard/page.tsx
-- src/app/admin/dashboard/users/page.tsx
-- src/app/admin/dashboard/settings/page.tsx — NEW: company settings (logo upload)
-- src/app/admin/dashboard/users/[id]/ — NEW: detailed user view
-- src/app/admin/dashboard/users/new/ — NEW: create user form
-- src/app/admin/dashboard/users/invite/ — NEW: invite employee form
-- src/app/manager/layout.tsx
-- src/app/super-admin/layout.tsx
-
-**PWA & Service Worker:**
-- public/sw.js — Updated
-
-**Components:**
-- src/components/Button.tsx
-- src/components/Sidebar.tsx
-
-⏳ Avant de committer: Vérifier que les 10 routes sans companyId filter sont fixées!
+[ ] Configurer Brevo SMTP dans /opt/poincon/.env
+    BREVO_SMTP_USER=a8b679001@smtp-brevo.com
+    BREVO_SMTP_KEY=xsmtpsib-7cb16a... (voir .env local)
+    Puis: docker-compose -f /opt/poincon/docker-compose.yml up -d app
+[ ] Améliorer mail.ts : logger un warning au lieu de silent skip
+    if (!process.env.BREVO_SMTP_KEY) {
+      console.warn('[mail] BREVO_SMTP_KEY missing — email skipped')
+      return
+    }
+[ ] Configurer NEXTAUTH_URL avec vrai domaine public (quand acheté)
 
 ================================================================================
 BUGS & OPTIMISATIONS CONNUS
