@@ -1,36 +1,17 @@
-'use client'
-
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import React, { useEffect } from 'react'
+import { redirect } from 'next/navigation'
+import { auth } from '@/auth'
 import { Sidebar } from '@/components/Sidebar'
 
-export default function AdminLayout({
+export const dynamic = 'force-dynamic'
+
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-
-  useEffect(() => {
-    if (status === 'loading') return
-
-    if (!session || !session.user) {
-      router.push('/login')
-      return
-    }
-
-    if (session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN') {
-      router.push('/app')
-      return
-    }
-
-  }, [session, status, router])
-
-  if (status === 'loading' || !session || session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN') {
-    return null
-  }
+  const session = await auth()
+  if (!session?.user) redirect('/login')
+  if (session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN') redirect('/app')
 
   return (
     <div className="flex">

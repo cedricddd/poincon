@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Syne, DM_Sans } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
+import { auth } from '@/auth'
 
 const syne = Syne({ subsets: ['latin'], variable: '--font-syne', display: 'swap' })
 const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-dm-sans', display: 'swap' })
@@ -24,11 +25,12 @@ export const viewport: Viewport = {
   themeColor: '#10b981',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const session = await auth()
   return (
     <html lang="fr" suppressHydrationWarning className={`${syne.variable} ${dmSans.variable}`}>
       <head>
@@ -36,7 +38,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon-192.svg" />
       </head>
       <body className="antialiased" suppressHydrationWarning>
-        <Providers>{children}</Providers>
+        <Providers session={session}>{children}</Providers>
         <script dangerouslySetInnerHTML={{ __html: `
           (function() {
             try {

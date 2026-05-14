@@ -25,6 +25,7 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
+  output: 'standalone',
   reactStrictMode: true,
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',

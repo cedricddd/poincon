@@ -1,25 +1,16 @@
-'use client'
-
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { redirect } from 'next/navigation'
+import { auth } from '@/auth'
 import { Sidebar } from '@/components/Sidebar'
 import { ToastContainer } from '@/components/Toast'
 import { NotificationBell } from '@/components/NotificationBell'
 
-export default function ManagerLayout({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession()
-  const router = useRouter()
+export const dynamic = 'force-dynamic'
 
-  useEffect(() => {
-    if (status === 'loading') return
-    const role = (session?.user as any)?.role
-    if (!role || (role !== 'MANAGER' && role !== 'ADMIN' && role !== 'SUPER_ADMIN')) {
-      router.replace('/app/clock')
-    }
-  }, [session, status, router])
-
-  if (status === 'loading') return null
+export default async function ManagerLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth()
+  if (!session?.user) redirect('/login')
+  const role = session.user.role
+  if (role !== 'MANAGER' && role !== 'ADMIN' && role !== 'SUPER_ADMIN') redirect('/app/clock')
 
   return (
     <div className="flex">
