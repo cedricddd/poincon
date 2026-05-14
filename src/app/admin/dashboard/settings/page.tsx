@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import Link from 'next/link'
 import { Card } from '@/components/Card'
 import { Button } from '@/components/Button'
 import Image from 'next/image'
@@ -173,7 +174,7 @@ export default function SettingsPage() {
               {uploadingLogo ? 'Upload...' : 'Choisir un logo'}
             </Button>
             {settings?.logoUrl && (
-              <Button size="sm" variant="ghost" onClick={handleLogoDelete} disabled={uploadingLogo}>
+              <Button size="sm" variant="outline" onClick={handleLogoDelete} disabled={uploadingLogo}>
                 Supprimer
               </Button>
             )}
@@ -246,9 +247,9 @@ export default function SettingsPage() {
                   </Button>
                 )}
                 {!isPaid && planName === 'FREE' && (
-                  <a href="/#pricing" className="inline-flex items-center px-4 py-2 bg-[#7c3aed] text-white rounded-lg text-sm font-medium hover:bg-[#6d28d9] transition-colors">
+                  <Link href="/#pricing" className="inline-flex items-center px-4 py-2 bg-[#7c3aed] text-white rounded-lg text-sm font-medium hover:bg-[#6d28d9] transition-colors">
                     Passer à un plan payant →
-                  </a>
+                  </Link>
                 )}
                 {!isPaid && planName !== 'FREE' && (
                   <p className="text-sm text-[var(--pp-muted)] italic">Plan activé manuellement — contactez le support pour la gestion de la facturation.</p>

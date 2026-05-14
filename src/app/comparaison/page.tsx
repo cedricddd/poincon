@@ -433,11 +433,11 @@ export default function ComparaisonPage() {
 
               {/* Features */}
               {Object.entries(competitors[0].features).map(([feature]) => {
-                const items = visibleCompetitors.map(comp => {
+                const items = visibleCompetitors.map((comp, idx) => {
                   const value = comp.features[feature as keyof typeof comp.features]
                   if (typeof value === 'object' && value !== null) {
                     return (
-                      <div className="text-xs space-y-0.5">
+                      <div key={idx} className="text-xs space-y-0.5">
                         <p>🔵 Mid+</p>
                       </div>
                     )

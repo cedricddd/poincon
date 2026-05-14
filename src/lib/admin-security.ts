@@ -14,7 +14,10 @@ export async function requireAdminWithCompany() {
   })
 
   if (!admin?.role || !isAdminRole(admin.role) || !admin.companyId) return null
-  return { session, admin }
+  return {
+    session,
+    admin: { id: admin.id, role: admin.role, companyId: admin.companyId as string },
+  }
 }
 
 export async function canAccessUser(adminCompanyId: string, userId: string) {

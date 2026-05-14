@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Card } from '@/components/Card'
 
 interface RevenueData {
@@ -157,10 +158,10 @@ export default async function SuperAdminDashboard() {
         </div>
         <div className="space-y-2">
           <p className="text-sm text-[var(--pp-muted)]">
-            ✓ Consultez les <a href="/super-admin/accounts" className="text-[#6366f1] hover:underline">comptes clients</a>
+            ✓ Consultez les <Link href="/super-admin/accounts" className="text-[#6366f1] hover:underline">comptes clients</Link>
           </p>
           <p className="text-sm text-[var(--pp-muted)]">
-            ✓ Alertes d&apos;usage: <a href="/super-admin/accounts?status=OVER_QUOTA" className="text-[#6366f1] hover:underline">comptes dépassant leur quota</a>
+            ✓ Alertes d&apos;usage: <Link href="/super-admin/accounts?status=OVER_QUOTA" className="text-[#6366f1] hover:underline">comptes dépassant leur quota</Link>
           </p>
           <p className="text-sm text-[var(--pp-muted)]">
             ✓ Gérez les <a href="/super-admin/email" className="text-[#6366f1] hover:underline">emails en masse</a>

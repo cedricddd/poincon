@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
 
   const requests = await prisma.timeOffRequest.findMany({
     where: { user: { companyId: auth.admin.companyId } },
-    include: { user: { select: { id: true, name: true, email: true } }, approvedBy: { select: { name: true } } },
+    include: { user: { select: { id: true, name: true, email: true } }, approver: { select: { name: true } } },
     orderBy: { createdAt: 'desc' },
   })
   return NextResponse.json({ requests })

@@ -31,12 +31,12 @@ export async function PATCH(req: NextRequest) {
     }
 
     switch (type) {
-      case 'overtime':
+      case 'overtime': {
         const overtime = await prisma.detectedOvertime.findUnique({
           where: { id: requestId },
-          select: { userId: true },
         })
-        if (!overtime || !(await canAccessUser(auth.admin.companyId, overtime.userId))) {
+        if (!overtime) return forbiddenError()
+        if (!(await canAccessUser(auth.admin.companyId, overtime.userId as string))) {
           return forbiddenError()
         }
         result = await prisma.detectedOvertime.update({
@@ -49,13 +49,14 @@ export async function PATCH(req: NextRequest) {
           },
         })
         break
+      }
 
-      case 'timeoff':
+      case 'timeoff': {
         const timeoff = await prisma.timeOffRequest.findUnique({
           where: { id: requestId },
-          select: { userId: true },
         })
-        if (!timeoff || !(await canAccessUser(auth.admin.companyId, timeoff.userId))) {
+        if (!timeoff) return forbiddenError()
+        if (!(await canAccessUser(auth.admin.companyId, timeoff.userId as string))) {
           return forbiddenError()
         }
         result = await prisma.timeOffRequest.update({
@@ -68,13 +69,14 @@ export async function PATCH(req: NextRequest) {
           },
         })
         break
+      }
 
-      case 'rtt':
+      case 'rtt': {
         const rtt = await prisma.rTTRequest.findUnique({
           where: { id: requestId },
-          select: { userId: true },
         })
-        if (!rtt || !(await canAccessUser(auth.admin.companyId, rtt.userId))) {
+        if (!rtt) return forbiddenError()
+        if (!(await canAccessUser(auth.admin.companyId, rtt.userId as string))) {
           return forbiddenError()
         }
         result = await prisma.rTTRequest.update({
@@ -87,6 +89,7 @@ export async function PATCH(req: NextRequest) {
           },
         })
         break
+      }
 
       default:
         return NextResponse.json({ error: 'Invalid type' }, { status: 400 })
@@ -124,7 +127,7 @@ export async function PATCH(req: NextRequest) {
     // Log the action in audit log
     await prisma.auditLog.create({
       data: {
-        userId: session.user.id,
+        userId: auth.admin.id,
         action: `admin_${action}`,
         resource: type,
         resourceId: requestId,

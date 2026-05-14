@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     },
     include: {
       user: { select: { id: true, name: true, email: true } },
-      approvedBy: { select: { name: true } },
+      approver: { select: { name: true } },
     },
     orderBy: { createdAt: 'desc' },
   })

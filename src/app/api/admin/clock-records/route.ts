@@ -7,8 +7,8 @@ export async function GET(req: NextRequest) {
   if (!auth) return forbiddenError()
 
   const overtimes = await prisma.detectedOvertime.findMany({
-    where: { employee: { companyId: auth.admin.companyId } },
-    include: { employee: { select: { name: true, email: true } }, approvedBy: { select: { name: true } } },
+    where: { user: { companyId: auth.admin.companyId } },
+    include: { user: { select: { name: true, email: true } }, approver: { select: { name: true } } },
     orderBy: { createdAt: 'desc' },
   })
   return NextResponse.json({ overtimes })
