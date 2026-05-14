@@ -34,7 +34,7 @@ export default function SuperAdminLayout({
   return (
     <div className="flex">
       <Sidebar />
-      <main className="flex-1 md:ml-64">
+      <main className="flex-1 transition-all duration-200" style={{ marginLeft: 'var(--sidebar-w, 256px)' }}>
         {children}
       </main>
     </div>

@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { isAdminRole } from '@/lib/roles'
 import { getStripe } from '@/lib/stripe'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -12,7 +13,7 @@ export async function GET(req: NextRequest) {
     where: { id: session.user.id },
     select: { role: true, companyId: true },
   })
-  if (user?.role !== 'ADMIN' || !user.companyId) {
+  if (!isAdminRole(user?.role) || !user?.companyId) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 

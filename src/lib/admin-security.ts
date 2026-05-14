@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
+import { isAdminRole } from '@/lib/roles'
 
 export async function requireAdminWithCompany() {
   const session = await getServerSession(authOptions)
@@ -12,7 +13,7 @@ export async function requireAdminWithCompany() {
     select: { id: true, role: true, companyId: true },
   })
 
-  if (!admin?.role || admin.role !== 'ADMIN' || !admin.companyId) return null
+  if (!admin?.role || !isAdminRole(admin.role) || !admin.companyId) return null
   return { session, admin }
 }
 

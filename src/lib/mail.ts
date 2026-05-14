@@ -99,6 +99,78 @@ export async function sendEndOfDayReminderEmail(params: { to: string; name: stri
   await transporter.sendMail({ from: FROM, to, subject, html: body })
 }
 
+export async function sendInvitationEmail(params: {
+  to: string
+  name: string | null
+  companyName: string
+  token: string
+}) {
+  if (!process.env.BREVO_SMTP_KEY) return
+
+  const { to, name, companyName, token } = params
+  const appUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
+  const link = `${appUrl}/set-password?token=${token}`
+  const greeting = name ? `Bonjour ${name},` : 'Bonjour,'
+
+  const subject = `Invitation à rejoindre ${companyName} sur PoinçOn`
+
+  const html = `
+    <div style="font-family:system-ui,sans-serif;max-width:580px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
+      <div style="background:#ffffff;border-radius:12px;padding:32px;border:1px solid #e2e8f0;">
+        <h1 style="margin:0 0 4px;font-size:22px;color:#0f172a;">PoinçOn</h1>
+        <p style="margin:0 0 20px;font-size:13px;color:#94a3b8;">Pointage légal belge</p>
+        <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 24px;">
+
+        <p style="color:#334155;margin:0 0 12px;">${greeting}</p>
+        <p style="color:#334155;margin:0 0 24px;">
+          Vous avez été invité(e) à rejoindre <strong>${companyName}</strong> sur PoinçOn.<br>
+          Cliquez sur le bouton ci-dessous pour créer votre mot de passe et accéder à l'application.
+        </p>
+
+        <a href="${link}"
+           style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:13px 28px;border-radius:8px;font-weight:600;font-size:15px;margin-bottom:28px;">
+          Créer mon mot de passe →
+        </a>
+
+        <p style="color:#64748b;font-size:13px;margin:0 0 4px;">
+          ⏱ Ce lien est valable <strong>48 heures</strong>.
+        </p>
+        <p style="color:#94a3b8;font-size:12px;margin:0 0 28px;word-break:break-all;">
+          ${link}
+        </p>
+
+        <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 24px;">
+
+        <h2 style="font-size:15px;color:#0f172a;margin:0 0 16px;">📱 Installer l'application sur votre téléphone</h2>
+
+        <div style="background:#f1f5f9;border-radius:8px;padding:16px;margin-bottom:12px;">
+          <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#334155;">🍎 iPhone / iPad (Safari)</p>
+          <ol style="margin:0;padding-left:20px;font-size:13px;color:#475569;line-height:1.8;">
+            <li>Ouvrez <strong>${appUrl}</strong> dans Safari</li>
+            <li>Appuyez sur l'icône <strong>Partager</strong> (carré avec flèche ↑)</li>
+            <li>Sélectionnez <strong>« Sur l'écran d'accueil »</strong></li>
+            <li>Confirmez avec <strong>« Ajouter »</strong></li>
+          </ol>
+        </div>
+
+        <div style="background:#f1f5f9;border-radius:8px;padding:16px;margin-bottom:24px;">
+          <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#334155;">🤖 Android (Chrome)</p>
+          <ol style="margin:0;padding-left:20px;font-size:13px;color:#475569;line-height:1.8;">
+            <li>Ouvrez <strong>${appUrl}</strong> dans Chrome</li>
+            <li>Appuyez sur le menu <strong>⋮</strong> (3 points)</li>
+            <li>Sélectionnez <strong>« Ajouter à l'écran d'accueil »</strong></li>
+            <li>Confirmez avec <strong>« Ajouter »</strong></li>
+          </ol>
+        </div>
+
+        <p style="color:#94a3b8;font-size:12px;margin:0;">PoinçOn · ${new Date().getFullYear()} · ${companyName}</p>
+      </div>
+    </div>
+  `
+
+  await transporter.sendMail({ from: FROM, to, subject, html })
+}
+
 export async function sendEmail(params: {
   to: string
   subject: string

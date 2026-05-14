@@ -1,22 +1,13 @@
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { requireAdminWithCompany, forbiddenError, canAccessUser } from '@/lib/admin-security'
 import { sendApprovalEmail } from '@/lib/mail'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function PATCH(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-    })
-
-    if (user?.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    const auth = await requireAdminWithCompany()
+    if (!auth) {
+      return forbiddenError()
     }
 
     const { type, requestId, action, rejectionReason } = await req.json()
@@ -41,11 +32,18 @@ export async function PATCH(req: NextRequest) {
 
     switch (type) {
       case 'overtime':
+        const overtime = await prisma.detectedOvertime.findUnique({
+          where: { id: requestId },
+          select: { userId: true },
+        })
+        if (!overtime || !(await canAccessUser(auth.admin.companyId, overtime.userId))) {
+          return forbiddenError()
+        }
         result = await prisma.detectedOvertime.update({
           where: { id: requestId },
           data: {
             status: action === 'approve' ? 'APPROVED' : 'REJECTED',
-            approvedBy: session.user.id,
+            approvedBy: auth.admin.id,
             approvedAt: now,
             rejectionReason: action === 'reject' ? rejectionReason : null,
           },
@@ -53,11 +51,18 @@ export async function PATCH(req: NextRequest) {
         break
 
       case 'timeoff':
+        const timeoff = await prisma.timeOffRequest.findUnique({
+          where: { id: requestId },
+          select: { userId: true },
+        })
+        if (!timeoff || !(await canAccessUser(auth.admin.companyId, timeoff.userId))) {
+          return forbiddenError()
+        }
         result = await prisma.timeOffRequest.update({
           where: { id: requestId },
           data: {
             status: action === 'approve' ? 'APPROVED' : 'REJECTED',
-            approvedBy: session.user.id,
+            approvedBy: auth.admin.id,
             approvedAt: now,
             rejectionReason: action === 'reject' ? rejectionReason : null,
           },
@@ -65,11 +70,18 @@ export async function PATCH(req: NextRequest) {
         break
 
       case 'rtt':
+        const rtt = await prisma.rTTRequest.findUnique({
+          where: { id: requestId },
+          select: { userId: true },
+        })
+        if (!rtt || !(await canAccessUser(auth.admin.companyId, rtt.userId))) {
+          return forbiddenError()
+        }
         result = await prisma.rTTRequest.update({
           where: { id: requestId },
           data: {
             status: action === 'approve' ? 'APPROVED' : 'REJECTED',
-            approvedBy: session.user.id,
+            approvedBy: auth.admin.id,
             approvedAt: now,
             rejectionReason: action === 'reject' ? rejectionReason : null,
           },

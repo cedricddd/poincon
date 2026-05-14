@@ -2,8 +2,27 @@
                     POINÇON - TODO LIST (MVP & FEATURES)
 ================================================================================
 
-Dernière mise à jour: 2026-05-10
-Version: 0.1.0
+Dernière mise à jour: 2026-05-14
+Version: 0.2.1 (après audit complet)
+
+================================================================================
+🔥 IMMÉDIAT CRITIQUE - SÉCURITÉ (BLOQUANT!)
+================================================================================
+
+⚠️ DATA LEAK: Routes sans companyId filter - admin A peut voir/approuver data de company B
+   [ ] FIX: /api/admin/requests - ajouter WHERE { user: { companyId: auth.admin.companyId } }
+   [ ] FIX: /api/admin/approve - vérifier companyId avant approuver toute requête (overtime/timeoff/rtt)
+   [ ] VÉRIFIER: /api/admin/presence, /api/admin/sites/[id], /api/admin/users/anonymize
+   [ ] AUDIT: Toutes les routes /api/admin/* - ajouter company filtering si manquant
+   [ ] TEST: Admin A cannot see/edit/delete data de company B (security test suite)
+
+================================================================================
+🔥 IMMÉDIAT (NON-COMMITTÉ)
+================================================================================
+
+⚙️ Commit all: Super-admin + Company isolation + Invitations + Stripe improvements (37+ files)
+⚙️ Test Stripe flows (cancel/reactivate/webhook) end-to-end
+⚙️ Verify all admin routes properly filter by company (after security fixes above)
 
 ================================================================================
 PHASE 1: MVP (COMPLÉTÉ ✓)
@@ -127,13 +146,123 @@ PHASE 8: ÉQUIPES & PERMISSIONS (COMPLÉTÉ ✓ partiel)
 [ ] Widget "Prochains congés" (team view)
 
 ================================================================================
-PHASE 9: PLANS & MONÉTISATION (À VÉRIFIER)
+PHASE 9: PLANS & MONÉTISATION (PARTIELLEMENT FAIT ⚙️)
 ================================================================================
 
-[ ] Vérifier intégration Stripe (FREE / SOLO / TEAM / ENTERPRISE)
-[ ] Helper planCanAccess(plan, feature) appliqué partout
-[ ] Page pricing publique
-[ ] Webhook Stripe → mise à jour plan en base
+✓ Helper planCanAccess(plan, feature) implémenté + appliqué aux routes API
+✓ Stripe checkout endpoint (/api/stripe/checkout?plan=X&billing=X)
+✓ Stripe cancel/reactivate endpoints (POST /api/stripe/cancel + /reactivate)
+✓ Webhook Stripe /api/stripe/webhook (customer.subscription.updated)
+✓ stripeCancelAtPeriodEnd trackés en DB
+✓ Super-admin role + /super-admin/layout (override Enterprise plan)
+✓ Company management API (/api/admin/company) — logo upload, etc.
+✓ Multi-tenancy : ALL admin data isolated by company (companyId foreign key)
+✓ Landing page public (page.tsx) avec Hero + Features + Stats
+
+[ ] Page pricing publique interactive (pricing table avec plans)
+    [ ] Afficher FREE / SOLO / TEAM / ENTERPRISE
+    [ ] Pricing mensuel/annuel toggle
+    [ ] Bouton CTA "Essai gratuit" → signup
+    [ ] FAQ section
+
+[ ] Stripe Tax TVA integration (21% BE, autoliquidation UE B2B, 0% hors UE)
+    [ ] Ajouter vars d'env : STRIPE_TAX_ID, STRIPE_TAX_REGION_MAPPINGS
+    [ ] API POST /api/stripe/tax-rates (query exemptions B2B, non-UE)
+    [ ] Webhook : invoice.finalized → appliquer taxes + générer facture
+
+[ ] PayPal alternative payment method
+    [ ] Ajouter vars d'env : PAYPAL_CLIENT_ID, PAYPAL_SECRET, PAYPAL_MODE
+    [ ] Intégrer SDK PayPal ou calls REST vers /v2/payments
+    [ ] Page checkout avec sélecteur Stripe/PayPal
+
+================================================================================
+PHASE 9.5: INVITATIONS EMPLOYÉS & AUTHENTIFICATION (PARTIELLEMENT FAIT ⚙️)
+================================================================================
+
+✓ Modèle UserInvitation (token, companyId, role, expiresAt, usedAt) en Prisma
+✓ API GET /api/admin/invitations - lister invitations (company-filtered)
+✓ API POST /api/admin/invitations - générer token 48h + envoyer email Brevo
+✓ API DELETE /api/admin/invitations?id=xxx - annuler invitation
+✓ API GET /api/auth/set-password?token=xxx - valider token + retourner email/name
+✓ API POST /api/auth/set-password - créer user + marquer invitation usedAt
+✓ Page /set-password?token=xxx - formulaire créer mdp + auto-login après
+✓ Validation token - expiration vérifiée, single-use enforced
+✓ API /api/auth/company-lookup?email=xxx - lookup company par email (pour signup)
+✓ Email invitation template (sendInvitationEmail() en Brevo)
+
+[ ] Page UI /admin/dashboard/users/invite - formulaire inviter avec validation
+    [ ] Champs : email, name (optional), role (select EMPLOYEE/MANAGER)
+    [ ] Toast confirmation + liste invitations envoyées
+    [ ] Pouvoir annuler/renvoyer invitation
+[ ] Page UI /admin/dashboard/invitations (ou dans users/invite) - gestion complète
+    [ ] Liste des invitations (email, role, status (en attente/utilisée), date expiration)
+    [ ] Boutons : Renvoyer / Annuler / Copier lien
+
+================================================================================
+PHASE 9.6: PAGES LÉGALES & COMPLIANCE (À FAIRE)
+================================================================================
+
+[ ] /legal/privacy (RGPD Privacy Policy)
+    [ ] Template français/anglais
+    [ ] Sections: data collection, storage, usage, retention, rights
+    [ ] Mention audit logs pseudo-anonymisation
+
+[ ] /legal/terms (Terms of Service)
+    [ ] Usage restrictions, liability, termination, governing law
+
+[ ] /legal/compliance (Belgium 2027 & CJUE Compliance Badge)
+    [ ] Confirmation legality pour Belgium
+    [ ] Audit trail features
+    [ ] RGPD compliance checklist
+
+[ ] /legal/security (Security Practices)
+    [ ] Encryption, backups, certifications
+    [ ] Incident reporting contact
+    [ ] 3rd-party dependencies
+
+================================================================================
+PHASE 13: DASHBOARD PLAN-AWARE (À FAIRE)
+================================================================================
+
+[ ] Dashboard adapté au plan (feature gating UX)
+    [ ] Vérifier planCanAccess() appliqué aux pages (pas juste API)
+    [ ] Masquer boutons/sections non-autorisées par le plan
+    [ ] Afficher banneau upgrade : "Plan SOLO — upgrade vers TEAM pour débloquer Teams"
+    [ ] Limiter nombre d'employés affichés (maxEmployees par plan)
+
+================================================================================
+PHASE 14: BACK-OFFICE SUPER_ADMIN ENTERPRISE (PARTIELLEMENT FAIT ⚙️)
+================================================================================
+
+✓ Revenue tracking dashboard (/super-admin/dashboard) avec MRR charts
+✓ /super-admin/layout avec navigation
+
+[ ] Accounts management page (/super-admin/accounts)
+    [ ] Lister toutes les companies avec status (active/inactive)
+    [ ] Créer/éditer/supprimer companies
+    [ ] Éditer : name, domain, contact info, logoUrl
+    [ ] Importer utilisateurs CSV bulk (optional)
+
+[ ] API /api/super-admin/accounts (CRUD companies)
+    [ ] GET - lister avec filters + stats (user count, subscription, MRR)
+    [ ] POST - créer company
+    [ ] PATCH /api/super-admin/accounts/[id] - éditer
+    [ ] DELETE /api/super-admin/accounts/[id] - supprimer
+
+[ ] Plan management UI (/super-admin/plans ou dans accounts)
+    [ ] Assigner plan manuellement à une company
+    [ ] Voir plan history (audit log changes)
+    [ ] API POST /api/super-admin/plans/[companyId] - changer plan
+
+[ ] Feature flags UI (/super-admin/feature-flags)
+    [ ] Lister companies avec toggles (teams, advanced_reports, etc.)
+    [ ] Toggle feature per company (override plan defaults)
+    [ ] API POST /api/super-admin/feature-flags - update
+
+[ ] Global audit logs (/super-admin/audit)
+    [ ] Tous les admins, toutes les companies
+    [ ] Filtres : date range, action, company, user
+    [ ] API /api/super-admin/audit-logs avec filters
 
 ================================================================================
 PHASE 10: INTÉGRATIONS ERP (ENTERPRISE) — À FAIRE PLUS TARD
@@ -217,6 +346,420 @@ deux choix : VISITEUR (encodage sur place) ou EMPLOYÉ (pointage rapide).
     [ ] Registre légal (rétention 1 an, RGPD)
 [ ] PWA : install fullscreen + lock orientation paysage
 [ ] Mode hors-ligne : queue locale des pointages si réseau coupé
+
+================================================================================
+OUTILLAGE & OPTIMISATION (À FAIRE)
+================================================================================
+
+** Skills à créer (gain 25% temps par feature)**:
+[ ] `/poincon-dashboard` skill — template dashboard avec table + filtres + stats
+    Réutilisable pour : reports, users, revenue, presence, etc.
+    Économie : ~60min → 20min par dashboard
+    Référence : optimize-report.md Priority 1
+
+[ ] `/poincon-cron` skill — template cron avec CRON_SECRET + error handling
+    Réutilisable pour : exports, reminders, cleanup
+    Économie : ~40min → 15min par cron
+    Référence : optimize-report.md Priority 1
+
+[ ] `/poincon-stripe` skill (existe déjà) — verify et améliorer templates
+    Couvrir : checkout, cancel, reactivate, webhook
+    Référence : optimize-report.md Priority 2 (optional)
+
+** Configuration Claude Code**:
+[ ] Enable `/security-review` auto-trigger pour src/app/api/auth/* et Stripe routes
+[ ] Enable `/nextjs-app-router-patterns` pour guidance sur nested layouts
+[ ] Create RTK project-specific filters (if needed — currently using global)
+    Référence : optimize-report.md RTK section
+
+================================================================================
+ROUTES API MANQUANTES OU INCOMPLÈTES
+================================================================================
+
+**Super-Admin Routes** (PHASE 14):
+[ ] /api/super-admin/accounts - GET list, POST create, PATCH edit, DELETE remove
+[ ] /api/super-admin/accounts/[id] - detailed view
+[ ] /api/super-admin/plans/[companyId] - POST assign plan + GET history
+[ ] /api/super-admin/feature-flags - GET company toggles, POST update
+[ ] /api/super-admin/audit-logs - GET filtered logs (date, action, company, user)
+
+**Cron Routes** (probablement incomplets):
+[ ] /api/cron/scheduled-export - Export hebdo/mensuel selon plan (TEAM/ENTERPRISE)
+    [ ] Générer CSV/PDF des pointages
+    [ ] Envoyer par email ou stocker S3
+[ ] /api/cron/anonymize-old-logs - Pseudo-anonymise audit logs (>6 mois) pour RGPD
+
+**Stripe Routes** (probablement incomplets):
+[ ] /api/stripe/tax-rates - Query exemptions (B2B, non-UE) — Stripe Tax integration
+[ ] Webhook pour invoice.payment_succeeded (pour future intégration Peppol)
+
+**Autres routes existantes à vérifier**:
+[ ] /api/admin/requests - AJOUTER companyId filter (DATA LEAK!)
+[ ] /api/admin/approve - VÉRIFIER companyId (DATA LEAK!)
+[ ] /api/admin/presence - Vérifier companyId filter
+[ ] /api/admin/sites/[id] - Vérifier companyId filter
+[ ] /api/admin/users/anonymize - Vérifier companyId filter
+
+================================================================================
+TÂCHES BLOQUÉES & DÉPENDANCES EXTERNES
+================================================================================
+
+[ ] **PEPPOL UBL 3.0 (Obligatoire B2B belge depuis jan 2026)** — BLOQUÉ
+    Raison : Identifiants Odoo manquants (connexion, API tokens)
+    Plan : Intégrer via Odoo 17+ (access point natif gratuit)
+    Tâche : webhook invoice.payment_succeeded → créer facture Odoo → transmettre Peppol UBL
+    Blocage : Attendre identifiants Odoo (contact comptable)
+
+[ ] Email domain SPF/DKIM — PARTIELLEMENT BLOQUÉ
+    [ ] Acheter/obtenir domaine @ced-it.be (ou utiliser subdomain existant)
+    [ ] Configurer SPF/DKIM dans registrar
+    [ ] Mettre à jour BREVO_FROM_EMAIL dans .env
+
+[ ] OAuth Google (optional pour MVP)
+    [ ] Enregistrer app sur Google Console
+    [ ] Ajouter secrets : GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
+    [ ] Implémenter provider NextAuth
+
+================================================================================
+POINTS CRITIQUES DU SYSTÈME
+================================================================================
+
+🚨 **Multi-tenancy security (DATA LEAK RISK)** :
+   → TOUTES les routes /api/admin/* DOIVENT filter by company (companyId)
+   → Actuellement CASSÉ: /api/admin/requests, /api/admin/approve
+   → À vérifier: presence, sites, users/anonymize, rtt, time-off, schedules
+   → Pattern: const { companyId } = await requireAdminWithCompany()
+   →         WHERE { user: { companyId } } ou WHERE { companyId }
+   → Test: Admin A cannot read/write/delete data from company B
+
+⚠️ **Prisma + Docker** : JAMAIS `migrate dev` (shadow DB incompatible)
+   → Toujours : `db push --skip-generate && prisma generate` + recreate container
+
+⚠️ **Env vars Docker** : Lire `.env` (PAS `.env.local`)
+   → Après changement `.env` → `docker-compose up -d app` (pas restart)
+
+⚠️ **Port DB Windows** : 5433 externe (5432 pris par Veeam)
+   → Interne Docker : db:5432
+
+⚠️ **Stripe webhooks dev** :
+   → stripe listen --api-key sk_test_... --forward-to http://localhost:3000/api/stripe/webhook
+
+⚠️ **Roles hierarchy** : SUPER_ADMIN > ADMIN > MANAGER > EMPLOYEE
+   → SUPER_ADMIN peut override tout + gérer plans + voir toutes companies
+   → ADMIN gère UNE company (accès tous les employés + data de sa company)
+   → MANAGER gère son équipe seulement (sa company seulement)
+   → EMPLOYEE accède son dashboard personnel seulement
+
+================================================================================
+PHASE 15: MARKETING & ACQUISITION (À FAIRE)
+================================================================================
+
+** Landing Page & Site Web**:
+[ ] Landing page (public /)
+    [ ] Hero section : "Pointage légal belge en 1 clic"
+    [ ] Problem statement : conformité légale BE difficile, rappels non fiables
+    [ ] Solution : app mobile + reporting automatique + audit trail
+    [ ] Features showcase : 5-6 features clés avec icons/illustrations
+    [ ] Pricing table : FREE / SOLO / TEAM / ENTERPRISE (interactive)
+    [ ] Testimonials / Case studies (vides au launch, remplir après clients beta)
+    [ ] FAQ : légalité, data security, compliance, API
+    [ ] CTA buttons : "Essai gratuit" → signup flow
+    [ ] Footer : contact, legal, privacy, sitemap
+
+[ ] Blog / Resources
+    [ ] Article 1 : "Guide 2027 : Conformité légale belge pointage" (SEO)
+    [ ] Article 2 : "Audit trail & RGPD : pourquoi c'est crucial"
+    [ ] Article 3 : "Stripe vs PayPal pour SaaS belge"
+    [ ] Resource : Whitepaper (PDF téléchargeable) → lead magnet
+    [ ] FAQ page : répondre aux objections courantes
+
+[ ] Legal pages
+    [ ] /legal/privacy → RGPD compliance
+    [ ] /legal/terms → TOS
+    [ ] /legal/security → Security practices + certifications
+    [ ] /legal/compliance → "Belgium 2027 compliant" badge
+
+** SEO & Content Marketing**:
+[ ] Keyword research (tools: Ahrefs, SEMrush)
+    [ ] Target keywords : "pointage belgique", "gestion temps PME", "audit trail RGPD"
+    [ ] Long-tail : "logiciel pointage gratuit belgique", "pointage mobile PME"
+[ ] On-page SEO
+    [ ] Meta tags (title, description, og:image)
+    [ ] H1/H2 hierarchy + schema.org markup
+    [ ] Page speed (Lighthouse score > 90)
+    [ ] Mobile-first indexing check
+[ ] Link building
+    [ ] Directory submissions (Capterra, G2, Trustpilot)
+    [ ] Reach out to IT news sites (Belgian tech blogs)
+    [ ] Guest posts on HR/PME blogs
+[ ] Content calendar (3-6 mois)
+    [ ] Publish 1 blog post / 2 semaines
+    [ ] Seasonal : "Audit prépa 2027", "Fin d'année : rappel RGPD"
+
+** Email Marketing**:
+[ ] Welcome sequence (Brevo)
+    [ ] Email 1 : Welcome + feature overview (day 0)
+    [ ] Email 2 : "How to use app" tutorial (day 2)
+    [ ] Email 3 : "Upgrade to SOLO" CTA (day 5)
+[ ] Onboarding drip campaign
+    [ ] First pointage → congrats + next steps
+    [ ] First report export → upsell advanced reports
+    [ ] 7-day free trial expiring → upgrade reminder
+[ ] Newsletter (monthly)
+    [ ] New features
+    [ ] Legal updates (Belgium 2027 compliance)
+    [ ] Webinar invites
+[ ] Segmentation
+    [ ] FREE users → upgrade CTAs
+    [ ] SOLO users → TEAM upsell
+    [ ] Inactive users → win-back campaign
+
+** Paid Advertising**:
+[ ] Google Ads (SEM)
+    [ ] Keywords : "pointage belgique", "gestion conges PME"
+    [ ] Landing page : /ads/pointage (optimized conversion)
+    [ ] Budget : 200€/mois test
+    [ ] Target : Belgium, French/Dutch
+[ ] LinkedIn Ads
+    [ ] Target : HR managers, CEOs, 100-500 employees
+    [ ] Budget : 150€/mois test
+    [ ] Creatives : case study format
+[ ] Facebook/Instagram
+    [ ] Retargeting : website visitors (pixel)
+    [ ] Lookalike audience : existing customers
+    [ ] Budget : 100€/mois test
+
+** Partnerships & Distribution**:
+[ ] HR software integrations
+    [ ] Reach out to : Payday, HiBob, Personio (API partnerships)
+    [ ] Goal : "PoinçOn sync" as add-on
+[ ] Accounting software
+    [ ] Xero, Sage, Exact Online → webhook CSV export
+    [ ] Goal : auto-sync timesheets to invoicing
+[ ] Channel partnerships
+    [ ] Find IT resellers (Belgium) → white-label option
+    [ ] Find HR consultants → referral program
+[ ] Web agencies
+    [ ] Pitch : "Add PoinçOn to your client tech stack"
+
+** Social Media**:
+[ ] LinkedIn strategy
+    [ ] Company page : daily updates on compliance, features
+    [ ] Thought leadership : CEO posts on HR tech trends
+    [ ] LinkedIn articles : deep dives on Belgium 2027
+    [ ] Monthly webinar : "Complying with Belgium 2027"
+[ ] Twitter/X
+    [ ] Daily tips : HR compliance, time management
+    [ ] Retweet industry news
+    [ ] Monthly product updates
+[ ] YouTube (optional)
+    [ ] Demo video : "5-minute setup guide"
+    [ ] Tutorial series : features walkthrough
+    [ ] Webinar recordings : compliance training
+
+** Community & Support**:
+[ ] Customer community (Discord or Slack)
+    [ ] Early adopters beta feedback
+    [ ] Feature requests voting
+    [ ] Monthly AMA with CEO
+[ ] Support excellence
+    [ ] Fast response time (< 2h for paid plans)
+    [ ] Detailed help center / docs
+    [ ] Customer success emails (onboarding)
+[ ] Testimonials & reviews
+    [ ] Collect reviews : Trustpilot, G2, Capterra
+    [ ] Create case study : "How [company] saved 10h/month on reporting"
+    [ ] Video testimonials (optional, high-value)
+
+** Events & PR**:
+[ ] Webinars (monthly)
+    [ ] Topic 1 : "Belgium 2027 Compliance Roadmap"
+    [ ] Topic 2 : "RGPD for HR: What changed"
+    [ ] Topic 3 : "ROI: Time tracking for PMEs"
+[ ] Press releases
+    [ ] Launch announcement : "PoinçOn: Legal time tracking for Belgium"
+    [ ] Milestone : "10,000 hours tracked | 1,000 companies"
+    [ ] Partnership : "Integrations with Xero & Sage"
+[ ] Sponsorships (optional, budget permitting)
+    [ ] HR tech conferences (Belgium)
+    [ ] Startup events / accelerators
+
+** Metrics & Tracking**:
+[ ] Setup analytics
+    [ ] Google Analytics 4
+    [ ] Hotjar (heatmaps, session recordings)
+    [ ] Stripe reporting (MRR, churn rate, LTV)
+[ ] Dashboards
+    [ ] Marketing funnel : visits → signups → paid conversions
+    [ ] Content performance : blog views, backlinks, organic traffic
+    [ ] CAC (Customer Acquisition Cost) vs LTV (Lifetime Value)
+[ ] Monthly reporting
+    [ ] Marketing report : traffic, leads, revenue attributed
+    [ ] Content report : top posts, rankings, backlinks
+    [ ] SEM report : impressions, clicks, conversion rate
+
+================================================================================
+DÉPLOIEMENT PRODUCTION (À FAIRE)
+================================================================================
+
+** Domaine & DNS**:
+[ ] Acheter domaine (poincon.be ou poincon.app ?)
+    [ ] Registrar (Hostinger, Namecheap, Google Domains ?)
+    [ ] Contrat + renouvellement auto
+[ ] Configurer DNS
+    [ ] A record → IP Hostinger VPS
+    [ ] MX records → Brevo (si custom domain email)
+    [ ] SPF/DKIM pour emails
+    [ ] CNAME pour www (optionnel)
+
+** Hostinger VPS Setup**:
+[ ] Créer VPS Hostinger
+    [ ] Plan : Node.js compatible (Ubuntu 22.04 LTS minimal)
+    [ ] RAM : 2GB+ (pour Docker + PostgreSQL)
+    [ ] Storage : 50GB+ (données + backups)
+    [ ] SSH keys configurées
+[ ] Installer Docker + Docker Compose
+    [ ] SSH → VPS
+    [ ] curl https://get.docker.com | sh
+    [ ] docker-compose --version
+[ ] Préparer environment Hostinger
+    [ ] Cloner repo : git clone https://github.com/ced-gamer/poincon.git
+    [ ] Créer .env de production (secrets Stripe, Brevo, CRON_SECRET)
+    [ ] docker-compose -f docker-compose.yml build
+[ ] Lancer containers Docker
+    [ ] docker-compose -f docker-compose.yml up -d
+    [ ] Vérifier logs : docker-compose logs -f app
+    [ ] Tester API : curl http://localhost:3000/api/health (créer cette route ?)
+
+** SSL/HTTPS**:
+[ ] Installer Let's Encrypt + Certbot
+    [ ] certbot certonly --standalone -d poincon.be -d www.poincon.be
+    [ ] Auto-renewal cron job
+[ ] Configurer reverse proxy (Nginx)
+    [ ] Écouter :443 (SSL) + :80 (redirect → 443)
+    [ ] Proxy vers app Docker (localhost:3000)
+    [ ] Ajouter headers de sécurité (HSTS, CSP)
+
+** Database Production**:
+[ ] PostgreSQL backup strategy
+    [ ] Backup daily → Hostinger storage ou NAS
+    [ ] Script cron : pg_dump → compressed SQL
+    [ ] Restore test (vérifier intégrité)
+[ ] Database monitoring
+    [ ] Connection limits
+    [ ] Disk space alerts
+
+** Monitoring & Maintenance**:
+[ ] Health checks
+    [ ] Uptime Robot ou Hostinger monitoring
+    [ ] Alertes email si down
+[ ] Log aggregation
+    [ ] docker-compose logs → fichier persistant
+    [ ] Rotation logs (logrotate)
+[ ] Auto-restart on crash
+    [ ] Docker restart policy : always
+    [ ] Systemd service pour docker-compose (optionnel)
+
+** Post-Deploy Tests**:
+[ ] Smoke tests
+    [ ] Login flow (signup → login → dashboard)
+    [ ] Clock in/out
+    [ ] Export CSV
+    [ ] Stripe checkout (mode test)
+[ ] Performance
+    [ ] Lighthouse audit
+    [ ] Response time < 500ms
+[ ] Security
+    [ ] SSL check (ssllabs.com)
+    [ ] OWASP top 10 audit
+    [ ] Secrets non exposés en logs
+
+** Stratégie Deployment**:
+✓ Hostinger VPS = SEUL déploiement de production (pas de Vercel!)
+[ ] CI/CD : GitHub Actions → auto-deploy sur Hostinger au push main
+    [ ] Générer SSH key (ssh-keygen -t rsa -b 4096)
+    [ ] Ajouter public key à ~/.ssh/authorized_keys sur Hostinger VPS
+    [ ] Ajouter private key en secret GitHub : HOSTINGER_SSH_KEY
+    [ ] Workflow GitHub Actions :
+        - Déclencher au push main
+        - git pull origin main
+        - docker-compose -f docker-compose.yml up -d
+        - Vérifier health check (curl http://localhost/api/health)
+    [ ] Tester deploy end-to-end (push petit changement, vérifier sur prod)
+
+================================================================================
+FICHIERS MODIFIÉS À COMMITTER (37+ files)
+================================================================================
+
+**Configuration & Docs:**
+- CLAUDE.md — Deploy section updated (Hostinger only)
+- TODO.txt — Updated version 0.2.0 → 0.2.1
+- prisma/schema.prisma — Multi-tenancy changes? (verify)
+
+**Auth & Security:**
+- src/auth.ts — Company isolation in session
+- src/lib/admin-security.ts — New security middleware (requireAdminWithCompany)
+- src/lib/roles.ts — NEW file: role helper functions
+- src/lib/mail.ts — sendInvitationEmail + improvements
+- src/app/api/auth/register/route.ts — Company-aware registration
+- src/app/api/auth/signup/route.ts — Multi-tenant signup
+- src/app/api/auth/set-password/route.ts — NEW: invitation fulfillment
+- src/app/api/auth/company-lookup/route.ts — NEW: lookup company by email
+
+**Admin APIs (company-filtered):**
+- src/app/api/admin/approve/route.ts — MUST FIX: add companyId filter
+- src/app/api/admin/requests/route.ts — MUST FIX: add companyId filter
+- src/app/api/admin/audit-logs/route.ts
+- src/app/api/admin/presence/route.ts — Verify companyId filter
+- src/app/api/admin/reports/route.ts
+- src/app/api/admin/reports/export/route.ts
+- src/app/api/admin/schedule/route.ts
+- src/app/api/admin/sites/[id]/route.ts — Verify companyId filter
+- src/app/api/admin/teams/route.ts
+- src/app/api/admin/teams/members/route.ts
+- src/app/api/admin/users/route.ts
+- src/app/api/admin/users/[id]/route.ts
+- src/app/api/admin/users/anonymize/route.ts — Verify companyId filter
+- src/app/api/admin/work-schedules/route.ts
+- src/app/api/admin/company/route.ts — NEW: company management (logo, settings)
+- src/app/api/admin/invitations/route.ts — NEW: POST create, GET list, DELETE
+
+**Manager APIs:**
+- src/app/api/manager/approve/route.ts
+- src/app/api/manager/requests/route.ts
+- src/app/api/manager/team-calendar/route.ts
+
+**Stripe APIs:**
+- src/app/api/stripe/checkout/route.ts
+- src/app/api/stripe/cancel/route.ts — NEW
+- src/app/api/stripe/reactivate/route.ts — NEW
+- src/app/api/stripe/portal/route.ts
+- src/app/api/stripe/webhook/route.ts
+
+**Pages & Components:**
+- src/app/page.tsx — Landing page (updated)
+- src/app/login/page.tsx
+- src/app/signup/page.tsx
+- src/app/set-password/page.tsx — NEW: invitation flow UI
+- src/app/app/layout.tsx
+- src/app/admin/layout.tsx
+- src/app/admin/dashboard/page.tsx
+- src/app/admin/dashboard/users/page.tsx
+- src/app/admin/dashboard/settings/page.tsx — NEW: company settings (logo upload)
+- src/app/admin/dashboard/users/[id]/ — NEW: detailed user view
+- src/app/admin/dashboard/users/new/ — NEW: create user form
+- src/app/admin/dashboard/users/invite/ — NEW: invite employee form
+- src/app/manager/layout.tsx
+- src/app/super-admin/layout.tsx
+
+**PWA & Service Worker:**
+- public/sw.js — Updated
+
+**Components:**
+- src/components/Button.tsx
+- src/components/Sidebar.tsx
+
+⏳ Avant de committer: Vérifier que les 10 routes sans companyId filter sont fixées!
 
 ================================================================================
 BUGS & OPTIMISATIONS CONNUS

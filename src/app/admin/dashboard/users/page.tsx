@@ -128,9 +128,14 @@ export default function UsersPage() {
           <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Utilisateurs</h1>
           <p className="text-[var(--pp-muted)] text-sm mt-1">{users.length} compte{users.length !== 1 ? 's' : ''}</p>
         </div>
-        <Link href="/admin/dashboard/users/new">
-          <Button size="md">+ Nouvel utilisateur</Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/admin/dashboard/users/invite">
+            <Button size="md" variant="mauve">Inviter</Button>
+          </Link>
+          <Link href="/admin/dashboard/users/new">
+            <Button size="md">Créer</Button>
+          </Link>
+        </div>
       </div>
 
       <div className="mb-4">

@@ -21,20 +21,21 @@ export default function AdminLayout({
       return
     }
 
-    if (session.user.role !== 'ADMIN') {
+    if (session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN') {
       router.push('/app')
       return
     }
+
   }, [session, status, router])
 
-  if (status === 'loading' || !session || session.user.role !== 'ADMIN') {
+  if (status === 'loading' || !session || session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN') {
     return null
   }
 
   return (
     <div className="flex">
       <Sidebar />
-      <main className="flex-1 md:ml-64">
+      <main className="flex-1 transition-all duration-200" style={{ marginLeft: 'var(--sidebar-w, 256px)' }}>
         {children}
       </main>
     </div>

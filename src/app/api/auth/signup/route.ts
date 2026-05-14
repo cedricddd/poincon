@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { isAdminRole } from '@/lib/roles'
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,7 +13,7 @@ export async function POST(req: NextRequest) {
     }
 
     const requester = await prisma.user.findUnique({ where: { id: session.user.id } })
-    if (requester?.role !== 'ADMIN') {
+    if (!isAdminRole(requester?.role)) {
       return NextResponse.json({ error: 'Réservé aux administrateurs' }, { status: 403 })
     }
 

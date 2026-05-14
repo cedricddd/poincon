@@ -120,15 +120,18 @@ model Plan {
 model Company {
   id                    String          @id @default(cuid())
   name                  String
-  address               String?         // adresse pour facturation
-  vatNumber             String?         // numéro de TVA
+  address               String?
+  phone                 String?
+  vatNumber             String?
   domain                String?         @unique
   adminId               String          @unique
   planId                String?
   stripeCustomerId      String?
   stripeSubscriptionId  String?
   stripeSubscriptionBillingCycle String? // "monthly" | "yearly" — null si pas de subscription active
+  stripeCancelAtPeriodEnd Boolean @default(false)
   planExpiresAt         DateTime?
+  logoUrl               String?
   contactEmail          String?         // email de contact pour rappels paiement
   lastActivityAt        DateTime?       // mis à jour après chaque pointage (timestamp uniquement)
   marketingConsent      Boolean         @default(false) // pour les emails marketing
@@ -142,6 +145,7 @@ model Company {
   teams                 Team[]
   featureFlags          CompanyFeatureFlag[]
   planHistory           PlanHistory[]
+  invitations           UserInvitation[]
 
   @@index([adminId])
   @@index([planId])
@@ -381,4 +385,22 @@ model Notification {
   @@index([userId])
   @@index([read])
   @@index([userId, read])       // cloche : notifications non lues par user
+}
+
+model UserInvitation {
+  id        String    @id @default(cuid())
+  email     String
+  name      String?
+  token     String    @unique @default(cuid())
+  companyId String
+  role      String    @default("EMPLOYEE")
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([companyId])
+  @@index([email])
 }

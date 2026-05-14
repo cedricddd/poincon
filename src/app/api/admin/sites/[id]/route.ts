@@ -1,12 +1,20 @@
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/auth"
+import { requireAdminWithCompany, forbiddenError } from "@/lib/admin-security"
 import { prisma } from "@/lib/prisma"
 
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
-  const session = await getServerSession(authOptions)
-  if (!session || session.user.role !== "ADMIN") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  const auth = await requireAdminWithCompany()
+  if (!auth) {
+    return forbiddenError()
+  }
+
+  const site = await prisma.site.findUnique({
+    where: { id: params.id },
+    select: { companyId: true },
+  })
+
+  if (!site || site.companyId !== auth.admin.companyId) {
+    return forbiddenError()
   }
 
   const { name, address, active } = await request.json()
@@ -14,7 +22,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     return NextResponse.json({ error: "Le nom du site est requis" }, { status: 400 })
   }
 
-  const site = await prisma.site.update({
+  const updated = await prisma.site.update({
     where: { id: params.id },
     data: {
       name: name.trim(),
@@ -23,13 +31,22 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     },
   })
 
-  return NextResponse.json(site)
+  return NextResponse.json(updated)
 }
 
 export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
-  const session = await getServerSession(authOptions)
-  if (!session || session.user.role !== "ADMIN") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  const auth = await requireAdminWithCompany()
+  if (!auth) {
+    return forbiddenError()
+  }
+
+  const site = await prisma.site.findUnique({
+    where: { id: params.id },
+    select: { companyId: true },
+  })
+
+  if (!site || site.companyId !== auth.admin.companyId) {
+    return forbiddenError()
   }
 
   const usersCount = await prisma.user.count({ where: { defaultSiteId: params.id } })

@@ -96,6 +96,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
 
   const load = useCallback(async () => {
+    try {
     const { from, to } = weekRange()
     const [req, sched, users, presence, reports] = await Promise.all([
       fetch('/api/admin/requests').then(r => r.json()),
@@ -134,7 +135,11 @@ export default function AdminDashboard() {
     })
     setPresent(presentPeople)
     setRecent(recentRecs)
-    setLoading(false)
+    } catch (e) {
+      console.error('Dashboard load error:', e)
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   useEffect(() => { load() }, [load])

@@ -1,20 +1,11 @@
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '@/auth'
+import { requireAdminWithCompany, forbiddenError, canAccessUser } from '@/lib/admin-security'
 import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 
-async function requireAdmin() {
-  const session = await getServerSession(authOptions)
-  if (!session?.user?.id) return null
-  const user = await prisma.user.findUnique({ where: { id: session.user.id } })
-  return user?.role === 'ADMIN' ? session : null
-}
-
 export async function GET() {
-  const session = await requireAdminWithCompany()
-  if (!auth) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const auth = await requireAdminWithCompany()
+  if (!auth) return forbiddenError()
 
-  // Return all users with their schedule (or null if none assigned)
   const users = await prisma.user.findMany({
     where: { companyId: auth.admin.companyId },
     select: {
@@ -28,7 +19,6 @@ export async function GET() {
     orderBy: { name: 'asc' },
   })
 
-  // Shape to match previous API + new data
   const schedules = users.map(u => ({
     userId: u.id,
     user: { id: u.id, name: u.name, email: u.email },
@@ -41,21 +31,24 @@ export async function GET() {
 }
 
 export async function PATCH(req: NextRequest) {
-  const session = await requireAdminWithCompany()
-  if (!auth) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const auth = await requireAdminWithCompany()
+  if (!auth) return forbiddenError()
 
   const { userId, scheduleType } = await req.json()
   if (!userId) return NextResponse.json({ error: 'userId requis' }, { status: 400 })
+
+  if (!(await canAccessUser(auth.admin.companyId, userId))) {
+    return forbiddenError()
+  }
 
   let resolvedHours = 8
   let resolvedScheduleId: string | null = null
 
   if (scheduleType) {
-    // Find canonical preset for this type to get hoursPerDay
     const preset = await prisma.workSchedule.findFirst({
       where: { type: scheduleType, isPreset: true },
     })
-    if (!preset) return NextResponse.json({ error: 'Type d\'horaire inconnu' }, { status: 400 })
+    if (!preset) return NextResponse.json({ error: "Type d'horaire inconnu" }, { status: 400 })
     resolvedHours = preset.hoursPerDay
     resolvedScheduleId = preset.id
   }
@@ -69,7 +62,7 @@ export async function PATCH(req: NextRequest) {
 
   await prisma.auditLog.create({
     data: {
-      userId: session.user.id,
+      userId: auth.session.user.id,
       action: 'admin_update_schedule',
       resource: 'UserSchedule',
       resourceId: userId,
@@ -79,4 +72,3 @@ export async function PATCH(req: NextRequest) {
 
   return NextResponse.json(schedule)
 }
-

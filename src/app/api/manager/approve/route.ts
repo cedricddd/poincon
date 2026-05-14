@@ -26,7 +26,7 @@ export async function PATCH(req: NextRequest) {
     if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const user = await prisma.user.findUnique({ where: { id: session.user.id } })
-    if (user?.role !== 'MANAGER' && user?.role !== 'ADMIN') {
+    if (user?.role !== 'MANAGER' && user?.role !== 'ADMIN' && user?.role !== 'SUPER_ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

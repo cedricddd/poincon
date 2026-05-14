@@ -8,7 +8,7 @@ async function requireManager() {
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) return null
   const user = await prisma.user.findUnique({ where: { id: session.user.id } })
-  return user?.role === 'MANAGER' || user?.role === 'ADMIN' ? session : null
+  return user?.role === 'MANAGER' || user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN' ? session : null
 }
 
 export async function GET(req: NextRequest) {

@@ -5,9 +5,9 @@ import { prisma } from '@/lib/prisma'
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { name, email, password, companyName, companyAddress, companyVAT } = body
+    const { firstName, lastName, email, password, phone, companyName, companyAddress, companyVAT } = body
 
-    if (!name || !email || !password || !companyName || !companyVAT) {
+    if (!firstName || !lastName || !email || !password || !companyName || !companyVAT) {
       return NextResponse.json(
         { error: 'Tous les champs obligatoires doivent être remplis' },
         { status: 400 }
@@ -38,32 +38,39 @@ export async function POST(req: NextRequest) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
+    const fullName = `${firstName.trim()} ${lastName.trim()}`
 
-    // Créer l'utilisateur ADMIN
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-        role: 'ADMIN',
-        emailVerified: new Date(),
-      },
-    })
+    const { user, company } = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          name: fullName,
+          email,
+          password: hashedPassword,
+          role: 'ADMIN',
+          emailVerified: new Date(),
+        },
+      })
 
-    // Créer la company
-    const company = await prisma.company.create({
-      data: {
-        name: companyName,
-        address: companyAddress || null,
-        vatNumber: companyVAT,
-        adminId: user.id,
-      },
-    })
+      const freePlan = await tx.plan.findFirst({ where: { name: 'FREE' } })
 
-    // Associer l'utilisateur à sa company
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { companyId: company.id },
+      const company = await tx.company.create({
+        data: {
+          name: companyName,
+          address: companyAddress || null,
+          phone: phone || null,
+          vatNumber: companyVAT,
+          contactEmail: email,
+          adminId: user.id,
+          planId: freePlan?.id ?? null,
+        },
+      })
+
+      await tx.user.update({
+        where: { id: user.id },
+        data: { companyId: company.id },
+      })
+
+      return { user, company }
     })
 
     return NextResponse.json(

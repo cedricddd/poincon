@@ -14,7 +14,7 @@ export default function ManagerLayout({ children }: { children: React.ReactNode 
   useEffect(() => {
     if (status === 'loading') return
     const role = (session?.user as any)?.role
-    if (!role || (role !== 'MANAGER' && role !== 'ADMIN')) {
+    if (!role || (role !== 'MANAGER' && role !== 'ADMIN' && role !== 'SUPER_ADMIN')) {
       router.replace('/app/clock')
     }
   }, [session, status, router])
@@ -24,7 +24,7 @@ export default function ManagerLayout({ children }: { children: React.ReactNode 
   return (
     <div className="flex">
       <Sidebar />
-      <main className="flex-1 md:ml-64">
+      <main className="flex-1 transition-all duration-200" style={{ marginLeft: 'var(--sidebar-w, 256px)' }}>
         {children}
       </main>
       <div className="fixed top-3 left-52 z-[9999] hidden md:block">

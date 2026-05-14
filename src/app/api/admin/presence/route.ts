@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/auth"
+import { requireAdminWithCompany, forbiddenError } from "@/lib/admin-security"
 import { prisma } from "@/lib/prisma"
 
 export async function GET() {
-  const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== "ADMIN") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  const auth = await requireAdminWithCompany()
+  if (!auth) {
+    return forbiddenError()
   }
 
   const today = new Date()
@@ -18,6 +17,7 @@ export async function GET() {
     where: {
       departureTime: null,
       date: { gte: today, lt: tomorrow },
+      user: { companyId: auth.admin.companyId },
     },
     include: {
       user: { select: { id: true, name: true, email: true } },

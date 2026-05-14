@@ -1,13 +1,9 @@
-const CACHE_NAME = 'poincon-app-v1'
-const API_CACHE = 'poincon-api-v1'
-const IMAGE_CACHE = 'poincon-images-v1'
+const CACHE_NAME = 'poincon-app-v2'
+const API_CACHE = 'poincon-api-v2'
+const IMAGE_CACHE = 'poincon-images-v2'
 
+// Uniquement les vrais fichiers statiques (pas les pages SSR Next.js)
 const STATIC = [
-  '/',
-  '/app/clock',
-  '/app/time-off',
-  '/app/rtt',
-  '/app/reports',
   '/offline',
   '/manifest.json',
   '/icon-192.svg',
@@ -143,6 +139,9 @@ self.addEventListener('fetch', e => {
 
   // Default: network-first
   e.respondWith(
-    fetch(request).catch(() => caches.match(request))
+    fetch(request).catch(async () => {
+      const cached = await caches.match(request)
+      return cached || new Response('Offline', { status: 503 })
+    })
   )
 })

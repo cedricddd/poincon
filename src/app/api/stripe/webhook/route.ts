@@ -71,6 +71,7 @@ export async function POST(req: NextRequest) {
         data: {
           stripeSubscriptionId: sub.id,
           stripeSubscriptionBillingCycle: billingCycle,
+          stripeCancelAtPeriodEnd: sub.cancel_at_period_end ?? false,
           planExpiresAt: sub.status === 'active' ? null : new Date(sub.current_period_end * 1000),
           ...(planRecord ? { planId: planRecord.id } : {}),
         },
@@ -90,6 +91,7 @@ export async function POST(req: NextRequest) {
           planId: freePlan?.id ?? null,
           stripeSubscriptionId: null,
           stripeSubscriptionBillingCycle: null,
+          stripeCancelAtPeriodEnd: false,
           planExpiresAt: null,
         },
       })

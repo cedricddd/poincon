@@ -1,25 +1,19 @@
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { requireAdminWithCompany, forbiddenError } from '@/lib/admin-security'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const auth = await requireAdminWithCompany()
+    if (!auth) {
+      return forbiddenError()
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-    })
-
-    if (user?.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
-
-    // Get all detected overtimes with user info
+    // Get all detected overtimes for this company
     const overtimes = await prisma.detectedOvertime.findMany({
+      where: {
+        user: { companyId: auth.admin.companyId },
+      },
       include: {
         user: {
           select: {
@@ -32,8 +26,11 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: 'desc' },
     })
 
-    // Get all time off requests with user info
+    // Get all time off requests for this company
     const timeOffs = await prisma.timeOffRequest.findMany({
+      where: {
+        user: { companyId: auth.admin.companyId },
+      },
       include: {
         user: {
           select: {
@@ -46,8 +43,11 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: 'desc' },
     })
 
-    // Get all RTT requests with user info
+    // Get all RTT requests for this company
     const rtts = await prisma.rTTRequest.findMany({
+      where: {
+        user: { companyId: auth.admin.companyId },
+      },
       include: {
         user: {
           select: {

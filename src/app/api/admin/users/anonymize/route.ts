@@ -1,18 +1,18 @@
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { requireAdminWithCompany, forbiddenError, canAccessUser } from '@/lib/admin-security'
 import { NextRequest, NextResponse } from 'next/server'
 import { createHash } from 'crypto'
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions)
-  if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const admin = await prisma.user.findUnique({ where: { id: session.user.id } })
-  if (admin?.role !== 'ADMIN') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const auth = await requireAdminWithCompany()
+  if (!auth) return forbiddenError()
 
   const { userId } = await req.json()
   if (!userId) return NextResponse.json({ error: 'userId requis' }, { status: 400 })
+
+  if (!(await canAccessUser(auth.admin.companyId, userId))) {
+    return forbiddenError()
+  }
 
   // Token opaque : hash sha256 de l'userId — non réversible, garde la cohérence des logs
   const token = createHash('sha256').update(userId).digest('hex').slice(0, 16)
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
 
   await prisma.auditLog.create({
     data: {
-      userId: session.user.id,
+      userId: auth.admin.id,
       action: 'admin_anonymize',
       resource: 'user',
       resourceId: userId,

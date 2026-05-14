@@ -1,11 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
+
+interface CompanyInfo {
+  name: string
+  logoUrl: string | null
+}
 
 export default function LoginPage() {
   const router = useRouter()
@@ -14,6 +20,24 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [company, setCompany] = useState<CompanyInfo | null>(null)
+  const [lookingUp, setLookingUp] = useState(false)
+
+  const lookupCompany = useCallback(async (value: string) => {
+    if (!value.includes('@') || !value.includes('.')) return
+    setLookingUp(true)
+    try {
+      const res = await fetch(`/api/auth/company-lookup?email=${encodeURIComponent(value)}`)
+      const data = await res.json()
+      setCompany(data)
+    } catch {
+      setCompany(null)
+    } finally {
+      setLookingUp(false)
+    }
+  }, [])
+
+  const handleEmailBlur = () => lookupCompany(email)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,7 +56,7 @@ export default function LoginPage() {
       } else if (result?.ok) {
         router.push('/app/clock')
       }
-    } catch (err) {
+    } catch {
       setError('Erreur de connexion. Vérifiez vos identifiants.')
     } finally {
       setLoading(false)
@@ -42,11 +66,39 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[var(--pp-bg)] flex items-center justify-center px-4" suppressHydrationWarning>
       <div className="w-full max-w-lg" suppressHydrationWarning>
-        <div className="text-center mb-8" suppressHydrationWarning>
-          <Link href="/" className="text-3xl font-bold text-[var(--pp-ink)]">
-            PoinçOn
-          </Link>
-          <p className="text-[var(--pp-muted)] mt-2">Connexion à votre compte</p>
+
+        {/* Header: logo société ou branding PoinçOn */}
+        <div className="text-center mb-8 transition-all duration-300" suppressHydrationWarning>
+          {company ? (
+            <div className="flex flex-col items-center gap-3 animate-fade-in">
+              {company.logoUrl ? (
+                <div className="w-20 h-20 rounded-2xl overflow-hidden border border-[var(--pp-line)] bg-white shadow-sm flex items-center justify-center">
+                  <Image
+                    src={company.logoUrl}
+                    alt={company.name}
+                    width={80}
+                    height={80}
+                    className="object-contain w-full h-full"
+                  />
+                </div>
+              ) : (
+                <div className="w-16 h-16 rounded-2xl bg-[var(--pp-info)]/10 border border-[var(--pp-info)]/20 flex items-center justify-center text-2xl">
+                  🏢
+                </div>
+              )}
+              <div>
+                <p className="text-xl font-semibold text-[var(--pp-ink)]">{company.name}</p>
+                <p className="text-sm text-[var(--pp-muted)]">Connexion via PoinçOn</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              <Link href="/" className="text-3xl font-bold text-[var(--pp-ink)]">
+                PoinçOn
+              </Link>
+              <p className="text-[var(--pp-muted)] mt-2">Connexion à votre compte</p>
+            </>
+          )}
         </div>
 
         <Card>
@@ -65,7 +117,8 @@ export default function LoginPage() {
                 id="email"
                 type="email"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={e => { setEmail(e.target.value); if (!e.target.value) setCompany(null) }}
+                onBlur={handleEmailBlur}
                 placeholder="vous@entreprise.be"
                 required
                 className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
@@ -112,12 +165,6 @@ export default function LoginPage() {
             </Link>
           </div>
         </Card>
-
-        <div className="mt-8 p-6 bg-gradient-to-br from-blue-900/20 to-indigo-900/20 rounded-lg backdrop-blur-sm border border-[var(--pp-info)]/20">
-          <p className="text-center text-sm text-[var(--pp-muted)]">
-            <strong>Application en développement.</strong> Fonctionnalité de connexion en cours d'implémentation.
-          </p>
-        </div>
       </div>
     </div>
   )
