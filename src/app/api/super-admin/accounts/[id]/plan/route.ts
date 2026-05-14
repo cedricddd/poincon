@@ -5,9 +5,10 @@ import { logAudit } from '@/lib/audit'
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await auth()
     if (!session?.user?.id || (session.user as any).role !== 'SUPER_ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
@@ -19,7 +20,7 @@ export async function PATCH(
     }
 
     const company = await prisma.company.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { plan: true },
     })
 
@@ -37,17 +38,15 @@ export async function PATCH(
 
     const oldPlanName = company.plan?.name ?? 'FREE'
 
-    // Update company plan
     const updated = await prisma.company.update({
-      where: { id: params.id },
+      where: { id },
       data: { planId: newPlan.id },
       include: { plan: true, admin: { select: { email: true } } },
     })
 
-    // Log plan change in history
     await prisma.planHistory.create({
       data: {
-        companyId: params.id,
+        companyId: id,
         fromPlan: oldPlanName,
         toPlan: planName.toUpperCase(),
         changedBy: 'SUPER_ADMIN',
@@ -59,7 +58,7 @@ export async function PATCH(
       userId: session.user.id,
       action: 'SUPER_ADMIN_CHANGE_PLAN',
       resource: 'Company',
-      resourceId: params.id,
+      resourceId: id,
       changes: {
         fromPlan: oldPlanName,
         toPlan: newPlan.name,

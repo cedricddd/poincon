@@ -11,9 +11,10 @@ const MIME_TYPES: Record<string, string> = {
   gif: 'image/gif',
 }
 
-export async function GET(req: NextRequest, { params }: { params: { path: string[] } }) {
-  const safeSegments = params.path.filter(s => !s.includes('..') && !s.includes('/') && !s.includes('\\'))
-  if (safeSegments.length !== params.path.length) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+  const { path: pathSegments } = await params
+  const safeSegments = pathSegments.filter(s => !s.includes('..') && !s.includes('/') && !s.includes('\\'))
+  if (safeSegments.length !== pathSegments.length) {
     return NextResponse.json({ error: 'Invalid path' }, { status: 400 })
   }
 

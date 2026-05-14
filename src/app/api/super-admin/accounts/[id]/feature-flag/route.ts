@@ -5,9 +5,10 @@ import { logAudit } from '@/lib/audit'
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await auth()
     if (!session?.user?.id || (session.user as any).role !== 'SUPER_ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
@@ -19,18 +20,17 @@ export async function PATCH(
     }
 
     const company = await prisma.company.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!company) {
       return NextResponse.json({ error: 'Company not found' }, { status: 404 })
     }
 
-    // Upsert the feature flag
     const featureFlag = await prisma.companyFeatureFlag.upsert({
-      where: { companyId_flag: { companyId: params.id, flag } },
+      where: { companyId_flag: { companyId: id, flag } },
       update: { enabled },
-      create: { companyId: params.id, flag, enabled },
+      create: { companyId: id, flag, enabled },
     })
 
     await logAudit({
@@ -38,7 +38,7 @@ export async function PATCH(
       action: 'SUPER_ADMIN_TOGGLE_FEATURE',
       resource: 'CompanyFeatureFlag',
       resourceId: featureFlag.id,
-      changes: { flag, enabled, companyId: params.id, companyName: company.name },
+      changes: { flag, enabled, companyId: id, companyName: company.name },
     })
 
     return NextResponse.json(featureFlag)
