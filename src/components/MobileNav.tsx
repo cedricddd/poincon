@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 
 function IconClock() {
   return (
@@ -34,25 +35,60 @@ function IconBarChart() {
     </svg>
   )
 }
+function IconShield() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+  )
+}
+function IconUsers() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+      <circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+  )
+}
 
-const links = [
+type NavLink = { href: string; label: string; Icon: () => React.JSX.Element; color: string }
+
+const employeeLinks: NavLink[] = [
   { href: '/app/clock',    label: 'Pointage', Icon: IconClock,    color: '#10b981' },
   { href: '/app/time-off', label: 'Congés',   Icon: IconCalendar, color: '#0ea5e9' },
   { href: '/app/rtt',      label: 'RTT',      Icon: IconZap,      color: '#fb923c' },
   { href: '/app/reports',  label: 'Rapports', Icon: IconBarChart, color: '#6366f1' },
 ]
 
+const adminLink: NavLink = { href: '/admin/dashboard', label: 'Admin', Icon: IconShield, color: '#8b5cf6' }
+const managerLink: NavLink = { href: '/manager/dashboard', label: 'Manager', Icon: IconUsers, color: '#ec4899' }
+const superAdminLink: NavLink = { href: '/super-admin/dashboard', label: 'Super', Icon: IconShield, color: '#f43f5e' }
+
 export function MobileNav() {
   const pathname = usePathname()
+  const { data: session } = useSession()
+  const role = session?.user?.role
+
+  const links: NavLink[] = [...employeeLinks]
+  if (role === 'MANAGER') links.push(managerLink)
+  if (role === 'ADMIN') links.push(adminLink)
+  if (role === 'SUPER_ADMIN') {
+    links.push(adminLink)
+    links.push(superAdminLink)
+  }
+
+  const cols = links.length
 
   return (
     <nav
       className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--pp-bg)] border-t border-[var(--pp-line)]"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <div className="grid grid-cols-4">
+      <div className="grid" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
         {links.map(({ href, label, Icon, color }) => {
-          const active = pathname === href
+          const active = pathname.startsWith(href)
           return (
             <Link
               key={href}
@@ -60,7 +96,6 @@ export function MobileNav() {
               className="relative flex flex-col items-center justify-center py-2.5 gap-1 touch-manipulation"
               style={{ color: active ? color : 'var(--pp-muted)', transition: 'color 0.15s ease' }}
             >
-              {/* Top pill indicator */}
               <span
                 className="absolute top-0 left-1/2 -translate-x-1/2 rounded-b-full"
                 style={{
@@ -70,7 +105,6 @@ export function MobileNav() {
                   transition: 'width 0.2s cubic-bezier(0.34,1.56,0.64,1)',
                 }}
               />
-              {/* Icon with pill background when active */}
               <span
                 className="flex items-center justify-center w-10 h-7 rounded-xl"
                 style={{
