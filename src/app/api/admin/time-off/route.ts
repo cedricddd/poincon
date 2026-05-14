@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   const record = await prisma.timeOffRequest.create({
     data: { userId, startDate: new Date(startDate), endDate: new Date(endDate), reason: reason ?? null, status: status ?? 'APPROVED', approvedBy: auth.session.user.id, approvedAt: new Date() },
   })
-  await prisma.notification.create({ data: { userId, message: Congé enregistré:  au , type: 'info' } })
+  await prisma.notification.create({ data: { userId, message: 'Congé enregistré', type: 'info' } })
   await prisma.auditLog.create({ data: { userId: auth.session.user.id, action: 'admin_create', resource: 'timeOff', resourceId: record.id, changes: JSON.stringify({ startDate, endDate, reason, status }) } })
   return NextResponse.json({ record })
 }
