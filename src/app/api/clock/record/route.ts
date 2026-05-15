@@ -3,6 +3,24 @@ import { prisma } from '@/lib/prisma'
 import { logAudit } from '@/lib/audit'
 import { NextRequest, NextResponse } from 'next/server'
 
+// SECURITY: Validate timestamp is within reasonable range
+function validateTimestamp(timestamp: any): Date | null {
+  try {
+    const date = new Date(timestamp)
+    const now = new Date()
+    const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000)
+    const oneHourInFuture = new Date(now.getTime() + 60 * 60 * 1000)
+
+    // Reject timestamps not in acceptable range (±5min tolerance, +1h future buffer)
+    if (date < fiveMinutesAgo || date > oneHourInFuture) {
+      return null
+    }
+    return date
+  } catch {
+    return null
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
@@ -15,10 +33,40 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing arrivalTime' }, { status: 400 })
     }
 
+    // SECURITY: Validate timestamp
+    const validatedTime = validateTimestamp(arrivalTime)
+    if (!validatedTime) {
+      return NextResponse.json({ error: 'Invalid timestamp' }, { status: 400 })
+    }
+
+    // SECURITY: Prevent multiple clock-in on same day
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+
+    const existingRecord = await prisma.clockRecord.findFirst({
+      where: {
+        userId: session.user.id,
+        date: {
+          gte: today,
+          lt: tomorrow,
+        },
+        departureTime: null, // Only check if not already clocked out
+      },
+    })
+
+    if (existingRecord) {
+      return NextResponse.json(
+        { error: 'Already clocked in. Clock out first.' },
+        { status: 409 }
+      )
+    }
+
     const record = await prisma.clockRecord.create({
       data: {
         userId: session.user.id,
-        arrivalTime: new Date(arrivalTime),
+        arrivalTime: validatedTime,
         location: location || 'Sur site',
         ...(siteId && { siteId }),
       },
@@ -65,12 +113,47 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'Missing recordId or departureTime' }, { status: 400 })
     }
 
+    // SECURITY: Verify the record belongs to the current user
+    const existingRecord = await prisma.clockRecord.findUnique({
+      where: { id: recordId },
+    })
+
+    if (!existingRecord || existingRecord.userId !== session.user.id) {
+      return NextResponse.json(
+        { error: 'Record not found or not authorized' },
+        { status: 403 }
+      )
+    }
+
+    // SECURITY: Validate departure timestamp
+    const validatedDeparture = validateTimestamp(departureTime)
+    if (!validatedDeparture) {
+      return NextResponse.json({ error: 'Invalid departure time' }, { status: 400 })
+    }
+
+    // SECURITY: Ensure departure is after arrival
+    if (validatedDeparture <= existingRecord.arrivalTime) {
+      return NextResponse.json(
+        { error: 'Departure time must be after arrival time' },
+        { status: 400 }
+      )
+    }
+
+    // SECURITY: Validate duration is reasonable (max 12 hours per day)
+    const durationMinutes = Math.round(duration * 60)
+    if (durationMinutes < 1 || durationMinutes > 12 * 60) {
+      return NextResponse.json(
+        { error: 'Invalid duration (must be 1 minute to 12 hours)' },
+        { status: 400 }
+      )
+    }
+
     // Update the clock record
     const record = await prisma.clockRecord.update({
       where: { id: recordId },
       data: {
-        departureTime: new Date(departureTime),
-        duration: Math.round(duration * 60), // Store duration in minutes
+        departureTime: validatedDeparture,
+        duration: durationMinutes,
       },
     })
 
