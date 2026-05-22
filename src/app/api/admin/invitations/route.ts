@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireAdminWithCompany } from '@/lib/admin-security'
 import { prisma } from '@/lib/prisma'
 import { sendInvitationEmail } from '@/lib/mail'
+import { logAudit } from '@/lib/audit'
 
 export async function GET() {
   const auth = await requireAdminWithCompany()
@@ -55,6 +56,14 @@ export async function POST(req: NextRequest) {
     token: invitation.token,
   })
 
+  await logAudit({
+    userId: auth.admin.id,
+    action: 'admin_invite_user',
+    resource: 'UserInvitation',
+    resourceId: invitation.id,
+    changes: { email: invitation.email, role: invitation.role },
+  })
+
   return NextResponse.json({ ok: true, id: invitation.id })
 }
 
@@ -68,6 +77,13 @@ export async function DELETE(req: NextRequest) {
 
   await prisma.userInvitation.deleteMany({
     where: { id, companyId: auth.admin.companyId },
+  })
+
+  await logAudit({
+    userId: auth.admin.id,
+    action: 'admin_cancel_invitation',
+    resource: 'UserInvitation',
+    resourceId: id,
   })
 
   return NextResponse.json({ ok: true })

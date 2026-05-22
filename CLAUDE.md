@@ -1,10 +1,10 @@
-# PoinçOn — Next.js 15 · Pointage légal belge
+# PoinçOn — Next.js 16 · Pointage légal belge
 
 **Golden Rule**: Always prefix commands with `rtk`.
 `rtk git add . && rtk git commit -m "msg" && rtk git push`
 
 ## Stack
-Next.js 15 App Router · PostgreSQL · NextAuth v5 · Tailwind · Docker · PWA · Prisma · Stripe · Brevo
+Next.js 16 App Router · PostgreSQL · NextAuth v5 · Tailwind · Docker · PWA · Prisma · Stripe · Brevo
 
 ## Docker Workflow
 ```powershell
