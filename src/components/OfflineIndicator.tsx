@@ -4,7 +4,7 @@ import { useOfflineSync } from '@/hooks/useOfflineSync'
 import { useEffect, useState } from 'react'
 
 export function OfflineIndicator() {
-  const { pendingCount, isSyncing } = useOfflineSync()
+  const { pendingCount, isSyncing, clearFailedActions } = useOfflineSync()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -30,6 +30,15 @@ export function OfflineIndicator() {
             <>{pendingCount} pointage{pendingCount > 1 ? 's' : ''} en attente de synchronisation</>
           )}
         </span>
+        {!isSyncing && (
+          <button
+            onClick={clearFailedActions}
+            title="Vider les pointages bloqués"
+            className="ml-1 text-amber-700 hover:text-amber-900 font-bold leading-none"
+          >
+            ×
+          </button>
+        )}
       </div>
     </div>
   )

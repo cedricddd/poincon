@@ -1,10 +1,10 @@
 ================================================================================
-                    POINÇON - TODO LIST (MISE À JOUR 2026-05-15)
+                    POINÇON - TODO LIST (MISE À JOUR 2026-05-22)
 ================================================================================
 
-Dernière mise à jour: 2026-05-15
-Version: 0.3.0 (post-audit complète)
-État: MVP + major features DONE. Remaining: auth polish, audit export, legal pages.
+Dernière mise à jour: 2026-05-22
+Version: 0.3.3
+État: MVP + major features DONE. Phase 10 + 11 complétées. Password Change (admin/manager/employee) + plan gate MANAGER complétés. Prochain: légal ou super-admin polish.
 
 ================================================================================
 PHASES COMPLÉTÉES (✓)
@@ -112,6 +112,11 @@ PHASE 8: ÉQUIPES & PERMISSIONS (✓ COMPLÉTÉE PARTIELLEMENT)
 ✓ Modèle Team + assignation employés
 ✓ Rôle MANAGER (/manager/dashboard) — sous-admin équipe uniquement
 ✓ Rôles : ADMIN / MANAGER / EMPLOYEE
+✓ Plan gate MANAGER : rôle bloqué en FREE/SOLO (API + UI) — DONE (2026-05-22)
+    ├─ /api/auth/signup : refuse MANAGER si plan FREE/SOLO
+    ├─ /api/admin/users PATCH : refuse MANAGER si plan FREE/SOLO
+    ├─ GET /api/admin/users : retourne canUseManagers (bool)
+    └─ UI create/edit : masque l'option Manager si plan insuffisant
 [ ] Widget "Prochains congés" (team view) — nice to have, optionnel
 
 PHASE 9: PLANS & MONÉTISATION (✓ COMPLÉTÉE PARTIELLEMENT)
@@ -158,27 +163,27 @@ PHASE 9.5: INVITATIONS EMPLOYÉS & AUTHENTIFICATION (✓ COMPLÉTÉE)
 PHASES RESTANTES À FAIRE (OU EN COURS)
 ================================================================================
 
-PHASE 9.6: PAGES LÉGALES & COMPLIANCE (À FAIRE)
+PHASE 9.6: PAGES LÉGALES & COMPLIANCE (✓ COMPLÉTÉE — 2026-05-25)
 ================================================================================
-[ ] /legal/privacy (RGPD Privacy Policy)
-    [ ] Template français/anglais
-    [ ] Sections: data collection, storage, usage, retention, rights
-    [ ] Mention audit logs pseudo-anonymisation
+✓ /legal/privacy (RGPD Privacy Policy)
+    ✓ Responsable traitement, données collectées, finalités, base légale
+    ✓ Durées de conservation, droits RGPD, sous-traitants, contact DPO
 
-[ ] /legal/terms (Terms of Service)
-    [ ] Usage restrictions, liability, termination, governing law
+✓ /legal/terms (Terms of Service)
+    ✓ Objet, accès, utilisation acceptable, plans, responsabilités, résiliation
+    ✓ Propriété intellectuelle, loi applicable (droit belge, Bruxelles)
 
-[ ] /legal/compliance (Belgium 2027 & CJUE Compliance Badge)
-    [ ] Confirmation legality pour Belgium
-    [ ] Audit trail features
-    [ ] RGPD compliance checklist
+✓ /legal/compliance (Belgium 2027 & CJUE Compliance Badge)
+    ✓ CCT n°129, arrêt CJUE C-55/18 (2019), RGPD
+    ✓ Checklist conformité visuelle (audit trail, chiffrement, isolation, RGPD)
+    ✓ Conservation 5 ans + pseudo-anonymisation
 
-[ ] /legal/security (Security Practices)
-    [ ] Encryption, backups, certifications
-    [ ] Incident reporting contact
-    [ ] 3rd-party dependencies
+✓ /legal/security (Security Practices)
+    ✓ Chiffrement TLS 1.3, bcrypt, JWT, rate limiting, anti-énumération
+    ✓ Infrastructure Docker, PostgreSQL, sauvegardes, VPS UE
+    ✓ Isolation multi-tenant, audit trail, gestion incidents, responsible disclosure
 
-PHASE 10: AUTHENTICATION IMPROVEMENTS (À FAIRE — PRIORITÉ HAUTE)
+PHASE 10: AUTHENTICATION IMPROVEMENTS (✓ COMPLÉTÉE — 2026-05-22)
 ================================================================================
 
 ✓ "Se souvenir de moi" — DONE (2026-05-22)
@@ -187,61 +192,44 @@ PHASE 10: AUTHENTICATION IMPROVEMENTS (À FAIRE — PRIORITÉ HAUTE)
     ├─ Sans cocher: 8h | EMPLOYEE/MANAGER: 90j | ADMIN/SUPER_ADMIN: 30j
     └─ Session invalidée automatiquement si sessionExpiry dépassé
 
-[ ] Password reset / "Forgot password" flow
-    ├─ Route publique: /forgot-password
-    ├─ API: POST /api/auth/forgot-password (send reset link email via Brevo)
-    ├─ Route: /reset-password?token=xxx (public)
-    ├─ API: POST /api/auth/reset-password (validate token + set password)
-    ├─ Token: 24h expiry, single-use
-    └─ Email: via Brevo sendEmail()
+✓ Password reset / "Forgot password" flow — DONE (2026-05-22)
+    ├─ Modèle PasswordResetToken (token, userId, expiresAt 24h, usedAt)
+    ├─ Route publique: /forgot-password (formulaire email, anti-enumération)
+    ├─ API: POST /api/auth/forgot-password (rate-limit 3/15min, token unique)
+    ├─ Route: /reset-password?token=xxx (valide token au chargement)
+    ├─ API: GET+POST /api/auth/reset-password (valide token + hash mdp + auto-login)
+    ├─ Token: 24h expiry, single-use, ancien token invalidé avant création
+    ├─ Email: sendPasswordResetEmail() via Brevo (template HTML)
+    └─ Lien "Mot de passe oublié ?" ajouté sur /login
 
-[ ] Password change pour ADMIN/SUPER_ADMIN
-    ├─ Form dans /admin/dashboard/settings
-    ├─ API: POST /api/admin/company/change-password
-    ├─ Validation : current password correct before allowing change
-    └─ Toast: success/error feedback
+✓ Password change (self-service) — DONE (2026-05-22)
+    ├─ API partagée: POST /api/user/password (EMPLOYEE / MANAGER / ADMIN)
+    ├─ SUPER_ADMIN: conserve son endpoint /api/super-admin/profile/password
+    ├─ ADMIN: section "Changer le mot de passe" dans /admin/dashboard/settings
+    ├─ MANAGER + EMPLOYEE: page /app/profile + lien "Mon profil" dans Sidebar
+    ├─ Validation: mot de passe actuel vérifié avant changement (bcrypt)
+    ├─ AuditLog: action change_password tracée
+    └─ Testé sur les 3 rôles (admin, manager, employé) — OK
 
-[ ] Password change pour EMPLOYEE users
-    ├─ Form dans /app/* (e.g., /app/settings ou profile dropdown)
-    ├─ API: POST /api/user/change-password
-    ├─ Validation : current password correct
-    └─ Toast: success/error feedback
-
-PHASE 11: AUDIT TRAIL ENHANCEMENTS (À FAIRE — PRIORITÉ HAUTE, RÉGLEMENTATION)
+PHASE 11: AUDIT TRAIL ENHANCEMENTS (✓ COMPLÉTÉE — 2026-05-22)
 ================================================================================
 
 ✓ Audit Trail data: captured & stored
-✓ Real-time tracking: mostly working
-
-[ ] Audit Trail: Verify all modifications tracked in REAL-TIME
-    ├─ Check: user creation/deletion → logged
-    ├─ Check: company settings changes → logged
-    ├─ Check: approval/rejection of requests → logged
-    ├─ Check: plan changes → logged
-    ├─ Check: clock records → logged (if applicable)
-    └─ Location: grep for auditLog in src/app/api/admin/*
-
-[ ] Audit Trail: Export CSV
-    ├─ Button dans /admin/dashboard/audit-trail
-    ├─ CSV format: timestamp, user, action, company, details
-    ├─ Include filters: date range, action type
-    └─ Route: GET /api/admin/audit-trail/export?format=csv
-
-[ ] Audit Trail: Export PDF
-    ├─ Button dans /admin/dashboard/audit-trail
-    ├─ PDF format: nicer than CSV, signature-ready
-    ├─ Use jsPDF (already installed)
-    └─ Route: GET /api/admin/audit-trail/export?format=pdf
-
-[ ] Fix: Dark mode bug in Audit Trail
-    ├─ Bug: dark mode styling broken in Audit Trail section
-    ├─ Location: src/app/admin/dashboard/audit-trail (find & fix)
-    └─ Test: light & dark mode both work
+✓ Real-time tracking: toutes actions critiques loggées
+    ✓ clock_in / clock_out
+    ✓ admin_update_user / admin_delete_user
+    ✓ admin_invite_user / admin_cancel_invitation (ajouté 2026-05-22)
+    ✓ admin_approve / admin_reject
+    ✓ admin_balance_adjustment
+✓ Export CSV — GET /api/admin/audit-logs/export (10k lignes max, heure belge)
+✓ Export PDF — client-side jsPDF + autotable, bouton dans la page
+✓ Fix dark mode — variantes dark: sur toute la page audit
+✓ Filtre actions enrichi (tous les types réels)
+✓ Fix PWA offline sync — clearFailedActions() + bouton × dans OfflineIndicator
 
 [ ] Dark mode: Set as default? (decision)
     ├─ Currently: user chooses
     ├─ Suggested: keep user choice (don't force default)
-    ├─ Fix dark mode bug first before deciding
     └─ Priority: LOW
 
 PHASE 12: SUPER-ADMIN ENHANCEMENTS (À FAIRE)
@@ -357,13 +345,14 @@ NOTES & COMMENTS
 ================================================================================
 
 Priorités d'action (ordre recommended):
-1. "Se souvenir de moi" (HIGH — impacts all mobile users)
-2. Audit Trail exports + real-time verification (HIGH — regulatory)
-3. Password reset + change (MEDIUM — user management)
-4. Super-admin stats + billing info (MEDIUM — business)
-5. 2FA (LOW — can be disabled, do at end)
-6. Legal pages (MEDIUM — obligatoire but not urgent)
-7. Dark mode bug (LOW — can wait)
+1. ✓ "Se souvenir de moi" (HIGH — impacts all mobile users)
+2. ✓ Audit Trail exports + real-time verification (HIGH — regulatory)
+3. ✓ Password reset (MEDIUM — user management)
+4. ✓ Password change self-service (MEDIUM — admin + manager + employee)
+5. ✓ Plan gate MANAGER role (MEDIUM — business rules)
+6. Super-admin stats + billing info (MEDIUM — business)
+7. Legal pages (MEDIUM — obligatoire but not urgent)
+8. 2FA (LOW — can be disabled, do at end)
 
 Building blocks already done:
 - MVP fully functional ✓
@@ -374,7 +363,9 @@ Building blocks already done:
 - Multi-tenancy isolation ✓
 - Docker deployment ✓
 - PWA/Mobile-first ✓
+- Password reset + change ✓
+- MANAGER role plan-gated ✓
 
-Remaining work: ~30% (auth polish, audit export, legal pages, 2FA)
+Remaining work: ~20% (legal pages, super-admin polish, 2FA)
 
 ================================================================================

@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { isAdminRole } from '@/lib/roles'
+import { getCompanyPlan, planCanAccess } from '@/lib/plan'
 
 export async function POST(req: NextRequest) {
   try {
@@ -32,6 +33,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Mot de passe trop court (minimum 8 caractères)' }, { status: 400 })
     }
 
+    // Vérifier que le plan autorise les managers
+    if (role === 'MANAGER') {
+      const plan = await getCompanyPlan(requester.companyId)
+      if (!planCanAccess(plan, 'managers')) {
+        return NextResponse.json({ error: 'Votre plan ne permet pas d\'ajouter des managers' }, { status: 403 })
+      }
+    }
+
     // Vérifier si l'utilisateur existe déjà
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -48,7 +57,7 @@ export async function POST(req: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 10)
 
     // Créer l'utilisateur
-    const allowedRoles = ['EMPLOYEE', 'ADMIN']
+    const allowedRoles = ['EMPLOYEE', 'MANAGER', 'ADMIN']
     const userRole = allowedRoles.includes(role) ? role : 'EMPLOYEE'
 
     const user = await prisma.user.create({

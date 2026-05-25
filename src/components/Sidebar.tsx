@@ -384,6 +384,18 @@ export function Sidebar() {
           </div>
         )}
 
+        {!isSuperAdmin && !isAdmin && (
+          <Link
+            href="/app/profile"
+            title={c ? 'Mon profil' : undefined}
+            className={`w-full flex items-center gap-2 px-2 py-2 text-xs text-[var(--pp-muted)] hover:text-[var(--pp-ink)] transition rounded-lg hover:bg-[var(--pp-line)]/40 ${c ? 'justify-center' : ''}`}
+            style={pathname === '/app/profile' ? { color: 'var(--pp-ink)', background: 'var(--pp-line)' } : {}}
+          >
+            <IconSettings />
+            {!c && 'Mon profil'}
+          </Link>
+        )}
+
         <button
           onClick={() => signOut({ callbackUrl: '/login' })}
           title={c ? 'Se déconnecter' : undefined}

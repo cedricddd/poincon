@@ -25,6 +25,7 @@ model User {
   sessions              Session[]
   clockRecords          ClockRecord[]
   auditLogs             AuditLog[]
+  passwordResetTokens   PasswordResetToken[]
   userConsents          UserConsent[]
   userSchedule          UserSchedule?
   timeOffRequests       TimeOffRequest[] @relation("TimeOffRequests")
@@ -389,6 +390,20 @@ model Notification {
   @@index([userId])
   @@index([read])
   @@index([userId, read])       // cloche : notifications non lues par user
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique @default(cuid())
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
 }
 
 model UserInvitation {

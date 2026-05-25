@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { isAdminRole } from '@/lib/roles'
+import { getCompanyPlan, planCanAccess } from '@/lib/plan'
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { createHash } from 'crypto'
@@ -24,17 +25,20 @@ export async function GET(req: NextRequest) {
     })
     if (!admin?.companyId) return NextResponse.json({ error: 'Company not found' }, { status: 400 })
 
-    const users = await prisma.user.findMany({
-      where: { companyId: admin.companyId },
-      select: {
-        id: true, name: true, email: true, role: true, createdAt: true,
-        defaultSiteId: true,
-        defaultSite: { select: { id: true, name: true } },
-      },
-      orderBy: { name: 'asc' },
-    })
+    const [users, plan] = await Promise.all([
+      prisma.user.findMany({
+        where: { companyId: admin.companyId },
+        select: {
+          id: true, name: true, email: true, role: true, createdAt: true,
+          defaultSiteId: true,
+          defaultSite: { select: { id: true, name: true } },
+        },
+        orderBy: { name: 'asc' },
+      }),
+      getCompanyPlan(admin.companyId),
+    ])
 
-    return NextResponse.json({ users })
+    return NextResponse.json({ users, canUseManagers: planCanAccess(plan, 'managers') })
   } catch (error) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
@@ -63,11 +67,19 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const allowedRoles = ['EMPLOYEE', 'ADMIN']
+    const allowedRoles = ['EMPLOYEE', 'MANAGER', 'ADMIN']
     const data: Record<string, unknown> = {}
     if (name) data.name = name
     if (email) data.email = email
-    if (role && allowedRoles.includes(role)) data.role = role
+    if (role && allowedRoles.includes(role)) {
+      if (role === 'MANAGER') {
+        const plan = await getCompanyPlan(admin.companyId)
+        if (!planCanAccess(plan, 'managers')) {
+          return NextResponse.json({ error: 'Votre plan ne permet pas d\'ajouter des managers' }, { status: 403 })
+        }
+      }
+      data.role = role
+    }
     if (password) data.password = await bcrypt.hash(password, 10)
     if ('defaultSiteId' in body) data.defaultSiteId = defaultSiteId ?? null
 

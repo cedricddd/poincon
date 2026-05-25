@@ -31,6 +31,10 @@ export default function SettingsPage() {
   const [cancelLoading, setCancelLoading] = useState(false)
   const [success, setSuccess] = useState('')
   const [error, setError] = useState('')
+  const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' })
+  const [pwSaving, setPwSaving] = useState(false)
+  const [pwSuccess, setPwSuccess] = useState('')
+  const [pwError, setPwError] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -139,6 +143,35 @@ export default function SettingsPage() {
       setSuccess('Logo supprimé.')
     } finally {
       setUploadingLogo(false)
+    }
+  }
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setPwError('')
+    setPwSuccess('')
+    if (pwForm.newPassword !== pwForm.confirmPassword) {
+      setPwError('Les nouveaux mots de passe ne correspondent pas')
+      return
+    }
+    setPwSaving(true)
+    try {
+      const res = await fetch('/api/user/password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword: pwForm.currentPassword, newPassword: pwForm.newPassword }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setPwError(data.error || 'Erreur lors de la mise à jour')
+      } else {
+        setPwSuccess('Mot de passe mis à jour avec succès')
+        setPwForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
+      }
+    } catch {
+      setPwError('Erreur réseau. Veuillez réessayer.')
+    } finally {
+      setPwSaving(false)
     }
   }
 
@@ -324,6 +357,58 @@ export default function SettingsPage() {
           </div>
           <Button type="submit" disabled={saving} size="md">
             {saving ? 'Sauvegarde...' : 'Sauvegarder'}
+          </Button>
+        </form>
+      </Card>
+
+      {/* Mot de passe */}
+      <Card>
+        <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-4">Changer le mot de passe</h2>
+
+        {pwError && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">{pwError}</div>
+        )}
+        {pwSuccess && (
+          <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">{pwSuccess}</div>
+        )}
+
+        <form onSubmit={handlePasswordChange} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">Mot de passe actuel</label>
+            <input
+              type="password"
+              value={pwForm.currentPassword}
+              onChange={e => setPwForm(f => ({ ...f, currentPassword: e.target.value }))}
+              placeholder="••••••••"
+              required
+              className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">Nouveau mot de passe</label>
+            <input
+              type="password"
+              value={pwForm.newPassword}
+              onChange={e => setPwForm(f => ({ ...f, newPassword: e.target.value }))}
+              placeholder="••••••••"
+              required
+              className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
+            />
+            <p className="text-xs text-[var(--pp-muted)] mt-1">Minimum 8 caractères</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">Confirmer le nouveau mot de passe</label>
+            <input
+              type="password"
+              value={pwForm.confirmPassword}
+              onChange={e => setPwForm(f => ({ ...f, confirmPassword: e.target.value }))}
+              placeholder="••••••••"
+              required
+              className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
+            />
+          </div>
+          <Button type="submit" disabled={pwSaving} size="md">
+            {pwSaving ? 'Mise à jour…' : 'Mettre à jour le mot de passe'}
           </Button>
         </form>
       </Card>

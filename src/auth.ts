@@ -10,6 +10,7 @@ export const authConfig: NextAuthConfig = {
       credentials: {
         email: { label: 'Email', type: 'email', placeholder: 'vous@entreprise.be' },
         password: { label: 'Mot de passe', type: 'password' },
+        rememberMe: { label: 'Se souvenir de moi', type: 'text' },
       },
       async authorize(credentials) {
         const email = credentials?.email as string | undefined
@@ -28,6 +29,7 @@ export const authConfig: NextAuthConfig = {
             email: user.email,
             name: user.name,
             role: user.role,
+            rememberMe: credentials?.rememberMe === 'true',
           }
         } catch (error) {
           console.error('Auth error:', error)
@@ -42,6 +44,7 @@ export const authConfig: NextAuthConfig = {
   },
   session: {
     strategy: 'jwt',
+    maxAge: 90 * 24 * 60 * 60, // 90 days max (shorter for non-rememberMe users via sessionExpiry check)
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -49,8 +52,27 @@ export const authConfig: NextAuthConfig = {
         token.sub = user.id
         token.email = user.email
         token.name = user.name
-        token.role = (user as { role: string }).role
+        token.role = (user as { role: string; rememberMe: boolean }).role
+        const rememberMe = (user as { rememberMe: boolean }).rememberMe
+        const role = (user as { role: string }).role
+
+        let sessionDurationMs: number
+        if (!rememberMe) {
+          sessionDurationMs = 8 * 60 * 60 * 1000 // 8h without remember me
+        } else if (role === 'ADMIN' || role === 'SUPER_ADMIN') {
+          sessionDurationMs = 30 * 24 * 60 * 60 * 1000 // 30 days
+        } else {
+          sessionDurationMs = 90 * 24 * 60 * 60 * 1000 // 90 days for EMPLOYEE/MANAGER
+        }
+
+        token.sessionExpiry = Date.now() + sessionDurationMs
       }
+
+      // Invalidate session if custom expiry exceeded
+      if (token.sessionExpiry && Date.now() > token.sessionExpiry) {
+        return null
+      }
+
       return token
     },
     async session({ session, token }) {

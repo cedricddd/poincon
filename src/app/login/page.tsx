@@ -48,6 +48,7 @@ export default function LoginPage() {
       const result = await signIn('credentials', {
         email,
         password,
+        rememberMe: rememberMe.toString(),
         redirect: false,
       })
 
@@ -156,6 +157,12 @@ export default function LoginPage() {
             <Button type="submit" disabled={loading} className="w-full" size="md">
               {loading ? 'Connexion...' : 'Se connecter'}
             </Button>
+
+            <div className="text-center">
+              <Link href="/forgot-password" className="text-sm text-[var(--pp-muted)] hover:text-[var(--pp-info)] hover:underline">
+                Mot de passe oublié ?
+              </Link>
+            </div>
           </form>
 
           <div className="mt-6 pt-6 border-t border-[var(--pp-line)] text-center text-sm text-[var(--pp-muted)]">

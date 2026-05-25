@@ -1224,6 +1224,7 @@ export default function Home() {
                 <li><a href="/legal/privacy" className="hover:text-[var(--pp-ink)] transition-colors">Confidentialité</a></li>
                 <li><a href="/legal/terms" className="hover:text-[var(--pp-ink)] transition-colors">Conditions</a></li>
                 <li><a href="/legal/compliance" className="hover:text-[var(--pp-ink)] transition-colors">Conformité</a></li>
+                <li><a href="/legal/security" className="hover:text-[var(--pp-ink)] transition-colors">Sécurité</a></li>
               </ul>
             </div>
 

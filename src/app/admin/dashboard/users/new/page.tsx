@@ -18,11 +18,16 @@ export default function NewUserPage() {
     defaultSiteId: '',
   })
   const [sites, setSites] = useState<Site[]>([])
+  const [canUseManagers, setCanUseManagers] = useState(false)
 
   useEffect(() => {
     fetch('/api/admin/sites')
       .then(r => r.ok ? r.json() : [])
       .then(data => setSites(Array.isArray(data) ? data : []))
+      .catch(() => {})
+    fetch('/api/admin/users')
+      .then(r => r.ok ? r.json() : {})
+      .then(d => setCanUseManagers(d.canUseManagers ?? false))
       .catch(() => {})
   }, [])
   const [loading, setLoading] = useState(false)
@@ -140,6 +145,7 @@ export default function NewUserPage() {
               className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] bg-[var(--pp-bg)]"
             >
               <option value="EMPLOYEE">Employé</option>
+              {canUseManagers && <option value="MANAGER">Manager</option>}
               <option value="ADMIN">Administrateur</option>
             </select>
           </div>

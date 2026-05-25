@@ -20,6 +20,7 @@ function SortIcon({ field, current, dir }: { field: SortField; current: SortFiel
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([])
   const [sites, setSites] = useState<Site[]>([])
+  const [canUseManagers, setCanUseManagers] = useState(false)
   const [loading, setLoading] = useState(true)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editData, setEditData] = useState<EditState>({ name: '', email: '', role: '', password: '', defaultSiteId: '' })
@@ -33,7 +34,7 @@ export default function UsersPage() {
     setLoading(true)
     fetch('/api/admin/users')
       .then(r => r.json())
-      .then(d => setUsers(d.users ?? []))
+      .then(d => { setUsers(d.users ?? []); setCanUseManagers(d.canUseManagers ?? false) })
       .finally(() => setLoading(false))
   }
 
@@ -192,6 +193,7 @@ export default function UsersPage() {
                         <td className="py-3 pr-4">
                           <select value={editData.role} onChange={e => setEditData(p => ({ ...p, role: e.target.value }))} className="px-2 py-1 border border-[var(--pp-info)] rounded focus:outline-none text-sm bg-[var(--pp-bg)]">
                             <option value="EMPLOYEE">Employé</option>
+                            {canUseManagers && <option value="MANAGER">Manager</option>}
                             <option value="ADMIN">Admin</option>
                           </select>
                         </td>
@@ -223,9 +225,11 @@ export default function UsersPage() {
                           <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                             user.role === 'ADMIN'
                               ? 'bg-[var(--pp-info)]/10 text-[var(--pp-info)]'
+                              : user.role === 'MANAGER'
+                              ? 'bg-purple-100 text-purple-600'
                               : 'bg-[var(--pp-line)] text-[var(--pp-muted)]'
                           }`}>
-                            {user.role === 'ADMIN' ? 'Admin' : 'Employé'}
+                            {user.role === 'ADMIN' ? 'Admin' : user.role === 'MANAGER' ? 'Manager' : 'Employé'}
                           </span>
                         </td>
                         <td className="py-3 pr-4 hidden md:table-cell text-xs text-[var(--pp-muted)]">

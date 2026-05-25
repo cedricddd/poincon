@@ -171,6 +171,59 @@ export async function sendInvitationEmail(params: {
   await transporter.sendMail({ from: FROM, to, subject, html })
 }
 
+export async function sendPasswordResetEmail(params: {
+  to: string
+  name: string | null
+  token: string
+}) {
+  if (!process.env.BREVO_SMTP_KEY) return
+
+  const { to, name, token } = params
+  const appUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
+  const link = `${appUrl}/reset-password?token=${token}`
+  const greeting = name ? `Bonjour ${name},` : 'Bonjour,'
+
+  const subject = '🔑 Réinitialisation de votre mot de passe PoinçOn'
+
+  const html = `
+    <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
+      <div style="background:#ffffff;border-radius:12px;padding:32px;border:1px solid #e2e8f0;">
+        <h1 style="margin:0 0 4px;font-size:22px;color:#0f172a;">PoinçOn</h1>
+        <p style="margin:0 0 20px;font-size:13px;color:#94a3b8;">Pointage légal belge</p>
+        <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 24px;">
+
+        <p style="color:#334155;margin:0 0 12px;">${greeting}</p>
+        <p style="color:#334155;margin:0 0 24px;">
+          Vous avez demandé la réinitialisation de votre mot de passe.<br>
+          Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe.
+        </p>
+
+        <a href="${link}"
+           style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:13px 28px;border-radius:8px;font-weight:600;font-size:15px;margin-bottom:28px;">
+          Réinitialiser mon mot de passe →
+        </a>
+
+        <p style="color:#64748b;font-size:13px;margin:0 0 4px;">
+          ⏱ Ce lien est valable <strong>24 heures</strong>.
+        </p>
+        <p style="color:#94a3b8;font-size:12px;margin:0 0 24px;word-break:break-all;">
+          ${link}
+        </p>
+
+        <div style="background:#fef3c7;border-radius:8px;padding:12px 16px;margin-bottom:24px;border-left:3px solid #f59e0b;">
+          <p style="margin:0;color:#92400e;font-size:13px;">
+            Si vous n'avez pas demandé cette réinitialisation, ignorez cet email. Votre mot de passe reste inchangé.
+          </p>
+        </div>
+
+        <p style="color:#94a3b8;font-size:12px;margin:0;">PoinçOn · ${new Date().getFullYear()}</p>
+      </div>
+    </div>
+  `
+
+  await transporter.sendMail({ from: FROM, to, subject, html })
+}
+
 export async function sendEmail(params: {
   to: string
   subject: string

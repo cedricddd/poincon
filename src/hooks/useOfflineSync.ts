@@ -160,6 +160,18 @@ export function useOfflineSync() {
     }
   }, [openDB, countPendingActions])
 
+  const clearFailedActions = useCallback(async () => {
+    try {
+      const actions = await getPendingActions()
+      const failed = actions.filter(a => a.status === 'failed' || a.retries >= MAX_RETRIES)
+      for (const action of failed) {
+        await removePendingAction(action.id)
+      }
+    } catch (error) {
+      console.error('Erreur nettoyage:', error)
+    }
+  }, [getPendingActions, removePendingAction])
+
   const syncPendingActions = useCallback(async () => {
     if (isSyncing) return
 
@@ -170,7 +182,8 @@ export function useOfflineSync() {
 
       for (const action of pending) {
         if (action.retries >= MAX_RETRIES) {
-          await updateActionStatus(action.id, 'failed')
+          await removePendingAction(action.id)
+          console.warn(`Dropped after ${MAX_RETRIES} retries: ${action.id}`)
           continue
         }
 
@@ -226,5 +239,6 @@ export function useOfflineSync() {
     savePendingAction,
     getPendingActions,
     syncPendingActions,
+    clearFailedActions,
   }
 }
