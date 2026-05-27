@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import Link from 'next/link'
@@ -19,6 +19,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const saved = localStorage.getItem('rememberedEmail')
+    if (saved) {
+      setEmail(saved)
+      setRememberMe(true)
+    }
+  }, [])
   const [error, setError] = useState('')
   const [company, setCompany] = useState<CompanyInfo | null>(null)
   const [lookingUp, setLookingUp] = useState(false)
@@ -55,6 +63,11 @@ export default function LoginPage() {
       if (result?.error) {
         setError(result.error || 'Erreur de connexion.')
       } else if (result?.ok) {
+        if (rememberMe) {
+          localStorage.setItem('rememberedEmail', email)
+        } else {
+          localStorage.removeItem('rememberedEmail')
+        }
         router.push('/app/clock')
       }
     } catch {
