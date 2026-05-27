@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Syne, DM_Sans } from 'next/font/google'
+import Script from 'next/script'
 import './globals.css'
 import { Providers } from './providers'
 import { auth } from '@/auth'
@@ -38,8 +39,7 @@ export default async function RootLayout({
         <link rel="apple-touch-icon" href="/icon-192.svg" />
       </head>
       <body className="antialiased" suppressHydrationWarning>
-        <Providers session={session}>{children}</Providers>
-        <script dangerouslySetInnerHTML={{ __html: `
+        <Script id="theme-init" strategy="beforeInteractive">{`
           (function() {
             try {
               var t = localStorage.getItem('pp-theme');
@@ -47,12 +47,15 @@ export default async function RootLayout({
               else if (t === 'light') document.documentElement.classList.add('light');
             } catch(e) {}
           })();
+        `}</Script>
+        <Script id="sw-register" strategy="afterInteractive">{`
           if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
               navigator.serviceWorker.register('/sw.js');
             });
           }
-        `}} />
+        `}</Script>
+        <Providers session={session}>{children}</Providers>
       </body>
     </html>
   )

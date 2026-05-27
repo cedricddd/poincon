@@ -78,20 +78,20 @@ export default function PrivacyPage() {
           <div className="space-y-4">
             {[
               {
-                title: 'Données d'identification',
-                items: ['Nom et prénom', 'Adresse email professionnelle', 'Rôle dans l'entreprise (ADMIN, MANAGER, EMPLOYEE)'],
+                title: "Données d'identification",
+                items: ['Nom et prénom', 'Adresse email professionnelle', "Rôle dans l'entreprise (ADMIN, MANAGER, EMPLOYEE)"],
               },
               {
                 title: 'Données de pointage',
-                items: ['Heure d'arrivée et de départ', 'Durée de présence', 'Localisation du pointage (sur site, télétravail, déplacement)', 'Site de travail associé'],
+                items: ["Heure d'arrivée et de départ", 'Durée de présence', 'Localisation du pointage (sur site, télétravail, déplacement)', 'Site de travail associé'],
               },
               {
                 title: 'Données de navigation',
-                items: ['Adresse IP (logs serveur)', 'Type de navigateur (User-Agent)', 'Actions dans l'application (audit trail)'],
+                items: ['Adresse IP (logs serveur)', 'Type de navigateur (User-Agent)', "Actions dans l'application (audit trail)"],
               },
               {
                 title: 'Données de facturation',
-                items: ['Informations de paiement traitées par Stripe (non stockées chez nous)', 'Numéro de TVA de l'entreprise', 'Adresse de facturation'],
+                items: ['Informations de paiement traitées par Stripe (non stockées chez nous)', "Numéro de TVA de l'entreprise", 'Adresse de facturation'],
               },
             ].map(cat => (
               <div key={cat.title} className="border border-[var(--pp-line)] rounded-lg p-4">
@@ -118,7 +118,7 @@ export default function PrivacyPage() {
                 {[
                   ['Enregistrement du temps de travail', 'Obligation légale (CCT n°129, droit belge)'],
                   ['Gestion des comptes utilisateurs', 'Exécution du contrat'],
-                  ['Envoi d'emails transactionnels', 'Exécution du contrat'],
+                  ["Envoi d'emails transactionnels", 'Exécution du contrat'],
                   ['Facturation et TVA', 'Obligation légale'],
                   ['Audit trail et sécurité', 'Intérêt légitime'],
                   ['Amélioration du service', 'Intérêt légitime'],
@@ -139,7 +139,7 @@ export default function PrivacyPage() {
             {[
               { type: 'Données de pointage', duree: '5 ans', raison: 'Obligation légale belge (Loi sur le bien-être au travail)' },
               { type: 'Données de compte', duree: 'Durée du contrat + 1 an', raison: 'Archivage légal' },
-              { type: 'Logs d'audit', duree: '1 an', raison: 'Sécurité et conformité' },
+              { type: "Logs d'audit", duree: '1 an', raison: 'Sécurité et conformité' },
               { type: 'Données de facturation', duree: '7 ans', raison: 'Obligation fiscale belge' },
               { type: 'Tokens de réinitialisation', duree: '24 heures', raison: 'Sécurité — expiration automatique' },
             ].map(row => (
@@ -164,11 +164,11 @@ export default function PrivacyPage() {
           </p>
           <div className="grid sm:grid-cols-2 gap-3">
             {[
-              { droit: 'Droit d'accès', desc: 'Obtenir une copie de vos données' },
+              { droit: "Droit d'accès", desc: 'Obtenir une copie de vos données' },
               { droit: 'Droit de rectification', desc: 'Corriger des données inexactes' },
-              { droit: 'Droit à l'effacement', desc: 'Demander la suppression de vos données' },
+              { droit: "Droit à l'effacement", desc: 'Demander la suppression de vos données' },
               { droit: 'Droit à la portabilité', desc: 'Recevoir vos données dans un format structuré' },
-              { droit: 'Droit d'opposition', desc: 'Vous opposer à certains traitements' },
+              { droit: "Droit d'opposition", desc: 'Vous opposer à certains traitements' },
               { droit: 'Droit à la limitation', desc: 'Restreindre temporairement le traitement' },
             ].map(r => (
               <div key={r.droit} className="bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-lg p-4">
@@ -195,7 +195,7 @@ export default function PrivacyPage() {
           <div className="space-y-3">
             {[
               { nom: 'Hostinger / VPS', role: 'Hébergement des serveurs et de la base de données', pays: 'UE' },
-              { nom: 'Brevo (ex-Sendinblue)', role: 'Envoi d'emails transactionnels', pays: 'France (UE)' },
+              { nom: 'Brevo (ex-Sendinblue)', role: "Envoi d'emails transactionnels", pays: 'France (UE)' },
               { nom: 'Stripe', role: 'Traitement des paiements', pays: 'UE / USA (SCCs)' },
             ].map(s => (
               <div key={s.nom} className="flex gap-4 border border-[var(--pp-line)] rounded-lg p-4">

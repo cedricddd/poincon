@@ -25,6 +25,11 @@ export default async function SuperAdminDashboard() {
     ghostCompanies: 0,
     newCompaniesThisMonth: 0,
     companiesWithPlan: 0,
+    totalUsers: 0,
+    activeUsers7d: 0,
+    activeUsers30d: 0,
+    churningCompanies: 0,
+    churnRate: 0,
   }
 
   let revenue: RevenueData = {
@@ -112,6 +117,45 @@ export default async function SuperAdminDashboard() {
             {stats.ghostCompanies}
           </div>
           <p className="text-xs text-[var(--pp-muted)] mt-2">Inactifs 90j</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+        <div className="rounded-xl border border-[var(--pp-line)] bg-[var(--pp-bg)] p-5 hover:shadow-md hover:-translate-y-0.5 transition">
+          <div className="text-2xl font-bold tabular-nums text-[#6366f1]">
+            +{stats.newCompaniesThisMonth}
+          </div>
+          <p className="text-xs text-[var(--pp-muted)] mt-2">Nouvelles sociétés (30j)</p>
+        </div>
+
+        <div className="rounded-xl border border-[var(--pp-line)] bg-[var(--pp-bg)] p-5 hover:shadow-md hover:-translate-y-0.5 transition">
+          <div className="text-2xl font-bold tabular-nums text-[var(--pp-ink)]">
+            {stats.totalUsers}
+          </div>
+          <p className="text-xs text-[var(--pp-muted)] mt-2">Utilisateurs total</p>
+        </div>
+
+        <div className="rounded-xl border border-[var(--pp-line)] bg-[var(--pp-bg)] p-5 hover:shadow-md hover:-translate-y-0.5 transition">
+          <div className="text-2xl font-bold tabular-nums text-[#10b981]">
+            {stats.activeUsers7d}
+          </div>
+          <p className="text-xs text-[var(--pp-muted)] mt-2">Actifs 7 jours</p>
+        </div>
+
+        <div className="rounded-xl border border-[var(--pp-line)] bg-[var(--pp-bg)] p-5 hover:shadow-md hover:-translate-y-0.5 transition">
+          <div className="text-2xl font-bold tabular-nums text-[#0ea5e9]">
+            {stats.activeUsers30d}
+          </div>
+          <p className="text-xs text-[var(--pp-muted)] mt-2">Actifs 30 jours</p>
+        </div>
+
+        <div className="rounded-xl border border-[var(--pp-line)] bg-[var(--pp-bg)] p-5 hover:shadow-md hover:-translate-y-0.5 transition">
+          <div className={`text-2xl font-bold tabular-nums ${stats.churnRate > 10 ? 'text-[#ef4444]' : stats.churnRate > 0 ? 'text-[#fb923c]' : 'text-[#10b981]'}`}>
+            {stats.churnRate}%
+          </div>
+          <p className="text-xs text-[var(--pp-muted)] mt-2">
+            Churn ({stats.churningCompanies} en attente annulation)
+          </p>
         </div>
       </div>
 

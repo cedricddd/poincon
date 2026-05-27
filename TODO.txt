@@ -2,7 +2,7 @@
                     POINÇON - TODO LIST (MISE À JOUR 2026-05-22)
 ================================================================================
 
-Dernière mise à jour: 2026-05-22
+Dernière mise à jour: 2026-05-25
 Version: 0.3.3
 État: MVP + major features DONE. Phase 10 + 11 complétées. Password Change (admin/manager/employee) + plan gate MANAGER complétés. Prochain: légal ou super-admin polish.
 
@@ -168,8 +168,10 @@ PHASE 9.6: PAGES LÉGALES & COMPLIANCE (✓ COMPLÉTÉE — 2026-05-25)
 ✓ /legal/privacy (RGPD Privacy Policy)
     ✓ Responsable traitement, données collectées, finalités, base légale
     ✓ Durées de conservation, droits RGPD, sous-traitants, contact DPO
+    ✓ Fix apostrophes JSX (Jusqu'à, Logs d'audit, Droit d'accès, etc.) — 2026-05-25
 
 ✓ /legal/terms (Terms of Service)
+    ✓ Fix apostrophes JSX (Jusqu'à dans les descriptions de plans) — 2026-05-25
     ✓ Objet, accès, utilisation acceptable, plans, responsabilités, résiliation
     ✓ Propriété intellectuelle, loi applicable (droit belge, Bruxelles)
 
@@ -227,6 +229,11 @@ PHASE 11: AUDIT TRAIL ENHANCEMENTS (✓ COMPLÉTÉE — 2026-05-22)
 ✓ Filtre actions enrichi (tous les types réels)
 ✓ Fix PWA offline sync — clearFailedActions() + bouton × dans OfflineIndicator
 
+✓ layout.tsx: remplacer <script> inline par next/script (warning React 19) — 2026-05-25
+    ✓ theme-init → strategy="beforeInteractive" (anti-flash thème)
+    ✓ sw-register → strategy="afterInteractive" (service worker)
+✓ Footer landing page: supprimer "Guide 2027" (placeholder mort), Support → mailto:support@ced-it.be — 2026-05-25
+
 [ ] Dark mode: Set as default? (decision)
     ├─ Currently: user chooses
     ├─ Suggested: keep user choice (don't force default)
@@ -240,27 +247,24 @@ PHASE 12: SUPER-ADMIN ENHANCEMENTS (À FAIRE)
 ✓ /super-admin/email (email management)
 ✓ /super-admin/profile (super-admin profile + change password)
 
-[ ] Super-admin dashboard: Marketing stats
-    ├─ Widget: Total companies (active + inactive)
-    ├─ Widget: Total users across all companies
-    ├─ Widget: Active users (last 7 days / 30 days)
-    ├─ Widget: MRR (Monthly Recurring Revenue)
-    ├─ Widget: Churn rate (if applicable)
-    └─ Note: Not real-time, daily/weekly snapshots. For marketing fun.
+✓ Super-admin dashboard: Marketing stats — DONE (2026-05-25)
+    ✓ Widget: Nouvelles sociétés 30j
+    ✓ Widget: Total users across all companies
+    ✓ Widget: Active users (last 7 days / 30 days)
+    ✓ Widget: Churn rate (churning companies / total paying)
+    ✓ API /api/super-admin/stats enrichie (totalUsers, activeUsers7d, activeUsers30d, churnRate)
 
-[ ] Super-admin accounts: Display billing info on company detail page
-    ├─ When: click "Voir" on a company in /super-admin/accounts
-    ├─ Show: phone, address, vatNumber, contactEmail
-    ├─ Use for: billing & legal compliance
-    ├─ Data exists in DB: Company model has all fields
-    ├─ Issue: UI just doesn't display them
-    └─ Location: src/app/super-admin/accounts/[id]/page.tsx
+✓ Super-admin accounts: Billing info sur la fiche company — DONE (2026-05-25)
+    ✓ Carte "Facturation & Légal" ajoutée : téléphone, TVA, adresse, domaine
+    ✓ API route.ts retourne phone, address, vatNumber, domain
+    ✓ Interface CompanyDetail mise à jour
 
-[ ] Super-admin accounts: Verify can create/edit/delete companies
-    ├─ Functionality: appears complete
-    ├─ Test: create, edit, delete company
-    ├─ Test: assign plan to company
-    └─ API: /api/super-admin/accounts
+✓ Super-admin accounts: CRUD companies vérifié — DONE (2026-05-25)
+    ✓ Lister : OK (filtres plan + statut)
+    ✓ Modifier plan : OK (/api/super-admin/accounts/[id]/plan)
+    ✓ Modifier contact : OK (/api/super-admin/accounts/[id]/contact)
+    ✓ Supprimer : OK (soft-delete)
+    ✓ Créer : non nécessaire (signup flow)
 
 PHASE 13: DASHBOARD PLAN-AWARE (À FAIRE — OPTIONNEL)
 ================================================================================

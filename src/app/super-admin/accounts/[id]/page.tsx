@@ -13,6 +13,9 @@ interface CompanyDetail {
   adminEmail: string
   adminName?: string
   contactEmail?: string
+  phone?: string
+  address?: string
+  vatNumber?: string
   marketingConsent: boolean
   plan: string
   billingCycle?: string
@@ -217,6 +220,23 @@ export default function AccountDetail() {
           </div>
         </Card>
       </div>
+
+      <Card>
+        <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-4">Facturation & Légal</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+          {[
+            { label: 'Téléphone', value: company.phone },
+            { label: 'Numéro de TVA', value: company.vatNumber },
+            { label: 'Adresse', value: company.address },
+            { label: 'Domaine', value: company.domain },
+          ].map(({ label, value }) => (
+            <div key={label}>
+              <p className="text-[var(--pp-muted)] text-xs mb-1">{label}</p>
+              <p className="font-mono text-[var(--pp-ink)]">{value || <span className="text-[var(--pp-muted)] italic">Non renseigné</span>}</p>
+            </div>
+          ))}
+        </div>
+      </Card>
 
       <Card>
         <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-4">Feature Flags</h2>

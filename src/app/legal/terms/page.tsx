@@ -111,9 +111,9 @@ export default function TermsPage() {
             <p>PoinçOn propose les plans suivants :</p>
             <div className="grid sm:grid-cols-2 gap-3">
               {[
-                { plan: 'FREE', desc: 'Jusqu'à 3 employés, fonctionnalités de base' },
-                { plan: 'SOLO', desc: 'Jusqu'à 10 employés, exports CSV' },
-                { plan: 'TEAM', desc: 'Jusqu'à 50 employés, gestion équipes' },
+                { plan: 'FREE', desc: "Jusqu'à 3 employés, fonctionnalités de base" },
+                { plan: 'SOLO', desc: "Jusqu'à 10 employés, exports CSV" },
+                { plan: 'TEAM', desc: "Jusqu'à 50 employés, gestion équipes" },
                 { plan: 'ENTERPRISE', desc: 'Illimité, API, support prioritaire' },
               ].map(p => (
                 <div key={p.plan} className="bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-lg p-3">

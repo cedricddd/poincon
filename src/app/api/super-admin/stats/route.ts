@@ -10,6 +10,7 @@ export async function GET() {
     }
 
     const now = new Date()
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
     const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000)
 
@@ -43,12 +44,49 @@ export async function GET() {
       },
     })
 
+    // Users
+    const totalUsers = await prisma.user.count({
+      where: { deletedAt: null },
+    })
+
+    const activeUsers7d = await prisma.user.count({
+      where: {
+        deletedAt: null,
+        clockRecords: { some: { clockIn: { gte: sevenDaysAgo } } },
+      },
+    })
+
+    const activeUsers30d = await prisma.user.count({
+      where: {
+        deletedAt: null,
+        clockRecords: { some: { clockIn: { gte: thirtyDaysAgo } } },
+      },
+    })
+
+    // Churn: paying companies with cancel scheduled / total paying companies
+    const churningCompanies = await prisma.company.count({
+      where: {
+        deletedAt: null,
+        stripeSubscriptionId: { not: null },
+        stripeCancelAtPeriodEnd: true,
+      },
+    })
+
+    const churnRate = companiesWithPlan > 0
+      ? Math.round((churningCompanies / companiesWithPlan) * 100)
+      : 0
+
     return NextResponse.json({
       totalCompanies,
       activeCompanies,
       ghostCompanies,
       newCompaniesThisMonth,
       companiesWithPlan,
+      totalUsers,
+      activeUsers7d,
+      activeUsers30d,
+      churningCompanies,
+      churnRate,
       timestamp: new Date(),
     })
   } catch (error) {

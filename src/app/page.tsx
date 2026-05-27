@@ -1231,8 +1231,7 @@ export default function Home() {
             <div>
               <h4 className="text-[10px] font-bold text-[var(--pp-ink)] uppercase tracking-[0.15em] mb-4">Ressources</h4>
               <ul className="space-y-2.5 text-sm text-[var(--pp-muted)]">
-                <li><a href="#" className="hover:text-[var(--pp-ink)] transition-colors">Guide 2027</a></li>
-                <li><a href="#" className="hover:text-[var(--pp-ink)] transition-colors">Support</a></li>
+                <li><a href="mailto:support@ced-it.be" className="hover:text-[var(--pp-ink)] transition-colors">Support</a></li>
                 <li><a href="mailto:contact@ced-it.be" className="hover:text-[var(--pp-ink)] transition-colors">Contact</a></li>
               </ul>
             </div>
