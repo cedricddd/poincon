@@ -69,7 +69,7 @@ export default function RTTPage() {
         body: JSON.stringify({ date: formData.date, hoursToRecover: hours, reason: formData.reason }),
       })
       if (!res.ok) throw new Error()
-      showToast('Demande RTT créée ✓', 'success')
+      showToast('Demande de récupération créée ✓', 'success')
       setFormData({ date: '', hoursToRecover: '', reason: '' })
       await loadRequests()
     } catch {
@@ -92,11 +92,11 @@ export default function RTTPage() {
         {/* Page header */}
         <div className="flex items-start justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Demandes RTT</h1>
-            <p className="text-sm text-[var(--pp-muted)] mt-0.5">Récupération du temps de travail</p>
+            <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Demandes de récupération</h1>
+            <p className="text-sm text-[var(--pp-muted)] mt-0.5">Heures récupérées sur heures supplémentaires</p>
           </div>
           <div className="text-right">
-            <p className="text-xs text-[var(--pp-muted)]">RTT approuvés</p>
+            <p className="text-xs text-[var(--pp-muted)]">Récupérations approuvées</p>
             <p className="text-2xl font-bold text-[var(--pp-pos)]">{totalApproved.toFixed(1)}h</p>
           </div>
         </div>
@@ -109,7 +109,7 @@ export default function RTTPage() {
               <h2 className="text-base font-semibold text-[var(--pp-ink)] mb-4">Nouvelle demande</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1.5">Date de RTT</label>
+                  <label className="block text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1.5">Date de récupération</label>
                   <input type="date" value={formData.date}
                     onChange={e => setFormData({ ...formData, date: e.target.value })}
                     className="w-full px-4 py-3.5 border border-[var(--pp-line)] rounded-xl bg-[var(--pp-bg)] text-[var(--pp-ink)] text-base focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)] touch-manipulation"
@@ -149,7 +149,7 @@ export default function RTTPage() {
 
                 <Button type="submit" disabled={submitting} className="w-full"
                   style={{ backgroundColor: 'var(--pp-pos)', opacity: submitting ? 0.7 : 1 }}>
-                  {submitting ? 'Envoi…' : 'Demander RTT'}
+                  {submitting ? 'Envoi…' : 'Demander une récupération'}
                 </Button>
               </form>
 
@@ -176,7 +176,7 @@ export default function RTTPage() {
                       <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
                     </svg>
                   </div>
-                  <p className="text-[var(--pp-muted)] font-medium">Aucune demande RTT</p>
+                  <p className="text-[var(--pp-muted)] font-medium">Aucune demande de récupération</p>
                   <p className="text-xs text-[var(--pp-muted)] mt-1">Créez votre première demande avec le formulaire</p>
                 </div>
               ) : (

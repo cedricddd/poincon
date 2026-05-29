@@ -68,7 +68,7 @@ const features = [
     n: '06',
     color: '#8b5cf6',
     title: "Gestion d'équipes",
-    description: 'Managers, sites, congés, RTT — tout centralisé pour les RH et les administrateurs.',
+    description: 'Managers, sites, congés, récupérations — tout centralisé pour les RH et les administrateurs.',
   },
 ]
 
@@ -132,7 +132,7 @@ const pricingTiers = [
     buttonHrefAnnual: '/api/stripe/checkout?plan=solo&billing=annual',
     highlight: false,
     features: ['Export CSV/PDF illimité', 'Rapports avancés', 'Notifications email'],
-    includes: ['Support email', 'Heures supp automatiques', 'Congés & RTT'],
+    includes: ['Support email', 'Heures supp automatiques', 'Congés & Récupération'],
     includesLabel: 'Tout Free inclus :',
   },
   {

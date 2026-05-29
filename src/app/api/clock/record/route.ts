@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma'
 import { logAudit } from '@/lib/audit'
 import { NextRequest, NextResponse } from 'next/server'
 
+const OVERTIME_GRACE_MINUTES = 30
+
 // SECURITY: Validate timestamp is within reasonable range
 function validateTimestamp(timestamp: any): Date | null {
   try {
@@ -19,6 +21,50 @@ function validateTimestamp(timestamp: any): Date | null {
   } catch {
     return null
   }
+}
+
+// Parse "HH:MM" string into a Date on the same calendar day as referenceDate
+function parseShiftTime(timeStr: string, referenceDate: Date): Date {
+  const [hours, minutes] = timeStr.split(':').map(Number)
+  const result = new Date(referenceDate)
+  result.setHours(hours, minutes, 0, 0)
+  return result
+}
+
+// Compute worked duration (minutes) and overtime hours applying shift boundaries.
+// Raw timestamps are preserved in DB — only duration is adjusted.
+function computeShiftDuration(
+  actualArrival: Date,
+  actualDeparture: Date,
+  startTimeStr: string | null | undefined,
+  endTimeStr: string | null | undefined,
+  hoursPerDay: number
+): { duration: number; hoursWorked: number; hoursStandard: number } {
+  // No shift configured → raw calculation
+  if (!startTimeStr || !endTimeStr) {
+    const duration = Math.round((actualDeparture.getTime() - actualArrival.getTime()) / 60000)
+    return { duration, hoursWorked: duration / 60, hoursStandard: hoursPerDay }
+  }
+
+  const shiftStart = parseShiftTime(startTimeStr, actualArrival)
+  let shiftEnd = parseShiftTime(endTimeStr, actualArrival)
+
+  // Night shift crossing midnight (e.g. 22:00 → 06:00)
+  if (shiftEnd <= shiftStart) {
+    shiftEnd.setDate(shiftEnd.getDate() + 1)
+  }
+
+  // Arrival before shift start → snap to shift start (early presence doesn't count)
+  const effectiveArrival = actualArrival < shiftStart ? shiftStart : actualArrival
+
+  // Departure within grace period → snap to shift end (no overtime)
+  const graceEnd = new Date(shiftEnd.getTime() + OVERTIME_GRACE_MINUTES * 60000)
+  const effectiveDeparture = actualDeparture <= graceEnd ? shiftEnd : actualDeparture
+
+  const duration = Math.round((effectiveDeparture.getTime() - effectiveArrival.getTime()) / 60000)
+  const hoursStandard = Math.round((shiftEnd.getTime() - shiftStart.getTime()) / 60000) / 60
+
+  return { duration, hoursWorked: duration / 60, hoursStandard }
 }
 
 export async function POST(req: NextRequest) {
@@ -108,7 +154,7 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { recordId, departureTime, duration } = await req.json()
+    const { recordId, departureTime } = await req.json()
     if (!recordId || !departureTime) {
       return NextResponse.json({ error: 'Missing recordId or departureTime' }, { status: 400 })
     }
@@ -139,21 +185,38 @@ export async function PATCH(req: NextRequest) {
       )
     }
 
-    // SECURITY: Validate duration is reasonable (max 12 hours per day)
-    const durationMinutes = Math.round(duration * 60)
-    if (durationMinutes < 1 || durationMinutes > 12 * 60) {
+    // SECURITY: Validate raw duration is reasonable (max 16 hours to cover long shifts)
+    const rawDurationMinutes = Math.round(
+      (validatedDeparture.getTime() - existingRecord.arrivalTime.getTime()) / 60000
+    )
+    if (rawDurationMinutes < 1 || rawDurationMinutes > 16 * 60) {
       return NextResponse.json(
-        { error: 'Invalid duration (must be 1 minute to 12 hours)' },
+        { error: 'Invalid duration (must be 1 minute to 16 hours)' },
         { status: 400 }
       )
     }
 
-    // Update the clock record
+    // Fetch user schedule to apply shift-snapping if configured
+    const userSchedule = await prisma.userSchedule.findUnique({
+      where: { userId: session.user.id },
+      include: { workSchedule: true },
+    })
+
+    const hoursPerDay = userSchedule?.hoursPerDay ?? 8
+    const { duration: computedDuration, hoursWorked, hoursStandard } = computeShiftDuration(
+      existingRecord.arrivalTime,
+      validatedDeparture,
+      userSchedule?.workSchedule?.startTime,
+      userSchedule?.workSchedule?.endTime,
+      hoursPerDay
+    )
+
+    // Update the clock record with the shift-adjusted duration
     const record = await prisma.clockRecord.update({
       where: { id: recordId },
       data: {
-        departureTime: validatedDeparture,
-        duration: durationMinutes,
+        departureTime: validatedDeparture, // raw timestamp preserved
+        duration: computedDuration,
       },
     })
 
@@ -169,15 +232,7 @@ export async function PATCH(req: NextRequest) {
       })
     }
 
-    // Get user's standard hours
-    const userSchedule = await prisma.userSchedule.findUnique({
-      where: { userId: session.user.id },
-    })
-
-    const hoursStandard = userSchedule?.hoursPerDay || 8 // Default to 8 hours
-    const hoursWorked = record.duration! / 60 // Convert minutes to hours
-
-    // If worked more than standard, create DetectedOvertime
+    // Create DetectedOvertime only if hours exceed standard (shift-snapped value)
     if (hoursWorked > hoursStandard) {
       const overtimeHours = hoursWorked - hoursStandard
 

@@ -47,9 +47,9 @@ export default function ClockPage() {
   const [elapsed, setElapsed] = useState('')
   const [sessions, setSessions] = useState<ClockRecord[]>([])
   const [weeklyRecords, setWeeklyRecords] = useState<WeeklyRecord[]>([
-    { date: 'Mon', day: 'Lun', hours: 8.5 },
-    { date: 'Tue', day: 'Mar', hours: 9 },
-    { date: 'Wed', day: 'Mer', hours: 8 },
+    { date: 'Mon', day: 'Lun', hours: 0 },
+    { date: 'Tue', day: 'Mar', hours: 0 },
+    { date: 'Wed', day: 'Mer', hours: 0 },
     { date: 'Thu', day: 'Jeu', hours: 0 },
     { date: 'Fri', day: 'Ven', hours: 0 },
   ])
@@ -128,6 +128,14 @@ export default function ClockPage() {
       }
     }
     load()
+  }, [])
+
+  // Load weekly records from DB
+  useEffect(() => {
+    fetch('/api/clock/weekly')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data) setWeeklyRecords(data) })
+      .catch(() => {})
   }, [])
 
   // Live clock

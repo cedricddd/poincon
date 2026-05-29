@@ -1,10 +1,10 @@
 ================================================================================
-                    POINÇON - TODO LIST (MISE À JOUR 2026-05-22)
+                    POINÇON - TODO LIST (MISE À JOUR 2026-05-29)
 ================================================================================
 
 Dernière mise à jour: 2026-05-29
-Version: 0.3.6
-État: Phases 1-13 complétées. Plan-aware UI gates (banners upgrade, lock icon, limite sites/employés). Reste: 2FA (low priority) + déploiement production.
+Version: 0.3.7
+État: Phases 1-15 complétées. Shift-aware overtime, weekly stats DB, terminologie belge. Reste: CI/CD + 2FA (low priority).
 
 ================================================================================
 PHASES COMPLÉTÉES (✓)
@@ -26,10 +26,10 @@ PHASE 1: MVP (✓ COMPLÉTÉE)
 PHASE 2: DEMANDES & SOLDE (✓ COMPLÉTÉE)
 ================================================================================
 ✓ Page "Demandes de Congé" (formulaire, statuts, toast)
-✓ Page "Demandes RTT" (formulaire, statuts, toast)
+✓ Page "Demandes de récupération" (formulaire, statuts, toast)
 ✓ Modèle DetectedOvertime (auto-détection au pointage départ)
-✓ Balance API complète (heures sup - RTT - congés = solde net)
-✓ Widget Solde mis à jour (heures sup, RTT, congés, solde net)
+✓ Balance API complète (heures sup - récupération - congés = solde net)
+✓ Widget Solde mis à jour (heures sup, récupération, congés, solde net)
 ✓ Notifications toast système
 
 PHASE 3: ADMIN DASHBOARD (✓ COMPLÉTÉE)
@@ -83,8 +83,9 @@ PHASE 6: RAPPORTS & EXPORT (✓ COMPLÉTÉE)
     ✓ Colonnes : Employé, Email, Date, Arrivée, Départ, Durée, Lieu, Site
     ✓ Statistiques : total heures, moyenne/pointage, nb incomplets, heures sup
     ✓ Pagination (50 par page)
+    ✓ Mode avancé/simple (filtres et PDF masqués en mode simple) — 2026-05-29
 ✓ Export CSV (pointages filtrés, format comptabilité)
-✓ Export PDF (jsPDF + autotable)
+✓ Export PDF (jsPDF + autotable) — affiché en mode avancé uniquement
 ✓ API /api/admin/reports (GET paginé + stats)
 ✓ API /api/admin/reports/export (CSV)
 
@@ -98,7 +99,7 @@ PHASE 7: UX & FEATURES EMPLOYÉ (✓ COMPLÉTÉE)
     ✓ Icônes SVG 192px et 512px
     ✓ Navigation mobile (bottom nav bar)
 ✓ Notifications email (Brevo SMTP)
-    ✓ Email HTML quand demande approuvée/rejetée (congé, RTT, heures sup)
+    ✓ Email HTML quand demande approuvée/rejetée (congé, récupération, heures sup)
     ✓ Rappel fin de journée si présence > hoursPerDay+1h (adapté par horaire employé)
         ✓ Seuil intelligent : skip si < hoursPerDay+1h (encore en poste)
         ✓ Skip si > 15h (anomalie = oubli de pointage)
@@ -160,19 +161,14 @@ PHASE 9.5: INVITATIONS EMPLOYÉS & AUTHENTIFICATION (✓ COMPLÉTÉE)
     ✓ Boutons : Renvoyer / Annuler / Copier lien
     ✓ API PATCH /api/admin/invitations?id=xxx (renvoyer = nouveau token + email)
 
-================================================================================
-PHASES RESTANTES À FAIRE (OU EN COURS)
-================================================================================
-
 PHASE 9.6: PAGES LÉGALES & COMPLIANCE (✓ COMPLÉTÉE — 2026-05-25)
 ================================================================================
 ✓ /legal/privacy (RGPD Privacy Policy)
     ✓ Responsable traitement, données collectées, finalités, base légale
     ✓ Durées de conservation, droits RGPD, sous-traitants, contact DPO
-    ✓ Fix apostrophes JSX (Jusqu'à, Logs d'audit, Droit d'accès, etc.) — 2026-05-25
+    ✓ Fix apostrophes JSX — 2026-05-25
 
 ✓ /legal/terms (Terms of Service)
-    ✓ Fix apostrophes JSX (Jusqu'à dans les descriptions de plans) — 2026-05-25
     ✓ Objet, accès, utilisation acceptable, plans, responsabilités, résiliation
     ✓ Propriété intellectuelle, loi applicable (droit belge, Bruxelles)
 
@@ -240,7 +236,7 @@ PHASE 11: AUDIT TRAIL ENHANCEMENTS (✓ COMPLÉTÉE — 2026-05-22)
     ├─ Suggested: keep user choice (don't force default)
     └─ Priority: LOW
 
-PHASE 12: SUPER-ADMIN ENHANCEMENTS (À FAIRE)
+PHASE 12: SUPER-ADMIN ENHANCEMENTS (✓ COMPLÉTÉE)
 ================================================================================
 
 ✓ /super-admin/dashboard (revenue tracking, MRR charts)
@@ -281,7 +277,47 @@ PHASE 13: DASHBOARD PLAN-AWARE (✓ COMPLÉTÉE — 2026-05-29)
 ✓ PLAN_LIMITS enrichi : maxSites ajouté pour chaque plan
 ✓ layout.tsx Script fix : dangerouslySetInnerHTML (React 19 / Next.js 16 compat)
 
-PHASE 14: 2FA (MULTI-FACTOR AUTHENTICATION) (À FAIRE — PRIORITÉ BASSE)
+PHASE 14: SHIFT-AWARE OVERTIME & WEEKLY STATS (✓ COMPLÉTÉE — 2026-05-29)
+================================================================================
+
+✓ Calcul overtime shift-aware — /api/clock/record PATCH — DONE (2026-05-29)
+    ├─ Grace period 30min : départ dans les 30min après fin de shift → pas d'heures sup
+    ├─ Snap arrivée : présence avant début de shift → ignorée (ne compte pas)
+    ├─ Snap départ : départ dans grace period → snap à fin de shift exacte
+    ├─ Night shift : crossing minuit géré (ex. 22:00 → 06:00)
+    ├─ Durée ajustée sauvegardée en DB, timestamp brut préservé (audit)
+    ├─ Suppression duration client-side (sécurité : le client ne contrôle plus la durée)
+    └─ Validation étendue : max 16h (au lieu de 12h, pour couvrir longs shifts)
+
+✓ API /api/clock/weekly — DONE (2026-05-29)
+    ├─ GET : retourne les 5 jours Lun-Ven de la semaine courante
+    ├─ Heures par jour calculées depuis ClockRecord.duration en DB
+    └─ Remplace les données mockées dans le bar chart de /app/clock
+
+✓ Bar chart /app/clock branché sur DB — DONE (2026-05-29)
+    └─ useEffect → fetch /api/clock/weekly → setWeeklyRecords (données réelles)
+
+PHASE 15: TERMINOLOGIE BELGE (✓ COMPLÉTÉE — 2026-05-29)
+================================================================================
+
+✓ "RTT" → "Récupération" dans toute l'interface — DONE (2026-05-29)
+    ├─ Sidebar (nav employé + nav admin) : "RTT" → "Récupération"
+    ├─ MobileNav : "RTT" → "Récup." (abrégé pour mobile)
+    ├─ /app/rtt : titre, sous-titre, label date, bouton submit, toast, état vide
+    ├─ /admin/dashboard/rtts : titre page, badge type, état vide
+    ├─ /admin/dashboard : card "RTT" → "Récupération"
+    ├─ /admin/dashboard/users/[id] : onglet, compteur, stat balance, dialog suppression
+    ├─ /manager/dashboard : section title
+    ├─ /app/reports : stat "RTT consommés" → "Récupération consommée"
+    ├─ /app/overtime : approche 2, exemple, FAQ
+    ├─ Landing page + /legal/terms : mentions mises à jour
+    └─ Note : routes API, variables et champs DB conservent le nom "rtt" (interne)
+
+================================================================================
+PHASES RESTANTES À FAIRE
+================================================================================
+
+PHASE 16: 2FA (MULTI-FACTOR AUTHENTICATION) (À FAIRE — PRIORITÉ BASSE)
 ================================================================================
 
 [ ] 2FA (Multi-Factor Authentication) — OPTIONAL, can be DISABLED for testing
@@ -300,6 +336,8 @@ PAGES/SECTIONS OPTIONNELLES (NICE TO HAVE)
 ✓ Page UI /admin/dashboard/invitations - gestion complète — DONE (2026-05-29)
 [ ] Domaine email @ced-it.be SPF/DKIM configuration
 ✓ Dashboard plan-aware UX (feature gating on frontend) — DONE (2026-05-29)
+✓ Shift-aware overtime + weekly stats from DB — DONE (2026-05-29)
+✓ Terminologie belge (Récupération au lieu de RTT) — DONE (2026-05-29)
 
 ================================================================================
 BLOQUEURS EXTERNES
@@ -310,28 +348,29 @@ BLOQUEURS EXTERNES
     Plan : Intégrer via Odoo 17+ (access point natif gratuit)
 
 [ ] Email domain SPF/DKIM — PARTIELLEMENT BLOQUÉ
-    [ ] Acheter/obtenir domaine @ced-it.be (ou utiliser subdomain existant)
-    [ ] Configurer SPF/DKIM dans registrar
-    [ ] Mettre à jour BREVO_FROM_EMAIL dans .env
+    ✓ Domaine ced-it.be utilisé (noreply@ced-it.be) — 2026-05-29
+    ✓ BREVO_FROM_EMAIL configuré sur le serveur partenaire
+    [ ] Configurer SPF/DKIM dans registrar (améliorer délivrabilité)
 
 ================================================================================
-PRODUCTION DEPLOYMENT (À FAIRE)
+PRODUCTION DEPLOYMENT (EN COURS)
 ================================================================================
 
-[ ] Domaine & DNS
-    [ ] Acheter domaine (poincon.be ou poincon.app)
-    [ ] Configurer DNS (A record, MX, SPF/DKIM)
+✓ Domaine & DNS — DONE (2026-05-29)
+    ✓ Domaine : poincon.ced-it.be (sous-domaine ced-it.be)
+    ✓ NEXTAUTH_URL=https://poincon.ced-it.be configuré → emails avec vrai domaine
+    [ ] DNS MX + SPF/DKIM (délivrabilité email)
 
-[ ] Hostinger VPS Setup (SEUL déploiement de production)
-    [ ] Créer VPS Hostinger (Ubuntu 22.04 LTS, 2GB+ RAM, 50GB+ storage)
-    [ ] Installer Docker + Docker Compose
-    [ ] Cloner repo + préparer .env production
-    [ ] docker-compose build + up -d
+✓ Serveur partenaire opérationnel — DONE (2026-05-29)
+    ✓ Docker + Docker Compose installé
+    ✓ App déployée et accessible sur https://poincon.ced-it.be
+    ✓ PostgreSQL opérationnel (réseau Docker fixé : alias db)
+    ✓ Prisma schema pushé (via node:20-alpine temporaire)
+    ✓ Emails Brevo fonctionnels avec vrai domaine (testé invitation)
+    ✓ NEXTAUTH_URL correctement configuré
 
 [ ] SSL/HTTPS
-    [ ] Installer Let's Encrypt + Certbot
-    [ ] Configurer reverse proxy (Nginx)
-    [ ] Auto-renewal cron job
+    [ ] Vérifier cert SSL sur poincon.ced-it.be (Let's Encrypt ou proxy)
 
 [ ] Database Production
     [ ] PostgreSQL backup strategy (daily → storage)
@@ -339,13 +378,13 @@ PRODUCTION DEPLOYMENT (À FAIRE)
 
 [ ] CI/CD: GitHub Actions → auto-deploy
     [ ] Générer SSH key (ssh-keygen -t rsa -b 4096)
-    [ ] Ajouter public key à Hostinger ~/.ssh/authorized_keys
-    [ ] Ajouter private key en secret GitHub : HOSTINGER_SSH_KEY
+    [ ] Ajouter public key au serveur ~/.ssh/authorized_keys
+    [ ] Ajouter private key en secret GitHub : SERVER_SSH_KEY
     [ ] Workflow GitHub Actions au push main
     [ ] Tester deploy end-to-end
 
 [ ] Post-Deploy Tests
-    [ ] Smoke tests (login, clock in/out, exports, Stripe)
+    [ ] Smoke tests complets (login, clock in/out, exports, Stripe, invitations)
     [ ] Performance (Lighthouse audit, response time < 500ms)
     [ ] Security (SSL check, OWASP top 10, no secrets in logs)
 
@@ -359,9 +398,11 @@ Priorités d'action (ordre recommended):
 3. ✓ Password reset (MEDIUM — user management)
 4. ✓ Password change self-service (MEDIUM — admin + manager + employee)
 5. ✓ Plan gate MANAGER role (MEDIUM — business rules)
-6. Super-admin stats + billing info (MEDIUM — business)
-7. Legal pages (MEDIUM — obligatoire but not urgent)
-8. 2FA (LOW — can be disabled, do at end)
+6. ✓ Super-admin stats + billing info (MEDIUM — business)
+7. ✓ Legal pages (MEDIUM — obligatoire)
+8. ✓ Shift-aware overtime (HIGH — correctness belge)
+9. ✓ Terminologie belge Récupération (MEDIUM — product fit)
+10. 2FA (LOW — can be disabled, do at end)
 
 Building blocks already done:
 - MVP fully functional ✓
@@ -374,7 +415,9 @@ Building blocks already done:
 - PWA/Mobile-first ✓
 - Password reset + change ✓
 - MANAGER role plan-gated ✓
+- Shift-aware overtime calculation ✓
+- Belgian terminology ✓
 
-Remaining work: ~10% (2FA optionnel, déploiement production)
+Remaining work: ~5% (CI/CD, backup DB, SPF/DKIM, smoke tests, 2FA optionnel)
 
 ================================================================================

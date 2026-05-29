@@ -58,7 +58,7 @@ type NavLink = { href: string; label: string; Icon: () => React.JSX.Element; col
 const employeeLinks: NavLink[] = [
   { href: '/app/clock',    label: 'Pointage', Icon: IconClock,    color: '#10b981' },
   { href: '/app/time-off', label: 'Congés',   Icon: IconCalendar, color: '#0ea5e9' },
-  { href: '/app/rtt',      label: 'RTT',      Icon: IconZap,      color: '#fb923c' },
+  { href: '/app/rtt',      label: 'Récup.',   Icon: IconZap,      color: '#fb923c' },
   { href: '/app/reports',  label: 'Rapports', Icon: IconBarChart, color: '#6366f1' },
 ]
 

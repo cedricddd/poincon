@@ -10,9 +10,9 @@ interface TimeOff { id: string; userId: string; startDate: string; endDate: stri
 interface RTT { id: string; userId: string; date: string; hoursToRecover: number; reason?: string; status: string; user: RequestUser }
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING: 'bg-yellow-100 text-yellow-800',
-  APPROVED: 'bg-green-100 text-green-800',
-  REJECTED: 'bg-red-100 text-red-800',
+  PENDING: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+  APPROVED: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+  REJECTED: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
 }
 
 export default function ManagerDashboard() {
@@ -75,7 +75,7 @@ export default function ManagerDashboard() {
       </div>
 
       {/* Prochains congés de l'équipe */}
-      <div className="bg-white border border-[var(--pp-line)] rounded-xl overflow-hidden">
+      <div className="bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-xl overflow-hidden">
         <div className="px-5 py-4 border-b border-[var(--pp-line)] flex items-center justify-between bg-[var(--pp-info)]/5">
           <h2 className="font-semibold text-[var(--pp-ink)]">Prochains congés — 30 jours</h2>
           <span className="text-xs text-[var(--pp-muted)]">{upcomingLeaves.length} absence{upcomingLeaves.length !== 1 ? 's' : ''}</span>
@@ -124,7 +124,7 @@ export default function ManagerDashboard() {
       </Section>
 
       {/* RTT */}
-      <Section title="Demandes RTT" count={rtts.filter(r => r.status === 'PENDING').length}>
+      <Section title="Demandes de récupération" count={rtts.filter(r => r.status === 'PENDING').length}>
         {rtts.map(r => (
           <Row key={r.id} user={r.user} status={r.status}
             detail={`${fmtDate(r.date)} — ${r.hoursToRecover}h${r.reason ? ` — ${r.reason}` : ''}`}
@@ -140,11 +140,11 @@ export default function ManagerDashboard() {
 
 function Section({ title, count, children }: { title: string; count: number; children: React.ReactNode }) {
   return (
-    <div className="bg-white border border-[var(--pp-line)] rounded-xl overflow-hidden">
+    <div className="bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-xl overflow-hidden">
       <div className="px-5 py-4 border-b border-[var(--pp-line)] flex items-center justify-between bg-[var(--pp-info)]/5">
         <h2 className="font-semibold text-[var(--pp-ink)]">{title}</h2>
         {count > 0 && (
-          <span className="text-xs font-medium px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded-full">{count} en attente</span>
+          <span className="text-xs font-medium px-2 py-0.5 bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 rounded-full">{count} en attente</span>
         )}
       </div>
       <div className="divide-y divide-[var(--pp-line)]">{children}</div>
@@ -168,9 +168,9 @@ function Row({ user, status, detail, onApprove, onReject, loading }: {
       {status === 'PENDING' && (
         <div className="flex gap-2 shrink-0">
           <button onClick={onApprove} disabled={loading}
-            className="w-8 h-8 flex items-center justify-center bg-green-100 text-green-700 rounded-lg hover:bg-green-200 disabled:opacity-50">✓</button>
+            className="w-8 h-8 flex items-center justify-center bg-green-100 text-green-700 rounded-lg hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50 disabled:opacity-50">✓</button>
           <button onClick={onReject} disabled={loading}
-            className="w-8 h-8 flex items-center justify-center bg-red-100 text-red-700 rounded-lg hover:bg-red-200 disabled:opacity-50">✗</button>
+            className="w-8 h-8 flex items-center justify-center bg-red-100 text-red-700 rounded-lg hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 disabled:opacity-50">✗</button>
         </div>
       )}
     </div>

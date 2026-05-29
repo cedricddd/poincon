@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic'
 import { useEffect, useState, useCallback } from 'react'
 import { Card } from '@/components/Card'
+import Link from 'next/link'
 
 type ClockRecord = {
   id: string
@@ -32,7 +33,6 @@ async function exportPDF(records: ClockRecord[], stats: Stats | null, filters: {
 
   const doc = new jsPDF({ orientation: 'landscape' })
 
-  // Header
   doc.setFontSize(16)
   doc.setFont('helvetica', 'bold')
   doc.text('PoinçOn — Rapport de pointage', 14, 18)
@@ -49,7 +49,6 @@ async function exportPDF(records: ClockRecord[], stats: Stats | null, filters: {
   ].filter(Boolean).join('   |   ')
   doc.text(subtitle, 14, 25)
 
-  // Stats
   if (stats) {
     doc.setFontSize(9)
     doc.setTextColor(60)
@@ -57,7 +56,6 @@ async function exportPDF(records: ClockRecord[], stats: Stats | null, filters: {
     doc.text(statLine, 14, 31)
   }
 
-  // Table
   autoTable(doc, {
     startY: 36,
     head: [['Employé', 'Email', 'Date', 'Arrivée', 'Départ', 'Durée', 'Lieu', 'Site']],
@@ -97,6 +95,7 @@ function fmtDate(iso: string) {
 export default function ReportsPage() {
   const [records, setRecords] = useState<ClockRecord[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
+  const [isAdvanced, setIsAdvanced] = useState(false)
   const [employees, setEmployees] = useState<Employee[]>([])
   const [sites, setSites] = useState<Site[]>([])
   const [loading, setLoading] = useState(true)
@@ -105,7 +104,7 @@ export default function ReportsPage() {
   const [pages, setPages] = useState(1)
   const [exporting, setExporting] = useState<'csv' | 'pdf' | null>(null)
 
-  // Filters
+  // Filters (only applied when isAdvanced)
   const [userId, setUserId] = useState('')
   const [siteId, setSiteId] = useState('')
   const [from, setFrom] = useState('')
@@ -131,6 +130,7 @@ export default function ReportsPage() {
       .then(d => {
         setRecords(d.records ?? [])
         setStats(d.stats ?? null)
+        setIsAdvanced(d.isAdvanced ?? false)
         setTotal(d.total ?? 0)
         setPages(d.pages ?? 1)
       })
@@ -151,13 +151,11 @@ export default function ReportsPage() {
   const exportPDF_ = async () => {
     setExporting('pdf')
     try {
-      // Fetch all records (no pagination) for PDF
       const params = new URLSearchParams({ page: '1' })
       if (applied.userId) params.set('userId', applied.userId)
       if (applied.siteId) params.set('siteId', applied.siteId)
       if (applied.from) params.set('from', applied.from)
       if (applied.to) params.set('to', applied.to)
-      // Fetch all pages
       const allRecords: ClockRecord[] = []
       let p = 1, totalPages = 1
       do {
@@ -168,12 +166,8 @@ export default function ReportsPage() {
         p++
       } while (p <= totalPages)
 
-      const userName = applied.userId
-        ? employees.find(e => e.id === applied.userId)?.name ?? ''
-        : ''
-      const siteName = applied.siteId
-        ? sites.find(s => s.id === applied.siteId)?.name ?? ''
-        : ''
+      const userName = applied.userId ? employees.find(e => e.id === applied.userId)?.name ?? '' : ''
+      const siteName = applied.siteId ? sites.find(s => s.id === applied.siteId)?.name ?? '' : ''
       await exportPDF(allRecords, stats, { from: applied.from, to: applied.to, userName, siteName })
     } finally {
       setExporting(null)
@@ -211,7 +205,7 @@ export default function ReportsPage() {
         <div>
           <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Rapports de pointage</h1>
           <p className="text-[var(--pp-muted)] text-sm mt-1">
-            Historique complet des pointages avec filtres par employé et période.
+            Historique complet des pointages{isAdvanced ? ' avec filtres par employé et période' : ''}.
           </p>
         </div>
         <div className="flex gap-2 shrink-0">
@@ -222,107 +216,123 @@ export default function ReportsPage() {
           >
             ↓ CSV
           </button>
-          <button
-            onClick={exportPDF_}
-            disabled={loading || total === 0 || exporting === 'pdf'}
-            className="flex items-center gap-1.5 px-4 py-2 bg-[var(--pp-info)] text-white rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-40 transition"
-          >
-            {exporting === 'pdf' ? 'Génération…' : '↓ PDF'}
-          </button>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <Card className="mb-6">
-        <div className="flex flex-wrap gap-3 items-end">
-          <div className="relative">
-            <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Employé</label>
-            <input
-              type="search"
-              value={empSearch}
-              onChange={e => { setEmpSearch(e.target.value); setUserId(''); setEmpOpen(true) }}
-              onFocus={() => setEmpOpen(true)}
-              onBlur={() => setTimeout(() => setEmpOpen(false), 150)}
-              placeholder="Tous les employés…"
-              className="px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm bg-[var(--pp-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] w-52"
-            />
-            {empOpen && (
-              <div className="absolute z-10 mt-1 w-52 bg-[var(--pp-bg)] border border-[var(--pp-line)] rounded-lg shadow-lg max-h-52 overflow-y-auto">
-                <button
-                  type="button"
-                  onMouseDown={() => selectEmployee(null)}
-                  className="w-full text-left px-3 py-2 text-sm text-[var(--pp-muted)] hover:bg-[var(--pp-line)]/30"
-                >
-                  Tous les employés
-                </button>
-                {filteredEmployees.map(e => (
-                  <button
-                    key={e.id}
-                    type="button"
-                    onMouseDown={() => selectEmployee(e)}
-                    className="w-full text-left px-3 py-2 text-sm text-[var(--pp-ink)] hover:bg-[var(--pp-line)]/30"
-                  >
-                    {e.name ?? e.email}
-                    {e.name && <span className="block text-xs text-[var(--pp-muted)]">{e.email}</span>}
-                  </button>
-                ))}
-                {filteredEmployees.length === 0 && (
-                  <p className="px-3 py-2 text-xs text-[var(--pp-muted)] italic">Aucun résultat</p>
-                )}
-              </div>
-            )}
-          </div>
-          {sites.length > 0 && (
-            <div>
-              <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Site</label>
-              <select
-                value={siteId}
-                onChange={e => setSiteId(e.target.value)}
-                className="px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm bg-[var(--pp-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] w-44"
-              >
-                <option value="">Tous les sites</option>
-                {sites.map(s => (
-                  <option key={s.id} value={s.id}>{s.name}</option>
-                ))}
-              </select>
-            </div>
-          )}
-          <div>
-            <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Du</label>
-            <input
-              type="date"
-              value={from}
-              onChange={e => setFrom(e.target.value)}
-              className="px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Au</label>
-            <input
-              type="date"
-              value={to}
-              onChange={e => setTo(e.target.value)}
-              className="px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
-            />
-          </div>
-          <button
-            onClick={apply}
-            className="px-4 py-2 bg-[var(--pp-info)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition"
-          >
-            Filtrer
-          </button>
-          {hasFilter && (
+          {isAdvanced && (
             <button
-              onClick={reset}
-              className="px-4 py-2 border border-[var(--pp-line)] text-[var(--pp-muted)] rounded-lg text-sm hover:text-[var(--pp-ink)] transition"
+              onClick={exportPDF_}
+              disabled={loading || total === 0 || exporting === 'pdf'}
+              className="flex items-center gap-1.5 px-4 py-2 bg-[var(--pp-info)] text-white rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-40 transition"
             >
-              Réinitialiser
+              {exporting === 'pdf' ? 'Génération…' : '↓ PDF'}
             </button>
           )}
         </div>
-      </Card>
+      </div>
 
-      {/* Stats */}
+      {/* Advanced filters (paid plans only) */}
+      {isAdvanced ? (
+        <Card className="mb-6">
+          <div className="flex flex-wrap gap-3 items-end">
+            <div className="relative">
+              <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Employé</label>
+              <input
+                type="search"
+                value={empSearch}
+                onChange={e => { setEmpSearch(e.target.value); setUserId(''); setEmpOpen(true) }}
+                onFocus={() => setEmpOpen(true)}
+                onBlur={() => setTimeout(() => setEmpOpen(false), 150)}
+                placeholder="Tous les employés…"
+                className="px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm bg-[var(--pp-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] w-52"
+              />
+              {empOpen && (
+                <div className="absolute z-10 mt-1 w-52 bg-[var(--pp-bg)] border border-[var(--pp-line)] rounded-lg shadow-lg max-h-52 overflow-y-auto">
+                  <button
+                    type="button"
+                    onMouseDown={() => selectEmployee(null)}
+                    className="w-full text-left px-3 py-2 text-sm text-[var(--pp-muted)] hover:bg-[var(--pp-line)]/30"
+                  >
+                    Tous les employés
+                  </button>
+                  {filteredEmployees.map(e => (
+                    <button
+                      key={e.id}
+                      type="button"
+                      onMouseDown={() => selectEmployee(e)}
+                      className="w-full text-left px-3 py-2 text-sm text-[var(--pp-ink)] hover:bg-[var(--pp-line)]/30"
+                    >
+                      {e.name ?? e.email}
+                      {e.name && <span className="block text-xs text-[var(--pp-muted)]">{e.email}</span>}
+                    </button>
+                  ))}
+                  {filteredEmployees.length === 0 && (
+                    <p className="px-3 py-2 text-xs text-[var(--pp-muted)] italic">Aucun résultat</p>
+                  )}
+                </div>
+              )}
+            </div>
+            {sites.length > 0 && (
+              <div>
+                <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Site</label>
+                <select
+                  value={siteId}
+                  onChange={e => setSiteId(e.target.value)}
+                  className="px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm bg-[var(--pp-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] w-44"
+                >
+                  <option value="">Tous les sites</option>
+                  {sites.map(s => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <div>
+              <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Du</label>
+              <input
+                type="date"
+                value={from}
+                onChange={e => setFrom(e.target.value)}
+                className="px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Au</label>
+              <input
+                type="date"
+                value={to}
+                onChange={e => setTo(e.target.value)}
+                className="px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
+              />
+            </div>
+            <button
+              onClick={apply}
+              className="px-4 py-2 bg-[var(--pp-info)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition"
+            >
+              Filtrer
+            </button>
+            {hasFilter && (
+              <button
+                onClick={reset}
+                className="px-4 py-2 border border-[var(--pp-line)] text-[var(--pp-muted)] rounded-lg text-sm hover:text-[var(--pp-ink)] transition"
+              >
+                Réinitialiser
+              </button>
+            )}
+          </div>
+        </Card>
+      ) : (
+        /* FREE plan: upgrade nudge instead of filters */
+        <div className="mb-6 flex items-center gap-3 px-4 py-3 rounded-lg border border-[var(--pp-line)] bg-[var(--pp-line)]/10 text-sm text-[var(--pp-muted)]">
+          <span>🔒</span>
+          <span>
+            Filtres par employé, site et période disponibles à partir du plan{' '}
+            <strong className="text-[var(--pp-ink)]">Solo</strong>.
+          </span>
+          <Link href="/admin/dashboard/settings" className="ml-auto shrink-0 px-3 py-1.5 bg-[var(--pp-info)] text-white rounded-lg text-xs font-medium hover:opacity-90 transition">
+            Passer à Solo
+          </Link>
+        </div>
+      )}
+
+      {/* Stats (paid plans only) */}
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           {[

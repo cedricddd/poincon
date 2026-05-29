@@ -34,6 +34,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Plan insuffisant' }, { status: 403 })
   }
 
+  const adminUser = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { companyId: true },
+  })
+  if (!adminUser?.companyId) return NextResponse.json({ error: 'No company' }, { status: 403 })
+
   const { searchParams } = new URL(req.url)
   const userId = searchParams.get('userId') || undefined
   const siteId = searchParams.get('siteId') || undefined
@@ -41,6 +47,7 @@ export async function GET(req: NextRequest) {
   const to = searchParams.get('to')
 
   const where = {
+    user: { companyId: adminUser.companyId },
     ...(userId ? { userId } : {}),
     ...(siteId ? { siteId } : {}),
     ...(from || to ? {

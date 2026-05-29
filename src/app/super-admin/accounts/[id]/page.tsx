@@ -137,8 +137,9 @@ export default function AccountDetail() {
           <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-4">Informations</h2>
           <div className="space-y-3 text-sm">
             <div>
-              <label className="text-[var(--pp-muted)] block mb-1">Email admin</label>
-              <p className="font-mono">{company.adminEmail}</p>
+              <label className="text-[var(--pp-muted)] block mb-1">Administrateur</label>
+              <p className="font-medium text-[var(--pp-ink)]">{company.adminName ?? '—'}</p>
+              <p className="font-mono text-xs text-[var(--pp-muted)]">{company.adminEmail}</p>
             </div>
             <div>
               <label className="text-[var(--pp-muted)] block mb-1">Email contact</label>
@@ -225,10 +226,11 @@ export default function AccountDetail() {
         <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-4">Facturation & Légal</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
           {[
+            { label: 'Nom de la société', value: company.name },
             { label: 'Téléphone', value: company.phone },
             { label: 'Numéro de TVA', value: company.vatNumber },
             { label: 'Adresse', value: company.address },
-            { label: 'Domaine', value: company.domain },
+            { label: 'Domaine email', value: company.domain },
           ].map(({ label, value }) => (
             <div key={label}>
               <p className="text-[var(--pp-muted)] text-xs mb-1">{label}</p>

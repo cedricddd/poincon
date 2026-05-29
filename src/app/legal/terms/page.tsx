@@ -68,7 +68,7 @@ export default function TermsPage() {
             PoinçOn est un logiciel de gestion du temps de travail (SaaS) conçu pour les entreprises belges,
             permettant l'enregistrement électronique du temps de travail conformément à la CCT n°129 et aux
             exigences légales belges en vigueur. Le service comprend : le pointage (arrivée/départ),
-            la gestion des congés et RTT, les rapports d'heures, la gestion multi-sites et multi-équipes,
+            la gestion des congés et récupérations, les rapports d'heures, la gestion multi-sites et multi-équipes,
             ainsi que les exports comptables.
           </p>
         </section>

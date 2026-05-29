@@ -10,6 +10,7 @@ import Image from 'next/image'
 interface CompanySettings {
   id: string
   name: string
+  domain: string | null
   address: string | null
   phone: string | null
   vatNumber: string | null
@@ -24,7 +25,7 @@ interface CompanySettings {
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<CompanySettings | null>(null)
-  const [form, setForm] = useState({ name: '', address: '', phone: '', vatNumber: '', contactEmail: '' })
+  const [form, setForm] = useState({ name: '', domain: '', address: '', phone: '', vatNumber: '', contactEmail: '' })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploadingLogo, setUploadingLogo] = useState(false)
@@ -47,6 +48,7 @@ export default function SettingsPage() {
         setSettings(data)
         setForm({
           name: data.name ?? '',
+          domain: data.domain ?? '',
           address: data.address ?? '',
           phone: data.phone ?? '',
           vatNumber: data.vatNumber ?? '',
@@ -318,6 +320,16 @@ export default function SettingsPage() {
               required
               className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">Domaine email</label>
+            <input
+              value={form.domain}
+              onChange={e => setForm(f => ({ ...f, domain: e.target.value }))}
+              placeholder="ced-it.be"
+              className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
+            />
+            <p className="text-xs text-[var(--pp-muted)] mt-1">Domaine email de votre entreprise (ex : ced-it.be)</p>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>

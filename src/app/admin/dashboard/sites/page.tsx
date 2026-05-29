@@ -138,26 +138,26 @@ export default function SitesPage() {
             <div className="flex items-center gap-2 mb-1">
               <span className="text-base">🔒</span>
               <span className="font-semibold text-gray-900">Limite de sites atteinte ({sites.length}/{planInfo.maxSites})</span>
-              <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium">Plan {upgradeTo}+</span>
+              <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium">Plan TEAM</span>
             </div>
             <p className="text-sm text-gray-600">
-              Le plan {planInfo.plan} est limité à {planInfo.maxSites} site{planInfo.maxSites > 1 ? 's' : ''}. Passez au plan {upgradeTo} pour gérer plusieurs sites.
+              Le plan {planInfo.plan} est limité à {planInfo.maxSites} site{planInfo.maxSites > 1 ? 's' : ''}. Passez au plan TEAM pour gérer plusieurs sites.
             </p>
           </div>
           <Link href="/pricing" className="shrink-0 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:opacity-90 whitespace-nowrap">
-            Upgrader vers {upgradeTo}
+            Upgrader vers TEAM
           </Link>
         </div>
       )}
 
       {showForm && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
-          <h2 className="text-lg font-semibold mb-4">
+        <div className="bg-[var(--pp-bg2)] rounded-xl border border-[var(--pp-line)] p-6 mb-6">
+          <h2 className="text-lg font-semibold mb-4 text-[var(--pp-ink)]">
             {editingSite ? "Modifier le site" : "Nouveau site"}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">
                 Nom du site <span className="text-red-500">*</span>
               </label>
               <input
@@ -165,20 +165,20 @@ export default function SitesPage() {
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="ex : Pepinster, Loncin..."
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-[var(--pp-line)] rounded-lg px-3 py-2 text-sm bg-[var(--pp-bg)] text-[var(--pp-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Adresse <span className="text-gray-400">(optionnel)</span>
+              <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">
+                Adresse <span className="text-[var(--pp-muted)]">(optionnel)</span>
               </label>
               <input
                 type="text"
                 value={form.address}
                 onChange={(e) => setForm({ ...form, address: e.target.value })}
                 placeholder="ex : Rue de la Gare 1, 4860 Pepinster"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-[var(--pp-line)] rounded-lg px-3 py-2 text-sm bg-[var(--pp-bg)] text-[var(--pp-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
               />
             </div>
             {error && <p className="text-sm text-red-600">{error}</p>}
@@ -186,14 +186,14 @@ export default function SitesPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                className="bg-[var(--pp-info)] text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-opacity"
               >
                 {submitting ? "Enregistrement..." : editingSite ? "Enregistrer" : "Créer"}
               </button>
               <button
                 type="button"
                 onClick={cancel}
-                className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                className="border border-[var(--pp-line)] text-[var(--pp-ink)] px-4 py-2 rounded-lg text-sm font-medium hover:bg-[var(--pp-bg)] transition-colors"
               >
                 Annuler
               </button>
@@ -203,7 +203,7 @@ export default function SitesPage() {
       )}
 
       {sites.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
+        <div className="text-center py-16 text-[var(--pp-muted)]">
           <div className="text-4xl mb-3">🏢</div>
           <p className="font-medium">Aucun site configuré</p>
           <p className="text-sm mt-1">Créez votre premier site pour commencer</p>
@@ -213,27 +213,27 @@ export default function SitesPage() {
           {sites.map((site) => (
             <div
               key={site.id}
-              className={`bg-white rounded-xl border shadow-sm p-5 flex items-center justify-between ${
-                site.active ? "border-gray-200" : "border-gray-100 opacity-60"
+              className={`bg-[var(--pp-bg2)] rounded-xl border p-5 flex items-center justify-between ${
+                site.active ? "border-[var(--pp-line)]" : "border-[var(--pp-line)] opacity-60"
               }`}
             >
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg">
+                <div className="w-10 h-10 rounded-lg bg-[var(--pp-info)]/10 flex items-center justify-center text-[var(--pp-info)] font-bold text-lg">
                   {site.name.charAt(0).toUpperCase()}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-gray-900">{site.name}</span>
+                    <span className="font-semibold text-[var(--pp-ink)]">{site.name}</span>
                     {!site.active && (
-                      <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
+                      <span className="text-xs bg-[var(--pp-bg)] text-[var(--pp-muted)] px-2 py-0.5 rounded-full">
                         Inactif
                       </span>
                     )}
                   </div>
                   {site.address && (
-                    <p className="text-sm text-gray-500 mt-0.5">{site.address}</p>
+                    <p className="text-sm text-[var(--pp-muted)] mt-0.5">{site.address}</p>
                   )}
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-[var(--pp-muted)] mt-1">
                     {site._count.users} employé{site._count.users !== 1 ? "s" : ""} assigné{site._count.users !== 1 ? "s" : ""}
                   </p>
                 </div>
@@ -241,19 +241,19 @@ export default function SitesPage() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => toggleActive(site)}
-                  className="text-xs border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="text-xs border border-[var(--pp-line)] text-[var(--pp-muted)] px-3 py-1.5 rounded-lg hover:bg-[var(--pp-bg)] transition-colors"
                 >
                   {site.active ? "Désactiver" : "Activer"}
                 </button>
                 <button
                   onClick={() => openEdit(site)}
-                  className="text-xs border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="text-xs border border-[var(--pp-line)] text-[var(--pp-ink)] px-3 py-1.5 rounded-lg hover:bg-[var(--pp-bg)] transition-colors"
                 >
                   Modifier
                 </button>
                 <button
                   onClick={() => handleDelete(site)}
-                  className="text-xs border border-red-200 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                  className="text-xs border border-red-200 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors"
                 >
                   Supprimer
                 </button>

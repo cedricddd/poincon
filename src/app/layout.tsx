@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next'
 import { Syne, DM_Sans } from 'next/font/google'
-import Script from 'next/script'
 import './globals.css'
 import { Providers } from './providers'
 import { auth } from '@/auth'
@@ -37,25 +36,12 @@ export default async function RootLayout({
       <head>
         <meta charSet="utf-8" />
         <link rel="apple-touch-icon" href="/icon-192.svg" />
+        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('pp-theme');if(t==='dark')document.documentElement.classList.add('dark');else if(t==='light')document.documentElement.classList.add('light');}catch(e){}})();` }} />
       </head>
       <body className="antialiased" suppressHydrationWarning>
-        <Script id="theme-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: `
-          (function() {
-            try {
-              var t = localStorage.getItem('pp-theme');
-              if (t === 'dark') document.documentElement.classList.add('dark');
-              else if (t === 'light') document.documentElement.classList.add('light');
-            } catch(e) {}
-          })();
-        ` }} />
-        <Script id="sw-register" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: `
-          if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-              navigator.serviceWorker.register('/sw.js');
-            });
-          }
-        ` }} />
         <Providers session={session}>{children}</Providers>
+        <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker'in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js');});}` }} />
       </body>
     </html>
   )

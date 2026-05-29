@@ -102,11 +102,11 @@ export default function InvitationsPage() {
       </div>
 
       {invitations.length === 0 ? (
-        <div className="bg-white border border-[var(--pp-line)] rounded-xl p-8 text-center text-[var(--pp-muted)] text-sm">
+        <div className="bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-xl p-8 text-center text-[var(--pp-muted)] text-sm">
           Aucune invitation envoyée.
         </div>
       ) : (
-        <div className="bg-white border border-[var(--pp-line)] rounded-xl overflow-hidden">
+        <div className="bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-xl overflow-hidden">
           <div className="hidden md:grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-5 py-3 border-b border-[var(--pp-line)] bg-[var(--pp-bg)] text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide">
             <span>Destinataire</span>
             <span>Rôle</span>

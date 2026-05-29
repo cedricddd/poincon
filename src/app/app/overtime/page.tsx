@@ -60,12 +60,12 @@ export default function OvertimePage() {
               </div>
 
               <div className="p-3 rounded-lg bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)]/20">
-                <p className="font-medium text-[var(--pp-pos)] mb-1">🚀 Approche 2: RTT</p>
+                <p className="font-medium text-[var(--pp-pos)] mb-1">🚀 Approche 2: Récupération</p>
                 <p className="text-[var(--pp-muted)]">
                   Partir plus tôt grâce à vos heures sup (1h = partir 1h plus tôt)
                 </p>
                 <p className="text-xs text-[var(--pp-muted)] mt-1">
-                  → Allez à <Link href="/app/rtt" className="underline font-medium">RTT</Link> pour demander un départ anticipé
+                  → Allez à <Link href="/app/rtt" className="underline font-medium">Récupération</Link> pour demander un départ anticipé
                 </p>
               </div>
             </div>
@@ -99,7 +99,7 @@ export default function OvertimePage() {
                   <div className="p-2 rounded bg-[var(--pp-pos)]/10">
                     <p className="text-xs font-medium text-[var(--pp-pos)]">Option 2:</p>
                     <p className="text-xs text-[var(--pp-muted)]">
-                      3.5h RTT: partir 3.5h plus tôt une journée
+                      3.5h récupération : partir 3.5h plus tôt une journée
                     </p>
                   </div>
                 </div>
@@ -126,7 +126,7 @@ export default function OvertimePage() {
               <div>
                 <p className="font-medium text-[var(--pp-ink)]">Q: Puis-je combiner les deux approches?</p>
                 <p className="text-[var(--pp-muted)]">
-                  Oui! Par exemple: 16h sup = 1 jour congé (8h) + 8h RTT.
+                  Oui! Par exemple: 16h sup = 1 jour congé (8h) + 8h récupération.
                 </p>
               </div>
             </div>

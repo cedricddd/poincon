@@ -16,19 +16,26 @@ export async function GET(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const plan = await getUserPlan(session.user.id)
-  if (!planCanAccess(plan, 'advanced_reports')) {
-    return NextResponse.json({ error: 'Plan insuffisant' }, { status: 403 })
-  }
+  const isAdvanced = planCanAccess(plan, 'advanced_reports')
+
+  const adminUser = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { companyId: true },
+  })
+  if (!adminUser?.companyId) return NextResponse.json({ error: 'No company' }, { status: 403 })
 
   const { searchParams } = new URL(req.url)
-  const userId = searchParams.get('userId') || undefined
-  const siteId = searchParams.get('siteId') || undefined
-  const from = searchParams.get('from')
-  const to = searchParams.get('to')
   const page = parseInt(searchParams.get('page') ?? '1')
   const limit = 50
 
+  // Advanced filters only available on paid plans
+  const userId = isAdvanced ? (searchParams.get('userId') || undefined) : undefined
+  const siteId = isAdvanced ? (searchParams.get('siteId') || undefined) : undefined
+  const from = isAdvanced ? searchParams.get('from') : null
+  const to = isAdvanced ? searchParams.get('to') : null
+
   const where = {
+    user: { companyId: adminUser.companyId },
     ...(userId ? { userId } : {}),
     ...(siteId ? { siteId } : {}),
     ...(from || to ? {
@@ -53,41 +60,48 @@ export async function GET(req: NextRequest) {
     }),
   ])
 
-  // Aggregate stats
-  const allRecords = await prisma.clockRecord.findMany({
-    where: { ...where, departureTime: { not: null } },
-    select: { duration: true },
-  })
-  const totalMinutes = allRecords.reduce((sum, r) => sum + (r.duration ?? 0), 0)
-  const completedCount = allRecords.length
-  const avgMinutes = completedCount > 0 ? Math.round(totalMinutes / completedCount) : 0
+  // Stats only computed for paid plans
+  let stats = null
+  if (isAdvanced) {
+    const allRecords = await prisma.clockRecord.findMany({
+      where: { ...where, departureTime: { not: null } },
+      select: { duration: true },
+    })
+    const totalMinutes = allRecords.reduce((sum, r) => sum + (r.duration ?? 0), 0)
+    const completedCount = allRecords.length
+    const avgMinutes = completedCount > 0 ? Math.round(totalMinutes / completedCount) : 0
 
-  // Count detected overtimes matching the same filters
-  const overtimeWhere = {
-    ...(userId ? { userId } : {}),
-    ...(from || to ? {
-      date: {
-        ...(from ? { gte: new Date(from) } : {}),
-        ...(to ? { lte: new Date(to + 'T23:59:59') } : {}),
-      },
-    } : {}),
+    const overtimeWhere = {
+      user: { companyId: adminUser.companyId },
+      ...(userId ? { userId } : {}),
+      ...(from || to ? {
+        date: {
+          ...(from ? { gte: new Date(from) } : {}),
+          ...(to ? { lte: new Date(to + 'T23:59:59') } : {}),
+        },
+      } : {}),
+    }
+    const overtimeAgg = await prisma.detectedOvertime.aggregate({
+      where: overtimeWhere,
+      _sum: { overtimeHours: true },
+    })
+
+    stats = {
+      totalMinutes,
+      avgMinutes,
+      completedCount,
+      incompleteCount: total - completedCount,
+      overtimeHours: overtimeAgg._sum.overtimeHours ?? 0,
+    }
   }
-  const overtimeMinutes = await prisma.detectedOvertime.aggregate({
-    where: overtimeWhere,
-    _sum: { overtimeHours: true },
-  })
 
   return NextResponse.json({
     records,
     total,
     page,
     pages: Math.ceil(total / limit),
-    stats: {
-      totalMinutes,
-      avgMinutes,
-      completedCount,
-      incompleteCount: total - completedCount,
-      overtimeHours: overtimeMinutes._sum.overtimeHours ?? 0,
-    },
+    plan,
+    isAdvanced,
+    stats,
   })
 }

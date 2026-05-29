@@ -112,7 +112,7 @@ export default function TeamsPage() {
       {planInfo && !planInfo.canTeams && (
         <UpgradeBanner
           currentPlan={planInfo.plan}
-          upgradeTo={upgradeTo}
+          upgradeTo="TEAM"
           feature="Gestion des équipes"
           description="Les équipes permettent de grouper vos employés et d'assigner des managers. Disponible à partir du plan TEAM."
           variant="mauve"
@@ -120,7 +120,7 @@ export default function TeamsPage() {
       )}
 
       {/* Créer une équipe */}
-      <div className={`bg-white border border-[var(--pp-line)] rounded-xl p-5 ${planInfo && !planInfo.canTeams ? 'opacity-40 pointer-events-none select-none' : ''}`}>
+      <div className={`bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-xl p-5 ${planInfo && !planInfo.canTeams ? 'opacity-40 pointer-events-none select-none' : ''}`}>
         <h2 className="text-sm font-semibold text-[var(--pp-ink)] mb-3">Nouvelle équipe</h2>
         <div className="flex gap-3">
           <input
@@ -151,7 +151,7 @@ export default function TeamsPage() {
             const available = users.filter(u => !memberIds.has(u.id))
 
             return (
-              <div key={team.id} className="bg-white border border-[var(--pp-line)] rounded-xl overflow-hidden">
+              <div key={team.id} className="bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-xl overflow-hidden">
                 {/* Header équipe */}
                 <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--pp-line)] bg-[var(--pp-info)]/5">
                   {editingId === team.id ? (

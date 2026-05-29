@@ -432,7 +432,7 @@ function RTTTab({ rtts, userId, onRefresh }: { rtts: RTT[]; userId: string; onRe
   }
 
   const del = async (id: string) => {
-    if (!confirm('Supprimer ce RTT ?')) return
+    if (!confirm('Supprimer cette récupération ?')) return
     const res = await fetch(`/api/admin/rtt?id=${id}`, { method: 'DELETE' })
     if (!res.ok) { setErr((await res.json()).error); return }
     onRefresh()
@@ -464,7 +464,7 @@ function RTTTab({ rtts, userId, onRefresh }: { rtts: RTT[]; userId: string; onRe
   return (
     <Card>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-semibold text-[var(--pp-ink)]">{rtts.length} RTT</h2>
+        <h2 className="text-sm font-semibold text-[var(--pp-ink)]">{rtts.length} récupération{rtts.length > 1 ? 's' : ''}</h2>
         <Button size="sm" onClick={() => { setShowAdd(true); setErr('') }}>+ Ajouter</Button>
       </div>
 
@@ -506,7 +506,7 @@ function RTTTab({ rtts, userId, onRefresh }: { rtts: RTT[]; userId: string; onRe
           </thead>
           <tbody className="divide-y divide-[var(--pp-line)]">
             {rtts.length === 0 && (
-              <tr><td colSpan={5} className="py-6 text-center text-[var(--pp-muted)] italic text-sm">Aucune demande RTT.</td></tr>
+              <tr><td colSpan={5} className="py-6 text-center text-[var(--pp-muted)] italic text-sm">Aucune demande de récupération.</td></tr>
             )}
             {rtts.map(r => (
               <tr key={r.id}>
@@ -615,7 +615,7 @@ export default function UserDetailPage() {
     { key: 'overview', label: 'Vue générale' },
     { key: 'clock', label: 'Pointages', count: user.clockRecords.length },
     { key: 'timeoffs', label: 'Congés', count: user.timeOffRequests.length },
-    { key: 'rtts', label: 'RTT', count: user.rttRequests.length },
+    { key: 'rtts', label: 'Récupération', count: user.rttRequests.length },
     { key: 'overtimes', label: 'Heures sup', count: user.detectedOvertimes.length },
   ]
 
@@ -676,7 +676,7 @@ export default function UserDetailPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               { label: 'Heures sup approuvées', value: `${balance.overtimeHours.toFixed(1)}h`, color: 'text-green-600' },
-              { label: 'RTT utilisé', value: `${balance.rttHours.toFixed(1)}h`, color: 'text-orange-500' },
+              { label: 'Récupération utilisée', value: `${balance.rttHours.toFixed(1)}h`, color: 'text-orange-500' },
               { label: 'Congés approuvés', value: `${balance.timeOffDays}j`, color: 'text-blue-500' },
               {
                 label: 'Solde net',

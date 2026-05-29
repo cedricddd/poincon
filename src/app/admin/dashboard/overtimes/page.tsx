@@ -83,21 +83,21 @@ export default function OvertimesPage() {
       <h1 className="text-3xl font-bold mb-8">
         Heures Supplémentaires ({pending.length} en attente)
       </h1>
-      <div className="overflow-x-auto bg-white rounded-lg shadow">
+      <div className="overflow-x-auto bg-[var(--pp-bg2)] rounded-lg border border-[var(--pp-line)]">
         <table className="w-full text-left">
-          <thead className="bg-gray-100 border-b">
+          <thead className="bg-[var(--pp-bg)] border-b border-[var(--pp-line)]">
             <tr>
-              <th className="px-4 py-3">Type</th>
-              <th className="px-4 py-3">Employé</th>
-              <th className="px-4 py-3">Détails</th>
-              <th className="px-4 py-3">Statut</th>
-              <th className="px-4 py-3">Actions</th>
+              <th className="px-4 py-3 text-[var(--pp-muted)] text-sm font-medium">Type</th>
+              <th className="px-4 py-3 text-[var(--pp-muted)] text-sm font-medium">Employé</th>
+              <th className="px-4 py-3 text-[var(--pp-muted)] text-sm font-medium">Détails</th>
+              <th className="px-4 py-3 text-[var(--pp-muted)] text-sm font-medium">Statut</th>
+              <th className="px-4 py-3 text-[var(--pp-muted)] text-sm font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
             {overtimes.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-4 text-center text-gray-500">
+                <td colSpan={5} className="px-4 py-4 text-center text-[var(--pp-muted)]">
                   Aucune demande d&apos;heures supplémentaires
                 </td>
               </tr>

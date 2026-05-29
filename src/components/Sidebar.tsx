@@ -69,7 +69,7 @@ function IconMail() {
 const links = [
   { href: '/app/clock',    label: 'Pointage', Icon: IconClock,    color: '#10b981', bg: 'rgba(16,185,129,0.12)'  },
   { href: '/app/time-off', label: 'Congés',   Icon: IconCalendar, color: '#0ea5e9', bg: 'rgba(14,165,233,0.12)'  },
-  { href: '/app/rtt',      label: 'RTT',      Icon: IconZap,      color: '#fb923c', bg: 'rgba(251,146,60,0.12)'  },
+  { href: '/app/rtt',      label: 'Récupération', Icon: IconZap,      color: '#fb923c', bg: 'rgba(251,146,60,0.12)'  },
   { href: '/app/reports',  label: 'Rapports', Icon: IconBarChart, color: '#6366f1', bg: 'rgba(99,102,241,0.12)'  },
 ]
 
@@ -77,7 +77,7 @@ const adminSubLinks = [
   { href: '/admin/dashboard',           label: 'Tableau de bord', Icon: IconHome,   color: '#8b5cf6' },
   { href: '/admin/dashboard/overtimes', label: 'Heures Sup.',  Icon: IconTimer,     color: '#fb923c' },
   { href: '/admin/dashboard/timeoffs',  label: 'Congés',       Icon: IconCalendar,  color: '#0ea5e9' },
-  { href: '/admin/dashboard/rtts',      label: 'RTT',          Icon: IconZap,       color: '#fb923c' },
+  { href: '/admin/dashboard/rtts',      label: 'Récupération', Icon: IconZap,       color: '#fb923c' },
   { href: '/admin/dashboard/schedules', label: 'Horaires',     Icon: IconActivity,  color: '#10b981' },
   { href: '/admin/dashboard/presence',  label: 'Présences',    Icon: IconUserCheck, color: '#10b981' },
   { href: '/admin/dashboard/users',        label: 'Utilisateurs', Icon: IconUsers,    color: '#6366f1' },

@@ -32,12 +32,11 @@ export function UpgradeBanner({ currentPlan, upgradeTo, feature, description, va
           <span className="text-base">🔒</span>
           <span className="font-semibold text-[var(--pp-ink)]">{feature}</span>
           <span className={`text-xs px-2 py-0.5 ${s.badge} rounded-full font-medium`}>
-            Plan {upgradeTo}+
+            Plan {upgradeTo}
           </span>
         </div>
         <p className="text-sm text-[var(--pp-muted)]">
-          {description ?? `Cette fonctionnalité n'est pas disponible avec le plan ${currentPlan}.`}
-          {upgradeTo && ` Passez au plan ${upgradeTo} pour y accéder.`}
+          {description ?? `Cette fonctionnalité n'est pas disponible avec le plan ${currentPlan}. Passez au plan ${upgradeTo} pour y accéder.`}
         </p>
       </div>
       {upgradeTo && (

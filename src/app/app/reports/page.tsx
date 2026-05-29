@@ -120,7 +120,7 @@ export default function ReportsPage() {
           <div className="grid grid-cols-2 gap-3">
             {[
               { label: 'Heures sup accumulées', value: `${balance.overtimeHours.toFixed(1)}h`, color: 'text-[var(--pp-pos)]' },
-              { label: 'RTT consommés', value: `${balance.rttHours.toFixed(1)}h`, color: 'text-[var(--pp-neg)]' },
+              { label: 'Récupération consommée', value: `${balance.rttHours.toFixed(1)}h`, color: 'text-[var(--pp-neg)]' },
               { label: 'Jours de congé', value: `${balance.daysOff}j`, color: 'text-[var(--pp-muted)]' },
               {
                 label: 'Solde net',

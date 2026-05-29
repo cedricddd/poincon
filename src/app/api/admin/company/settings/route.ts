@@ -9,7 +9,7 @@ export async function GET() {
   const company = await prisma.company.findUnique({
     where: { id: auth.admin.companyId },
     select: {
-      id: true, name: true, address: true, phone: true, vatNumber: true, contactEmail: true, logoUrl: true,
+      id: true, name: true, domain: true, address: true, phone: true, vatNumber: true, contactEmail: true, logoUrl: true,
       stripeSubscriptionId: true, stripeSubscriptionBillingCycle: true,
       stripeCancelAtPeriodEnd: true, planExpiresAt: true,
       plan: { select: { name: true } },
@@ -24,18 +24,19 @@ export async function PATCH(req: NextRequest) {
   if (!auth) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const body = await req.json()
-  const { name, address, phone, vatNumber, contactEmail } = body
+  const { name, domain, address, phone, vatNumber, contactEmail } = body
 
   const company = await prisma.company.update({
     where: { id: auth.admin.companyId },
     data: {
       ...(name !== undefined && { name }),
+      ...(domain !== undefined && { domain: domain || null }),
       ...(address !== undefined && { address }),
       ...(phone !== undefined && { phone }),
       ...(vatNumber !== undefined && { vatNumber }),
       ...(contactEmail !== undefined && { contactEmail }),
     },
-    select: { id: true, name: true, address: true, phone: true, vatNumber: true, contactEmail: true, logoUrl: true },
+    select: { id: true, name: true, domain: true, address: true, phone: true, vatNumber: true, contactEmail: true, logoUrl: true },
   })
 
   return NextResponse.json(company)

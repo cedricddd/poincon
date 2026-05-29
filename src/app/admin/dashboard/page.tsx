@@ -164,7 +164,7 @@ export default function AdminDashboard() {
       icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
     },
     {
-      href: '/admin/dashboard/rtts', label: 'RTT',
+      href: '/admin/dashboard/rtts', label: 'Récupération',
       value: counts.rtts, unit: 'en attente',
       color: '#f59e0b', urgent: counts.rtts > 0,
       icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
@@ -227,9 +227,9 @@ export default function AdminDashboard() {
           {planInfo.plan === 'FREE' && (
             <UpgradeBanner
               currentPlan={planInfo.plan}
-              upgradeTo={upgradeTo}
+              upgradeTo="SOLO"
               feature="Vous utilisez le plan gratuit"
-              description={`Limité à ${planInfo.maxEmployees} employés, sans équipes ni managers.`}
+              description={`Limité à ${planInfo.maxEmployees} employés. Passez au plan SOLO pour plus d'employés, ou TEAM pour les équipes et managers.`}
             />
           )}
           {planInfo.plan === 'SOLO' && !planInfo.canTeams && (
