@@ -7,7 +7,7 @@ import { Button } from '@/components/Button'
 
 const competitors = [
   {
-    name: 'PoinçOn',
+    name: 'Pointon',
     logo: '🍃',
     highlight: true,
     description: 'Pointeuse légale belge',
@@ -162,7 +162,7 @@ const differentiators = [
   {
     icon: '⚖️',
     title: 'Conforme légalement',
-    description: 'Unique sur le marché : PoinçOn est certifié pour la loi belge 2027. Pas de risque juridique.',
+    description: 'Unique sur le marché : Pointon est certifié pour la loi belge 2027. Pas de risque juridique.',
   },
   {
     icon: '📱',
@@ -215,8 +215,8 @@ function FeatureRow({ feature, items }: { feature: string; items: any[] }) {
 }
 
 export default function ComparaisonPage() {
-  const [viewMode, setViewMode] = useState<'all' | 'poincon'>('all')
-  const visibleCompetitors = viewMode === 'poincon' ? competitors.slice(0, 1) : competitors
+  const [viewMode, setViewMode] = useState<'all' | 'pointon'>('all')
+  const visibleCompetitors = viewMode === 'pointon' ? competitors.slice(0, 1) : competitors
 
   return (
     <div className="min-h-screen bg-[var(--pp-bg)]">
@@ -239,7 +239,7 @@ export default function ComparaisonPage() {
             className="font-display font-bold text-white leading-tight mb-6"
             style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)' }}
           >
-            Pourquoi <span style={{ color: '#10b981' }}>PoinçOn</span> plutôt que les autres ?
+            Pourquoi <span style={{ color: '#10b981' }}>Pointon</span> plutôt que les autres ?
           </h1>
 
           <p className="text-white/60 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
@@ -281,7 +281,7 @@ export default function ComparaisonPage() {
             className="font-display font-bold text-[var(--pp-ink)] text-center mb-14"
             style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)' }}
           >
-            6 raisons de choisir PoinçOn
+            6 raisons de choisir Pointon
           </h2>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -401,14 +401,14 @@ export default function ComparaisonPage() {
               Tous les concurrents
             </button>
             <button
-              onClick={() => setViewMode('poincon')}
+              onClick={() => setViewMode('pointon')}
               className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                viewMode === 'poincon'
+                viewMode === 'pointon'
                   ? 'bg-[#10b981] text-white'
                   : 'border border-[var(--pp-line)] text-[var(--pp-muted)] hover:text-[var(--pp-ink)]'
               }`}
             >
-              PoinçOn seul
+              Pointon seul
             </button>
           </div>
 
@@ -520,7 +520,7 @@ export default function ComparaisonPage() {
         <div className="mx-auto max-w-6xl px-4 text-center text-xs text-[var(--pp-muted)]">
           <p>
             Tarifs concurrents mis à jour en mai 2026. Contactez-nous pour corriger une info.
-            <br />© 2026 PoinçOn · Belgique · Conforme 2027
+            <br />© 2026 Pointon · Belgique · Conforme 2027
           </p>
         </div>
       </footer>

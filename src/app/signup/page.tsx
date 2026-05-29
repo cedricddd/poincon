@@ -6,6 +6,7 @@ import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
+import { Logo } from '@/components/Logo'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -88,8 +89,8 @@ export default function SignupPage() {
     <div className="min-h-screen bg-[var(--pp-bg)] flex items-center justify-center px-4" suppressHydrationWarning>
       <div className="w-full max-w-2xl py-10" suppressHydrationWarning>
         <div className="text-center mb-8" suppressHydrationWarning>
-          <Link href="/" className="text-3xl font-bold text-[var(--pp-ink)]">
-            PoinçOn
+          <Link href="/" aria-label="Pointon — accueil">
+            <Logo size="lg" useThemeVar />
           </Link>
           <p className="text-[var(--pp-muted)] mt-2">Créez votre compte administrateur — c'est gratuit</p>
         </div>

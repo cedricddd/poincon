@@ -12,7 +12,7 @@ export function ThemeVideo({ style }: { style?: React.CSSProperties }) {
     function applyTheme() {
       if (!video) return
       const dark = document.documentElement.classList.contains('dark')
-      const next = dark ? '/poincon-demo-dark.mp4' : '/poincon-demo-light.mp4'
+      const next = dark ? '/pointon-demo-dark.mp4' : '/pointon-demo-light.mp4'
       if (video.getAttribute('src') !== next) {
         video.src = next
         video.load()
@@ -30,7 +30,7 @@ export function ThemeVideo({ style }: { style?: React.CSSProperties }) {
   return (
     <video
       ref={ref}
-      src="/poincon-demo-light.mp4"
+      src="/pointon-demo-light.mp4"
       autoPlay
       loop
       muted

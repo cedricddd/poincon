@@ -6,6 +6,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { usePlan } from '@/hooks/usePlan'
+import { Logo } from '@/components/Logo'
 
 /* ── SVG Icons ──────────────────────────────────────────────────────────── */
 
@@ -186,7 +187,7 @@ export function Sidebar() {
                 <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
               </svg>
             </div>
-            <span className="font-bold text-[var(--pp-ink)] tracking-tight text-lg">PoinçOn</span>
+            <Logo size="sm" useThemeVar />
           </div>
         )}
         {c && (

@@ -1,6 +1,6 @@
 {
-  "name": "PoinçOn",
-  "short_name": "PoinçOn",
+  "name": "Pointon",
+  "short_name": "Pointon",
   "description": "Pointeuse légale Belgique",
   "start_url": "/app/clock",
   "display": "standalone",

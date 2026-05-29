@@ -1,6 +1,6 @@
-const CACHE_NAME = 'poincon-app-v2'
-const API_CACHE = 'poincon-api-v2'
-const IMAGE_CACHE = 'poincon-images-v2'
+const CACHE_NAME = 'pointon-app-v1'
+const API_CACHE = 'pointon-api-v1'
+const IMAGE_CACHE = 'pointon-images-v1'
 
 // Uniquement les vrais fichiers statiques (pas les pages SSR Next.js)
 const STATIC = [

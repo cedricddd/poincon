@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Conformité légale — PoinçOn',
-  description: 'PoinçOn est conforme à la législation belge sur le temps de travail, à l\'arrêt CJUE 2019 et au RGPD.',
+  title: 'Conformité légale — Pointon',
+  description: 'Pointon est conforme à la législation belge sur le temps de travail, à l\'arrêt CJUE 2019 et au RGPD.',
 }
 
 function CheckIcon() {
@@ -80,9 +80,9 @@ export default function CompliancePage() {
           Dernière mise à jour : 25 mai 2026
         </p>
         <p className="text-[var(--pp-muted)] mt-3 leading-relaxed">
-          PoinçOn est conçu spécifiquement pour respecter la législation belge sur l'enregistrement
+          Pointon est conçu spécifiquement pour respecter la législation belge sur l'enregistrement
           du temps de travail, l'arrêt CJUE de 2019, et le RGPD. Cette page détaille les obligations
-          légales et comment PoinçOn y répond.
+          légales et comment Pointon y répond.
         </p>
       </div>
 
@@ -101,7 +101,7 @@ export default function CompliancePage() {
                 La Convention Collective de Travail n°129 du Conseil National du Travail (CNT) impose
                 depuis 2023 l'enregistrement électronique du temps de travail pour certains secteurs.
                 La généralisation à toutes les entreprises belges est prévue progressivement jusqu'en 2027.
-                PoinçOn répond à toutes les exigences techniques de cette CCT.
+                Pointon répond à toutes les exigences techniques de cette CCT.
               </p>
             </div>
           </div>
@@ -118,7 +118,7 @@ export default function CompliancePage() {
                 La Cour de Justice de l'Union Européenne a établi en 2019 que les employeurs sont tenus
                 de mettre en place un système objectif, fiable et accessible permettant de mesurer
                 la durée du temps de travail journalier effectué par chaque travailleur.
-                PoinçOn fournit exactement ce système : enregistrement automatique, immuable et exportable.
+                Pointon fournit exactement ce système : enregistrement automatique, immuable et exportable.
               </p>
             </div>
           </div>
@@ -133,7 +133,7 @@ export default function CompliancePage() {
               <h3 className="font-semibold text-[var(--pp-ink)] mb-1">RGPD — Règlement (UE) 2016/679</h3>
               <p className="text-sm text-[var(--pp-muted)] leading-relaxed">
                 Les données de pointage sont des données personnelles au sens du RGPD.
-                PoinçOn traite ces données avec les bases légales appropriées (obligation légale pour
+                Pointon traite ces données avec les bases légales appropriées (obligation légale pour
                 le temps de travail, contrat pour la gestion des comptes), dans le respect des principes
                 de minimisation, limitation de conservation et sécurité des données.
               </p>
@@ -168,7 +168,7 @@ export default function CompliancePage() {
         <div className="bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-xl p-6 text-sm text-[var(--pp-muted)] space-y-4">
           <p>
             Le droit belge impose la conservation des données de temps de travail pendant <strong className="text-[var(--pp-ink)]">5 ans minimum</strong>.
-            PoinçOn applique cette obligation automatiquement : les données de pointage ne peuvent pas être
+            Pointon applique cette obligation automatiquement : les données de pointage ne peuvent pas être
             supprimées manuellement avant l'échéance légale.
           </p>
           <p>
@@ -188,7 +188,7 @@ export default function CompliancePage() {
         <h2 className="font-display text-2xl font-bold text-[var(--pp-ink)] mb-4">Questions de conformité</h2>
         <div className="bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-xl p-6">
           <p className="text-sm text-[var(--pp-muted)] mb-4">
-            Pour toute question relative à la conformité légale de PoinçOn dans votre entreprise,
+            Pour toute question relative à la conformité légale de Pointon dans votre entreprise,
             ou pour obtenir une attestation de conformité :
           </p>
           <div className="text-sm text-[var(--pp-muted)]">

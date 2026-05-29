@@ -6,6 +6,7 @@ import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
+import { Logo } from '@/components/Logo'
 
 function ResetPasswordForm() {
   const router = useRouter()
@@ -63,7 +64,7 @@ function ResetPasswordForm() {
     <div className="min-h-screen bg-[var(--pp-bg)] flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="text-3xl font-bold text-[var(--pp-ink)]">PoinçOn</Link>
+          <Link href="/" aria-label="Pointon — accueil"><Logo size="lg" useThemeVar /></Link>
           <p className="text-[var(--pp-muted)] mt-2">Nouveau mot de passe</p>
         </div>
 

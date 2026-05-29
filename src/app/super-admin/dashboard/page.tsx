@@ -73,7 +73,7 @@ export default async function SuperAdminDashboard() {
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-[var(--pp-ink)]">Super-Admin Dashboard</h1>
-        <p className="text-[var(--pp-muted)] mt-1">Gestion commerciale de PoinçOn</p>
+        <p className="text-[var(--pp-muted)] mt-1">Gestion commerciale de Pointon</p>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">

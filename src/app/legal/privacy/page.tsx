@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Politique de confidentialité — PoinçOn',
-  description: 'Comment PoinçOn collecte, utilise et protège vos données personnelles. Conformité RGPD.',
+  title: 'Politique de confidentialité — Pointon',
+  description: 'Comment Pointon collecte, utilise et protège vos données personnelles. Conformité RGPD.',
 }
 
 const sections = [
@@ -61,7 +61,7 @@ export default function PrivacyPage() {
         <section id="responsable">
           <h2 className="font-display text-xl font-bold mb-4 text-[var(--pp-ink)]">1. Responsable du traitement</h2>
           <p className="text-[var(--pp-muted)] mb-3">
-            Le responsable du traitement des données collectées via PoinçOn est :
+            Le responsable du traitement des données collectées via Pointon est :
           </p>
           <div className="bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-lg p-4 text-[var(--pp-muted)]">
             <strong className="text-[var(--pp-ink)]">Ced-IT</strong><br />
@@ -73,7 +73,7 @@ export default function PrivacyPage() {
         <section id="donnees">
           <h2 className="font-display text-xl font-bold mb-4 text-[var(--pp-ink)]">2. Données collectées</h2>
           <p className="text-[var(--pp-muted)] mb-4">
-            PoinçOn collecte uniquement les données nécessaires à la fourniture du service de pointage légal belge.
+            Pointon collecte uniquement les données nécessaires à la fourniture du service de pointage légal belge.
           </p>
           <div className="space-y-4">
             {[
@@ -190,7 +190,7 @@ export default function PrivacyPage() {
         <section id="sous-traitants">
           <h2 className="font-display text-xl font-bold mb-4 text-[var(--pp-ink)]">6. Sous-traitants</h2>
           <p className="text-[var(--pp-muted)] mb-4">
-            PoinçOn fait appel aux sous-traitants suivants, tous conformes au RGPD :
+            Pointon fait appel aux sous-traitants suivants, tous conformes au RGPD :
           </p>
           <div className="space-y-3">
             {[

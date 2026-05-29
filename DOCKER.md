@@ -1,4 +1,4 @@
-# Docker Setup for PoinçOn
+# Docker Setup for Pointon
 
 ## Quick Start
 
@@ -42,7 +42,7 @@
 | `docker-compose logs -f db` | View PostgreSQL logs |
 | `docker-compose ps` | Show running containers |
 | `docker-compose exec app bash` | Open shell in app container |
-| `docker-compose exec db psql -U poincon -d poincon` | Access PostgreSQL CLI |
+| `docker-compose exec db psql -U pointon -d pointon` | Access PostgreSQL CLI |
 
 ### Database Management
 
@@ -58,7 +58,7 @@ docker-compose exec app npx prisma migrate reset
 
 **View database schema**:
 ```powershell
-docker-compose exec db psql -U poincon -d poincon -c "\dt"
+docker-compose exec db psql -U pointon -d pointon -c "\dt"
 ```
 
 ### Rebuilding the App
@@ -74,9 +74,9 @@ docker-compose up -d
 Edit `.env.local` to customize:
 ```env
 # Database
-DB_USER=poincon
-DB_PASSWORD=poincon_dev_password
-DB_NAME=poincon
+DB_USER=pointon
+DB_PASSWORD=pointon_dev_password
+DB_NAME=pointon
 
 # NextAuth
 NEXTAUTH_URL=http://localhost:3000

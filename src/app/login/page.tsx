@@ -7,6 +7,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
+import { Logo } from '@/components/Logo'
 
 interface CompanyInfo {
   name: string
@@ -81,7 +82,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-[var(--pp-bg)] flex items-center justify-center px-4" suppressHydrationWarning>
       <div className="w-full max-w-lg" suppressHydrationWarning>
 
-        {/* Header: logo société ou branding PoinçOn */}
+        {/* Header: logo société ou branding Pointon */}
         <div className="text-center mb-8 transition-all duration-300" suppressHydrationWarning>
           {company ? (
             <div className="flex flex-col items-center gap-3 animate-fade-in">
@@ -102,13 +103,13 @@ export default function LoginPage() {
               )}
               <div>
                 <p className="text-xl font-semibold text-[var(--pp-ink)]">{company.name}</p>
-                <p className="text-sm text-[var(--pp-muted)]">Connexion via PoinçOn</p>
+                <p className="text-sm text-[var(--pp-muted)]">Connexion via Pointon</p>
               </div>
             </div>
           ) : (
             <>
-              <Link href="/" className="text-3xl font-bold text-[var(--pp-ink)]">
-                PoinçOn
+              <Link href="/" aria-label="Pointon — accueil">
+                <Logo size="lg" useThemeVar />
               </Link>
               <p className="text-[var(--pp-muted)] mt-2">Connexion à votre compte</p>
             </>

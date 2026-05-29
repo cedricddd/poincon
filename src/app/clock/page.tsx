@@ -70,7 +70,7 @@ export default function ClockPage() {
       {/* Header */}
       <header className="sticky top-0 border-b border-[var(--pp-line)] bg-[var(--pp-bg)]/95 backdrop-blur py-4">
         <div className="max-w-sm mx-auto px-4 flex items-center justify-between">
-          <div className="text-xl font-bold text-[var(--pp-ink)]">PoinçOn</div>
+          <div className="text-xl font-bold text-[var(--pp-ink)]">Pointon</div>
           <button className="text-[var(--pp-muted)] hover:text-[var(--pp-ink)]">⚙️</button>
         </div>
       </header>

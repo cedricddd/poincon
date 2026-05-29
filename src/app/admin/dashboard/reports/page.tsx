@@ -35,7 +35,7 @@ async function exportPDF(records: ClockRecord[], stats: Stats | null, filters: {
 
   doc.setFontSize(16)
   doc.setFont('helvetica', 'bold')
-  doc.text('PoinçOn — Rapport de pointage', 14, 18)
+  doc.text('Pointon — Rapport de pointage', 14, 18)
 
   doc.setFontSize(9)
   doc.setFont('helvetica', 'normal')

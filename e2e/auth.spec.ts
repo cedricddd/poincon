@@ -11,7 +11,7 @@ test.describe('Authentication', () => {
 
   test('login with correct credentials', async ({ page }) => {
     await page.goto('/login')
-    await page.fill('input#email', 'admin@poincon.be')
+    await page.fill('input#email', 'admin@pointon.be')
     await page.fill('input#password', 'password123')
     await page.click('button[type="submit"]')
     await page.waitForURL('/app/clock')
@@ -20,7 +20,7 @@ test.describe('Authentication', () => {
 
   test('show error on incorrect password', async ({ page }) => {
     await page.goto('/login')
-    await page.fill('input#email', 'admin@poincon.be')
+    await page.fill('input#email', 'admin@pointon.be')
     await page.fill('input#password', 'wrongpassword')
     const response = await Promise.race([
       page.click('button[type="submit"]'),

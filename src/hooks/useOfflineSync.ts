@@ -9,7 +9,7 @@ interface PendingAction {
   retries: number
 }
 
-const DB_NAME = 'PoinconDB'
+const DB_NAME = 'PointonDB'
 const STORE_NAME = 'pendingActions'
 const MAX_RETRIES = 5
 const RETRY_DELAY = 2000 // 2 secondes

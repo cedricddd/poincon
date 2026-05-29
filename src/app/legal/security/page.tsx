@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Sécurité — PoinçOn',
-  description: 'Les pratiques de sécurité de PoinçOn : chiffrement, infrastructure, contrôle d\'accès et gestion des incidents.',
+  title: 'Sécurité — Pointon',
+  description: 'Les pratiques de sécurité de Pointon : chiffrement, infrastructure, contrôle d\'accès et gestion des incidents.',
 }
 
 function ShieldIcon() {
@@ -50,7 +50,7 @@ export default function SecurityPage() {
         </p>
         <p className="text-[var(--pp-muted)] mt-3 leading-relaxed">
           La sécurité des données de pointage de vos employés est une priorité absolue.
-          Voici comment PoinçOn protège vos données à chaque niveau.
+          Voici comment Pointon protège vos données à chaque niveau.
         </p>
       </div>
 
@@ -154,7 +154,7 @@ export default function SecurityPage() {
         <section id="isolation">
           <h2 className="font-display text-xl font-bold mb-4 text-[var(--pp-ink)]">4. Isolation des données</h2>
           <p className="text-[var(--pp-muted)] mb-4">
-            PoinçOn est une application multi-tenant : chaque entreprise dispose de ses propres données
+            Pointon est une application multi-tenant : chaque entreprise dispose de ses propres données
             totalement isolées. Cette isolation est garantie à plusieurs niveaux :
           </p>
           <div className="space-y-3 text-[var(--pp-muted)]">
@@ -200,7 +200,7 @@ export default function SecurityPage() {
           <h2 className="font-display text-xl font-bold mb-4 text-[var(--pp-ink)]">6. Gestion des incidents</h2>
           <div className="space-y-3 text-[var(--pp-muted)]">
             <p>
-              En cas de violation de données ou d'incident de sécurité, PoinçOn s'engage à :
+              En cas de violation de données ou d'incident de sécurité, Pointon s'engage à :
             </p>
             <ol className="list-decimal list-inside space-y-2 ml-2">
               <li>Identifier et contenir l'incident dans les 4 heures</li>
@@ -215,7 +215,7 @@ export default function SecurityPage() {
           <h2 className="font-display text-xl font-bold mb-4 text-[var(--pp-ink)]">7. Signaler une vulnérabilité</h2>
           <div className="bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-xl p-6">
             <p className="text-[var(--pp-muted)] mb-4">
-              Si vous découvrez une vulnérabilité de sécurité dans PoinçOn, nous vous encourageons
+              Si vous découvrez une vulnérabilité de sécurité dans Pointon, nous vous encourageons
               à nous la signaler de manière responsable (responsible disclosure). Nous nous engageons
               à répondre dans les 48 heures et à corriger les vulnérabilités critiques dans les 7 jours.
             </p>

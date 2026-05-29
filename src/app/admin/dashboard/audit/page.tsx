@@ -190,7 +190,7 @@ export default function AuditPage() {
 
       const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
       doc.setFontSize(14)
-      doc.text('Audit Trail — PoinçOn', 14, 16)
+      doc.text('Audit Trail — Pointon', 14, 16)
       doc.setFontSize(9)
       doc.text(`Généré le ${new Date().toLocaleString('fr-BE')}`, 14, 22)
 

@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
   },
 })
 
-const FROM = `PoinçOn <${process.env.BREVO_FROM_EMAIL ?? 'noreply@ced-it.be'}>`
+const FROM = `Pointon <${process.env.BREVO_FROM_EMAIL ?? 'noreply@ced-it.be'}>`
 
 type ApprovalEmailParams = {
   to: string
@@ -42,7 +42,7 @@ export async function sendApprovalEmail(params: ApprovalEmailParams) {
   const body = `
     <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
       <div style="background:#ffffff;border-radius:12px;padding:32px;border:1px solid #e2e8f0;">
-        <h1 style="margin:0 0 8px;font-size:22px;color:#0f172a;">PoinçOn</h1>
+        <h1 style="margin:0 0 8px;font-size:22px;color:#0f172a;">Pointon</h1>
         <hr style="border:none;border-top:1px solid #e2e8f0;margin:16px 0;">
         <p style="color:#334155;margin:0 0 16px;">${greeting}</p>
         <p style="color:#334155;margin:0 0 24px;">
@@ -60,7 +60,7 @@ export async function sendApprovalEmail(params: ApprovalEmailParams) {
            style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;">
           Voir mes rapports
         </a>
-        <p style="color:#94a3b8;font-size:12px;margin-top:32px;">PoinçOn · ${new Date().getFullYear()}</p>
+        <p style="color:#94a3b8;font-size:12px;margin-top:32px;">Pointon · ${new Date().getFullYear()}</p>
       </div>
     </div>
   `
@@ -80,7 +80,7 @@ export async function sendEndOfDayReminderEmail(params: { to: string; name: stri
   const body = `
     <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
       <div style="background:#ffffff;border-radius:12px;padding:32px;border:1px solid #e2e8f0;">
-        <h1 style="margin:0 0 8px;font-size:22px;color:#0f172a;">PoinçOn</h1>
+        <h1 style="margin:0 0 8px;font-size:22px;color:#0f172a;">Pointon</h1>
         <hr style="border:none;border-top:1px solid #e2e8f0;margin:16px 0;">
         <p style="color:#334155;margin:0 0 16px;">${greeting}</p>
         <p style="color:#334155;margin:0 0 24px;">
@@ -91,7 +91,7 @@ export async function sendEndOfDayReminderEmail(params: { to: string; name: stri
            style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;">
           Pointer mon départ
         </a>
-        <p style="color:#94a3b8;font-size:12px;margin-top:32px;">PoinçOn · ${new Date().getFullYear()}</p>
+        <p style="color:#94a3b8;font-size:12px;margin-top:32px;">Pointon · ${new Date().getFullYear()}</p>
       </div>
     </div>
   `
@@ -112,18 +112,18 @@ export async function sendInvitationEmail(params: {
   const link = `${appUrl}/set-password?token=${token}`
   const greeting = name ? `Bonjour ${name},` : 'Bonjour,'
 
-  const subject = `Invitation à rejoindre ${companyName} sur PoinçOn`
+  const subject = `Invitation à rejoindre ${companyName} sur Pointon`
 
   const html = `
     <div style="font-family:system-ui,sans-serif;max-width:580px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
       <div style="background:#ffffff;border-radius:12px;padding:32px;border:1px solid #e2e8f0;">
-        <h1 style="margin:0 0 4px;font-size:22px;color:#0f172a;">PoinçOn</h1>
+        <h1 style="margin:0 0 4px;font-size:22px;color:#0f172a;">Pointon</h1>
         <p style="margin:0 0 20px;font-size:13px;color:#94a3b8;">Pointage légal belge</p>
         <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 24px;">
 
         <p style="color:#334155;margin:0 0 12px;">${greeting}</p>
         <p style="color:#334155;margin:0 0 24px;">
-          Vous avez été invité(e) à rejoindre <strong>${companyName}</strong> sur PoinçOn.<br>
+          Vous avez été invité(e) à rejoindre <strong>${companyName}</strong> sur Pointon.<br>
           Cliquez sur le bouton ci-dessous pour créer votre mot de passe et accéder à l'application.
         </p>
 
@@ -163,7 +163,7 @@ export async function sendInvitationEmail(params: {
           </ol>
         </div>
 
-        <p style="color:#94a3b8;font-size:12px;margin:0;">PoinçOn · ${new Date().getFullYear()} · ${companyName}</p>
+        <p style="color:#94a3b8;font-size:12px;margin:0;">Pointon · ${new Date().getFullYear()} · ${companyName}</p>
       </div>
     </div>
   `
@@ -183,12 +183,12 @@ export async function sendPasswordResetEmail(params: {
   const link = `${appUrl}/reset-password?token=${token}`
   const greeting = name ? `Bonjour ${name},` : 'Bonjour,'
 
-  const subject = '🔑 Réinitialisation de votre mot de passe PoinçOn'
+  const subject = '🔑 Réinitialisation de votre mot de passe Pointon'
 
   const html = `
     <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
       <div style="background:#ffffff;border-radius:12px;padding:32px;border:1px solid #e2e8f0;">
-        <h1 style="margin:0 0 4px;font-size:22px;color:#0f172a;">PoinçOn</h1>
+        <h1 style="margin:0 0 4px;font-size:22px;color:#0f172a;">Pointon</h1>
         <p style="margin:0 0 20px;font-size:13px;color:#94a3b8;">Pointage légal belge</p>
         <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 24px;">
 
@@ -216,7 +216,7 @@ export async function sendPasswordResetEmail(params: {
           </p>
         </div>
 
-        <p style="color:#94a3b8;font-size:12px;margin:0;">PoinçOn · ${new Date().getFullYear()}</p>
+        <p style="color:#94a3b8;font-size:12px;margin:0;">Pointon · ${new Date().getFullYear()}</p>
       </div>
     </div>
   `

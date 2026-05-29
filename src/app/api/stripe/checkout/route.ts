@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
       : {
           price_data: {
             currency: 'eur',
-            product_data: { name: `PoinçOn ${plan}` },
+            product_data: { name: `Pointon ${plan}` },
             unit_amount: amount,
             recurring: { interval: interval as 'month' | 'year' },
           },

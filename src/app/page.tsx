@@ -6,6 +6,7 @@ import NumberFlow from '@number-flow/react'
 import { Header } from '@/components/Header'
 import { Button } from '@/components/Button'
 import { ThemeVideo } from '@/components/ThemeVideo'
+import { Logo } from '@/components/Logo'
 
 /* ─── Scroll reveal hook ────────────────────────────────────────────────── */
 
@@ -166,7 +167,7 @@ const pricingTiers = [
 const faqs = [
   {
     q: 'La solution est-elle conforme à la loi belge 2027?',
-    a: 'Oui. PoinçOn respecte toutes les exigences légales belges et CJUE : enregistrement objectif, audit trail immuable, export certifié.',
+    a: 'Oui. Pointon respecte toutes les exigences légales belges et CJUE : enregistrement objectif, audit trail immuable, export certifié.',
   },
   {
     q: 'Comment sont stockées les données?',
@@ -915,6 +916,9 @@ export default function Home() {
           <div className="grid md:grid-cols-2 gap-12 md:gap-8 items-center">
             {/* Left */}
             <div>
+              <div className="mb-6">
+                <Logo size="hero" dark />
+              </div>
               <div className="inline-flex items-center gap-2 mb-6">
                 <span className="w-5 h-px bg-[#10b981]" />
                 <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#10b981]">
@@ -996,7 +1000,7 @@ export default function Home() {
               className="font-display font-bold text-[var(--pp-ink)] leading-tight"
               style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)' }}
             >
-              Voir PoinçOn en action
+              Voir Pointon en action
             </h2>
             <p className="text-[var(--pp-muted)] mt-3">20 secondes pour comprendre l'essentiel.</p>
           </div>
@@ -1201,8 +1205,8 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-4">
           <div className="grid sm:grid-cols-2 md:grid-cols-5 gap-8 mb-10">
             <div className="md:col-span-2">
-              <div className="font-display font-bold text-[var(--pp-ink)] text-xl mb-3">
-                Poinç<span className="text-[var(--pp-pos)]">On</span>
+              <div className="mb-3">
+                <Logo size="md" useThemeVar />
               </div>
               <p className="text-sm text-[var(--pp-muted)] leading-relaxed max-w-xs">
                 La pointeuse légale belge pour les PME. Simple, mobile-first, conforme 2027.
@@ -1238,7 +1242,7 @@ export default function Home() {
           </div>
 
           <div className="pt-8 border-t border-[var(--pp-line)] flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-[var(--pp-muted)]">
-            <span>© 2026 PoinçOn · Ced-IT · Belgique</span>
+            <span>© 2026 Pointon · Ced-IT · Belgique</span>
             <span className="tracking-wide">Conforme Belgique 2027 · RGPD · HTTPS</span>
           </div>
         </div>

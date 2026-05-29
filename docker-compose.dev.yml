@@ -1,31 +1,31 @@
 services:
   db:
     image: postgres:15-alpine
-    container_name: poincon-db-dev
+    container_name: pointon-db-dev
     environment:
-      POSTGRES_USER: ${DB_USER:-poincon}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-poincon_dev_password}
-      POSTGRES_DB: ${DB_NAME:-poincon}
+      POSTGRES_USER: ${DB_USER:-pointon}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-pointon_dev_password}
+      POSTGRES_DB: ${DB_NAME:-pointon}
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "5433:5432"
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-poincon}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-pointon}"]
       interval: 5s
       timeout: 5s
       retries: 10
 
   app:
     image: node:20-alpine
-    container_name: poincon-app-dev
+    container_name: pointon-app-dev
     working_dir: /app
     volumes:
       - .:/app
       - app_node_modules:/app/node_modules
     environment:
-      DATABASE_URL: postgresql://poincon:poincon_dev_password@db:5432/poincon
+      DATABASE_URL: postgresql://pointon:pointon_dev_password@db:5432/pointon
       NEXTAUTH_URL: http://localhost:3000
       NEXTAUTH_SECRET: dev-secret-change-in-production-do-not-share
       NODE_ENV: development
@@ -56,7 +56,7 @@ services:
       - ./prisma:/app/prisma
       - ./package.json:/app/package.json
     environment:
-      DATABASE_URL: postgresql://poincon:poincon_dev_password@db:5432/poincon
+      DATABASE_URL: postgresql://pointon:pointon_dev_password@db:5432/pointon
     command: sh -c "apk add --no-cache openssl && npm install prisma@5.22.0 --no-save && npx prisma migrate dev --name init"
     depends_on:
       db:

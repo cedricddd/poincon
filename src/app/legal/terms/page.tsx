@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Conditions d\'utilisation — PoinçOn',
-  description: 'Conditions générales d\'utilisation du service PoinçOn, la pointeuse légale belge.',
+  title: 'Conditions d\'utilisation — Pointon',
+  description: 'Conditions générales d\'utilisation du service Pointon, la pointeuse légale belge.',
 }
 
 const sections = [
@@ -41,8 +41,8 @@ export default function TermsPage() {
 
       {/* Intro */}
       <div className="bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-xl p-5 mb-10 text-sm text-[var(--pp-muted)]">
-        En accédant à PoinçOn ou en utilisant nos services, vous acceptez les présentes conditions d'utilisation.
-        Si vous utilisez PoinçOn pour le compte d'une entreprise, vous acceptez ces conditions au nom de cette entreprise.
+        En accédant à Pointon ou en utilisant nos services, vous acceptez les présentes conditions d'utilisation.
+        Si vous utilisez Pointon pour le compte d'une entreprise, vous acceptez ces conditions au nom de cette entreprise.
       </div>
 
       {/* Table des matières */}
@@ -65,7 +65,7 @@ export default function TermsPage() {
         <section id="objet">
           <h2 className="font-display text-xl font-bold mb-4 text-[var(--pp-ink)]">1. Objet du service</h2>
           <p className="text-[var(--pp-muted)]">
-            PoinçOn est un logiciel de gestion du temps de travail (SaaS) conçu pour les entreprises belges,
+            Pointon est un logiciel de gestion du temps de travail (SaaS) conçu pour les entreprises belges,
             permettant l'enregistrement électronique du temps de travail conformément à la CCT n°129 et aux
             exigences légales belges en vigueur. Le service comprend : le pointage (arrivée/départ),
             la gestion des congés et récupérations, les rapports d'heures, la gestion multi-sites et multi-équipes,
@@ -77,7 +77,7 @@ export default function TermsPage() {
           <h2 className="font-display text-xl font-bold mb-4 text-[var(--pp-ink)]">2. Accès et inscription</h2>
           <div className="space-y-3 text-[var(--pp-muted)]">
             <p>
-              Pour utiliser PoinçOn, vous devez créer un compte entreprise (compte administrateur) ou
+              Pour utiliser Pointon, vous devez créer un compte entreprise (compte administrateur) ou
               accepter une invitation de votre employeur. Vous vous engagez à :
             </p>
             <ul className="list-disc list-inside space-y-2 ml-2">
@@ -87,7 +87,7 @@ export default function TermsPage() {
               <li>Ne pas partager votre compte avec d'autres personnes</li>
             </ul>
             <p>
-              PoinçOn se réserve le droit de suspendre ou supprimer tout compte en cas de violation des présentes conditions.
+              Pointon se réserve le droit de suspendre ou supprimer tout compte en cas de violation des présentes conditions.
             </p>
           </div>
         </section>
@@ -101,14 +101,14 @@ export default function TermsPage() {
             <li>Utiliser le service à des fins illégales ou contraires à l'ordre public</li>
             <li>Effectuer du reverse engineering ou tenter de copier le logiciel</li>
             <li>Surcharger les serveurs par des requêtes automatisées (scraping, bots)</li>
-            <li>Utiliser PoinçOn pour traiter des données non liées à la gestion du temps de travail</li>
+            <li>Utiliser Pointon pour traiter des données non liées à la gestion du temps de travail</li>
           </ul>
         </section>
 
         <section id="plans">
           <h2 className="font-display text-xl font-bold mb-4 text-[var(--pp-ink)]">4. Plans et facturation</h2>
           <div className="space-y-4 text-[var(--pp-muted)]">
-            <p>PoinçOn propose les plans suivants :</p>
+            <p>Pointon propose les plans suivants :</p>
             <div className="grid sm:grid-cols-2 gap-3">
               {[
                 { plan: 'FREE', desc: "Jusqu'à 3 employés, fonctionnalités de base" },
@@ -136,8 +136,8 @@ export default function TermsPage() {
             <div>
               <h3 className="font-semibold text-[var(--pp-ink)] mb-2">Responsabilité de l'éditeur</h3>
               <p>
-                PoinçOn s'engage à fournir un service disponible 24h/24, 7j/7, avec un objectif de disponibilité
-                de 99,5% (hors maintenance planifiée). En cas d'interruption, la responsabilité de PoinçOn
+                Pointon s'engage à fournir un service disponible 24h/24, 7j/7, avec un objectif de disponibilité
+                de 99,5% (hors maintenance planifiée). En cas d'interruption, la responsabilité de Pointon
                 est limitée au remboursement des frais d'abonnement proportionnels à la durée d'interruption.
               </p>
             </div>
@@ -166,7 +166,7 @@ export default function TermsPage() {
               à des obligations légales de conservation (pointages : 5 ans).
             </p>
             <p>
-              PoinçOn peut résilier votre compte en cas de violation grave des présentes conditions,
+              Pointon peut résilier votre compte en cas de violation grave des présentes conditions,
               avec un préavis de 30 jours sauf cas de fraude avérée.
             </p>
           </div>
@@ -175,9 +175,9 @@ export default function TermsPage() {
         <section id="propriete">
           <h2 className="font-display text-xl font-bold mb-4 text-[var(--pp-ink)]">7. Propriété intellectuelle</h2>
           <p className="text-[var(--pp-muted)]">
-            PoinçOn et son code source sont la propriété exclusive de Ced-IT. L'abonnement vous confère
+            Pointon et son code source sont la propriété exclusive de Ced-IT. L'abonnement vous confère
             un droit d'utilisation non exclusif et non transférable du service. Vos données restent votre
-            propriété ; PoinçOn n'en revendique aucun droit et ne les utilise pas à des fins commerciales.
+            propriété ; Pointon n'en revendique aucun droit et ne les utilise pas à des fins commerciales.
           </p>
         </section>
 

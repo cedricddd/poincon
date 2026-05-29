@@ -19,7 +19,7 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
             <Link href="/legal/compliance" className="hover:text-[var(--pp-ink)] transition-colors">Conformité</Link>
             <Link href="/legal/security" className="hover:text-[var(--pp-ink)] transition-colors">Sécurité</Link>
           </div>
-          <span className="text-xs">© 2026 PoinçOn · Ced-IT</span>
+          <span className="text-xs">© 2026 Pointon · Ced-IT</span>
         </div>
       </footer>
     </div>

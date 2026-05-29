@@ -1,4 +1,4 @@
-# 📱 PoinçOn Mobile Test Plan — Security & UX
+# 📱 Pointon Mobile Test Plan — Security & UX
 
 **Date**: 2026-05-15  
 **Focus**: Validate clock in/out security fixes + mobile UX  
@@ -41,7 +41,7 @@ open -a Simulator
 **Expected**: Timestamp validated, record created
 
 **Steps**:
-1. Login to PoinçOn
+1. Login to Pointon
 2. Navigate to "Clock" tab
 3. Tap "Clock In" button
 4. ✅ Verify:

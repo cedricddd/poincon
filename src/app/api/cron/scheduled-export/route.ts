@@ -106,18 +106,18 @@ export async function GET(req: NextRequest) {
     const filename = `pointages-${periodLabel.replace(/\s/g, '-')}.csv`
 
     await transporter.sendMail({
-      from: `PoinçOn <${process.env.BREVO_FROM_EMAIL ?? 'noreply@ced-it.be'}>`,
+      from: `Pointon <${process.env.BREVO_FROM_EMAIL ?? 'noreply@ced-it.be'}>`,
       to: company.admin.email,
-      subject: `📊 PoinçOn — Export pointages ${periodLabel}`,
+      subject: `📊 Pointon — Export pointages ${periodLabel}`,
       html: `
         <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
           <div style="background:#fff;border-radius:12px;padding:32px;border:1px solid #e2e8f0;">
-            <h1 style="margin:0 0 8px;font-size:22px;color:#0f172a;">PoinçOn</h1>
+            <h1 style="margin:0 0 8px;font-size:22px;color:#0f172a;">Pointon</h1>
             <hr style="border:none;border-top:1px solid #e2e8f0;margin:16px 0;">
             <p style="color:#334155;">Bonjour ${company.admin.name ?? ''},</p>
             <p style="color:#334155;">Veuillez trouver en pièce jointe l'export des pointages pour la <strong>${periodLabel}</strong>.</p>
             <p style="color:#334155;">${records.length} pointage(s) exporté(s).</p>
-            <p style="color:#94a3b8;font-size:12px;margin-top:32px;">PoinçOn · ${now.getFullYear()}</p>
+            <p style="color:#94a3b8;font-size:12px;margin-top:32px;">Pointon · ${now.getFullYear()}</p>
           </div>
         </div>
       `,

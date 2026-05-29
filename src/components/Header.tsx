@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from './Button'
+import { Logo } from './Logo'
 
 function SunIcon() {
   return (
@@ -64,8 +65,8 @@ export function Header() {
     >
       <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="text-xl font-bold text-[var(--pp-ink)] tracking-tight">
-          Poinç<span className="text-[var(--pp-pos)]">On</span>
+        <Link href="/" aria-label="Pointon — accueil">
+          <Logo size="md" dark={!scrolled || dark} />
         </Link>
 
         {/* Nav desktop */}
