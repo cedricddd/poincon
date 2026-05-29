@@ -62,7 +62,9 @@ export default function LoginPage() {
       })
 
       if (result?.error) {
-        setError(result.error || 'Erreur de connexion.')
+        setError(result.error === 'CredentialsSignin'
+          ? 'Email ou mot de passe incorrect.'
+          : 'Erreur de connexion. Vérifiez vos identifiants.')
       } else if (result?.ok) {
         if (rememberMe) {
           localStorage.setItem('rememberedEmail', email)
