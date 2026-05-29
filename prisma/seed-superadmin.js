@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs')
 const prisma = new PrismaClient()
 
 async function main() {
-  const hashedPassword = await bcrypt.hash('cedric@ced-it', 10)
+  const hashedPassword = await bcrypt.hash(process.env.SUPER_ADMIN_PASSWORD || 'CEDder102307!', 10)
 
   const user = await prisma.user.upsert({
     where: { email: 'cedric@ced-it.be' },
@@ -19,7 +19,6 @@ async function main() {
   })
 
   console.log('✅ Super-admin user created:', user.email, '— role:', user.role)
-  console.log('   Password: cedric@ced-it (change it in production!)')
 }
 
 main()
