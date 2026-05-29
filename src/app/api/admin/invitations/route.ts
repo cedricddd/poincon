@@ -11,7 +11,7 @@ export async function GET() {
   const invitations = await prisma.userInvitation.findMany({
     where: { companyId: auth.admin.companyId },
     orderBy: { createdAt: 'desc' },
-    select: { id: true, email: true, name: true, role: true, expiresAt: true, usedAt: true, createdAt: true },
+    select: { id: true, email: true, name: true, role: true, token: true, expiresAt: true, usedAt: true, createdAt: true },
   })
 
   return NextResponse.json(invitations)
@@ -62,6 +62,56 @@ export async function POST(req: NextRequest) {
     resource: 'UserInvitation',
     resourceId: invitation.id,
     changes: { email: invitation.email, role: invitation.role },
+  })
+
+  return NextResponse.json({ ok: true, id: invitation.id })
+}
+
+export async function PATCH(req: NextRequest) {
+  const auth = await requireAdminWithCompany()
+  if (!auth) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  const { searchParams } = new URL(req.url)
+  const id = searchParams.get('id')
+  if (!id) return NextResponse.json({ error: 'ID requis' }, { status: 400 })
+
+  const old = await prisma.userInvitation.findFirst({
+    where: { id, companyId: auth.admin.companyId },
+  })
+  if (!old) return NextResponse.json({ error: 'Invitation introuvable' }, { status: 404 })
+  if (old.usedAt) return NextResponse.json({ error: 'Invitation déjà utilisée' }, { status: 409 })
+
+  const company = await prisma.company.findUnique({
+    where: { id: auth.admin.companyId },
+    select: { name: true },
+  })
+
+  await prisma.userInvitation.delete({ where: { id } })
+
+  const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000)
+  const invitation = await prisma.userInvitation.create({
+    data: {
+      email: old.email,
+      name: old.name,
+      role: old.role,
+      companyId: auth.admin.companyId,
+      expiresAt,
+    },
+  })
+
+  await sendInvitationEmail({
+    to: invitation.email,
+    name: invitation.name,
+    companyName: company?.name ?? 'votre entreprise',
+    token: invitation.token,
+  })
+
+  await logAudit({
+    userId: auth.admin.id,
+    action: 'admin_invite_user',
+    resource: 'UserInvitation',
+    resourceId: invitation.id,
+    changes: { email: invitation.email, role: invitation.role, resent: true },
   })
 
   return NextResponse.json({ ok: true, id: invitation.id })

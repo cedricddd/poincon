@@ -59,6 +59,9 @@ function IconX() {
 function IconHome() {
   return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
 }
+function IconMail() {
+  return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+}
 
 /* ── Nav config ──────────────────────────────────────────────────────────── */
 
@@ -76,8 +79,9 @@ const adminSubLinks = [
   { href: '/admin/dashboard/rtts',      label: 'RTT',          Icon: IconZap,       color: '#fb923c' },
   { href: '/admin/dashboard/schedules', label: 'Horaires',     Icon: IconActivity,  color: '#10b981' },
   { href: '/admin/dashboard/presence',  label: 'Présences',    Icon: IconUserCheck, color: '#10b981' },
-  { href: '/admin/dashboard/users',     label: 'Utilisateurs', Icon: IconUsers,     color: '#6366f1' },
-  { href: '/admin/dashboard/sites',     label: 'Sites',        Icon: IconBuilding,  color: '#8b5cf6' },
+  { href: '/admin/dashboard/users',        label: 'Utilisateurs', Icon: IconUsers,    color: '#6366f1' },
+  { href: '/admin/dashboard/invitations', label: 'Invitations',  Icon: IconMail,     color: '#6366f1' },
+  { href: '/admin/dashboard/sites',       label: 'Sites',        Icon: IconBuilding, color: '#8b5cf6' },
   { href: '/admin/dashboard/teams',     label: 'Équipes',      Icon: IconUsers,     color: '#ec4899' },
   { href: '/admin/dashboard/audit',     label: 'Audit Trail',  Icon: IconLog,       color: '#a855f7' },
   { href: '/admin/dashboard/reports',   label: 'Rapports',     Icon: IconBarChart,  color: '#6366f1' },
