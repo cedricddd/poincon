@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
+import { usePlan } from '@/hooks/usePlan'
 
 type Site = { id: string; name: string }
 type User = { id: string; name: string; email: string; role: string; createdAt: string; defaultSiteId: string | null; defaultSite: Site | null }
@@ -18,6 +19,7 @@ function SortIcon({ field, current, dir }: { field: SortField; current: SortFiel
 }
 
 export default function UsersPage() {
+  const { planInfo, upgradeTo } = usePlan()
   const [users, setUsers] = useState<User[]>([])
   const [sites, setSites] = useState<Site[]>([])
   const [canUseManagers, setCanUseManagers] = useState(false)
@@ -128,7 +130,20 @@ export default function UsersPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Utilisateurs</h1>
-          <p className="text-[var(--pp-muted)] text-sm mt-1">{users.length} compte{users.length !== 1 ? 's' : ''}</p>
+          <div className="flex items-center gap-2 mt-1">
+            <p className="text-[var(--pp-muted)] text-sm">{users.length} compte{users.length !== 1 ? 's' : ''}</p>
+            {planInfo && planInfo.maxEmployees !== -1 && (
+              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                users.length >= planInfo.maxEmployees
+                  ? 'bg-red-100 text-red-700'
+                  : users.length >= planInfo.maxEmployees * 0.8
+                  ? 'bg-yellow-100 text-yellow-700'
+                  : 'bg-gray-100 text-gray-500'
+              }`}>
+                {users.length}/{planInfo.maxEmployees} max ({planInfo.plan})
+              </span>
+            )}
+          </div>
         </div>
         <div className="flex gap-2">
           <Link href="/admin/dashboard/users/invite">
@@ -139,6 +154,18 @@ export default function UsersPage() {
           </Link>
         </div>
       </div>
+
+      {planInfo && planInfo.maxEmployees !== -1 && users.length >= planInfo.maxEmployees && (
+        <div className="mb-4 p-4 rounded-xl border border-orange-200 bg-orange-50 flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium text-orange-800">Limite d&apos;employés atteinte ({users.length}/{planInfo.maxEmployees})</p>
+            <p className="text-xs text-orange-600 mt-0.5">Passez au plan {upgradeTo} pour ajouter davantage d&apos;employés.</p>
+          </div>
+          <Link href="/pricing" className="shrink-0 px-3 py-1.5 bg-orange-600 text-white text-xs font-medium rounded-lg hover:opacity-90">
+            Upgrader
+          </Link>
+        </div>
+      )}
 
       <div className="mb-4">
         <input

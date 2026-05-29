@@ -2,6 +2,8 @@
 export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
+import { usePlan } from "@/hooks/usePlan"
 
 interface Site {
   id: string
@@ -13,6 +15,7 @@ interface Site {
 }
 
 export default function SitesPage() {
+  const { planInfo, upgradeTo } = usePlan()
   const [sites, setSites] = useState<Site[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -96,6 +99,8 @@ export default function SitesPage() {
     await fetchSites()
   }
 
+  const atSiteLimit = planInfo !== null && planInfo.maxSites !== -1 && sites.length >= planInfo.maxSites
+
   if (loading) return <div className="p-8 text-gray-500">Chargement...</div>
 
   return (
@@ -103,15 +108,47 @@ export default function SitesPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Sites</h1>
-          <p className="text-sm text-gray-500 mt-1">Gérez les sites de votre entreprise</p>
+          <div className="flex items-center gap-2 mt-1">
+            <p className="text-sm text-gray-500">Gérez les sites de votre entreprise</p>
+            {planInfo && planInfo.maxSites !== -1 && (
+              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                atSiteLimit ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-500'
+              }`}>
+                {sites.length}/{planInfo.maxSites} site{planInfo.maxSites > 1 ? 's' : ''} ({planInfo.plan})
+              </span>
+            )}
+          </div>
         </div>
         <button
-          onClick={openNew}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+          onClick={atSiteLimit ? undefined : openNew}
+          disabled={atSiteLimit}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            atSiteLimit
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-blue-600 text-white hover:bg-blue-700'
+          }`}
         >
           + Nouveau site
         </button>
       </div>
+
+      {atSiteLimit && planInfo && (
+        <div className="rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-base">🔒</span>
+              <span className="font-semibold text-gray-900">Limite de sites atteinte ({sites.length}/{planInfo.maxSites})</span>
+              <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium">Plan {upgradeTo}+</span>
+            </div>
+            <p className="text-sm text-gray-600">
+              Le plan {planInfo.plan} est limité à {planInfo.maxSites} site{planInfo.maxSites > 1 ? 's' : ''}. Passez au plan {upgradeTo} pour gérer plusieurs sites.
+            </p>
+          </div>
+          <Link href="/pricing" className="shrink-0 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:opacity-90 whitespace-nowrap">
+            Upgrader vers {upgradeTo}
+          </Link>
+        </div>
+      )}
 
       {showForm && (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">

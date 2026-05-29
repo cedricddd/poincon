@@ -3,6 +3,8 @@
 export const dynamic = 'force-dynamic'
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
+import { usePlan } from '@/hooks/usePlan'
+import { UpgradeBanner } from '@/components/UpgradeBanner'
 
 /* ── Types ──────────────────────────────────────────────────────────────── */
 
@@ -91,6 +93,7 @@ function StatCard({
 /* ── Page ───────────────────────────────────────────────────────────────── */
 
 export default function AdminDashboard() {
+  const { planInfo, upgradeTo } = usePlan()
   const [counts, setCounts] = useState<Counts>({ overtimes: 0, timeoffs: 0, rtts: 0, users: 0, presentNow: 0, noSchedule: 0, weekMinutes: 0 })
   const [present, setPresent] = useState<PresentPerson[]>([])
   const [recent, setRecent] = useState<RecentRecord[]>([])
@@ -215,6 +218,28 @@ export default function AdminDashboard() {
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
           {statCards.map(c => <StatCard key={c.href} {...c} />)}
+        </div>
+      )}
+
+      {/* Upgrade banner */}
+      {planInfo && planInfo.plan !== 'ENTERPRISE' && upgradeTo && (
+        <div className="mb-6">
+          {planInfo.plan === 'FREE' && (
+            <UpgradeBanner
+              currentPlan={planInfo.plan}
+              upgradeTo={upgradeTo}
+              feature="Vous utilisez le plan gratuit"
+              description={`Limité à ${planInfo.maxEmployees} employés, sans équipes ni managers.`}
+            />
+          )}
+          {planInfo.plan === 'SOLO' && !planInfo.canTeams && (
+            <UpgradeBanner
+              currentPlan={planInfo.plan}
+              upgradeTo={upgradeTo}
+              feature="Plan SOLO actif"
+              description="Les équipes, managers et exports illimités sont disponibles à partir du plan TEAM."
+            />
+          )}
         </div>
       )}
 

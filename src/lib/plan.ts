@@ -10,10 +10,10 @@ export type PlanFeature =
 
 // Plan limits constants — source of truth
 export const PLAN_LIMITS = {
-  FREE:       { maxEmployees: 3,   maxManagers: 0,  csvExportsPerMonth: 1,  scheduledExport: null,      hasTeams: false, hasAdvancedReports: false },
-  SOLO:       { maxEmployees: 10,  maxManagers: 0,  csvExportsPerMonth: -1, scheduledExport: null,      hasTeams: false, hasAdvancedReports: true  },
-  TEAM:       { maxEmployees: 50,  maxManagers: 5,  csvExportsPerMonth: -1, scheduledExport: 'monthly', hasTeams: true,  hasAdvancedReports: true  },
-  ENTERPRISE: { maxEmployees: -1,  maxManagers: -1, csvExportsPerMonth: -1, scheduledExport: 'weekly',  hasTeams: true,  hasAdvancedReports: true  },
+  FREE:       { maxEmployees: 3,   maxManagers: 0,  maxSites: 1,  csvExportsPerMonth: 1,  scheduledExport: null,      hasTeams: false, hasAdvancedReports: false },
+  SOLO:       { maxEmployees: 10,  maxManagers: 0,  maxSites: 1,  csvExportsPerMonth: -1, scheduledExport: null,      hasTeams: false, hasAdvancedReports: true  },
+  TEAM:       { maxEmployees: 50,  maxManagers: 5,  maxSites: 5,  csvExportsPerMonth: -1, scheduledExport: 'monthly', hasTeams: true,  hasAdvancedReports: true  },
+  ENTERPRISE: { maxEmployees: -1,  maxManagers: -1, maxSites: -1, csvExportsPerMonth: -1, scheduledExport: 'weekly',  hasTeams: true,  hasAdvancedReports: true  },
 } as const
 
 export type PlanName = keyof typeof PLAN_LIMITS

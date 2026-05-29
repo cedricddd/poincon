@@ -1,7 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { isAdminRole } from '@/lib/roles'
-import { getCompanyPlan, planCanAccess } from '@/lib/plan'
+import { getCompanyPlan, planCanAccess, PLAN_LIMITS } from '@/lib/plan'
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { createHash } from 'crypto'
@@ -38,7 +38,22 @@ export async function GET(req: NextRequest) {
       getCompanyPlan(admin.companyId),
     ])
 
-    return NextResponse.json({ users, canUseManagers: planCanAccess(plan, 'managers') })
+    const limits = PLAN_LIMITS[plan]
+    return NextResponse.json({
+      users,
+      canUseManagers: planCanAccess(plan, 'managers'),
+      planInfo: {
+        plan,
+        maxEmployees: limits.maxEmployees,
+        maxManagers: limits.maxManagers,
+        canTeams: planCanAccess(plan, 'teams'),
+        canManagers: planCanAccess(plan, 'managers'),
+        canAdvancedReports: planCanAccess(plan, 'advanced_reports'),
+        canUnlimitedCsv: planCanAccess(plan, 'unlimited_csv_export'),
+        csvExportsPerMonth: limits.csvExportsPerMonth,
+        maxSites: limits.maxSites,
+      },
+    })
   } catch (error) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }

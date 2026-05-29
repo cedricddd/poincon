@@ -3,6 +3,8 @@
 export const dynamic = 'force-dynamic'
 import { useEffect, useState } from 'react'
 import { showToast } from '@/hooks/useToast'
+import { usePlan } from '@/hooks/usePlan'
+import { UpgradeBanner } from '@/components/UpgradeBanner'
 
 interface TeamMember {
   id: string
@@ -25,6 +27,7 @@ interface User {
 }
 
 export default function TeamsPage() {
+  const { planInfo, upgradeTo } = usePlan()
   const [teams, setTeams] = useState<Team[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
@@ -106,8 +109,17 @@ export default function TeamsPage() {
         <p className="text-sm text-[var(--pp-muted)] mt-1">Créez des équipes et assignez des membres et managers.</p>
       </div>
 
+      {planInfo && !planInfo.canTeams && (
+        <UpgradeBanner
+          currentPlan={planInfo.plan}
+          upgradeTo={upgradeTo}
+          feature="Gestion des équipes"
+          description="Les équipes permettent de grouper vos employés et d'assigner des managers. Disponible à partir du plan TEAM."
+        />
+      )}
+
       {/* Créer une équipe */}
-      <div className="bg-white border border-[var(--pp-line)] rounded-xl p-5">
+      <div className={`bg-white border border-[var(--pp-line)] rounded-xl p-5 ${planInfo && !planInfo.canTeams ? 'opacity-40 pointer-events-none select-none' : ''}`}>
         <h2 className="text-sm font-semibold text-[var(--pp-ink)] mb-3">Nouvelle équipe</h2>
         <div className="flex gap-3">
           <input

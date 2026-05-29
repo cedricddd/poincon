@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { usePlan } from '@/hooks/usePlan'
 
 /* ── SVG Icons ──────────────────────────────────────────────────────────── */
 
@@ -100,6 +101,7 @@ const superAdminSubLinks = [
 export function Sidebar() {
   const pathname = usePathname()
   const { data: session } = useSession()
+  const { planInfo } = usePlan()
   const [collapsed, setCollapsed] = useState(false)
 
   const role = session?.user?.role
@@ -289,6 +291,7 @@ export function Sidebar() {
               <div className="space-y-0.5">
                 {adminSubLinks.map(({ href, label, Icon, color }) => {
                   const active = isActive(href)
+                  const locked = href === '/admin/dashboard/teams' && planInfo !== null && !planInfo.canTeams
                   return (
                     <Link
                       key={href}
@@ -299,7 +302,8 @@ export function Sidebar() {
                       onMouseLeave={e => { if (!active) (e.currentTarget as HTMLElement).style.color = 'var(--pp-muted)' }}
                     >
                       <Icon />
-                      {label}
+                      <span className="flex-1">{label}</span>
+                      {locked && <span className="text-[10px] opacity-50">🔒</span>}
                     </Link>
                   )
                 })}
