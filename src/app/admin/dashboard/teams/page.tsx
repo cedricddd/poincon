@@ -115,6 +115,7 @@ export default function TeamsPage() {
           upgradeTo={upgradeTo}
           feature="Gestion des équipes"
           description="Les équipes permettent de grouper vos employés et d'assigner des managers. Disponible à partir du plan TEAM."
+          variant="mauve"
         />
       )}
 

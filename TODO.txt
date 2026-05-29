@@ -2,9 +2,9 @@
                     POINÇON - TODO LIST (MISE À JOUR 2026-05-22)
 ================================================================================
 
-Dernière mise à jour: 2026-05-25
-Version: 0.3.3
-État: MVP + major features DONE. Phase 10 + 11 complétées. Password Change (admin/manager/employee) + plan gate MANAGER complétés. Prochain: légal ou super-admin polish.
+Dernière mise à jour: 2026-05-29
+Version: 0.3.6
+État: Phases 1-13 complétées. Plan-aware UI gates (banners upgrade, lock icon, limite sites/employés). Reste: 2FA (low priority) + déploiement production.
 
 ================================================================================
 PHASES COMPLÉTÉES (✓)
@@ -267,15 +267,19 @@ PHASE 12: SUPER-ADMIN ENHANCEMENTS (À FAIRE)
     ✓ Supprimer : OK (soft-delete)
     ✓ Créer : non nécessaire (signup flow)
 
-PHASE 13: DASHBOARD PLAN-AWARE (À FAIRE — OPTIONNEL)
+PHASE 13: DASHBOARD PLAN-AWARE (✓ COMPLÉTÉE — 2026-05-29)
 ================================================================================
 
-[ ] Dashboard adapté au plan (feature gating UX)
-    [ ] Vérifier planCanAccess() appliqué aux pages (pas juste API)
-    [ ] Masquer boutons/sections non-autorisées par le plan
-    [ ] Afficher banneau upgrade : "Plan SOLO — upgrade vers TEAM pour débloquer Teams"
-    [ ] Limiter nombre d'employés affichés (maxEmployees par plan)
-    └─ Priority: LOW (API-side gating already done)
+✓ usePlan() hook (fetch /api/admin/users → planInfo) + UpgradeBanner component
+✓ Dashboard /admin/dashboard — banners upgrade contextuels FREE/SOLO
+✓ Users /admin/dashboard/users — badge X/Y max employés (gris/jaune/rouge) + banner limite
+✓ Teams /admin/dashboard/teams — UpgradeBanner variant="mauve" (rose/crème) + form grisé
+✓ Sidebar — icône 🔒 sur Équipes si plan insuffisant
+✓ Sites /admin/dashboard/sites — maxSites par plan (FREE:1, SOLO:1, TEAM:5, ENTERPRISE:-1)
+    ✓ POST /api/admin/sites gating (403 si limite atteinte)
+    ✓ Badge X/Y sites + bouton désactivé + banner upgrade bleu si limite
+✓ PLAN_LIMITS enrichi : maxSites ajouté pour chaque plan
+✓ layout.tsx Script fix : dangerouslySetInnerHTML (React 19 / Next.js 16 compat)
 
 PHASE 14: 2FA (MULTI-FACTOR AUTHENTICATION) (À FAIRE — PRIORITÉ BASSE)
 ================================================================================
@@ -295,7 +299,7 @@ PAGES/SECTIONS OPTIONNELLES (NICE TO HAVE)
 [ ] Admin dashboard : compléter avec plus de données/stats (nice to have)
 ✓ Page UI /admin/dashboard/invitations - gestion complète — DONE (2026-05-29)
 [ ] Domaine email @ced-it.be SPF/DKIM configuration
-[ ] Dashboard plan-aware UX (feature gating on frontend)
+✓ Dashboard plan-aware UX (feature gating on frontend) — DONE (2026-05-29)
 
 ================================================================================
 BLOQUEURS EXTERNES
@@ -371,6 +375,6 @@ Building blocks already done:
 - Password reset + change ✓
 - MANAGER role plan-gated ✓
 
-Remaining work: ~20% (legal pages, super-admin polish, 2FA)
+Remaining work: ~10% (2FA optionnel, déploiement production)
 
 ================================================================================

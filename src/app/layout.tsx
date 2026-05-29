@@ -39,7 +39,7 @@ export default async function RootLayout({
         <link rel="apple-touch-icon" href="/icon-192.svg" />
       </head>
       <body className="antialiased" suppressHydrationWarning>
-        <Script id="theme-init" strategy="beforeInteractive">{`
+        <Script id="theme-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: `
           (function() {
             try {
               var t = localStorage.getItem('pp-theme');
@@ -47,14 +47,14 @@ export default async function RootLayout({
               else if (t === 'light') document.documentElement.classList.add('light');
             } catch(e) {}
           })();
-        `}</Script>
-        <Script id="sw-register" strategy="afterInteractive">{`
+        ` }} />
+        <Script id="sw-register" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: `
           if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
               navigator.serviceWorker.register('/sw.js');
             });
           }
-        `}</Script>
+        ` }} />
         <Providers session={session}>{children}</Providers>
       </body>
     </html>
