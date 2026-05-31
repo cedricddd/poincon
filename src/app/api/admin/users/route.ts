@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
     })
     if (!admin?.companyId) return NextResponse.json({ error: 'Company not found' }, { status: 400 })
 
-    const [users, plan] = await Promise.all([
+    const [users, plan, presenceFlag] = await Promise.all([
       prisma.user.findMany({
         where: { companyId: admin.companyId },
         select: {
@@ -36,9 +36,13 @@ export async function GET(req: NextRequest) {
         orderBy: { name: 'asc' },
       }),
       getCompanyPlan(admin.companyId),
+      prisma.companyFeatureFlag.findFirst({
+        where: { companyId: admin.companyId, flag: 'presences', enabled: true },
+      }),
     ])
 
     const limits = PLAN_LIMITS[plan]
+    const canPresences = planCanAccess(plan, 'presences') || !!presenceFlag
     return NextResponse.json({
       users,
       canUseManagers: planCanAccess(plan, 'managers'),
@@ -48,6 +52,7 @@ export async function GET(req: NextRequest) {
         maxManagers: limits.maxManagers,
         canTeams: planCanAccess(plan, 'teams'),
         canManagers: planCanAccess(plan, 'managers'),
+        canPresences,
         canAdvancedReports: planCanAccess(plan, 'advanced_reports'),
         canUnlimitedCsv: planCanAccess(plan, 'unlimited_csv_export'),
         csvExportsPerMonth: limits.csvExportsPerMonth,

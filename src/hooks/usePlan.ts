@@ -6,6 +6,7 @@ export interface PlanInfo {
   maxManagers: number
   canTeams: boolean
   canManagers: boolean
+  canPresences: boolean
   canAdvancedReports: boolean
   canUnlimitedCsv: boolean
   csvExportsPerMonth: number

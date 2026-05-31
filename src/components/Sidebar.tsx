@@ -70,8 +70,9 @@ function IconMail() {
 const links = [
   { href: '/app/clock',    label: 'Pointage', Icon: IconClock,    color: '#10b981', bg: 'rgba(16,185,129,0.12)'  },
   { href: '/app/time-off', label: 'Congés',   Icon: IconCalendar, color: '#0ea5e9', bg: 'rgba(14,165,233,0.12)'  },
-  { href: '/app/rtt',      label: 'Récupération', Icon: IconZap,      color: '#fb923c', bg: 'rgba(251,146,60,0.12)'  },
+  { href: '/app/rtt',      label: 'Récupération', Icon: IconZap,  color: '#fb923c', bg: 'rgba(251,146,60,0.12)'  },
   { href: '/app/reports',  label: 'Rapports', Icon: IconBarChart, color: '#6366f1', bg: 'rgba(99,102,241,0.12)'  },
+  { href: '/app/presence', label: 'Présences', Icon: IconUserCheck, color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
 ]
 
 const adminSubLinks = [
@@ -104,6 +105,7 @@ export function Sidebar() {
   const { data: session } = useSession()
   const { planInfo } = usePlan()
   const [collapsed, setCollapsed] = useState(false)
+  const [presenceAccess, setPresenceAccess] = useState<{ presenceForEmployees: boolean; presenceForManagers: boolean } | null>(null)
 
   const role = session?.user?.role
   const isAdmin = role === 'ADMIN' || role === 'SUPER_ADMIN'
@@ -118,6 +120,14 @@ export function Sidebar() {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   useEffect(() => { setMobileOpen(false) }, [pathname])
+
+  useEffect(() => {
+    if (!session?.user) return
+    fetch('/api/app/presence/access')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data) setPresenceAccess(data) })
+      .catch(() => {})
+  }, [session?.user])
 
   // Load saved state + set CSS variable
   useEffect(() => {
@@ -225,7 +235,10 @@ export function Sidebar() {
         )}
         {(c || openSections.employee) && (
           <div className="space-y-0.5 mb-2">
-            {links.map(({ href, label, Icon, color, bg }) => {
+            {links.filter(({ href }) => {
+              if (href === '/app/presence' && presenceAccess !== null && !presenceAccess.presenceForEmployees) return false
+              return true
+            }).map(({ href, label, Icon, color, bg }) => {
               const active = isActive(href)
               return (
                 <Link
@@ -249,15 +262,33 @@ export function Sidebar() {
         {isManager && !isAdmin && (
           <>
             <div className="border-t border-[var(--pp-line)] my-2" />
-            <Link
-              href="/manager/dashboard"
-              title={c ? 'Mon Équipe' : undefined}
-              className={`flex items-center gap-3 px-2.5 py-2.5 text-sm font-medium rounded-lg transition-all text-[var(--pp-muted)] hover:text-[#ec4899] hover:bg-[rgba(236,72,153,0.10)] ${c ? 'justify-center' : ''}`}
-              style={pathname.startsWith('/manager/dashboard') ? { color: '#ec4899', background: 'rgba(236,72,153,0.10)' } : {}}
-            >
-              <span className="shrink-0"><IconUsers /></span>
-              {!c && 'Mon Équipe'}
-            </Link>
+            <div className="space-y-0.5">
+              {[
+                { href: '/manager/dashboard', label: 'Mon Équipe', Icon: IconUsers },
+                { href: '/manager/dashboard/presence', label: 'Présences', Icon: IconUserCheck },
+              ].filter(({ href }) => {
+                if (href === '/manager/dashboard/presence' && presenceAccess !== null && !presenceAccess.presenceForManagers) return false
+                return true
+              }).map(({ href, label, Icon }) => {
+                const active = pathname === href || (href !== '/manager/dashboard' && pathname.startsWith(href))
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    title={c ? label : undefined}
+                    className={`flex items-center gap-3 px-2.5 py-2.5 text-sm font-medium rounded-lg transition-all ${c ? 'justify-center' : ''}`}
+                    style={active
+                      ? { color: '#ec4899', background: 'rgba(236,72,153,0.10)' }
+                      : { color: 'var(--pp-muted)' }}
+                    onMouseEnter={e => { if (!active) (e.currentTarget as HTMLElement).style.color = '#ec4899' }}
+                    onMouseLeave={e => { if (!active) (e.currentTarget as HTMLElement).style.color = 'var(--pp-muted)' }}
+                  >
+                    <span className="shrink-0"><Icon /></span>
+                    {!c && label}
+                  </Link>
+                )
+              })}
+            </div>
           </>
         )}
 
@@ -292,7 +323,9 @@ export function Sidebar() {
               <div className="space-y-0.5">
                 {adminSubLinks.map(({ href, label, Icon, color }) => {
                   const active = isActive(href)
-                  const locked = href === '/admin/dashboard/teams' && planInfo !== null && !planInfo.canTeams
+                  const locked =
+                    (href === '/admin/dashboard/teams' && planInfo !== null && !planInfo.canTeams) ||
+                    (href === '/admin/dashboard/presence' && planInfo !== null && !planInfo.canPresences)
                   return (
                     <Link
                       key={href}

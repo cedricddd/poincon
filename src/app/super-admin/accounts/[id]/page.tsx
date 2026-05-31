@@ -45,15 +45,21 @@ export default function AccountDetail() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const res = await fetch(`/api/super-admin/accounts`)
-        if (res.ok) {
-          const accounts = await res.json()
+        const [accountsRes, flagsRes] = await Promise.all([
+          fetch(`/api/super-admin/accounts`),
+          fetch(`/api/super-admin/accounts/${id}/feature-flag`),
+        ])
+        if (accountsRes.ok) {
+          const accounts = await accountsRes.json()
           const found = accounts.find((a: any) => a.id === id)
           if (found) {
             setCompany(found)
             setEditPlan(found.plan)
             setContactEmail(found.contactEmail || '')
           }
+        }
+        if (flagsRes.ok) {
+          setFlags(await flagsRes.json())
         }
       } catch (error) {
         console.error('Failed to load company:', error)
@@ -84,16 +90,19 @@ export default function AccountDetail() {
     }
   }
 
-  const handleFeatureFlagToggle = async (flag: string, enabled: boolean) => {
+  const handleFeatureFlagToggle = async (flag: string, newEnabled: boolean) => {
     const res = await fetch(`/api/super-admin/accounts/${id}/feature-flag`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ flag, enabled: !enabled }),
+      body: JSON.stringify({ flag, enabled: newEnabled }),
     })
 
     if (res.ok) {
-      const updated = await res.json()
-      setFlags(flags.map((f) => (f.flag === flag ? { ...f, enabled: !enabled } : f)))
+      setFlags(prev => {
+        const exists = prev.find(f => f.flag === flag)
+        if (exists) return prev.map(f => f.flag === flag ? { ...f, enabled: newEnabled } : f)
+        return [...prev, { id: flag, flag, enabled: newEnabled }]
+      })
     }
   }
 
@@ -246,18 +255,26 @@ export default function AccountDetail() {
           Gérez les fonctionnalités expérimentales pour ce compte
         </p>
         <div className="space-y-2">
-          {['early_access_api', 'extended_export', 'custom_reports'].map((flag) => (
+          {[
+            { key: 'presences', label: 'Présences', desc: 'Débloque la vue des présences en temps réel (plans FREE et SOLO)' },
+            { key: 'early_access_api', label: 'early_access_api', desc: 'Accès anticipé à l\'API' },
+            { key: 'extended_export', label: 'extended_export', desc: 'Exports étendus' },
+            { key: 'custom_reports', label: 'custom_reports', desc: 'Rapports personnalisés' },
+          ].map(({ key, label, desc }) => (
             <label
-              key={flag}
-              className="flex items-center gap-3 p-3 border border-[var(--pp-line)] rounded-lg cursor-pointer hover:bg-[var(--pp-bg2)]"
+              key={key}
+              className="flex items-start gap-3 p-3 border border-[var(--pp-line)] rounded-lg cursor-pointer hover:bg-[var(--pp-bg2)]"
             >
               <input
                 type="checkbox"
-                checked={flags.find((f) => f.flag === flag)?.enabled || false}
-                onChange={(e) => handleFeatureFlagToggle(flag, e.target.checked)}
-                className="rounded"
+                checked={flags.find((f) => f.flag === key)?.enabled || false}
+                onChange={(e) => handleFeatureFlagToggle(key, e.target.checked)}
+                className="rounded mt-0.5"
               />
-              <span className="text-sm font-mono">{flag}</span>
+              <div>
+                <p className="text-sm font-mono font-medium">{label}</p>
+                <p className="text-xs text-[var(--pp-muted)]">{desc}</p>
+              </div>
             </label>
           ))}
         </div>

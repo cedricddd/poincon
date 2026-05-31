@@ -38,22 +38,28 @@ export default function SettingsPage() {
   const [pwError, setPwError] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const [presenceSettings, setPresenceSettings] = useState<{
+    hasAccess: boolean; planAllows: boolean; flagOverride: boolean
+    presenceForManagers: boolean; presenceForEmployees: boolean; mealBreakEnabled: boolean
+  } | null>(null)
+  const [presenceSaving, setPresenceSaving] = useState(false)
+
   useEffect(() => {
-    fetch('/api/admin/company/settings')
-      .then(r => {
-        if (!r.ok) throw new Error(`Erreur serveur (${r.status})`)
-        return r.json()
-      })
-      .then(data => {
-        setSettings(data)
+    Promise.all([
+      fetch('/api/admin/company/settings').then(r => { if (!r.ok) throw new Error(`Erreur serveur (${r.status})`); return r.json() }),
+      fetch('/api/admin/presence/settings').then(r => r.ok ? r.json() : null),
+    ])
+      .then(([companyData, presenceData]) => {
+        setSettings(companyData)
         setForm({
-          name: data.name ?? '',
-          domain: data.domain ?? '',
-          address: data.address ?? '',
-          phone: data.phone ?? '',
-          vatNumber: data.vatNumber ?? '',
-          contactEmail: data.contactEmail ?? '',
+          name: companyData.name ?? '',
+          domain: companyData.domain ?? '',
+          address: companyData.address ?? '',
+          phone: companyData.phone ?? '',
+          vatNumber: companyData.vatNumber ?? '',
+          contactEmail: companyData.contactEmail ?? '',
         })
+        if (presenceData) setPresenceSettings(presenceData)
       })
       .catch(err => setError(err.message))
       .finally(() => setLoading(false))
@@ -134,6 +140,21 @@ export default function SettingsPage() {
     } finally {
       setCancelLoading(false)
     }
+  }
+
+  const handlePresenceToggle = async (field: 'presenceForManagers' | 'presenceForEmployees' | 'mealBreakEnabled') => {
+    if (!presenceSettings) return
+    setPresenceSaving(true)
+    const newValue = !presenceSettings[field]
+    const res = await fetch('/api/admin/presence/settings', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ [field]: newValue }),
+    })
+    if (res.ok) {
+      setPresenceSettings(prev => prev ? { ...prev, [field]: newValue } : prev)
+    }
+    setPresenceSaving(false)
   }
 
   const handleLogoDelete = async () => {
@@ -372,6 +393,102 @@ export default function SettingsPage() {
           </Button>
         </form>
       </Card>
+
+      {/* Présences */}
+      {presenceSettings !== null && (
+        <Card>
+          <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-1">Présences</h2>
+          <p className="text-xs text-[var(--pp-muted)] mb-4">
+            Contrôlez qui peut voir les présences en temps réel dans votre organisation.
+          </p>
+
+          {!presenceSettings.hasAccess ? (
+            <div className="p-4 rounded-lg border border-[var(--pp-line)] bg-[var(--pp-bg2)] text-center space-y-2">
+              <p className="text-sm font-medium text-[var(--pp-ink)]">🔒 Fonctionnalité non disponible sur votre plan</p>
+              <p className="text-xs text-[var(--pp-muted)]">
+                Les Présences sont disponibles à partir du plan <strong>TEAM</strong>. Contactez le support pour débloquer.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {presenceSettings.flagOverride && (
+                <div className="px-3 py-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-700 text-xs">
+                  ✨ Fonctionnalité débloquée manuellement par le support
+                </div>
+              )}
+              <label className="flex items-center justify-between p-3 border border-[var(--pp-line)] rounded-lg cursor-pointer hover:bg-[var(--pp-bg2)] transition">
+                <div>
+                  <p className="text-sm font-medium text-[var(--pp-ink)]">Visible par les managers</p>
+                  <p className="text-xs text-[var(--pp-muted)]">Les managers voient les présences de leur équipe et de la compagnie</p>
+                </div>
+                <button
+                  onClick={() => handlePresenceToggle('presenceForManagers')}
+                  disabled={presenceSaving}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 ${
+                    presenceSettings.presenceForManagers ? 'bg-[var(--pp-pos)]' : 'bg-[var(--pp-line)]'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${
+                      presenceSettings.presenceForManagers ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </label>
+              <label className="flex items-center justify-between p-3 border border-[var(--pp-line)] rounded-lg cursor-pointer hover:bg-[var(--pp-bg2)] transition">
+                <div>
+                  <p className="text-sm font-medium text-[var(--pp-ink)]">Visible par les employés</p>
+                  <p className="text-xs text-[var(--pp-muted)]">Les employés voient qui est présent sur chaque site</p>
+                </div>
+                <button
+                  onClick={() => handlePresenceToggle('presenceForEmployees')}
+                  disabled={presenceSaving}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 ${
+                    presenceSettings.presenceForEmployees ? 'bg-[var(--pp-pos)]' : 'bg-[var(--pp-line)]'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${
+                      presenceSettings.presenceForEmployees ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </label>
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* Pointage */}
+      {presenceSettings !== null && (
+        <Card>
+          <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-1">Pointage</h2>
+          <p className="text-xs text-[var(--pp-muted)] mb-4">
+            Options de pointage disponibles pour tous les employés.
+          </p>
+          <label className="flex items-center justify-between p-3 border border-[var(--pp-line)] rounded-lg cursor-pointer hover:bg-[var(--pp-bg2)] transition">
+            <div>
+              <p className="text-sm font-medium text-[var(--pp-ink)]">Pause repas</p>
+              <p className="text-xs text-[var(--pp-muted)]">
+                Les employés peuvent mettre le compteur en pause pendant leur repas. Ils restent marqués présents.
+              </p>
+            </div>
+            <button
+              onClick={() => handlePresenceToggle('mealBreakEnabled')}
+              disabled={presenceSaving}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 shrink-0 ml-4 ${
+                presenceSettings.mealBreakEnabled ? 'bg-[var(--pp-pos)]' : 'bg-[var(--pp-line)]'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${
+                  presenceSettings.mealBreakEnabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </label>
+        </Card>
+      )}
 
       {/* Mot de passe */}
       <Card>

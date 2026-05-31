@@ -1,10 +1,10 @@
 ================================================================================
-                    POINÇON - TODO LIST (MISE À JOUR 2026-05-29)
+                    POINTON - TODO LIST (MISE À JOUR 2026-05-29)
 ================================================================================
 
-Dernière mise à jour: 2026-05-29
-Version: 0.3.7
-État: Phases 1-15 complétées. Shift-aware overtime, weekly stats DB, terminologie belge. Reste: CI/CD + 2FA (low priority).
+Dernière mise à jour: 2026-05-31
+Version: 0.4.1
+État: Phases 1-15.6 complétées. v0.4.1 : pause repas (BreakEntry, toggle admin, UI employé, calcul durée). Reste: CI/CD + 2FA (low priority).
 
 ================================================================================
 PHASES COMPLÉTÉES (✓)
@@ -61,6 +61,9 @@ PHASE 4: INFRASTRUCTURE (✓ COMPLÉTÉE)
     ✓ Seed Prisma (presets WorkSchedule)
 ✓ .env.example + .env.local.template
 ✓ Documentation Docker (DOCKER.md, DEMARRER.md)
+✓ DATABASE_URL source unique vérité — DONE (2026-05-29 v0.4.0)
+    ├─ docker-compose refactoré : ${DATABASE_URL} direct depuis .env
+    └─ Suppression reconstruction manuelle des credentials DB (bug mismatch volume)
 
 PHASE 5: SITES & PRÉSENCES (✓ COMPLÉTÉE)
 ================================================================================
@@ -96,7 +99,7 @@ PHASE 7: UX & FEATURES EMPLOYÉ (✓ COMPLÉTÉE)
 ✓ PWA (Mobile)
     ✓ manifest.json
     ✓ Service Worker (cache-first assets, network-first navigation)
-    ✓ Icônes SVG 192px et 512px
+    ✓ Icônes SVG 192px et 512px (wordmark Pointon centré sur fond mauve) — v0.4.0
     ✓ Navigation mobile (bottom nav bar)
 ✓ Notifications email (Brevo SMTP)
     ✓ Email HTML quand demande approuvée/rejetée (congé, récupération, heures sup)
@@ -297,6 +300,50 @@ PHASE 14: SHIFT-AWARE OVERTIME & WEEKLY STATS (✓ COMPLÉTÉE — 2026-05-29)
 ✓ Bar chart /app/clock branché sur DB — DONE (2026-05-29)
     └─ useEffect → fetch /api/clock/weekly → setWeeklyRecords (données réelles)
 
+PHASE 15.5: BRANDING & STABILITY v0.4.0 (✓ COMPLÉTÉE — 2026-05-29)
+================================================================================
+
+✓ Rename PoinçOn → Pointon — DONE (2026-05-29 v0.4.0)
+    ├─ Nouveau logo SVG wordmark "Pointon" (composant Logo)
+    ├─ Favicon mis à jour
+    ├─ Layout, login, signup, landing, emails mis à jour
+    └─ Titre app, meta tags, manifest.json
+✓ Fix auth error mapping — DONE (2026-05-29 v0.4.0)
+    └─ CredentialsSignin → message utilisateur lisible (au lieu d'erreur technique)
+✓ PWA icons wordmark — DONE (2026-05-29 v0.4.0)
+    └─ icon-192.svg + icon-512.svg remplacés par Pointon centré carré sur fond mauve
+
+PHASE 15.6: PAUSE REPAS (✓ COMPLÉTÉE — 2026-05-31)
+================================================================================
+
+✓ Paramètre admin "Pause repas" — DONE (2026-05-31)
+    ├─ Champ mealBreakEnabled sur Company (Prisma, tous plans)
+    ├─ Toggle dans /admin/dashboard/settings → card "Pointage" (séparé de Présences)
+    └─ API PATCH /api/admin/presence/settings supporte mealBreakEnabled
+
+✓ Modèle BreakEntry (Prisma) — DONE (2026-05-31)
+    ├─ Lié à ClockRecord (clockRecordId, startedAt, endedAt)
+    └─ Plusieurs pauses par shift possibles
+
+✓ API pause repas employé — DONE (2026-05-31)
+    ├─ GET /api/app/break → état (enabled, activeBreak, totalBreakMinutes)
+    ├─ POST /api/app/break → démarrer une pause (clockRecordId)
+    └─ PATCH /api/app/break → terminer une pause (breakId)
+
+✓ Page de pointage /app/clock — DONE (2026-05-31)
+    ├─ Bouton "⏸ Pause repas" visible si feature activée + employé pointé
+    ├─ Pendant la pause : fond ambre, "▶ Terminer la pause", compteur gelé
+    ├─ Compteur effectif exclut les pauses (totalBreakSeconds + pause en cours)
+    └─ Fix bug pré-existant : durée "Séances du jour" affichée en heures (÷60)
+
+✓ Calcul durée au départ — DONE (2026-05-31)
+    ├─ PATCH /api/clock/record soustrait les pauses du duration final
+    └─ Auto-clôture de la pause si l'employé oublie de la terminer avant de pointer départ
+
+✓ Pages de présence — DONE (2026-05-31)
+    ├─ /admin/dashboard/presence → badge "En pause" ambre sur les personnes en pause
+    └─ /app/presence → pill ambre "En pause" (vue employé)
+
 PHASE 15: TERMINOLOGIE BELGE (✓ COMPLÉTÉE — 2026-05-29)
 ================================================================================
 
@@ -316,6 +363,18 @@ PHASE 15: TERMINOLOGIE BELGE (✓ COMPLÉTÉE — 2026-05-29)
 ================================================================================
 PHASES RESTANTES À FAIRE
 ================================================================================
+
+PHASE 16.5: PAUSE REPAS — ÉVOLUTIONS FUTURES (À FAIRE SI DEMANDÉ)
+================================================================================
+
+[ ] Durée minimale/maximale de pause repas configurable par l'admin
+    — ex. : min 15 min, max 60 min / refus de fin de pause si trop courte
+[ ] Déduction automatique : X minutes déduites par jour sans bouton
+    — feature distincte, logique différente (règle vs action employé)
+    — edge case : journée sans pause → que se passe-t-il ?
+[ ] Alerte si la pause dépasse X minutes (notification ou warning UI)
+
+
 
 PHASE 16: 2FA (MULTI-FACTOR AUTHENTICATION) (À FAIRE — PRIORITÉ BASSE)
 ================================================================================
@@ -417,7 +476,9 @@ Building blocks already done:
 - MANAGER role plan-gated ✓
 - Shift-aware overtime calculation ✓
 - Belgian terminology ✓
+- Branding Pointon v0.4.0 (logo, favicon, rename) ✓
+- Auth error messages user-friendly ✓
 
-Remaining work: ~5% (CI/CD, backup DB, SPF/DKIM, smoke tests, 2FA optionnel)
+Remaining work: ~4% (CI/CD, backup DB, SPF/DKIM, smoke tests, 2FA optionnel)
 
 ================================================================================

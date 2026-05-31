@@ -22,19 +22,22 @@ export async function GET() {
     include: {
       user: { select: { id: true, name: true, email: true } },
       site: { select: { id: true, name: true } },
+      breaks: { where: { endedAt: null }, select: { id: true }, take: 1 },
     },
     orderBy: { arrivalTime: "asc" },
   })
 
+  type PersonWithBreak = (typeof records)[number] & { onBreak: boolean }
+
   // Group by site
-  const bySite = new Map<string, { site: { id: string; name: string } | null; people: typeof records }>()
+  const bySite = new Map<string, { site: { id: string; name: string } | null; people: PersonWithBreak[] }>()
 
   for (const r of records) {
     const key = r.siteId ?? "__none__"
     if (!bySite.has(key)) {
       bySite.set(key, { site: r.site, people: [] })
     }
-    bySite.get(key)!.people.push(r)
+    bySite.get(key)!.people.push({ ...r, onBreak: r.breaks.length > 0 })
   }
 
   const groups = Array.from(bySite.values()).sort((a, b) => {

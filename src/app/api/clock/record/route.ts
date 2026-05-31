@@ -203,7 +203,7 @@ export async function PATCH(req: NextRequest) {
     })
 
     const hoursPerDay = userSchedule?.hoursPerDay ?? 8
-    const { duration: computedDuration, hoursWorked, hoursStandard } = computeShiftDuration(
+    const { duration: computedDuration, hoursStandard } = computeShiftDuration(
       existingRecord.arrivalTime,
       validatedDeparture,
       userSchedule?.workSchedule?.startTime,
@@ -211,12 +211,31 @@ export async function PATCH(req: NextRequest) {
       hoursPerDay
     )
 
-    // Update the clock record with the shift-adjusted duration
+    // Auto-close any open break at departure time and sum all break minutes
+    const openBreak = await prisma.breakEntry.findFirst({
+      where: { clockRecordId: recordId, endedAt: null },
+    })
+    if (openBreak) {
+      await prisma.breakEntry.update({ where: { id: openBreak.id }, data: { endedAt: validatedDeparture } })
+    }
+
+    const allBreaks = await prisma.breakEntry.findMany({
+      where: { clockRecordId: recordId, endedAt: { not: null } },
+      select: { startedAt: true, endedAt: true },
+    })
+    const totalBreakMinutes = allBreaks.reduce((sum, b) => {
+      return sum + Math.round((b.endedAt!.getTime() - b.startedAt.getTime()) / 60000)
+    }, 0)
+
+    const finalDuration = Math.max(1, computedDuration - totalBreakMinutes)
+    const hoursWorked = finalDuration / 60
+
+    // Update the clock record with the shift-adjusted, break-subtracted duration
     const record = await prisma.clockRecord.update({
       where: { id: recordId },
       data: {
         departureTime: validatedDeparture, // raw timestamp preserved
-        duration: computedDuration,
+        duration: finalDuration,
       },
     })
 

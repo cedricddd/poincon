@@ -4,18 +4,9 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useState, useCallback } from 'react'
 import { Card } from '@/components/Card'
 
-type Person = {
-  id: string
-  arrivalTime: string
-  location: string
-  onBreak: boolean
-  user: { id: string; name: string; email: string }
-  site: { id: string; name: string } | null
-}
-
 type Group = {
   site: { id: string; name: string } | null
-  people: Person[]
+  people: { name: string; onBreak: boolean }[]
 }
 
 type Data = {
@@ -24,26 +15,25 @@ type Data = {
   asOf: string
 }
 
-function fmt(iso: string) {
-  return new Date(iso).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
-}
-
 function fmtAsOf(iso: string) {
   return new Date(iso).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
 }
 
-export default function PresencePage() {
+export default function EmployeePresencePage() {
   const [data, setData] = useState<Data | null>(null)
   const [loading, setLoading] = useState(true)
-  const [lastRefresh, setLastRefresh] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const [filterSite, setFilterSite] = useState<string>('__all__')
 
   const load = useCallback(async () => {
-    const res = await fetch('/api/admin/presence')
+    setLoading(true)
+    setError(null)
+    const res = await fetch('/api/app/presence')
     if (res.ok) {
-      const d = await res.json()
-      setData(d)
-      setLastRefresh(d.asOf)
+      setData(await res.json())
+    } else {
+      const body = await res.json().catch(() => ({}))
+      setError(body.error ?? 'Erreur de chargement')
     }
     setLoading(false)
   }, [])
@@ -54,28 +44,34 @@ export default function PresencePage() {
     return () => clearInterval(interval)
   }, [load])
 
+  if (error) {
+    return (
+      <div className="p-6 md:p-8">
+        <Card>
+          <div className="py-12 text-center">
+            <div className="text-4xl mb-3">🔒</div>
+            <p className="text-[var(--pp-ink)] font-medium">Accès non disponible</p>
+            <p className="text-[var(--pp-muted)] text-sm mt-1">{error}</p>
+          </div>
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div className="p-6 md:p-8">
       <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Présences en cours</h1>
+          <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Qui est là aujourd'hui ?</h1>
           <p className="text-[var(--pp-muted)] text-sm mt-1">
-            Personnes actuellement pointées — mise à jour toutes les 60 s
+            Présences par site — mise à jour toutes les 60 s
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          {lastRefresh && (
-            <span className="text-xs text-[var(--pp-muted)]">
-              Actualisé à {fmtAsOf(lastRefresh)}
-            </span>
-          )}
-          <button
-            onClick={load}
-            className="px-3 py-1.5 border border-[var(--pp-line)] rounded-lg text-xs font-medium text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)]/30 transition"
-          >
-            ↻ Actualiser
-          </button>
-        </div>
+        {data && (
+          <span className="text-xs text-[var(--pp-muted)]">
+            Actualisé à {fmtAsOf(data.asOf)}
+          </span>
+        )}
       </div>
 
       {loading ? (
@@ -90,7 +86,6 @@ export default function PresencePage() {
         </Card>
       ) : (
         <>
-          {/* Total badge */}
           <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)]/30">
             <span className="w-2.5 h-2.5 rounded-full bg-[var(--pp-pos)] animate-pulse" />
             <span className="text-sm font-semibold text-[var(--pp-pos)]">
@@ -131,54 +126,38 @@ export default function PresencePage() {
           )}
 
           <div className="space-y-6">
-            {data.groups.filter(g =>
-              filterSite === '__all__' || (g.site?.id ?? '__none__') === filterSite
-            ).map((group, idx) => (
-              <Card key={idx}>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-[var(--pp-info)]/10 flex items-center justify-center text-lg">
-                      🏢
-                    </div>
-                    <div>
+            {data.groups
+              .filter(g => filterSite === '__all__' || (g.site?.id ?? '__none__') === filterSite)
+              .map((group, idx) => (
+                <Card key={idx}>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-[var(--pp-info)]/10 flex items-center justify-center text-lg">
+                        🏢
+                      </div>
                       <h2 className="font-semibold text-[var(--pp-ink)]">
                         {group.site?.name ?? 'Site non renseigné'}
                       </h2>
                     </div>
+                    <span className="px-3 py-1 rounded-full bg-[var(--pp-pos)]/10 text-[var(--pp-pos)] text-sm font-bold">
+                      {group.people.length}
+                    </span>
                   </div>
-                  <span className="px-3 py-1 rounded-full bg-[var(--pp-pos)]/10 text-[var(--pp-pos)] text-sm font-bold">
-                    {group.people.length} / {group.people.length}
-                  </span>
-                </div>
 
-                <div className="divide-y divide-[var(--pp-line)]">
-                  {group.people.map(p => (
-                    <div key={p.id} className="flex items-center justify-between py-3">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${p.onBreak ? 'bg-amber-100 text-amber-600' : 'bg-[var(--pp-info)]/10 text-[var(--pp-info)]'}`}>
-                          {(p.user.name || p.user.email)[0].toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-[var(--pp-ink)]">{p.user.name || p.user.email}</p>
-                          <div className="flex items-center gap-2">
-                            <p className="text-xs text-[var(--pp-muted)]">{p.location}</p>
-                            {p.onBreak && (
-                              <span className="text-xs px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-600 font-medium">
-                                En pause
-                              </span>
-                            )}
-                          </div>
-                        </div>
+                  <div className="flex flex-wrap gap-2">
+                    {group.people.map((p, pi) => (
+                      <div
+                        key={pi}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${p.onBreak ? 'bg-amber-50 border-amber-200' : 'bg-[var(--pp-bg2)] border-[var(--pp-line)]'}`}
+                      >
+                        <span className={`w-2 h-2 rounded-full shrink-0 ${p.onBreak ? 'bg-amber-400' : 'bg-[var(--pp-pos)]'}`} />
+                        <span className="text-sm font-medium text-[var(--pp-ink)]">{p.name}</span>
+                        {p.onBreak && <span className="text-xs text-amber-500">En pause</span>}
                       </div>
-                      <div className="text-right">
-                        <p className="text-xs text-[var(--pp-muted)]">Arrivée</p>
-                        <p className={`text-sm font-semibold ${p.onBreak ? 'text-amber-500' : 'text-[var(--pp-pos)]'}`}>{fmt(p.arrivalTime)}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            ))}
+                    ))}
+                  </div>
+                </Card>
+              ))}
           </div>
         </>
       )}

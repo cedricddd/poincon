@@ -58,6 +58,14 @@ export default function ClockPage() {
   const [sites, setSites] = useState<Site[]>([])
   const [selectedSiteId, setSelectedSiteId] = useState<string>('')
 
+  // Meal break state
+  const [mealBreakEnabled, setMealBreakEnabled] = useState(false)
+  const [isOnBreak, setIsOnBreak] = useState(false)
+  const [activeBreakId, setActiveBreakId] = useState<string | null>(null)
+  const [breakStartedAt, setBreakStartedAt] = useState<Date | null>(null)
+  const [totalBreakSeconds, setTotalBreakSeconds] = useState(0)
+  const [breakLoading, setBreakLoading] = useState(false)
+
   // Load pending actions
   useEffect(() => {
     const loadPending = async () => {
@@ -130,6 +138,23 @@ export default function ClockPage() {
     load()
   }, [])
 
+  // Load meal break status
+  useEffect(() => {
+    fetch('/api/app/break')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data) return
+        setMealBreakEnabled(data.enabled)
+        setTotalBreakSeconds((data.totalBreakMinutes ?? 0) * 60)
+        if (data.activeBreak) {
+          setIsOnBreak(true)
+          setActiveBreakId(data.activeBreak.id)
+          setBreakStartedAt(new Date(data.activeBreak.startedAt))
+        }
+      })
+      .catch(() => {})
+  }, [])
+
   // Load weekly records from DB
   useEffect(() => {
     fetch('/api/clock/weekly')
@@ -145,14 +170,19 @@ export default function ClockPage() {
     return () => clearInterval(t)
   }, [])
 
-  // Elapsed timer
+  // Elapsed timer — pauses during break
   useEffect(() => {
     if (!isClockedIn || !clockedInAt) { setElapsed(''); return }
     const update = () => {
-      const diff = Math.floor((Date.now() - clockedInAt.getTime()) / 1000)
-      const h = Math.floor(diff / 3600)
-      const m = Math.floor((diff % 3600) / 60)
-      const s = diff % 60
+      const now = Date.now()
+      let effectiveSeconds = Math.floor((now - clockedInAt.getTime()) / 1000) - totalBreakSeconds
+      if (isOnBreak && breakStartedAt) {
+        effectiveSeconds -= Math.floor((now - breakStartedAt.getTime()) / 1000)
+      }
+      effectiveSeconds = Math.max(0, effectiveSeconds)
+      const h = Math.floor(effectiveSeconds / 3600)
+      const m = Math.floor((effectiveSeconds % 3600) / 60)
+      const s = effectiveSeconds % 60
       setElapsed(
         `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
       )
@@ -160,7 +190,7 @@ export default function ClockPage() {
     update()
     const t = setInterval(update, 1000)
     return () => clearInterval(t)
-  }, [isClockedIn, clockedInAt])
+  }, [isClockedIn, clockedInAt, isOnBreak, breakStartedAt, totalBreakSeconds])
 
   const formatTime = (date: Date | null) => {
     if (!date) return '--:--:--'
@@ -195,7 +225,6 @@ export default function ClockPage() {
           ...(selectedSiteId && { siteId: selectedSiteId }),
         }
 
-        // Try sync immediately (timeout 5s), fallback to pending
         try {
           const res = await Promise.race([
             fetch('/api/clock/record', {
@@ -215,21 +244,21 @@ export default function ClockPage() {
             setDepartureTime(null)
             setIsClockedIn(true)
             setClockedInAt(currentTime)
+            setTotalBreakSeconds(0)
             showToast(`Arrivée enregistrée à ${timeStr} ✓`, 'success')
             setSessions(prev => [...prev, record])
             return
           }
         } catch (err) {
-          // Sync failed, save locally
           console.warn('Sync failed, saving locally:', err)
         }
 
-        // Fallback: save locally + retry en background
         await savePendingAction('punch_in', payload)
         setArrivalTime(timeStr)
         setDepartureTime(null)
         setIsClockedIn(true)
         setClockedInAt(currentTime)
+        setTotalBreakSeconds(0)
         showToast(`Arrivée enregistrée à ${timeStr} (⏳ en attente de sync)`, 'info')
       } else {
         if (!currentRecordId || !arrivalTime) return
@@ -245,7 +274,6 @@ export default function ClockPage() {
           duration: duration / 60,
         }
 
-        // Try sync immediately (timeout 5s)
         try {
           const res = await Promise.race([
             fetch('/api/clock/record', {
@@ -264,6 +292,9 @@ export default function ClockPage() {
             setIsClockedIn(false)
             setClockedInAt(null)
             setElapsed('')
+            setIsOnBreak(false)
+            setActiveBreakId(null)
+            setBreakStartedAt(null)
             setDailyHours(prev => prev + duration / 60)
             showToast(`Départ enregistré à ${timeStr} ✓`, 'success')
             setCurrentRecordId(null)
@@ -271,16 +302,17 @@ export default function ClockPage() {
             return
           }
         } catch (err) {
-          // Sync failed, save locally
           console.warn('Sync failed, saving locally:', err)
         }
 
-        // Fallback: save locally + retry en background
         await savePendingAction('punch_out', payload)
         setDepartureTime(timeStr)
         setIsClockedIn(false)
         setClockedInAt(null)
         setElapsed('')
+        setIsOnBreak(false)
+        setActiveBreakId(null)
+        setBreakStartedAt(null)
         setDailyHours(prev => prev + duration / 60)
         showToast(`Départ enregistré à ${timeStr} (⏳ en attente de sync)`, 'info')
         setCurrentRecordId(null)
@@ -289,6 +321,50 @@ export default function ClockPage() {
       showToast('Erreur de connexion', 'error')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleBreakToggle = async () => {
+    if (!currentRecordId || breakLoading) return
+    setBreakLoading(true)
+    try {
+      if (!isOnBreak) {
+        const res = await fetch('/api/app/break', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ clockRecordId: currentRecordId }),
+        })
+        if (res.ok) {
+          const data = await res.json()
+          setIsOnBreak(true)
+          setActiveBreakId(data.id)
+          setBreakStartedAt(new Date(data.startedAt))
+          showToast('Pause repas démarrée', 'info')
+        } else {
+          showToast('Erreur lors du démarrage de la pause', 'error')
+        }
+      } else {
+        if (!activeBreakId) return
+        const res = await fetch('/api/app/break', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ breakId: activeBreakId }),
+        })
+        if (res.ok) {
+          const data = await res.json()
+          setIsOnBreak(false)
+          setActiveBreakId(null)
+          setBreakStartedAt(null)
+          setTotalBreakSeconds(prev => prev + (data.durationMinutes ?? 0) * 60)
+          showToast('Pause terminée, compteur repris', 'success')
+        } else {
+          showToast('Erreur lors de la fin de pause', 'error')
+        }
+      }
+    } catch {
+      showToast('Erreur de connexion', 'error')
+    } finally {
+      setBreakLoading(false)
     }
   }
 
@@ -319,7 +395,16 @@ export default function ClockPage() {
             </div>
 
             {/* Elapsed / status */}
-            {isClockedIn && elapsed ? (
+            {isClockedIn && isOnBreak ? (
+              <div className="text-center p-4 rounded-2xl bg-amber-50 border border-amber-200">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <span className="w-2 h-2 rounded-full bg-amber-400" />
+                  <p className="text-xs font-semibold text-amber-600 uppercase tracking-widest">Pause repas</p>
+                </div>
+                <p className="text-3xl font-mono font-bold text-amber-600 tabular-nums">{elapsed}</p>
+                <p className="text-xs text-amber-500 mt-1">compteur en pause</p>
+              </div>
+            ) : isClockedIn && elapsed ? (
               <div className="text-center p-4 rounded-2xl bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)]/20">
                 <div className="flex items-center justify-center gap-2 mb-1">
                   <span className="w-2 h-2 rounded-full bg-[var(--pp-pos)] animate-pulse" />
@@ -373,16 +458,16 @@ export default function ClockPage() {
               </div>
             </div>
 
-            {/* Main button */}
-            <div className={isClockedIn ? 'pp-clock-active rounded-2xl' : ''}>
+            {/* Main clock button */}
+            <div className={isClockedIn && !isOnBreak ? 'pp-clock-active rounded-2xl' : ''}>
               <Button
                 onClick={handleClockToggle}
-                disabled={loading}
+                disabled={loading || isOnBreak}
                 className="w-full h-24 md:h-32 text-2xl md:text-3xl font-bold tracking-wide rounded-2xl touch-manipulation"
                 variant="primary"
                 style={{
                   backgroundColor: isClockedIn ? 'var(--pp-neg)' : 'var(--pp-pos)',
-                  opacity: loading ? 0.7 : 1,
+                  opacity: (loading || isOnBreak) ? 0.5 : 1,
                   letterSpacing: '0.1em',
                   fontSize: 'clamp(1.25rem, 5vw, 1.875rem)',
                 }}
@@ -390,6 +475,21 @@ export default function ClockPage() {
                 {loading ? '…' : isClockedIn ? 'DÉPART ✕' : 'ARRIVÉE ✓'}
               </Button>
             </div>
+
+            {/* Meal break button */}
+            {isClockedIn && mealBreakEnabled && (
+              <button
+                onClick={handleBreakToggle}
+                disabled={breakLoading}
+                className={`w-full py-3 rounded-xl text-sm font-semibold border transition touch-manipulation ${
+                  isOnBreak
+                    ? 'bg-amber-50 border-amber-300 text-amber-700 hover:bg-amber-100'
+                    : 'bg-[var(--pp-bg2)] border-[var(--pp-line)] text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)]/50'
+                } disabled:opacity-50`}
+              >
+                {breakLoading ? '…' : isOnBreak ? '▶ Terminer la pause' : '⏸ Pause repas'}
+              </button>
+            )}
           </div>
 
           {/* RIGHT — Summary (second on mobile) */}
@@ -426,7 +526,7 @@ export default function ClockPage() {
                     const dep = session.departureTime
                       ? new Date(session.departureTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
                       : null
-                    const dur = session.duration ?? 0
+                    const durH = (session.duration ?? 0) / 60
                     return (
                       <div key={session.id} className="flex justify-between items-center pb-3 border-b border-[var(--pp-line)] last:border-b-0 last:pb-0">
                         <div>
@@ -437,7 +537,7 @@ export default function ClockPage() {
                         </div>
                         {dep && (
                           <span className="text-xs font-semibold px-2 py-1 rounded-full bg-[var(--pp-pos)]/10 text-[var(--pp-pos)]">
-                            {Math.floor(dur)}h{String(Math.round((dur % 1) * 60)).padStart(2, '0')}
+                            {Math.floor(durH)}h{String(Math.round((durH % 1) * 60)).padStart(2, '0')}
                           </span>
                         )}
                       </div>
