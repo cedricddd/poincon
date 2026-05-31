@@ -33,7 +33,10 @@ export const authConfig: NextAuthConfig = {
           }
         } catch (error) {
           console.error('Auth error:', error)
-          return null
+          // Throw so NextAuth surfaces a non-CredentialsSignin error code,
+          // letting the login page show "service unavailable" instead of
+          // "wrong password" when the DB is still warming up after a deploy.
+          throw new Error('ServiceUnavailable')
         }
       },
     }),
