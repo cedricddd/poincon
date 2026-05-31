@@ -157,6 +157,14 @@ export default function AuditPage() {
     }
   }
 
+  const fmtTimeVal = (val: string | null | undefined): string => {
+    if (!val) return '—'
+    // Convert old ISO strings stored before the timezone fix
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(val))
+      return new Date(val).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Brussels' })
+    return val
+  }
+
   const summarizeChangesForPdf = (raw: string): string => {
     if (!raw) return '—'
     try {
@@ -166,7 +174,7 @@ export default function AuditPage() {
       const reasonLabels: Record<string, string> = {
         forgot_clockin: 'Oublié pointer (arrivée)',
         forgot_clockout: 'Oublié dépointer (départ)',
-        correction: 'Correction d\'erreur',
+        correction: "Correction d'erreur",
         other: 'Autre',
         manual_create: 'Création manuelle',
       }
@@ -174,30 +182,33 @@ export default function AuditPage() {
       if (c.note) parts.push(`Note: ${c.note}`)
 
       if (c.before && c.after) {
+        const arrBefore = fmtTimeVal(c.before.arrivalTime)
+        const arrAfter  = fmtTimeVal(c.after.arrivalTime)
+        const depBefore = fmtTimeVal(c.before.departureTime)
+        const depAfter  = fmtTimeVal(c.after.departureTime)
         if (c.before.arrivalTime || c.after.arrivalTime)
-          parts.push(`Arrivée: ${c.before.arrivalTime ?? '—'} → ${c.after.arrivalTime ?? '—'}`)
+          parts.push(`Arrivee: ${arrBefore} -> ${arrAfter}`)
         if (c.before.departureTime || c.after.departureTime)
-          parts.push(`Départ: ${c.before.departureTime ?? '—'} → ${c.after.departureTime ?? '—'}`)
+          parts.push(`Depart: ${depBefore} -> ${depAfter}`)
         if (c.before.location !== c.after.location)
-          parts.push(`Lieu: ${c.before.location} → ${c.after.location}`)
+          parts.push(`Lieu: ${c.before.location} -> ${c.after.location}`)
       } else {
-        if (c.arrivalTime) parts.push(`Arrivée: ${c.arrivalTime}`)
-        if (c.departureTime) parts.push(`Départ: ${c.departureTime}`)
-        if (c.location) parts.push(`Lieu: ${c.location}`)
+        if (c.arrivalTime)   parts.push(`Arrivee: ${fmtTimeVal(c.arrivalTime)}`)
+        if (c.departureTime) parts.push(`Depart: ${fmtTimeVal(c.departureTime)}`)
+        if (c.location)      parts.push(`Lieu: ${c.location}`)
       }
 
       // settings_change
       if (c.before && c.after && 'mealBreakEnabled' in (c.before ?? {})) {
-        const keys = Object.keys(c.after) as string[]
-        keys.forEach(k => {
-          if (c.before[k] !== c.after[k])
-            parts.push(`${k}: ${c.before[k]} → ${c.after[k]}`)
+        Object.keys(c.after as Record<string, unknown>).forEach(k => {
+          if ((c.before as Record<string, unknown>)[k] !== (c.after as Record<string, unknown>)[k])
+            parts.push(`${k}: ${(c.before as Record<string, unknown>)[k]} -> ${(c.after as Record<string, unknown>)[k]}`)
         })
       }
 
-      return parts.length > 0 ? parts.join(' · ') : raw.slice(0, 80)
+      return parts.length > 0 ? parts.join('\n') : raw.slice(0, 100)
     } catch {
-      return raw.slice(0, 80)
+      return raw.slice(0, 100)
     }
   }
 
@@ -239,14 +250,22 @@ export default function AuditPage() {
       doc.text(`Généré le ${new Date().toLocaleString('fr-BE')}`, 14, 22)
 
       // r[0]=date r[1]=user r[2]=email r[3]=action r[4]=resource r[5]=resourceId r[6]=statut r[7]=ip r[8]=changes
+      // Email omitted from PDF to free space; full data available in CSV export
       autoTable(doc, {
         startY: 28,
-        head: [['Date/Heure', 'Utilisateur', 'Email', 'Action', 'Ressource', 'Statut', 'Changements']],
-        body: rows.map(r => [r[0], r[1], r[2], r[3], r[4], r[6], summarizeChangesForPdf(r[8])]),
-        styles: { fontSize: 7, cellPadding: 2 },
+        head: [['Date/Heure', 'Utilisateur', 'Action', 'Ressource', 'Statut', 'Changements']],
+        body: rows.map(r => [r[0], r[1], r[3], r[4], r[6], summarizeChangesForPdf(r[8])]),
+        styles: { fontSize: 7.5, cellPadding: 3 },
         headStyles: { fillColor: [30, 64, 175] },
         alternateRowStyles: { fillColor: [245, 247, 250] },
-        columnStyles: { 6: { cellWidth: 70 } },
+        columnStyles: {
+          0: { cellWidth: 38 },
+          1: { cellWidth: 28 },
+          2: { cellWidth: 38 },
+          3: { cellWidth: 28 },
+          4: { cellWidth: 18 },
+          5: { cellWidth: 'auto' },
+        },
       })
 
       doc.save(`audit-trail-${new Date().toISOString().slice(0, 10)}.pdf`)
