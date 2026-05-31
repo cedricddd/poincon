@@ -32,8 +32,8 @@ export async function PATCH(req: NextRequest) {
   })
   if (!existing) return NextResponse.json({ error: 'Pointage introuvable' }, { status: 404 })
 
-  const arrival = buildDateTime(date, arrivalTime)
-  const departure = departureTime ? buildDateTime(date, departureTime) : null
+  const arrival = new Date(arrivalTime)
+  const departure = departureTime ? new Date(departureTime) : null
 
   let newDuration: number | null = null
   if (departure) {
@@ -100,8 +100,8 @@ export async function POST(req: NextRequest) {
   })
   if (!user) return NextResponse.json({ error: 'Utilisateur introuvable' }, { status: 404 })
 
-  const arrival = buildDateTime(date, arrivalTime)
-  const departure = departureTime ? buildDateTime(date, departureTime) : null
+  const arrival = new Date(arrivalTime)
+  const departure = departureTime ? new Date(departureTime) : null
   const duration = departure
     ? Math.round((departure.getTime() - arrival.getTime()) / 60000)
     : null
@@ -166,7 +166,3 @@ export async function DELETE(req: NextRequest) {
   return NextResponse.json({ ok: true })
 }
 
-function buildDateTime(dateStr: string, timeStr: string): Date {
-  const t = timeStr.length === 5 ? `${timeStr}:00` : timeStr
-  return new Date(`${dateStr}T${t}`)
-}

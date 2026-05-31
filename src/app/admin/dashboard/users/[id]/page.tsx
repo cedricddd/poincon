@@ -122,14 +122,20 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
 
   const confirmSave = async () => {
     setSaving(true)
+    // Build ISO strings client-side so the browser's local timezone is used,
+    // preventing the UTC+2 shift when the API runs in a UTC Docker container.
+    const arrivalISO = new Date(`${editData.date}T${editData.arrival}:00`).toISOString()
+    const departureISO = editData.departure
+      ? new Date(`${editData.date}T${editData.departure}:00`).toISOString()
+      : null
     const res = await fetch('/api/admin/clock-records', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         id: editId,
         date: editData.date,
-        arrivalTime: editData.arrival,
-        departureTime: editData.departure || null,
+        arrivalTime: arrivalISO,
+        departureTime: departureISO,
         location: editData.location,
         reason,
         note: reason === 'other' ? reasonNote : undefined,
@@ -152,14 +158,18 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
   const add = async () => {
     if (!addData.date || !addData.arrival) { setErr('Date et heure d\'arrivée requises'); return }
     setSaving(true); setErr('')
+    const arrivalISO = new Date(`${addData.date}T${addData.arrival}:00`).toISOString()
+    const departureISO = addData.departure
+      ? new Date(`${addData.date}T${addData.departure}:00`).toISOString()
+      : null
     const res = await fetch('/api/admin/clock-records', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         userId,
         date: addData.date,
-        arrivalTime: addData.arrival,
-        departureTime: addData.departure || null,
+        arrivalTime: arrivalISO,
+        departureTime: departureISO,
         location: addData.location,
       }),
     })
