@@ -64,16 +64,16 @@ export async function PATCH(req: NextRequest) {
       reason: reason ?? 'other',
       note: note ?? null,
       before: {
-        date: existing.date,
-        arrivalTime: existing.arrivalTime,
-        departureTime: existing.departureTime,
+        date: fmtDateBrussels(existing.date),
+        arrivalTime: fmtBrussels(existing.arrivalTime),
+        departureTime: fmtBrussels(existing.departureTime),
         location: existing.location,
         duration: existing.duration,
       },
       after: {
-        date: updated.date,
-        arrivalTime: updated.arrivalTime,
-        departureTime: updated.departureTime,
+        date: fmtDateBrussels(updated.date),
+        arrivalTime: fmtBrussels(updated.arrivalTime),
+        departureTime: fmtBrussels(updated.departureTime),
         location: updated.location,
         duration: updated.duration,
       },
@@ -82,6 +82,15 @@ export async function PATCH(req: NextRequest) {
   })
 
   return NextResponse.json({ ok: true })
+}
+
+function fmtBrussels(d: Date | null | undefined): string | null {
+  if (!d) return null
+  return d.toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Brussels' })
+}
+
+function fmtDateBrussels(d: Date): string {
+  return d.toLocaleDateString('fr-BE', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Europe/Brussels' })
 }
 
 export async function POST(req: NextRequest) {
@@ -124,9 +133,9 @@ export async function POST(req: NextRequest) {
     resourceId: record.id,
     changes: {
       reason: 'manual_create',
-      date,
-      arrivalTime,
-      departureTime: departureTime ?? null,
+      date: fmtDateBrussels(arrival),
+      arrivalTime: fmtBrussels(arrival),
+      departureTime: fmtBrussels(departure),
       location: location ?? 'Sur site',
     },
     ipAddress: req.headers.get('x-forwarded-for') ?? undefined,
@@ -155,9 +164,9 @@ export async function DELETE(req: NextRequest) {
     resource: 'clockRecord',
     resourceId: id,
     changes: {
-      date: existing.date,
-      arrivalTime: existing.arrivalTime,
-      departureTime: existing.departureTime,
+      date: fmtDateBrussels(existing.date),
+      arrivalTime: fmtBrussels(existing.arrivalTime),
+      departureTime: fmtBrussels(existing.departureTime),
       location: existing.location,
     },
     ipAddress: req.headers.get('x-forwarded-for') ?? undefined,
