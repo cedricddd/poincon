@@ -28,10 +28,10 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: production
-      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set in .env}
+      DATABASE_URL: ${DATABASE_URL:-}
       NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
-      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:?NEXTAUTH_SECRET must be set}
-      CRON_SECRET: ${CRON_SECRET:?CRON_SECRET must be set}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-}
+      CRON_SECRET: ${CRON_SECRET:-}
       BREVO_SMTP_USER: ${BREVO_SMTP_USER:-}
       BREVO_SMTP_KEY: ${BREVO_SMTP_KEY:-}
       BREVO_FROM_EMAIL: ${BREVO_FROM_EMAIL:-noreply@example.com}
@@ -56,7 +56,7 @@ services:
     depends_on:
       - app
     environment:
-      CRON_SECRET: ${CRON_SECRET:?CRON_SECRET must be set}
+      CRON_SECRET: ${CRON_SECRET:-}
     command: >
       sh -c "mkdir -p /etc/crontabs && printf '0 15 * * 1-5 wget -q -O /dev/null --header=\"x-cron-secret: $${CRON_SECRET}\" http://app:3000/api/cron/end-of-day-reminder\n0 5 * * 1 wget -q -O /dev/null --header=\"x-cron-secret: $${CRON_SECRET}\" http://app:3000/api/cron/scheduled-export\n0 5 1 * * wget -q -O /dev/null --header=\"x-cron-secret: $${CRON_SECRET}\" http://app:3000/api/cron/scheduled-export\n' > /etc/crontabs/root
       && crond -f -d 8 -c /etc/crontabs"
