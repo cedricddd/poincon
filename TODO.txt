@@ -427,7 +427,14 @@ PAGES/SECTIONS OPTIONNELLES (NICE TO HAVE)
 ✓ Widget "Prochains congés" (team view) — Phase 8 enhancement — DONE (2026-05-29)
 [ ] Admin dashboard : compléter avec plus de données/stats (nice to have)
 ✓ Page UI /admin/dashboard/invitations - gestion complète — DONE (2026-05-29)
-[ ] Domaine email @ced-it.be SPF/DKIM configuration
+[ ] Email dédié Pointon + configuration mail — À FAIRE AVANT PROD
+    ├─ Décision : choisir domaine définitif (pointon.be ? pointon.ced-it.be ? autre ?)
+    ├─ Créer adresse dédiée (noreply@<domaine> ou support@<domaine>)
+    ├─ Vérifier domaine dans Brevo (SPF + DKIM + DMARC dans registrar)
+    ├─ Mettre à jour BREVO_FROM_EMAIL dans .env prod
+    ├─ Mettre à jour templates email (expéditeur affiché)
+    └─ Tester délivrabilité (anti-spam score)
+    NOTE: dépend du nom définitif de l'app — "Pointon" est-il final ?
 ✓ Dashboard plan-aware UX (feature gating on frontend) — DONE (2026-05-29)
 ✓ Shift-aware overtime + weekly stats from DB — DONE (2026-05-29)
 ✓ Terminologie belge (Récupération au lieu de RTT) — DONE (2026-05-29)
