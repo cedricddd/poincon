@@ -18,6 +18,22 @@ docker-compose -f docker-compose.dev.yml run --rm -e DATABASE_URL=postgresql://p
 docker-compose -f docker-compose.dev.yml up -d app
 ```
 
+## ⚠️ Deploy + Schema : db push OBLIGATOIRE en prod
+
+Si `prisma/schema.prisma` a changé dans le commit déployé, exécuter **immédiatement après le deploy** :
+
+```bash
+ssh -i ~/.ssh/github_ed25519 root@192.168.1.124 'cd /opt/poincon && DB_URL=$(grep ^DATABASE_URL .env | cut -d= -f2- | tr -d "\"") && docker run --rm \
+  --network poincon_pointon-network \
+  -v /opt/poincon:/app -w /app -e DATABASE_URL="$DB_URL" \
+  node:20-alpine \
+  sh -c "apk add --no-cache openssl libssl3 >/dev/null 2>&1 && npx prisma db push --schema=./prisma/schema.prisma" \
+  && docker restart pointon-app'
+```
+
+> **Sans ça** : tables manquantes → erreurs P2021 silencieuses → UI vide sans message d'erreur.
+> Vérifier si nécessaire : `git diff HEAD~1 prisma/schema.prisma`
+
 ## Key Facts
 - **DB port**: 5433 externe · interne Docker: `db:5432`
 - **Migrations**: `db push` only — JAMAIS `migrate dev` (shadow DB incompatible)

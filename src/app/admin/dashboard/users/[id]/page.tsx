@@ -81,6 +81,13 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
   )
 }
 
+const EDIT_REASONS = [
+  { value: 'forgot_clockin', label: 'Oublié de pointer (arrivée)' },
+  { value: 'forgot_clockout', label: 'Oublié de dépointer (départ)' },
+  { value: 'correction', label: 'Correction d\'erreur' },
+  { value: 'other', label: 'Autre' },
+]
+
 // ── Clock Records Tab ─────────────────────────────────────────────────────────
 function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; userId: string; onRefresh: () => void }) {
   const [editId, setEditId] = useState<string | null>(null)
@@ -89,6 +96,9 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
   const [addData, setAddData] = useState({ date: '', arrival: '', departure: '', location: 'Sur site' })
   const [saving, setSaving] = useState(false)
   const [err, setErr] = useState('')
+  const [reasonStep, setReasonStep] = useState(false)
+  const [reason, setReason] = useState('forgot_clockin')
+  const [reasonNote, setReasonNote] = useState('')
 
   const startEdit = (r: ClockRecord) => {
     setEditId(r.id)
@@ -99,11 +109,19 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
       location: r.location,
     })
     setErr('')
+    setReasonStep(false)
+    setReason('forgot_clockin')
+    setReasonNote('')
   }
 
-  const saveEdit = async () => {
+  const saveEdit = () => {
     if (!editData.date || !editData.arrival) { setErr('Date et heure d\'arrivée requises'); return }
-    setSaving(true); setErr('')
+    setErr('')
+    setReasonStep(true)
+  }
+
+  const confirmSave = async () => {
+    setSaving(true)
     const res = await fetch('/api/admin/clock-records', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -113,9 +131,12 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
         arrivalTime: editData.arrival,
         departureTime: editData.departure || null,
         location: editData.location,
+        reason,
+        note: reason === 'other' ? reasonNote : undefined,
       }),
     })
     setSaving(false)
+    setReasonStep(false)
     if (!res.ok) { setErr((await res.json()).error); return }
     setEditId(null)
     onRefresh()
@@ -151,6 +172,32 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
 
   return (
     <Card>
+      {/* Reason modal overlay */}
+      {reasonStep && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setReasonStep(false)}>
+          <div className="bg-[var(--pp-bg)] rounded-xl border border-[var(--pp-line)] shadow-2xl p-6 w-80" onClick={e => e.stopPropagation()}>
+            <p className="text-sm font-semibold text-[var(--pp-ink)] mb-1">Motif de la modification</p>
+            <p className="text-xs text-[var(--pp-muted)] mb-4">Requis pour l'audit trail légal.</p>
+            <select value={reason} onChange={e => setReason(e.target.value)} className={`${inp} w-full mb-3`}>
+              {EDIT_REASONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+            </select>
+            {reason === 'other' && (
+              <input
+                value={reasonNote}
+                onChange={e => setReasonNote(e.target.value)}
+                placeholder="Précisez la raison…"
+                className={`${inp} w-full mb-3`}
+                autoFocus
+              />
+            )}
+            <div className="flex gap-2 mt-1">
+              <Button size="sm" onClick={confirmSave} disabled={saving}>{saving ? '…' : 'Confirmer'}</Button>
+              <Button size="sm" variant="outline" onClick={() => setReasonStep(false)}>Annuler</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-sm font-semibold text-[var(--pp-ink)]">{records.length} pointage{records.length !== 1 ? 's' : ''}</h2>
         <Button size="sm" onClick={() => { setShowAdd(true); setErr('') }}>+ Ajouter</Button>

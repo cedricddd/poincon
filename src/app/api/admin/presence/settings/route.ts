@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireAdminWithCompany } from '@/lib/admin-security'
 import { getPresenceAccess } from '@/lib/plan'
 import { prisma } from '@/lib/prisma'
+import { logAudit } from '@/lib/audit'
 
 export async function GET() {
   const auth = await requireAdminWithCompany()
@@ -26,10 +27,25 @@ export async function PATCH(req: NextRequest) {
 
   if (Object.keys(data).length === 0) return NextResponse.json({ error: 'Aucun champ à mettre à jour' }, { status: 400 })
 
+  const before = await prisma.company.findUnique({
+    where: { id: auth.admin.companyId },
+    select: { presenceForManagers: true, presenceForEmployees: true, mealBreakEnabled: true },
+  })
+
   const company = await prisma.company.update({
     where: { id: auth.admin.companyId },
     data,
     select: { presenceForManagers: true, presenceForEmployees: true, mealBreakEnabled: true },
   })
+
+  await logAudit({
+    userId: auth.admin.id,
+    action: 'settings_change',
+    resource: 'company',
+    resourceId: auth.admin.companyId,
+    changes: { before, after: company },
+    ipAddress: req.headers.get('x-forwarded-for') ?? undefined,
+  })
+
   return NextResponse.json(company)
 }
