@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
       log.resourceId ?? '',
       log.status,
       log.ipAddress ?? '',
-      log.changes ? log.changes.replace(/"/g, '""') : '',
+      log.changes ?? '',
     ]),
   ]
 
