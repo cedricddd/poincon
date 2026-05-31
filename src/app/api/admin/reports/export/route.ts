@@ -4,6 +4,7 @@ import { isAdminRole } from '@/lib/roles'
 import { getUserPlan, planCanAccess } from '@/lib/plan'
 import { NextRequest, NextResponse } from 'next/server'
 
+
 async function requireAdmin() {
   const session = await auth()
   if (!session?.user?.id) return null
@@ -30,9 +31,7 @@ export async function GET(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const plan = await getUserPlan(session.user.id)
-  if (!planCanAccess(plan, 'unlimited_csv_export')) {
-    return NextResponse.json({ error: 'Plan insuffisant' }, { status: 403 })
-  }
+  const canFilter = planCanAccess(plan, 'advanced_reports')
 
   const adminUser = await prisma.user.findUnique({
     where: { id: session.user.id },
@@ -41,10 +40,10 @@ export async function GET(req: NextRequest) {
   if (!adminUser?.companyId) return NextResponse.json({ error: 'No company' }, { status: 403 })
 
   const { searchParams } = new URL(req.url)
-  const userId = searchParams.get('userId') || undefined
-  const siteId = searchParams.get('siteId') || undefined
-  const from = searchParams.get('from')
-  const to = searchParams.get('to')
+  const userId = canFilter ? (searchParams.get('userId') || undefined) : undefined
+  const siteId = canFilter ? (searchParams.get('siteId') || undefined) : undefined
+  const from = canFilter ? searchParams.get('from') : null
+  const to = canFilter ? searchParams.get('to') : null
 
   const where = {
     user: { companyId: adminUser.companyId },
