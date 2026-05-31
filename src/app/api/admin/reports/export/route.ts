@@ -15,7 +15,7 @@ async function requireAdmin() {
 function fmt(minutes: number) {
   const h = Math.floor(minutes / 60)
   const m = minutes % 60
-  return m > 0 ? `${h}h${String(m).padStart(2, '0')}` : `${h}h`
+  return `${h}:${String(m).padStart(2, '0')}`
 }
 
 function fmtDate(iso: Date) {
