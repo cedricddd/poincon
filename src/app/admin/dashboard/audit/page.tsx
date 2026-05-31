@@ -157,6 +157,50 @@ export default function AuditPage() {
     }
   }
 
+  const summarizeChangesForPdf = (raw: string): string => {
+    if (!raw) return '—'
+    try {
+      const c = JSON.parse(raw)
+      const parts: string[] = []
+
+      const reasonLabels: Record<string, string> = {
+        forgot_clockin: 'Oublié pointer (arrivée)',
+        forgot_clockout: 'Oublié dépointer (départ)',
+        correction: 'Correction d\'erreur',
+        other: 'Autre',
+        manual_create: 'Création manuelle',
+      }
+      if (c.reason) parts.push(`Motif: ${reasonLabels[c.reason] ?? c.reason}`)
+      if (c.note) parts.push(`Note: ${c.note}`)
+
+      if (c.before && c.after) {
+        if (c.before.arrivalTime || c.after.arrivalTime)
+          parts.push(`Arrivée: ${c.before.arrivalTime ?? '—'} → ${c.after.arrivalTime ?? '—'}`)
+        if (c.before.departureTime || c.after.departureTime)
+          parts.push(`Départ: ${c.before.departureTime ?? '—'} → ${c.after.departureTime ?? '—'}`)
+        if (c.before.location !== c.after.location)
+          parts.push(`Lieu: ${c.before.location} → ${c.after.location}`)
+      } else {
+        if (c.arrivalTime) parts.push(`Arrivée: ${c.arrivalTime}`)
+        if (c.departureTime) parts.push(`Départ: ${c.departureTime}`)
+        if (c.location) parts.push(`Lieu: ${c.location}`)
+      }
+
+      // settings_change
+      if (c.before && c.after && 'mealBreakEnabled' in (c.before ?? {})) {
+        const keys = Object.keys(c.after) as string[]
+        keys.forEach(k => {
+          if (c.before[k] !== c.after[k])
+            parts.push(`${k}: ${c.before[k]} → ${c.after[k]}`)
+        })
+      }
+
+      return parts.length > 0 ? parts.join(' · ') : raw.slice(0, 80)
+    } catch {
+      return raw.slice(0, 80)
+    }
+  }
+
   const exportPdf = async () => {
     setExportingPdf(true)
     try {
@@ -194,13 +238,15 @@ export default function AuditPage() {
       doc.setFontSize(9)
       doc.text(`Généré le ${new Date().toLocaleString('fr-BE')}`, 14, 22)
 
+      // r[0]=date r[1]=user r[2]=email r[3]=action r[4]=resource r[5]=changes r[6]=statut r[7]=ip
       autoTable(doc, {
         startY: 28,
-        head: [['Date/Heure', 'Utilisateur', 'Email', 'Action', 'Ressource', 'Statut', 'IP']],
-        body: rows.map(r => [r[0], r[1], r[2], r[3], r[4], r[6], r[7]]),
+        head: [['Date/Heure', 'Utilisateur', 'Email', 'Action', 'Ressource', 'Statut', 'Changements']],
+        body: rows.map(r => [r[0], r[1], r[2], r[3], r[4], r[6], summarizeChangesForPdf(r[5])]),
         styles: { fontSize: 7, cellPadding: 2 },
         headStyles: { fillColor: [30, 64, 175] },
         alternateRowStyles: { fillColor: [245, 247, 250] },
+        columnStyles: { 6: { cellWidth: 70 } },
       })
 
       doc.save(`audit-trail-${new Date().toISOString().slice(0, 10)}.pdf`)
