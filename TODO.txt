@@ -1,10 +1,10 @@
 ================================================================================
-                    POINTON - TODO LIST (MISE À JOUR 2026-05-29)
+                    POINTON - TODO LIST (MISE À JOUR 2026-05-31)
 ================================================================================
 
 Dernière mise à jour: 2026-05-31
-Version: 0.4.1
-État: Phases 1-15.6 complétées. v0.4.1 : pause repas (BreakEntry, toggle admin, UI employé, calcul durée). Reste: CI/CD + 2FA (low priority).
+Version: 0.4.2
+État: Phases 1-15.7 complétées. v0.4.2 : édition pointages admin + audit trail complet + fix timezone UTC+2. Reste: CI/CD + backup DB + 2FA (low priority).
 
 ================================================================================
 PHASES COMPLÉTÉES (✓)
@@ -363,6 +363,40 @@ PHASE 15: TERMINOLOGIE BELGE (✓ COMPLÉTÉE — 2026-05-29)
 ================================================================================
 PHASES RESTANTES À FAIRE
 ================================================================================
+
+PHASE 15.7: ÉDITION POINTAGES ADMIN + AUDIT TRAIL (✓ COMPLÉTÉE — 2026-05-31)
+================================================================================
+
+✓ Fix bug save impossible — DONE (2026-05-31)
+    └─ API /api/admin/clock-records : PATCH + POST + DELETE manquants → implémentés
+
+✓ Modal "motif de modification" obligatoire avant sauvegarde — DONE (2026-05-31)
+    ├─ Choix : "Oublié de pointer (arrivée)" / "Oublié de dépointer (départ)"
+    ├─              "Correction d'erreur" / "Autre" (+ champ texte libre)
+    └─ Overlay fixe centré, n'apparaît que pour PATCH (pas pour création)
+
+✓ Recalcul duration au PATCH — DONE (2026-05-31)
+    └─ (départ − arrivée) − pauses complètes existantes → rapport automatiquement correct
+
+✓ Audit trail complet sur clock records — DONE (2026-05-31)
+    ├─ admin_edit : snapshot before/after avec motif + note
+    ├─ admin_create : reason manual_create + détails
+    ├─ admin_delete : snapshot du pointage supprimé
+    └─ Heures affichées en heure belge (Europe/Brussels) dans les changes JSON
+
+✓ Fix timezone UTC+2 (été belge) — DONE (2026-05-31)
+    ├─ Cause : buildDateTime("18:00") → 18:00 UTC stocké → affiché 20:00 local
+    ├─ Fix : ISO strings construits côté client (browser connaît le fuseau)
+    └─ Serveur accepte les ISO strings directement (new Date(isoString))
+    └─ Europe/Brussels couvre automatiquement heure d'été (CEST) et d'hiver (CET)
+
+✓ Audit trail pour toggle mealBreakEnabled & paramètres présence — DONE (2026-05-31)
+    └─ PATCH /api/admin/presence/settings → logAudit settings_change avec before/after
+
+✓ Conformité légale belge vérifiée (web research) — DONE (2026-05-31)
+    ├─ Pauses NON affichées dans rapports (durée nette uniquement — correct légalement)
+    ├─ BreakEntry en DB pour contrôles ONSS (audit interne)
+    └─ Obligation enregistrement 2027 : architecture déjà conforme
 
 PHASE 16.5: PAUSE REPAS — ÉVOLUTIONS FUTURES (À FAIRE SI DEMANDÉ)
 ================================================================================
