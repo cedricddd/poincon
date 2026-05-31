@@ -238,11 +238,11 @@ export default function AuditPage() {
       doc.setFontSize(9)
       doc.text(`Généré le ${new Date().toLocaleString('fr-BE')}`, 14, 22)
 
-      // r[0]=date r[1]=user r[2]=email r[3]=action r[4]=resource r[5]=changes r[6]=statut r[7]=ip
+      // r[0]=date r[1]=user r[2]=email r[3]=action r[4]=resource r[5]=resourceId r[6]=statut r[7]=ip r[8]=changes
       autoTable(doc, {
         startY: 28,
         head: [['Date/Heure', 'Utilisateur', 'Email', 'Action', 'Ressource', 'Statut', 'Changements']],
-        body: rows.map(r => [r[0], r[1], r[2], r[3], r[4], r[6], summarizeChangesForPdf(r[5])]),
+        body: rows.map(r => [r[0], r[1], r[2], r[3], r[4], r[6], summarizeChangesForPdf(r[8])]),
         styles: { fontSize: 7, cellPadding: 2 },
         headStyles: { fillColor: [30, 64, 175] },
         alternateRowStyles: { fillColor: [245, 247, 250] },
