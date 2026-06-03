@@ -38,7 +38,7 @@ export async function GET() {
       if (!record.duration) return
       const isoDate = new Date(record.date).toISOString().split('T')[0]
       const found = result.find(r => r.isoDate === isoDate)
-      if (found) found.hours += record.duration / 60
+      if (found) found.hours = Math.round((found.hours + record.duration / 60) * 100) / 100
     })
 
     return NextResponse.json(result.map(({ isoDate: _isoDate, ...r }) => r))

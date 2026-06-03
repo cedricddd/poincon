@@ -576,7 +576,7 @@ export default function ClockPage() {
                     return (
                       <div key={idx} className="flex-1 flex flex-col items-center gap-1">
                         <span className="text-[10px] font-medium text-[var(--pp-muted)]">
-                          {record.hours > 0 ? `${record.hours}h` : ''}
+                          {record.hours > 0 ? (record.hours < 1 ? `${Math.round(record.hours * 60)}m` : `${record.hours.toFixed(1)}h`) : ''}
                         </span>
                         <div className="w-full flex items-end" style={{ height: 64 }}>
                           <div
