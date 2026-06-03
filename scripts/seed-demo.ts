@@ -157,7 +157,7 @@ async function main() {
           userId: emp.id,
           arrivalTime: arrival,
           departureTime: departure,
-          duration: Math.round(workMin * 60),
+          duration: Math.round(workMin),
           date: arrival,
         },
       })
