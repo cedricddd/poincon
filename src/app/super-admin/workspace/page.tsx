@@ -290,6 +290,27 @@ export default function WorkspacePage() {
               </button>
             </div>
           </div>
+
+          {/* Compte démo */}
+          <div className="rounded-xl border border-[var(--pp-line)] bg-[var(--pp-bg2)] px-4 py-3 text-sm">
+            <p className="font-semibold text-[var(--pp-ink)] mb-1">🎭 Compte démo</p>
+            <p className="text-xs text-[var(--pp-muted)] mb-2">Dupont &amp; Associés SPRL — Plan TEAM — 8 employés fictifs</p>
+            <div className="space-y-1 mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-[var(--pp-muted)] w-16 shrink-0">Email</span>
+                <code className="text-xs text-[var(--pp-ink)] bg-[var(--pp-bg)] px-2 py-0.5 rounded">demo@pointon.be</code>
+                <button onClick={() => navigator.clipboard.writeText('demo@pointon.be')} className="text-[10px] text-[var(--pp-muted)] hover:text-[var(--pp-ink)] border border-[var(--pp-line)] px-1.5 py-0.5 rounded">Copier</button>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-[var(--pp-muted)] w-16 shrink-0">Password</span>
+                <code className="text-xs text-[var(--pp-ink)] bg-[var(--pp-bg)] px-2 py-0.5 rounded">Demo2024!</code>
+                <button onClick={() => navigator.clipboard.writeText('Demo2024!')} className="text-[10px] text-[var(--pp-muted)] hover:text-[var(--pp-ink)] border border-[var(--pp-line)] px-1.5 py-0.5 rounded">Copier</button>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <a href="/login" target="_blank" className="text-xs text-[#6366f1] hover:underline">Ouvrir le login →</a>
+            </div>
+          </div>
         </div>
 
         {/* ── Col droite (2/3) : Agenda + Tâches ────────────────────────── */}
