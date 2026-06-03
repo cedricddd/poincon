@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Politique de confidentialité — Pointon',
+  title: 'Politique de confidentialité & RGPD',
   description: 'Comment Pointon collecte, utilise et protège vos données personnelles. Conformité RGPD.',
 }
 

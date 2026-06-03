@@ -881,11 +881,49 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 /* ─── Page ──────────────────────────────────────────────────────────────── */
 
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'La solution est-elle conforme à la loi belge 2027?',
+      acceptedAnswer: { '@type': 'Answer', text: 'Oui. Pointon respecte toutes les exigences légales belges et CJUE : enregistrement objectif, audit trail immuable, export certifié.' },
+    },
+    {
+      '@type': 'Question',
+      name: 'Comment sont stockées les données?',
+      acceptedAnswer: { '@type': 'Answer', text: 'Données hébergées en EU. Chiffrement HTTPS. RGPD compliant.' },
+    },
+    {
+      '@type': 'Question',
+      name: 'Puis-je exporter les données?',
+      acceptedAnswer: { '@type': 'Answer', text: 'Oui. Export CSV/PDF signé numériquement pour inspection légale. Disponible sur tous les plans.' },
+    },
+    {
+      '@type': 'Question',
+      name: 'Quel est le délai de mise en place?',
+      acceptedAnswer: { '@type': 'Answer', text: 'Setup en 5 minutes. Intégration : 15 min. Pointage immédiat après création de compte.' },
+    },
+    {
+      '@type': 'Question',
+      name: "Y a-t-il une période d'essai?",
+      acceptedAnswer: { '@type': 'Answer', text: 'Plan Free illimité sans engagement. Essayez gratuitement, aucune carte requise.' },
+    },
+    {
+      '@type': 'Question',
+      name: 'Que se passe-t-il si je pointe hors ligne?',
+      acceptedAnswer: { '@type': 'Answer', text: 'Votre pointage est sauvegardé localement et synchronisé automatiquement dès reconnexion. Le tableau de présence ne compte que les pointages synchronisés.' },
+    },
+  ],
+}
+
 export default function Home() {
   const [annual, setAnnual] = useState(false)
 
   return (
     <div className="min-h-screen bg-[var(--pp-bg)]">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       <Header />
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}

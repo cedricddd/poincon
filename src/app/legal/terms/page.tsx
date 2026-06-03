@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Conditions d\'utilisation — Pointon',
+  title: 'Conditions d\'utilisation',
   description: 'Conditions générales d\'utilisation du service Pointon, la pointeuse légale belge.',
 }
 

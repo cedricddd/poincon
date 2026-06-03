@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Conformité légale — Pointon',
+  title: 'Conformité légale CJUE & loi belge 2027',
   description: 'Pointon est conforme à la législation belge sur le temps de travail, à l\'arrêt CJUE 2019 et au RGPD.',
 }
 

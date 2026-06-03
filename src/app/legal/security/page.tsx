@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Sécurité — Pointon',
+  title: 'Sécurité & infrastructure',
   description: 'Les pratiques de sécurité de Pointon : chiffrement, infrastructure, contrôle d\'accès et gestion des incidents.',
 }
 
