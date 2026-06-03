@@ -6,7 +6,10 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function GET(req: NextRequest) {
   try {
     const session = await auth()
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!session?.user?.id) {
+      const callbackUrl = encodeURIComponent(req.nextUrl.pathname + req.nextUrl.search)
+      return NextResponse.redirect(new URL(`/login?callbackUrl=${callbackUrl}`, req.url))
+    }
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
