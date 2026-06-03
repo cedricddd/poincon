@@ -7,8 +7,9 @@ export async function GET(req: NextRequest) {
   try {
     const session = await auth()
     if (!session?.user?.id) {
+      const base = process.env.NEXTAUTH_URL ?? req.nextUrl.origin
       const callbackUrl = encodeURIComponent(req.nextUrl.pathname + req.nextUrl.search)
-      return NextResponse.redirect(new URL(`/login?callbackUrl=${callbackUrl}`, req.url))
+      return NextResponse.redirect(`${base}/login?callbackUrl=${callbackUrl}`)
     }
 
     const user = await prisma.user.findUnique({
