@@ -8,8 +8,9 @@ export async function GET(req: NextRequest) {
     const session = await auth()
     if (!session?.user?.id) {
       const base = process.env.NEXTAUTH_URL ?? req.nextUrl.origin
-      const callbackUrl = encodeURIComponent(req.nextUrl.pathname + req.nextUrl.search)
-      return NextResponse.redirect(`${base}/login?callbackUrl=${callbackUrl}`)
+      const plan = req.nextUrl.searchParams.get('plan') ?? 'solo'
+      const billing = req.nextUrl.searchParams.get('billing') ?? 'monthly'
+      return NextResponse.redirect(`${base}/pricing/upgrade?plan=${plan}&billing=${billing}`)
     }
 
     const user = await prisma.user.findUnique({
