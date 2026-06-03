@@ -135,6 +135,8 @@ model Company {
   stripeSubscriptionBillingCycle String? // "monthly" | "yearly" — null si pas de subscription active
   stripeCancelAtPeriodEnd Boolean @default(false)
   planExpiresAt         DateTime?
+  enterprisePaidStatus  String?           // "PAID" | "UNPAID" | "PENDING" — Enterprise uniquement
+  enterprisePlanStartedAt DateTime?       // date de début du contrat Enterprise
   logoUrl               String?
   contactEmail          String?         // email de contact pour rappels paiement
   lastActivityAt        DateTime?       // mis à jour après chaque pointage (timestamp uniquement)

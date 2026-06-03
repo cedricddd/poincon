@@ -55,6 +55,8 @@ export async function GET(req: NextRequest) {
         lastActivityAt: company.lastActivityAt,
         createdAt: company.createdAt,
         planExpiresAt: company.planExpiresAt,
+        enterprisePaidStatus: company.enterprisePaidStatus,
+        enterprisePlanStartedAt: company.enterprisePlanStartedAt,
         stripeSubscriptionId: company.stripeSubscriptionId,
       }
     })

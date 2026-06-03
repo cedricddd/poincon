@@ -23,6 +23,8 @@ interface CompanyDetail {
   maxEmployees: number
   createdAt: string
   planExpiresAt?: string
+  enterprisePaidStatus?: string
+  enterprisePlanStartedAt?: string
 }
 
 interface FeatureFlag {
@@ -41,6 +43,12 @@ export default function AccountDetail() {
   const [loading, setLoading] = useState(true)
   const [editPlan, setEditPlan] = useState('')
   const [contactEmail, setContactEmail] = useState('')
+  const [planError, setPlanError] = useState('')
+  const [planSuccess, setPlanSuccess] = useState('')
+  const [enterprisePaidStatus, setEnterprisePaidStatus] = useState('')
+  const [enterprisePlanStartedAt, setEnterprisePlanStartedAt] = useState('')
+  const [enterprisePlanExpiresAt, setEnterprisePlanExpiresAt] = useState('')
+  const [savingEnterprise, setSavingEnterprise] = useState(false)
 
   useEffect(() => {
     const loadData = async () => {
@@ -56,6 +64,9 @@ export default function AccountDetail() {
             setCompany(found)
             setEditPlan(found.plan)
             setContactEmail(found.contactEmail || '')
+            setEnterprisePaidStatus(found.enterprisePaidStatus || 'UNPAID')
+            setEnterprisePlanStartedAt(found.enterprisePlanStartedAt ? found.enterprisePlanStartedAt.split('T')[0] : '')
+            setEnterprisePlanExpiresAt(found.planExpiresAt ? found.planExpiresAt.split('T')[0] : '')
           }
         }
         if (flagsRes.ok) {
@@ -71,8 +82,25 @@ export default function AccountDetail() {
     loadData()
   }, [id])
 
+  const reloadCompany = async () => {
+    const res = await fetch(`/api/super-admin/accounts`)
+    if (res.ok) {
+      const accounts = await res.json()
+      const found = accounts.find((a: any) => a.id === id)
+      if (found) {
+        setCompany(found)
+        setEditPlan(found.plan)
+        setEnterprisePaidStatus(found.enterprisePaidStatus || 'UNPAID')
+        setEnterprisePlanStartedAt(found.enterprisePlanStartedAt ? found.enterprisePlanStartedAt.split('T')[0] : '')
+        setEnterprisePlanExpiresAt(found.planExpiresAt ? found.planExpiresAt.split('T')[0] : '')
+      }
+    }
+  }
+
   const handlePlanChange = async () => {
     if (!editPlan || editPlan === company?.plan) return
+    setPlanError('')
+    setPlanSuccess('')
 
     const res = await fetch(`/api/super-admin/accounts/${id}/plan`, {
       method: 'PATCH',
@@ -84,9 +112,12 @@ export default function AccountDetail() {
     })
 
     if (res.ok) {
-      const updated = await res.json()
-      setCompany(updated)
-      alert(`Plan changé à ${editPlan}`)
+      await reloadCompany()
+      setPlanSuccess(`Plan changé à ${editPlan}`)
+      setTimeout(() => setPlanSuccess(''), 3000)
+    } else {
+      const data = await res.json().catch(() => ({}))
+      setPlanError(data.error || `Erreur ${res.status} — vérifiez les logs serveur`)
     }
   }
 
@@ -204,6 +235,12 @@ export default function AccountDetail() {
                   Appliquer le changement
                 </button>
               )}
+              {planError && (
+                <p className="mt-1 text-xs text-[#ef4444] bg-[#ef444415] px-2 py-1 rounded">{planError}</p>
+              )}
+              {planSuccess && (
+                <p className="mt-1 text-xs text-[#22c55e] bg-[#22c55e15] px-2 py-1 rounded">{planSuccess}</p>
+              )}
             </div>
             {company.billingCycle && (
               <div>
@@ -230,6 +267,89 @@ export default function AccountDetail() {
           </div>
         </Card>
       </div>
+
+      {company.plan === 'ENTERPRISE' && (
+        <Card>
+          <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-1">Contrat Enterprise</h2>
+          <p className="text-xs text-[var(--pp-muted)] mb-4">Géré manuellement — hors Stripe</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm mb-4">
+            <div>
+              <label className="text-[var(--pp-muted)] block mb-1">Statut paiement</label>
+              <select
+                value={enterprisePaidStatus}
+                onChange={(e) => setEnterprisePaidStatus(e.target.value)}
+                className="w-full px-3 py-2 border border-[var(--pp-line)] rounded-lg"
+              >
+                <option value="PAID">Payé</option>
+                <option value="UNPAID">Non payé</option>
+                <option value="PENDING">En attente</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-[var(--pp-muted)] block mb-1">Début du contrat</label>
+              <input
+                type="date"
+                value={enterprisePlanStartedAt}
+                onChange={(e) => setEnterprisePlanStartedAt(e.target.value)}
+                className="w-full px-3 py-2 border border-[var(--pp-line)] rounded-lg"
+              />
+            </div>
+            <div>
+              <label className="text-[var(--pp-muted)] block mb-1">Fin du contrat (rappel -30j)</label>
+              <input
+                type="date"
+                value={enterprisePlanExpiresAt}
+                onChange={(e) => setEnterprisePlanExpiresAt(e.target.value)}
+                className="w-full px-3 py-2 border border-[var(--pp-line)] rounded-lg"
+              />
+            </div>
+          </div>
+          {enterprisePlanExpiresAt && (() => {
+            const expires = new Date(enterprisePlanExpiresAt)
+            const daysLeft = Math.ceil((expires.getTime() - Date.now()) / 86400000)
+            if (daysLeft <= 30 && daysLeft > 0) return (
+              <p className="text-xs text-[#f59e0b] bg-[#f59e0b15] px-2 py-1 rounded mb-3">
+                ⚠️ Contrat expire dans {daysLeft} jour{daysLeft > 1 ? 's' : ''}
+              </p>
+            )
+            if (daysLeft <= 0) return (
+              <p className="text-xs text-[#ef4444] bg-[#ef444415] px-2 py-1 rounded mb-3">
+                Contrat expiré depuis {Math.abs(daysLeft)} jour{Math.abs(daysLeft) > 1 ? 's' : ''}
+              </p>
+            )
+            return null
+          })()}
+          <button
+            disabled={savingEnterprise}
+            onClick={async () => {
+              setSavingEnterprise(true)
+              const res = await fetch(`/api/super-admin/accounts/${id}/plan`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  planName: 'ENTERPRISE',
+                  reason: 'Enterprise details updated by super-admin',
+                  enterprisePaidStatus,
+                  enterprisePlanStartedAt: enterprisePlanStartedAt || undefined,
+                  planExpiresAt: enterprisePlanExpiresAt || undefined,
+                }),
+              })
+              if (res.ok) {
+                await reloadCompany()
+                setPlanSuccess('Contrat Enterprise mis à jour')
+                setTimeout(() => setPlanSuccess(''), 3000)
+              } else {
+                const d = await res.json().catch(() => ({}))
+                setPlanError(d.error || `Erreur ${res.status}`)
+              }
+              setSavingEnterprise(false)
+            }}
+            className="px-4 py-2 bg-[#6366f1] text-white rounded-lg text-sm hover:opacity-90 disabled:opacity-50"
+          >
+            {savingEnterprise ? 'Sauvegarde...' : 'Sauvegarder le contrat'}
+          </button>
+        </Card>
+      )}
 
       <Card>
         <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-4">Facturation & Légal</h2>

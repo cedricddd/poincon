@@ -14,7 +14,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const { planName, reason } = await req.json()
+    const { planName, reason, enterprisePaidStatus, enterprisePlanStartedAt, planExpiresAt } = await req.json()
     if (!planName) {
       return NextResponse.json({ error: 'Missing planName' }, { status: 400 })
     }
@@ -38,9 +38,21 @@ export async function PATCH(
 
     const oldPlanName = company.plan?.name ?? 'FREE'
 
+    const isEnterprise = planName.toUpperCase() === 'ENTERPRISE'
+    const enterpriseData: any = {}
+    if (isEnterprise) {
+      if (enterprisePaidStatus) enterpriseData.enterprisePaidStatus = enterprisePaidStatus
+      if (enterprisePlanStartedAt) enterpriseData.enterprisePlanStartedAt = new Date(enterprisePlanStartedAt)
+      if (planExpiresAt) enterpriseData.planExpiresAt = new Date(planExpiresAt)
+      // Auto-set start date if not provided and plan is changing to Enterprise
+      if (!enterprisePlanStartedAt && company.plan?.name !== 'ENTERPRISE') {
+        enterpriseData.enterprisePlanStartedAt = new Date()
+      }
+    }
+
     const updated = await prisma.company.update({
       where: { id },
-      data: { planId: newPlan.id },
+      data: { planId: newPlan.id, ...enterpriseData },
       include: { plan: true, admin: { select: { email: true } } },
     })
 

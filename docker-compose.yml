@@ -58,7 +58,7 @@ services:
     environment:
       CRON_SECRET: ${CRON_SECRET:-}
     command: >
-      sh -c "mkdir -p /etc/crontabs && printf '0 15 * * 1-5 wget -q -O /dev/null --header=\"x-cron-secret: $${CRON_SECRET}\" http://app:3000/api/cron/end-of-day-reminder\n0 5 * * 1 wget -q -O /dev/null --header=\"x-cron-secret: $${CRON_SECRET}\" http://app:3000/api/cron/scheduled-export\n0 5 1 * * wget -q -O /dev/null --header=\"x-cron-secret: $${CRON_SECRET}\" http://app:3000/api/cron/scheduled-export\n' > /etc/crontabs/root
+      sh -c "mkdir -p /etc/crontabs && printf '0 15 * * 1-5 wget -q -O /dev/null --header=\"x-cron-secret: $${CRON_SECRET}\" http://app:3000/api/cron/end-of-day-reminder\n0 5 * * 1 wget -q -O /dev/null --header=\"x-cron-secret: $${CRON_SECRET}\" http://app:3000/api/cron/scheduled-export\n0 5 1 * * wget -q -O /dev/null --header=\"x-cron-secret: $${CRON_SECRET}\" http://app:3000/api/cron/scheduled-export\n0 8 * * * wget -q -O /dev/null --header=\"x-cron-secret: $${CRON_SECRET}\" http://app:3000/api/cron/enterprise-renewal-reminder\n' > /etc/crontabs/root
       && crond -f -d 8 -c /etc/crontabs"
     restart: unless-stopped
     networks:
