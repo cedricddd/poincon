@@ -58,6 +58,8 @@ export async function GET(req: NextRequest) {
         enterprisePaidStatus: company.enterprisePaidStatus,
         enterprisePlanStartedAt: company.enterprisePlanStartedAt,
         stripeSubscriptionId: company.stripeSubscriptionId,
+        stripeCurrentPeriodStart: company.stripeCurrentPeriodStart,
+        stripeCurrentPeriodEnd: company.stripeCurrentPeriodEnd,
       }
     })
 

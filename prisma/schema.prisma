@@ -133,6 +133,8 @@ model Company {
   stripeCustomerId      String?
   stripeSubscriptionId  String?
   stripeSubscriptionBillingCycle String? // "monthly" | "yearly" — null si pas de subscription active
+  stripeCurrentPeriodStart DateTime? // début de la période en cours (Stripe)
+  stripeCurrentPeriodEnd   DateTime? // fin de la période en cours = date de prochain renouvellement
   stripeCancelAtPeriodEnd Boolean @default(false)
   planExpiresAt         DateTime?
   enterprisePaidStatus  String?           // "PAID" | "UNPAID" | "PENDING" — Enterprise uniquement

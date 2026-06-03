@@ -51,6 +51,8 @@ export async function POST(req: NextRequest) {
           stripeCustomerId: session.customer,
           stripeSubscriptionId: session.subscription,
           stripeSubscriptionBillingCycle: billingCycle,
+          stripeCurrentPeriodStart: sub.current_period_start ? new Date(sub.current_period_start * 1000) : undefined,
+          stripeCurrentPeriodEnd: sub.current_period_end ? new Date(sub.current_period_end * 1000) : undefined,
           planId: planRecord?.id ?? undefined,
         },
       })
@@ -71,6 +73,8 @@ export async function POST(req: NextRequest) {
         data: {
           stripeSubscriptionId: sub.id,
           stripeSubscriptionBillingCycle: billingCycle,
+          stripeCurrentPeriodStart: sub.current_period_start ? new Date(sub.current_period_start * 1000) : undefined,
+          stripeCurrentPeriodEnd: sub.current_period_end ? new Date(sub.current_period_end * 1000) : undefined,
           stripeCancelAtPeriodEnd: sub.cancel_at_period_end ?? false,
           planExpiresAt: sub.status === 'active' ? null : new Date(sub.current_period_end * 1000),
           ...(planRecord ? { planId: planRecord.id } : {}),
@@ -91,6 +95,8 @@ export async function POST(req: NextRequest) {
           planId: freePlan?.id ?? null,
           stripeSubscriptionId: null,
           stripeSubscriptionBillingCycle: null,
+          stripeCurrentPeriodStart: null,
+          stripeCurrentPeriodEnd: null,
           stripeCancelAtPeriodEnd: false,
           planExpiresAt: null,
         },

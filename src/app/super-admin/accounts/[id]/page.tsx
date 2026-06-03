@@ -25,6 +25,8 @@ interface CompanyDetail {
   planExpiresAt?: string
   enterprisePaidStatus?: string
   enterprisePlanStartedAt?: string
+  stripeCurrentPeriodStart?: string
+  stripeCurrentPeriodEnd?: string
 }
 
 interface FeatureFlag {
@@ -250,6 +252,36 @@ export default function AccountDetail() {
                 </p>
               </div>
             )}
+            {company.stripeCurrentPeriodStart && (
+              <div>
+                <label className="text-[var(--pp-muted)] block mb-1">Souscription en cours depuis</label>
+                <p className="font-medium text-[var(--pp-ink)]">
+                  {new Date(company.stripeCurrentPeriodStart).toLocaleDateString('fr-BE')}
+                </p>
+              </div>
+            )}
+            {company.stripeCurrentPeriodEnd && (() => {
+              const renewDate = new Date(company.stripeCurrentPeriodEnd)
+              const daysLeft = Math.ceil((renewDate.getTime() - Date.now()) / 86400000)
+              return (
+                <div>
+                  <label className="text-[var(--pp-muted)] block mb-1">Prochain renouvellement</label>
+                  <p className="font-medium text-[var(--pp-ink)]">
+                    {renewDate.toLocaleDateString('fr-BE')}
+                  </p>
+                  {daysLeft <= 30 && daysLeft > 0 && (
+                    <p className="text-xs text-[#f59e0b] bg-[#f59e0b15] px-2 py-1 rounded mt-1">
+                      ⚠️ Renouvelle dans {daysLeft} jour{daysLeft > 1 ? 's' : ''}
+                    </p>
+                  )}
+                  {daysLeft <= 0 && (
+                    <p className="text-xs text-[#ef4444] bg-[#ef444415] px-2 py-1 rounded mt-1">
+                      Renouvellement dépassé depuis {Math.abs(daysLeft)} jour{Math.abs(daysLeft) > 1 ? 's' : ''}
+                    </p>
+                  )}
+                </div>
+              )
+            })()}
             <div>
               <label className="text-[var(--pp-muted)] block mb-1">Utilisateurs actifs</label>
               <p className="text-lg font-bold">
