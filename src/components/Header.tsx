@@ -50,7 +50,6 @@ export function Header() {
     { href: '#features', label: 'Fonctionnalités' },
     { href: '#how', label: 'Comment ça marche' },
     { href: '#pricing', label: 'Tarifs' },
-    { href: '/comparaison', label: 'Comparaison', external: true },
     { href: '#faq', label: 'FAQ' },
   ]
 

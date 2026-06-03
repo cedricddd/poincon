@@ -443,3 +443,18 @@ model UserInvitation {
   @@index([companyId])
   @@index([email])
 }
+
+model SuperAdminItem {
+  id        String   @id @default(cuid())
+  type      String   // 'NOTE' | 'LINK' | 'EVENT' | 'TASK'
+  title     String   @default("")
+  content   String?  // contenu libre (notes)
+  url       String?  // pour les liens
+  date      String?  // YYYY-MM-DD pour les événements agendés
+  time      String?  // HH:MM optionnel
+  eventType String?  // 'CALL' | 'DEMO' | 'TASK' | 'REMINDER'
+  done      Boolean  @default(false)
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

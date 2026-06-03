@@ -92,10 +92,11 @@ const adminSubLinks = [
 ]
 
 const superAdminSubLinks = [
-  { href: '/super-admin/dashboard', label: 'Overview',   Icon: IconBarChart, color: '#a78bfa' },
-  { href: '/super-admin/accounts',  label: 'Comptes',    Icon: IconUsers,    color: '#a78bfa' },
-  { href: '/super-admin/email',     label: 'Email',      Icon: IconLog,      color: '#a78bfa' },
-  { href: '/super-admin/profile',   label: 'Mon profil', Icon: IconSettings, color: '#a78bfa' },
+  { href: '/super-admin/dashboard',  label: 'Overview',    Icon: IconBarChart, color: '#a78bfa' },
+  { href: '/super-admin/workspace',  label: 'Mon espace',  Icon: IconCalendar, color: '#a78bfa' },
+  { href: '/super-admin/accounts',   label: 'Comptes',     Icon: IconUsers,    color: '#a78bfa' },
+  { href: '/super-admin/email',      label: 'Email',       Icon: IconLog,      color: '#a78bfa' },
+  { href: '/super-admin/profile',    label: 'Mon profil',  Icon: IconSettings, color: '#a78bfa' },
 ]
 
 /* ── Component ──────────────────────────────────────────────────────────── */
