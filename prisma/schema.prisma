@@ -142,6 +142,7 @@ model Company {
   logoUrl               String?
   contactEmail          String?         // email de contact pour rappels paiement
   lastActivityAt        DateTime?       // mis à jour après chaque pointage (timestamp uniquement)
+  isDemo                Boolean         @default(false) // compte démo — bannière visible, pas d'emails
   marketingConsent      Boolean         @default(false) // pour les emails marketing
   presenceForManagers  Boolean         @default(true)
   presenceForEmployees Boolean         @default(true)
