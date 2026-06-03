@@ -65,12 +65,16 @@ async function main() {
   if (existingAdmin) {
     const existingCompany = await prisma.company.findUnique({ where: { adminId: existingAdmin.id } })
     if (existingCompany) {
-      // Delete members first (avoids FK constraint)
-      const members = await prisma.user.findMany({ where: { companyId: existingCompany.id } })
+      // Delete employees (not admin — company.adminId FK would block it)
+      const members = await prisma.user.findMany({
+        where: { companyId: existingCompany.id, NOT: { id: existingAdmin.id } },
+      })
       for (const m of members) {
         await prisma.clockRecord.deleteMany({ where: { userId: m.id } })
         await prisma.user.delete({ where: { id: m.id } })
       }
+      // Delete admin's own clock records, then company (removes adminId FK), then admin
+      await prisma.clockRecord.deleteMany({ where: { userId: existingAdmin.id } })
       await prisma.company.delete({ where: { id: existingCompany.id } })
     }
     await prisma.user.delete({ where: { email: DEMO_EMAIL } })
