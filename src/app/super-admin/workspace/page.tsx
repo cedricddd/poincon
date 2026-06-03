@@ -95,6 +95,10 @@ export default function WorkspacePage() {
   const [newEventType, setNewEventType] = useState('TASK')
   const [newEventHasDate, setNewEventHasDate] = useState(true)
 
+  // Annotation state: itemId → editing open
+  const [annotationOpen, setAnnotationOpen] = useState<string | null>(null)
+  const [annotationDraft, setAnnotationDraft] = useState('')
+
   // Calendar state
   const now = new Date()
   const [calMonth, setCalMonth] = useState(now.getMonth())
@@ -174,14 +178,30 @@ export default function WorkspacePage() {
     setNewEventTitle(''); setNewEventTime(''); setShowEventForm(false)
   }
 
-  async function toggleDone(item: Item) {
-    const updated = await api.patch(item.id, { done: !item.done })
-    setItems(prev => prev.map(i => i.id === item.id ? updated : i))
+  function toggleDone(item: Item) {
+    // Optimistic update — UI responds immediately
+    setItems(prev => prev.map(i => i.id === item.id ? { ...i, done: !i.done } : i))
+    api.patch(item.id, { done: !item.done }).catch(() => {
+      // Revert on error
+      setItems(prev => prev.map(i => i.id === item.id ? { ...i, done: item.done } : i))
+    })
   }
 
   async function deleteItem(id: string) {
-    await api.del(id)
     setItems(prev => prev.filter(i => i.id !== id))
+    await api.del(id)
+  }
+
+  function openAnnotation(item: Item) {
+    setAnnotationOpen(item.id)
+    setAnnotationDraft(item.content ?? '')
+  }
+
+  async function saveAnnotation(item: Item) {
+    const newContent = annotationDraft
+    setItems(prev => prev.map(i => i.id === item.id ? { ...i, content: newContent } : i))
+    setAnnotationOpen(null)
+    await api.patch(item.id, { content: newContent })
   }
 
   if (loading) return <p className="p-6 text-[var(--pp-muted)]">Chargement...</p>
@@ -402,21 +422,42 @@ export default function WorkspacePage() {
                 ) : (
                   <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
                     {filteredEvents.map(e => (
-                      <div key={e.id} className={`flex items-start gap-2.5 p-2 rounded-lg group border ${e.done ? 'border-transparent opacity-50' : 'border-[var(--pp-line)]'}`}>
-                        <input type="checkbox" checked={e.done} onChange={() => toggleDone(e)} className="mt-0.5 rounded shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[10px]" style={{ color: eventColor(e.eventType) }}>{eventLabel(e.eventType)}</span>
-                            {e.time && <span className="text-[10px] font-mono text-[var(--pp-muted)]">{e.time}</span>}
+                      <div key={e.id} className={`rounded-lg border ${e.done ? 'border-transparent opacity-60' : 'border-[var(--pp-line)]'}`}>
+                        <div className="flex items-start gap-2.5 p-2 group">
+                          <input type="checkbox" checked={e.done} onChange={() => toggleDone(e)} className="mt-0.5 rounded shrink-0 cursor-pointer" />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[10px]" style={{ color: eventColor(e.eventType) }}>{eventLabel(e.eventType)}</span>
+                              {e.time && <span className="text-[10px] font-mono text-[var(--pp-muted)]">{e.time}</span>}
+                            </div>
+                            <p className={`text-xs font-medium truncate ${e.done ? 'line-through text-[var(--pp-muted)]' : 'text-[var(--pp-ink)]'}`}>{e.title}</p>
+                            {e.date && calFilter !== 'today' && (
+                              <p className="text-[10px] text-[var(--pp-muted)]">
+                                {new Date(e.date + 'T12:00:00').toLocaleDateString('fr-BE', { weekday: 'short', day: 'numeric', month: 'short' })}
+                              </p>
+                            )}
+                            {e.content && annotationOpen !== e.id && (
+                              <p className="text-[10px] text-[var(--pp-muted)] mt-0.5 italic truncate">📎 {e.content}</p>
+                            )}
                           </div>
-                          <p className={`text-xs font-medium truncate ${e.done ? 'line-through text-[var(--pp-muted)]' : 'text-[var(--pp-ink)]'}`}>{e.title}</p>
-                          {e.date && calFilter !== 'today' && (
-                            <p className="text-[10px] text-[var(--pp-muted)]">
-                              {new Date(e.date + 'T12:00:00').toLocaleDateString('fr-BE', { weekday: 'short', day: 'numeric', month: 'short' })}
-                            </p>
-                          )}
+                          <button onClick={() => openAnnotation(e)} title="Ajouter une note" className="opacity-0 group-hover:opacity-100 text-[var(--pp-muted)] hover:text-[#6366f1] text-xs px-1 shrink-0 transition-opacity">✏️</button>
+                          <button onClick={() => deleteItem(e.id)} className="opacity-0 group-hover:opacity-100 text-[#ef4444] text-xs px-1 shrink-0 transition-opacity">✕</button>
                         </div>
-                        <button onClick={() => deleteItem(e.id)} className="opacity-0 group-hover:opacity-100 text-[#ef4444] text-xs px-1 shrink-0 transition-opacity">✕</button>
+                        {annotationOpen === e.id && (
+                          <div className="px-2 pb-2 border-t border-[var(--pp-line)]">
+                            <textarea
+                              autoFocus
+                              value={annotationDraft}
+                              onChange={ev => setAnnotationDraft(ev.target.value)}
+                              placeholder="Ajouter une annotation..."
+                              className="w-full mt-2 px-2 py-1.5 text-xs border border-[var(--pp-line)] rounded-lg bg-[var(--pp-bg)] resize-none focus:outline-none focus:ring-1 focus:ring-[#6366f1] h-16"
+                            />
+                            <div className="flex gap-2 mt-1.5">
+                              <button onClick={() => saveAnnotation(e)} className="px-3 py-1 text-[10px] font-semibold bg-[#6366f1] text-white rounded-lg hover:opacity-90">Enregistrer</button>
+                              <button onClick={() => setAnnotationOpen(null)} className="text-[10px] text-[var(--pp-muted)] hover:text-[var(--pp-ink)]">Annuler</button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -434,10 +475,33 @@ export default function WorkspacePage() {
             <div className="px-4 py-3 space-y-1.5">
               {tasks.length === 0 && <p className="text-xs text-[var(--pp-muted)] italic">Aucune tâche</p>}
               {tasks.map(t => (
-                <div key={t.id} className={`flex items-center gap-2.5 p-2 rounded-lg group border ${t.done ? 'border-transparent opacity-50' : 'border-[var(--pp-line)]'}`}>
-                  <input type="checkbox" checked={t.done} onChange={() => toggleDone(t)} className="rounded shrink-0" />
-                  <span className={`flex-1 text-sm ${t.done ? 'line-through text-[var(--pp-muted)]' : 'text-[var(--pp-ink)]'}`}>{t.title}</span>
-                  <button onClick={() => deleteItem(t.id)} className="opacity-0 group-hover:opacity-100 text-[#ef4444] text-xs px-1 shrink-0 transition-opacity">✕</button>
+                <div key={t.id} className={`rounded-lg border ${t.done ? 'border-transparent opacity-60' : 'border-[var(--pp-line)]'}`}>
+                  <div className="flex items-center gap-2.5 p-2 group">
+                    <input type="checkbox" checked={t.done} onChange={() => toggleDone(t)} className="rounded shrink-0 cursor-pointer" />
+                    <div className="flex-1 min-w-0">
+                      <span className={`text-sm ${t.done ? 'line-through text-[var(--pp-muted)]' : 'text-[var(--pp-ink)]'}`}>{t.title}</span>
+                      {t.content && annotationOpen !== t.id && (
+                        <p className="text-[10px] text-[var(--pp-muted)] mt-0.5 italic truncate">📎 {t.content}</p>
+                      )}
+                    </div>
+                    <button onClick={() => openAnnotation(t)} title="Ajouter une note" className="opacity-0 group-hover:opacity-100 text-[var(--pp-muted)] hover:text-[#6366f1] text-xs px-1 shrink-0 transition-opacity">✏️</button>
+                    <button onClick={() => deleteItem(t.id)} className="opacity-0 group-hover:opacity-100 text-[#ef4444] text-xs px-1 shrink-0 transition-opacity">✕</button>
+                  </div>
+                  {annotationOpen === t.id && (
+                    <div className="px-2 pb-2 border-t border-[var(--pp-line)]">
+                      <textarea
+                        autoFocus
+                        value={annotationDraft}
+                        onChange={ev => setAnnotationDraft(ev.target.value)}
+                        placeholder="Ajouter une annotation..."
+                        className="w-full mt-2 px-2 py-1.5 text-xs border border-[var(--pp-line)] rounded-lg bg-[var(--pp-bg)] resize-none focus:outline-none focus:ring-1 focus:ring-[#6366f1] h-16"
+                      />
+                      <div className="flex gap-2 mt-1.5">
+                        <button onClick={() => saveAnnotation(t)} className="px-3 py-1 text-[10px] font-semibold bg-[#6366f1] text-white rounded-lg hover:opacity-90">Enregistrer</button>
+                        <button onClick={() => setAnnotationOpen(null)} className="text-[10px] text-[var(--pp-muted)] hover:text-[var(--pp-ink)]">Annuler</button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

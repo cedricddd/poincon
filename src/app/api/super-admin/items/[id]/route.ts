@@ -8,15 +8,17 @@ async function requireSuperAdmin() {
   return session
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!await requireSuperAdmin()) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const { id } = await params
   const body = await req.json()
-  const item = await prisma.superAdminItem.update({ where: { id: params.id }, data: body })
+  const item = await prisma.superAdminItem.update({ where: { id }, data: body })
   return NextResponse.json(item)
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!await requireSuperAdmin()) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  await prisma.superAdminItem.delete({ where: { id: params.id } })
+  const { id } = await params
+  await prisma.superAdminItem.delete({ where: { id } })
   return NextResponse.json({ ok: true })
 }
