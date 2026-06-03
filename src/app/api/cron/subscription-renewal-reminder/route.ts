@@ -25,6 +25,45 @@ export async function GET(req: NextRequest) {
     },
   })
 
+  // Test mode: send a sample email without filtering by date
+  const testEmail = req.nextUrl.searchParams.get('test')
+  if (testEmail) {
+    const renewDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('fr-BE')
+    await sendEmail({
+      to: testEmail,
+      subject: `[TEST] Renouvellement abonnement TEAM — Société Exemple`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #6366f1;">Rappel de renouvellement automatique</h2>
+          <p>Bonjour,</p>
+          <p>L'abonnement <strong>Pointon TEAM</strong> de <strong>Société Exemple SPRL</strong> se renouvelle automatiquement le <strong>${renewDate}</strong> (dans 30 jours).</p>
+          <table style="width:100%; border-collapse:collapse; margin: 16px 0;">
+            <tr>
+              <td style="padding:8px; background:#f4f4f8; font-weight:bold;">Société</td>
+              <td style="padding:8px;">Société Exemple SPRL</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; background:#f4f4f8; font-weight:bold;">Plan</td>
+              <td style="padding:8px;">Pointon TEAM</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; background:#f4f4f8; font-weight:bold;">Cycle</td>
+              <td style="padding:8px;">mensuel</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; background:#f4f4f8; font-weight:bold;">Date de renouvellement</td>
+              <td style="padding:8px;">${renewDate}</td>
+            </tr>
+          </table>
+          <p>Le paiement sera prélevé automatiquement via Stripe. Aucune action n'est requise de votre part.</p>
+          <p>Pour annuler ou modifier votre abonnement, contactez notre équipe.</p>
+          <p style="color:#888; font-size:12px;">— Pointon</p>
+        </div>
+      `,
+    })
+    return NextResponse.json({ test: true, sentTo: testEmail })
+  }
+
   const results: { company: string; sentTo: string }[] = []
 
   for (const company of companies) {
