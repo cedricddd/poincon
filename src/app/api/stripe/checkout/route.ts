@@ -68,6 +68,6 @@ export async function GET(req: NextRequest) {
         { status: 503 }
       )
     }
-    return NextResponse.json({ error: 'Checkout failed' }, { status: 500 })
+    return NextResponse.json({ error: 'Checkout failed', detail: error?.message ?? String(error) }, { status: 500 })
   }
 }
