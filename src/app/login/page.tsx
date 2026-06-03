@@ -188,6 +188,12 @@ export default function LoginPage() {
             </Link>
           </div>
         </Card>
+
+        <div className="text-center mt-4">
+          <Link href="/" className="text-sm text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:underline transition-colors">
+            ← Retour à l'accueil
+          </Link>
+        </div>
       </div>
     </div>
   )
