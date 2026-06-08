@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import NumberFlow from '@number-flow/react'
 import { Header } from '@/components/Header'
 import { Button } from '@/components/Button'
 import { ThemeVideo } from '@/components/ThemeVideo'
 import { Logo } from '@/components/Logo'
+import { CookieBanner } from '@/components/CookieBanner'
 
 /* ─── Scroll reveal hook ────────────────────────────────────────────────── */
 
@@ -393,40 +394,105 @@ function HeroClockWidget() {
   )
 }
 
-/* ─── Stat counter ──────────────────────────────────────────────────────── */
+/* ─── Count-up hook ─────────────────────────────────────────────────────── */
 
-function StatCounter({ value, suffix, label }: { value: number; suffix: string; label: string }) {
-  const ref = useReveal()
-  const [started, setStarted] = useState(false)
-  const innerRef = useRef<HTMLDivElement>(null)
+function useCountUp(target: number, started: boolean, duration = 1500) {
+  const [count, setCount] = useState(0)
+  const rafRef = useRef<number>(0)
+
+  const run = useCallback(() => {
+    let startTs: number | null = null
+    const tick = (ts: number) => {
+      if (!startTs) startTs = ts
+      const elapsed = ts - startTs
+      const progress = Math.min(elapsed / duration, 1)
+      /* ease-out expo: fast start, slow finish */
+      const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress)
+      setCount(Math.round(eased * target))
+      if (progress < 1) rafRef.current = requestAnimationFrame(tick)
+    }
+    rafRef.current = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [target, duration])
 
   useEffect(() => {
-    const el = innerRef.current
+    if (!started) return
+    return run()
+  }, [started, run])
+
+  return count
+}
+
+/* ─── Stat counter ──────────────────────────────────────────────────────── */
+
+function StatCounter({ value, suffix, label, delay = 0 }: { value: number; suffix: string; label: string; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [started, setStarted] = useState(false)
+  const [done, setDone] = useState(false)
+  const count = useCountUp(value, started, 1500)
+
+  useEffect(() => {
+    const el = ref.current
     if (!el) return
     const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setStarted(true); obs.disconnect() } },
-      { threshold: 0.5 }
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add('is-visible')
+          setStarted(true)
+          obs.disconnect()
+        }
+      },
+      { threshold: 0.3 }
     )
     obs.observe(el)
     return () => obs.disconnect()
   }, [])
 
+  /* glow fires when counter lands on final value */
+  useEffect(() => {
+    if (!started) return
+    const t = setTimeout(() => setDone(true), 1600)
+    return () => clearTimeout(t)
+  }, [started])
+
   return (
-    <div ref={ref} className="pp-reveal text-center">
-      <div ref={innerRef} className="flex items-end justify-center gap-0.5 leading-none mb-2">
+    <div
+      ref={ref}
+      className="pp-reveal pp-stat text-center"
+      style={{ transitionDelay: `${delay}ms` } as React.CSSProperties}
+    >
+      <div className="flex items-end justify-center gap-0.5 leading-none mb-3">
         <span
-          className="font-display font-bold text-[var(--pp-ink)]"
-          style={{ fontSize: 'clamp(2.5rem, 6vw, 4rem)' }}
+          className="font-display font-bold text-[var(--pp-ink)] tabular-nums"
+          style={{ fontSize: 'clamp(2.5rem, 6vw, 4rem)', minWidth: '1ch' }}
         >
-          {started ? <NumberFlow value={value} /> : 0}
+          {count}
         </span>
         <span
           className="font-display font-bold text-[var(--pp-pos)]"
-          style={{ fontSize: 'clamp(1.5rem, 3vw, 2.2rem)', paddingBottom: '0.1em' }}
+          style={{
+            fontSize: 'clamp(1.5rem, 3vw, 2.2rem)',
+            paddingBottom: '0.1em',
+            transition: 'text-shadow 0.5s ease',
+            textShadow: done ? '0 0 20px rgba(16,185,129,0.75)' : 'none',
+          }}
         >
           {suffix}
         </span>
       </div>
+
+      {/* underline draws in after reveal */}
+      <div className="relative mx-auto mb-2.5" style={{ width: 'clamp(2rem,5vw,3rem)', height: '2px' }}>
+        <div
+          className="absolute inset-0 rounded-full bg-[var(--pp-pos)]"
+          style={{
+            transform: started ? 'scaleX(1)' : 'scaleX(0)',
+            transformOrigin: 'left',
+            transition: `transform 0.55s cubic-bezier(0.16,1,0.3,1) ${delay + 250}ms`,
+          }}
+        />
+      </div>
+
       <div className="text-sm text-[var(--pp-muted)] tracking-wide uppercase font-semibold" style={{ letterSpacing: '0.1em', fontSize: '0.7rem' }}>
         {label}
       </div>
@@ -755,6 +821,7 @@ function CtaCountdown() {
         <div className="mx-auto max-w-xs mb-12 mt-4">
           <div className="h-px w-full rounded-full" style={{ background: 'rgba(255,255,255,0.08)' }}>
             <div
+              suppressHydrationWarning
               className="h-px rounded-full"
               style={{
                 width: `${Math.min(100, ((Date.now() - new Date('2024-01-01').getTime()) / (LAW_DATE.getTime() - new Date('2024-01-01').getTime())) * 100).toFixed(1)}%`,
@@ -1021,9 +1088,7 @@ export default function Home() {
         <div className="mx-auto max-w-4xl px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-6">
             {stats.map((s, i) => (
-              <div key={s.label} style={{ transitionDelay: `${i * 80}ms` }}>
-                <StatCounter value={s.value} suffix={s.suffix} label={s.label} />
-              </div>
+              <StatCounter key={s.label} value={s.value} suffix={s.suffix} label={s.label} delay={i * 120} />
             ))}
           </div>
         </div>
@@ -1285,6 +1350,8 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      <CookieBanner />
     </div>
   )
 }
