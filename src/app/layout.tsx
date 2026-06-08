@@ -3,6 +3,7 @@ import { Syne, DM_Sans } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
 import { auth } from '@/auth'
+import { CookieBanner } from '@/components/CookieBanner'
 
 const syne = Syne({ subsets: ['latin'], variable: '--font-syne', display: 'swap' })
 const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-dm-sans', display: 'swap' })
@@ -100,6 +101,7 @@ export default async function RootLayout({
       </head>
       <body className="antialiased" suppressHydrationWarning>
         <Providers session={session}>{children}</Providers>
+        <CookieBanner />
         <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker'in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js');});}` }} />
       </body>
     </html>

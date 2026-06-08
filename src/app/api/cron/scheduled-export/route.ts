@@ -13,8 +13,15 @@ const transporter = nodemailer.createTransport({
   },
 })
 
+function formatDuration(minutes: number | null): string {
+  if (minutes == null) return ''
+  const h = Math.floor(minutes / 60)
+  const m = minutes % 60
+  return `${h}h${String(m).padStart(2, '0')}`
+}
+
 function buildCsv(records: any[]): string {
-  const header = 'Employé,Email,Date,Arrivée,Départ,Durée (min),Site,Localisation'
+  const header = 'Employé,Email,Date,Arrivée,Départ,Durée,Site,Localisation'
   const rows = records.map(r => {
     const arrival = new Date(r.arrivalTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
     const departure = r.departureTime ? new Date(r.departureTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' }) : ''
@@ -25,7 +32,7 @@ function buildCsv(records: any[]): string {
       date,
       arrival,
       departure,
-      r.duration ?? '',
+      formatDuration(r.duration),
       r.site?.name ?? '',
       r.location,
     ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')

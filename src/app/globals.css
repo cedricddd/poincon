@@ -88,6 +88,19 @@ a {
   transform: translateY(0);
 }
 
+/* ── Stat counter variant — scale + translate + fade ─────────────────────── */
+
+.pp-stat.pp-reveal {
+  transform: translateY(32px) scale(0.88);
+  transition:
+    opacity  0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pp-stat.pp-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
 /* ── Animations ─────────────────────────────────────────────────────────── */
 
 @keyframes pp-ring-pulse {

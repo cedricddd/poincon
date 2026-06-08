@@ -7,7 +7,6 @@ import { Header } from '@/components/Header'
 import { Button } from '@/components/Button'
 import { ThemeVideo } from '@/components/ThemeVideo'
 import { Logo } from '@/components/Logo'
-import { CookieBanner } from '@/components/CookieBanner'
 
 /* ─── Scroll reveal hook ────────────────────────────────────────────────── */
 
@@ -1351,7 +1350,6 @@ export default function Home() {
         </div>
       </footer>
 
-      <CookieBanner />
     </div>
   )
 }

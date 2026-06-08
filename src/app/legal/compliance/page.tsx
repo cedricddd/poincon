@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import CompliancePdfButton from '@/components/CompliancePdfButton'
 
 export const metadata: Metadata = {
   title: 'Conformité légale CJUE & loi belge 2027',
@@ -84,6 +85,11 @@ export default function CompliancePage() {
           du temps de travail, l'arrêt CJUE de 2019, et le RGPD. Cette page détaille les obligations
           légales et comment Pointon y répond.
         </p>
+      </div>
+
+      {/* PDF download */}
+      <div className="mb-10">
+        <CompliancePdfButton />
       </div>
 
       {/* Bases légales */}

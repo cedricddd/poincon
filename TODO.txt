@@ -1,10 +1,10 @@
 ================================================================================
-                    POINTON - TODO LIST (MISE À JOUR 2026-05-31)
+                    POINTON - TODO LIST (MISE À JOUR 2026-06-03)
 ================================================================================
 
-Dernière mise à jour: 2026-05-31
-Version: 0.4.2
-État: Phases 1-15.7 complétées. v0.4.2 : édition pointages admin + audit trail complet + fix timezone UTC+2. Reste: CI/CD + backup DB + 2FA (low priority).
+Dernière mise à jour: 2026-06-08
+Version: 0.4.4
+État: Phases 1-15.8 + RGPD complétées. v0.4.4 : export RGPD Article 20, CookieBanner, certificat PDF conformité. Reste: Stripe live keys, smoke tests prod, mode kiosque, Peppol/Odoo, monitoring (low).
 
 ================================================================================
 PHASES COMPLÉTÉES (✓)
@@ -398,90 +398,181 @@ PHASE 15.7: ÉDITION POINTAGES ADMIN + AUDIT TRAIL (✓ COMPLÉTÉE — 2026-05-
     ├─ BreakEntry en DB pour contrôles ONSS (audit interne)
     └─ Obligation enregistrement 2027 : architecture déjà conforme
 
-PHASE 16.5: PAUSE REPAS — ÉVOLUTIONS FUTURES (À FAIRE SI DEMANDÉ)
+PHASE 15.8: FIX ARRONDI HEURES HEBDO + MIGRATION OVH (✓ COMPLÉTÉE — 2026-06-03)
 ================================================================================
 
-[ ] Durée minimale/maximale de pause repas configurable par l'admin
-    — ex. : min 15 min, max 60 min / refus de fin de pause si trop courte
-[ ] Déduction automatique : X minutes déduites par jour sans bouton
-    — feature distincte, logique différente (règle vs action employé)
-    — edge case : journée sans pause → que se passe-t-il ?
-[ ] Alerte si la pause dépasse X minutes (notification ou warning UI)
+✓ Fix arrondi bar chart semaine — DONE (2026-06-03)
+    ├─ API /api/clock/weekly : accumulation arrondie 2 décimales (Math.round *100/100)
+    ├─ UI /app/clock : étiquettes barres < 1h → "32m", ≥ 1h → "1.4h" (1 décimale)
+    └─ Plus jamais de "0.5333333333h" affiché
 
-
-
-PHASE 16: 2FA (MULTI-FACTOR AUTHENTICATION) (À FAIRE — PRIORITÉ BASSE)
-================================================================================
-
-[ ] 2FA (Multi-Factor Authentication) — OPTIONAL, can be DISABLED for testing
-    ├─ Add toggle in /admin/dashboard/settings + /super-admin/profile
-    ├─ If enabled: prompt for 2FA code on login (email-based for now)
-    ├─ If disabled: skip 2FA prompt (allow local/Docker testing without 2FA)
-    ├─ Implementation: email-based 2FA (simpler than SMS/authenticator)
-    └─ Implement LAST (low priority, can be disabled)
+✓ Migration infra NAS/Hostinger → OVH KS-5-A — DONE (2026-06-03)
+    ├─ Serveur : OVH KS-5-A (Xeon E-2274G, 64 Go RAM, 2×960 Go NVMe, Roubaix)
+    ├─ OS : Proxmox VE 9 — architecture LXC containers
+    ├─ LXC 101 : nginx-proxy (NPM + SSL Let's Encrypt)
+    ├─ LXC 106 : docker-pointon (Portainer CE + Pointon app port 3001)
+    ├─ LXC 107 : docker-saas (Portainer CE + CED-IT SaaS port 3000)
+    ├─ LXC 110 : mailcow (mail.pointon.be — 18 containers)
+    ├─ Domaine : pointon.be (acheté 2026-06-01, DNS Anycast + DNSSEC OVH)
+    ├─ IP publique : 141.94.102.226
+    ├─ Deploy validé : git pull + docker compose up -d --build app → build 12s, Started
+    └─ CLAUDE.md + skills poincon-cicd/poincon-dev mis à jour (exit Hostinger)
 
 ================================================================================
-PAGES/SECTIONS OPTIONNELLES (NICE TO HAVE)
+CE QUI RESTE À FAIRE
 ================================================================================
 
-✓ Widget "Prochains congés" (team view) — Phase 8 enhancement — DONE (2026-05-29)
-[ ] Admin dashboard : compléter avec plus de données/stats (nice to have)
-✓ Page UI /admin/dashboard/invitations - gestion complète — DONE (2026-05-29)
-[ ] Email dédié Pointon + configuration mail — À FAIRE AVANT PROD
-    ├─ Décision : choisir domaine définitif (pointon.be ? pointon.ced-it.be ? autre ?)
-    ├─ Créer adresse dédiée (noreply@<domaine> ou support@<domaine>)
-    ├─ Vérifier domaine dans Brevo (SPF + DKIM + DMARC dans registrar)
-    ├─ Mettre à jour BREVO_FROM_EMAIL dans .env prod
-    ├─ Mettre à jour templates email (expéditeur affiché)
-    └─ Tester délivrabilité (anti-spam score)
-    NOTE: dépend du nom définitif de l'app — "Pointon" est-il final ?
-✓ Dashboard plan-aware UX (feature gating on frontend) — DONE (2026-05-29)
-✓ Shift-aware overtime + weekly stats from DB — DONE (2026-05-29)
-✓ Terminologie belge (Récupération au lieu de RTT) — DONE (2026-05-29)
+PRIORITÉ 1 — PROD (DERNIER BLOCANT)
+================================================================================
+
+[ ] Stripe live keys — remplacer clés test par clés production dans .env LXC 106
+    └─ Puis : docker compose up -d app (recreate) + tester checkout complet
+
+[ ] Smoke tests end-to-end sur pointon.be
+    ├─ Login / logout tous les rôles (admin, manager, employé)
+    ├─ Clock in / clock out + pause repas
+    ├─ Invitation employé + flow set-password
+    ├─ Stripe checkout (live) + webhook
+    └─ Export CSV + PDF rapports
+
+PRIORITÉ 2 — RGPD & LÉGAL (✓ COMPLÉTÉE — 2026-06-08)
+================================================================================
+
+✓ /api/user/export — droit à la portabilité RGPD (Article 20) — DONE (2026-06-08)
+    ├─ GET /api/user/export : session requise (401 si non authentifié)
+    ├─ Retourne profil + clockRecords (avec pauses) + congés + RTT + heures sup
+    └─ Content-Disposition: attachment; filename="pointon-export-YYYY-MM-DD.json"
+
+✓ Cookie consent banner — première visite sur landing page — DONE (2026-06-08)
+    ├─ Composant CookieBanner (SSR-safe, localStorage pp_cookie_consent)
+    ├─ Boutons Accepter / Refuser → persist jusqu'au prochain effacement localStorage
+    └─ Injecté dans layout.tsx (root) → couvre toutes les pages du site
+
+✓ Certificat de conformité PDF — DONE (2026-06-08)
+    ├─ Composant CompliancePdfButton (dynamic import jspdf + jspdf-autotable)
+    ├─ 4 catégories : Enregistrement, Audit trail, RGPD, Sécurité
+    └─ Fichier : pointon-certificat-conformite.pdf (testé Playwright ✓)
+
+PRIORITÉ 3 — MODE KIOSQUE TABLETTE (NOUVELLE FEATURE)
+================================================================================
+
+[ ] Mode kiosque — tablette fixe à l'entrée, générée par l'admin
+    ├─ Disponible en add-on payant (SOLO/TEAM/ENTERPRISE) — non disponible en FREE
+    ├─ Admin génère un token/URL kiosque depuis les paramètres admin
+    ├─ Page publique /kiosk/[token] (pas de login, session persistante)
+    ├─ PARTIE 1 — Pointage employés par PIN numérique (4 ou 6 chiffres — à décider)
+    │   ├─ PIN attribué par l'admin, stocké hashé sur User
+    │   ├─ Employé saisit son PIN → clock in enregistré
+    │   └─ Employé resaisit son PIN à la sortie → clock out enregistré
+    ├─ PARTIE 2 — Gestion visiteurs
+    │   ├─ Visiteur saisit nom + société + personne visitée
+    │   └─ Email automatique envoyé à la personne interne (Brevo)
+    ├─ Logo société affiché (utilise le logo uploadé dans les paramètres admin)
+    └─ À clarifier : longueur PIN, prix supplément, multi-sites
+
+PRIORITÉ 4 — MONITORING & SUPPORT
+================================================================================
+
+[ ] Uptime monitoring — Uptime Robot ou Better Uptime (gratuit)
+    └─ Alerter si pointon.be tombe + Mailcow
+
+[ ] Error tracking — Sentry (Next.js SDK)
+    └─ Capturer les erreurs JS + API silencieuses en prod
+
+[ ] Onboarding guidé — flow "créer company + inviter 1er employé" en 5 min
+    └─ Optionnel : wizard étape par étape au premier login admin
+
+PRIORITÉ 5 — FEATURES SI DEMANDÉ (NICE TO HAVE)
+================================================================================
+
+[ ] Pause repas — évolutions
+    ├─ Durée minimale/maximale configurable (ex. min 15min, max 60min)
+    ├─ Déduction automatique X min/jour sans bouton (règle vs action employé)
+    └─ Alerte si pause dépasse X minutes
+
+[ ] 2FA Multi-Factor Authentication — priorité basse
+    ├─ Toggle dans /admin/dashboard/settings (activer/désactiver)
+    ├─ Email-based pour commencer (SMS/authenticator phase 2)
+    └─ Doit pouvoir être désactivé pour les tests
+
+[ ] Admin dashboard — plus de stats (nice to have)
+    └─ ex. : heures totales semaine, taux de présence, absences non justifiées
+
+[ ] Dark mode comme défaut — décision à prendre
+    └─ Actuellement : choix utilisateur. Garder ainsi ?
+
+PRIORITÉ 6 — FACTURATION B2B BELGE (PEPPOL + ODOO)
+================================================================================
+
+[ ] Peppol + Odoo — intégration facturation B2B belge
+    ├─ Contexte : obligatoire pour B2B belge depuis jan 2026 (tolérance Q1 expirée)
+    ├─ Format : UBL BIS 3.0 (EN 16931) — pénalité non-conformité : 1.500€ min
+    ├─ Plan : webhook `invoice.payment_succeeded` Stripe → créer facture dans Odoo via API XML-RPC
+    ├─ Odoo 17+ : module `account_peppol` natif gratuit (Odoo = son propre access point)
+    ├─ Bloqueur actuel : identifiants Odoo manquants → à obtenir
+    └─ Voir aussi : Stripe Tax TVA (21% BE, 0% UE B2B avec numéro TVA, 0% hors UE)
+
+[ ] Stripe Tax TVA
+    ├─ Belgique : 21% TVA automatique
+    ├─ UE B2B avec numéro TVA valide : 0% (autoliquidation)
+    ├─ Hors UE : 0%
+    └─ Implémentation : `automatic_tax`, `tax_id_collection`, `billing_address_collection` dans checkout
+
+HORS SCOPE (ROADMAP LOINTAINE)
+================================================================================
+
+[ ] GPS localisation — Phase 2+ (RGPD-friendly)
+[ ] Multi-langue FR/NL/DE — Phase 2+
+[ ] White-label pour revendeurs — Phase 2+
 
 ================================================================================
 BLOQUEURS EXTERNES
 ================================================================================
 
-[ ] PEPPOL UBL 3.0 (Obligatoire B2B belge depuis jan 2026) — OUT OF SCOPE FOR NOW
-    Raison : Identifiants Odoo manquants
-    Plan : Intégrer via Odoo 17+ (access point natif gratuit)
-
-[ ] Email domain SPF/DKIM — PARTIELLEMENT BLOQUÉ
-    ✓ Domaine ced-it.be utilisé (noreply@ced-it.be) — 2026-05-29
-    ✓ BREVO_FROM_EMAIL configuré sur le serveur partenaire
-    [ ] Configurer SPF/DKIM dans registrar (améliorer délivrabilité)
+✓ Email domain SPF/DKIM/DMARC — DONE (2026-06-03)
+    ✓ Mailcow LXC 110, mail.pointon.be, SPF + DKIM + DMARC configurés OVH
+    ✓ BREVO_FROM_EMAIL=noreply@pointon.be
 
 ================================================================================
 PRODUCTION DEPLOYMENT (EN COURS)
 ================================================================================
 
-✓ Domaine & DNS — DONE (2026-05-29)
-    ✓ Domaine : poincon.ced-it.be (sous-domaine ced-it.be)
-    ✓ NEXTAUTH_URL=https://poincon.ced-it.be configuré → emails avec vrai domaine
-    [ ] DNS MX + SPF/DKIM (délivrabilité email)
+✓ Infra OVH KS-5-A — DONE (2026-06-03)
+    ✓ Serveur : 141.94.102.226 · Proxmox VE 9 · Roubaix RBX8
+    ✓ LXC 101 : nginx-proxy (NPM + SSL Let's Encrypt)
+    ✓ LXC 106 : docker-pointon (Portainer + Pointon app port 3001)
+    ✓ LXC 107 : docker-saas (réservé CED-IT SaaS)
+    ✓ LXC 110 : mailcow (mail.pointon.be)
+    ✓ Port forwarding iptables Proxmox → LXC configuré
 
-✓ Serveur partenaire opérationnel — DONE (2026-05-29)
-    ✓ Docker + Docker Compose installé
-    ✓ App déployée et accessible sur https://poincon.ced-it.be
-    ✓ PostgreSQL opérationnel (réseau Docker fixé : alias db)
-    ✓ Prisma schema pushé (via node:20-alpine temporaire)
-    ✓ Emails Brevo fonctionnels avec vrai domaine (testé invitation)
-    ✓ NEXTAUTH_URL correctement configuré
+✓ Domaine & DNS — DONE (2026-06-01)
+    ✓ Domaine : pointon.be (OVH, DNS Anycast, DNSSEC activé)
+    ✓ Zone DNS : A, MX, SPF configurés
+    [ ] NEXTAUTH_URL=https://pointon.be à configurer dans .env LXC 106
+    [ ] Proxy host NPM (LXC 101) : pointon.be → 10.0.0.106:3001 + SSL Let's Encrypt
+    [ ] DNS MX DKIM/DMARC (délivrabilité Mailcow)
 
-[ ] SSL/HTTPS
-    [ ] Vérifier cert SSL sur poincon.ced-it.be (Let's Encrypt ou proxy)
+✓ App déployée sur OVH — DONE (2026-06-03)
+    ✓ Deploy manuel SSH validé : git pull + docker compose up -d --build app
+    ✓ Build Next 16 (--experimental-build-mode compile) : 12s ✓
+    ✓ Container Started ✓
+    ✓ .env LXC 106 complet (NEXTAUTH_URL, NEXTAUTH_SECRET, BREVO) — 2026-06-03
+    [ ] Stripe live keys → remplacer clés test par clés production dans .env LXC 106
+    ✓ Seeder les 4 plans (FREE/SOLO/TEAM/ENTERPRISE) — DONE (2026-06-03)
+    ✓ Mot de passe admin@pointon.be changé — DONE (2026-06-03)
+    [ ] Prisma db push si schema modifié depuis dernier deploy
 
-[ ] Database Production
-    [ ] PostgreSQL backup strategy (daily → storage)
-    [ ] Database monitoring (connection limits, disk space alerts)
+✓ SSL/HTTPS — DONE (2026-06-03)
+    ✓ NPM proxy host configuré : pointon.be → 10.0.0.106:3001
+    ✓ Let's Encrypt actif dans NPM
 
-[ ] CI/CD: GitHub Actions → auto-deploy
-    [ ] Générer SSH key (ssh-keygen -t rsa -b 4096)
-    [ ] Ajouter public key au serveur ~/.ssh/authorized_keys
-    [ ] Ajouter private key en secret GitHub : SERVER_SSH_KEY
-    [ ] Workflow GitHub Actions au push main
-    [ ] Tester deploy end-to-end
+✓ Database Production — DONE (2026-06-03)
+    ✓ Backups journaliers configurés dans Proxmox (snapshots LXC)
+
+✓ Renouvellement automatique OVH — DONE (2026-06-03)
+    ✓ Actif dans le panel OVH pour KS-5-A
+
+✓ CI/CD: GitHub Actions → auto-deploy — DONE (2026-06-03)
 
 [ ] Post-Deploy Tests
     [ ] Smoke tests complets (login, clock in/out, exports, Stripe, invitations)
@@ -520,6 +611,6 @@ Building blocks already done:
 - Branding Pointon v0.4.0 (logo, favicon, rename) ✓
 - Auth error messages user-friendly ✓
 
-Remaining work: ~4% (CI/CD, backup DB, SPF/DKIM, smoke tests, 2FA optionnel)
+Remaining work : Stripe live (critique) + smoke tests prod + mode kiosque PIN + Peppol/Odoo + monitoring
 
 ================================================================================
