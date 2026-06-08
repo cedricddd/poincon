@@ -34,7 +34,7 @@ export default function PrivacyPage() {
           Politique de confidentialité
         </h1>
         <p className="text-[var(--pp-muted)] text-sm">
-          Dernière mise à jour : 25 mai 2026 · Conforme au Règlement (UE) 2016/679 (RGPD)
+          Dernière mise à jour : 8 juin 2026 · Conforme au Règlement (UE) 2016/679 (RGPD)
         </p>
       </div>
 
@@ -121,6 +121,7 @@ export default function PrivacyPage() {
                   ["Envoi d'emails transactionnels", 'Exécution du contrat'],
                   ['Facturation et TVA', 'Obligation légale'],
                   ['Audit trail et sécurité', 'Intérêt légitime'],
+                  ['Surveillance des erreurs techniques (Sentry)', 'Intérêt légitime'],
                   ['Amélioration du service', 'Intérêt légitime'],
                 ].map(([fin, base]) => (
                   <tr key={fin} className="border-b border-[var(--pp-line)]">
@@ -194,9 +195,10 @@ export default function PrivacyPage() {
           </p>
           <div className="space-y-3">
             {[
-              { nom: 'Hostinger / VPS', role: 'Hébergement des serveurs et de la base de données', pays: 'UE' },
+              { nom: 'OVH SAS', role: 'Hébergement des serveurs et de la base de données — datacenter Roubaix, France', pays: 'France (UE)' },
               { nom: 'Brevo (ex-Sendinblue)', role: "Envoi d'emails transactionnels", pays: 'France (UE)' },
               { nom: 'Stripe', role: 'Traitement des paiements', pays: 'UE / USA (SCCs)' },
+              { nom: 'Sentry (Sentry GmbH)', role: "Surveillance des erreurs et exceptions techniques — les données d'erreur sont anonymisées (cookies et tokens supprimés avant envoi)", pays: 'Allemagne (UE)' },
             ].map(s => (
               <div key={s.nom} className="flex gap-4 border border-[var(--pp-line)] rounded-lg p-4">
                 <div className="flex-1">
