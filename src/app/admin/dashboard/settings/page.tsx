@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic'
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 import { Card } from '@/components/Card'
 import { Button } from '@/components/Button'
 import Image from 'next/image'
@@ -24,6 +25,7 @@ interface CompanySettings {
 }
 
 export default function SettingsPage() {
+  const { data: session } = useSession()
   const [settings, setSettings] = useState<CompanySettings | null>(null)
   const [form, setForm] = useState({ name: '', domain: '', address: '', phone: '', vatNumber: '', contactEmail: '' })
   const [loading, setLoading] = useState(true)
@@ -37,6 +39,11 @@ export default function SettingsPage() {
   const [pwSuccess, setPwSuccess] = useState('')
   const [pwError, setPwError] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const [tfaDisableCode, setTfaDisableCode] = useState('')
+  const [tfaDisabling, setTfaDisabling] = useState(false)
+  const [tfaDisableSuccess, setTfaDisableSuccess] = useState('')
+  const [tfaDisableError, setTfaDisableError] = useState('')
 
   const [presenceSettings, setPresenceSettings] = useState<{
     hasAccess: boolean; planAllows: boolean; flagOverride: boolean
@@ -166,6 +173,31 @@ export default function SettingsPage() {
       setSuccess('Logo supprimé.')
     } finally {
       setUploadingLogo(false)
+    }
+  }
+
+  const handleTfaDisable = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setTfaDisableError('')
+    setTfaDisableSuccess('')
+    setTfaDisabling(true)
+    try {
+      const res = await fetch('/api/auth/2fa/disable', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: tfaDisableCode }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setTfaDisableError(data.error ?? 'Code invalide.')
+        return
+      }
+      setTfaDisableSuccess('2FA désactivée. Vous en aurez besoin de la reconfigurer à la prochaine connexion.')
+      setTfaDisableCode('')
+    } catch {
+      setTfaDisableError('Erreur réseau.')
+    } finally {
+      setTfaDisabling(false)
     }
   }
 
@@ -540,6 +572,66 @@ export default function SettingsPage() {
             {pwSaving ? 'Mise à jour…' : 'Mettre à jour le mot de passe'}
           </Button>
         </form>
+      </Card>
+
+      {/* 2FA */}
+      <Card>
+        <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-1">Authentification à deux facteurs</h2>
+        <p className="text-sm text-[var(--pp-muted)] mb-4">
+          La 2FA est <strong>obligatoire</strong> pour les administrateurs. Elle est vérifiée à chaque connexion.
+        </p>
+
+        {session?.user?.twoFactorEnabled ? (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-sm text-green-700">
+              <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+              2FA activée
+            </div>
+
+            {tfaDisableSuccess ? (
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">{tfaDisableSuccess}</div>
+            ) : (
+              <form onSubmit={handleTfaDisable} className="space-y-3">
+                <p className="text-sm text-[var(--pp-muted)]">
+                  Pour désactiver, entrez votre code TOTP actuel. Vous devrez reconfigurer la 2FA à votre prochaine connexion.
+                </p>
+                {tfaDisableError && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">{tfaDisableError}</div>
+                )}
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9 ]*"
+                  maxLength={7}
+                  value={tfaDisableCode}
+                  onChange={e => setTfaDisableCode(e.target.value)}
+                  placeholder="123 456"
+                  required
+                  className="w-48 px-4 py-2 text-center tracking-widest border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-danger,#ef4444)]"
+                />
+                <div>
+                  <button
+                    type="submit"
+                    disabled={tfaDisabling}
+                    className="px-3 py-2 text-sm font-medium rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+                  >
+                    {tfaDisabling ? 'Désactivation...' : 'Désactiver la 2FA'}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm text-amber-700">
+              <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />
+              2FA non configurée
+            </div>
+            <p className="text-sm text-[var(--pp-muted)]">
+              La 2FA n&rsquo;est pas encore activée sur ce compte. Elle sera demandée à votre prochaine connexion.
+            </p>
+          </div>
+        )}
       </Card>
     </div>
   )

@@ -41,6 +41,8 @@ model User {
   teamMemberships       TeamMember[]
   defaultSiteId         String?
   defaultSite           Site?           @relation("DefaultSite", fields: [defaultSiteId], references: [id])
+  twoFactorEnabled      Boolean         @default(false)
+  twoFactorSecret       String?
 
   @@index([email])
   @@index([companyId])

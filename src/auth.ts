@@ -30,6 +30,7 @@ export const authConfig: NextAuthConfig = {
             name: user.name,
             role: user.role,
             rememberMe: credentials?.rememberMe === 'true',
+            twoFactorEnabled: user.twoFactorEnabled,
           }
         } catch (error) {
           console.error('Auth error:', error)
@@ -50,7 +51,7 @@ export const authConfig: NextAuthConfig = {
     maxAge: 90 * 24 * 60 * 60, // 90 days max (shorter for non-rememberMe users via sessionExpiry check)
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session: updateData }) {
       if (user) {
         token.sub = user.id
         token.email = user.email
@@ -61,17 +62,25 @@ export const authConfig: NextAuthConfig = {
 
         let sessionDurationMs: number
         if (!rememberMe) {
-          sessionDurationMs = 8 * 60 * 60 * 1000 // 8h without remember me
+          sessionDurationMs = 8 * 60 * 60 * 1000
         } else if (role === 'ADMIN' || role === 'SUPER_ADMIN') {
-          sessionDurationMs = 30 * 24 * 60 * 60 * 1000 // 30 days
+          sessionDurationMs = 30 * 24 * 60 * 60 * 1000
         } else {
-          sessionDurationMs = 90 * 24 * 60 * 60 * 1000 // 90 days for EMPLOYEE/MANAGER
+          sessionDurationMs = 90 * 24 * 60 * 60 * 1000
         }
 
         token.sessionExpiry = Date.now() + sessionDurationMs
+        token.twoFactorEnabled = (user as { twoFactorEnabled?: boolean }).twoFactorEnabled ?? false
+        // Fresh login never counts as 2FA verified — user must prove identity each session
+        token.twoFactorVerified = false
       }
 
-      // Invalidate session if custom expiry exceeded
+      // Handle session.update({ twoFactorVerified, twoFactorEnabled }) from 2FA pages
+      if (trigger === 'update' && updateData) {
+        if (updateData.twoFactorVerified === true) token.twoFactorVerified = true
+        if (typeof updateData.twoFactorEnabled === 'boolean') token.twoFactorEnabled = updateData.twoFactorEnabled
+      }
+
       if (token.sessionExpiry && Date.now() > token.sessionExpiry) {
         return null
       }
@@ -82,6 +91,8 @@ export const authConfig: NextAuthConfig = {
       if (session.user && token.sub) {
         session.user.id = token.sub
         session.user.role = token.role as string
+        session.user.twoFactorEnabled = token.twoFactorEnabled ?? false
+        session.user.twoFactorVerified = token.twoFactorVerified ?? false
       }
       return session
     },
