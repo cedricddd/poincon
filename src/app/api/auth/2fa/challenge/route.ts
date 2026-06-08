@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import { authenticator } from 'otplib'
+import { verifyTOTP } from '@/lib/totp'
 
 // POST — verify TOTP during login (user already has a session, twoFactorVerified is still false)
 export async function POST(req: Request) {
@@ -21,8 +21,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: '2FA not configured' }, { status: 400 })
   }
 
-  const isValid = authenticator.verify({ token: code, secret: user.twoFactorSecret })
-  if (!isValid) {
+  if (!verifyTOTP(code, user.twoFactorSecret)) {
     return NextResponse.json({ error: 'Invalid code' }, { status: 400 })
   }
 

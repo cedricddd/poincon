@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import { authenticator } from 'otplib'
+import { generateSecret, verifyTOTP, keyUri } from '@/lib/totp'
 import QRCode from 'qrcode'
 
 // GET — generate a new TOTP secret and return QR code (does not save to DB yet)
@@ -14,12 +14,8 @@ export async function GET() {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const secret = authenticator.generateSecret()
-  const otpAuthUrl = authenticator.keyuri(
-    session.user.email ?? session.user.id,
-    'Pointon',
-    secret,
-  )
+  const secret = generateSecret()
+  const otpAuthUrl = keyUri(session.user.email ?? session.user.id, secret)
   const qrCodeDataUrl = await QRCode.toDataURL(otpAuthUrl)
 
   return NextResponse.json({ secret, qrCodeDataUrl })
@@ -42,8 +38,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Missing secret or code' }, { status: 400 })
   }
 
-  const isValid = authenticator.verify({ token: code.replace(/\s/g, ''), secret })
-  if (!isValid) {
+  if (!verifyTOTP(code, secret)) {
     return NextResponse.json({ error: 'Invalid code' }, { status: 400 })
   }
 

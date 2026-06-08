@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import { authenticator } from 'otplib'
+import { verifyTOTP } from '@/lib/totp'
 
 // DELETE — disable 2FA (requires current TOTP code as proof)
 export async function DELETE(req: Request) {
@@ -26,8 +26,7 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: '2FA not enabled' }, { status: 400 })
   }
 
-  const isValid = authenticator.verify({ token: code, secret: user.twoFactorSecret })
-  if (!isValid) {
+  if (!verifyTOTP(code, user.twoFactorSecret)) {
     return NextResponse.json({ error: 'Invalid code' }, { status: 400 })
   }
 
