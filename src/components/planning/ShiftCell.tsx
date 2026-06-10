@@ -62,7 +62,11 @@ export function ShiftCell({ shift, isTimeOff, rttHours, onClick }: ShiftCellProp
         <div className="text-xs font-semibold text-violet-600 dark:text-violet-400 leading-tight">
           {shift.startTime}–{shift.endTime}
         </div>
-        <div className="text-[10px] text-violet-400 mt-0.5 leading-tight">Horaire</div>
+        {rttHours ? (
+          <div className="text-[9px] text-amber-500 mt-0.5 leading-tight">↩ {rttHours}h récup.</div>
+        ) : (
+          <div className="text-[10px] text-violet-400 mt-0.5 leading-tight">Horaire</div>
+        )}
       </button>
     )
   }
