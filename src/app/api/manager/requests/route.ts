@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
   })
   const memberIds = [...new Set(teamMembers.map(m => m.userId))]
 
-  const [overtimes, timeOffs, rtts] = await Promise.all([
+  const [overtimes, timeOffs, rtts, members] = await Promise.all([
     prisma.detectedOvertime.findMany({
       where: { userId: { in: memberIds } },
       include: { user: { select: { id: true, name: true, email: true } } },
@@ -49,6 +49,11 @@ export async function GET(req: NextRequest) {
       include: { user: { select: { id: true, name: true, email: true } } },
       orderBy: { createdAt: 'desc' },
     }),
+    prisma.user.findMany({
+      where: { id: { in: memberIds }, active: true, deletedAt: null },
+      select: { id: true, name: true, email: true },
+      orderBy: { name: 'asc' },
+    }),
   ])
 
   const statusOrder = (s: string) => (s === 'PENDING' ? 0 : 1)
@@ -59,6 +64,7 @@ export async function GET(req: NextRequest) {
     overtimes: sort(overtimes),
     timeOffs: sort(timeOffs),
     rtts: sort(rtts),
+    members,
     teamIds,
     memberIds,
   })

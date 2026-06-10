@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic'
 import { useEffect, useState } from 'react'
 import { AdminRequestRow } from '@/components/AdminRequestRow'
+import { showToast } from '@/hooks/useToast'
 
 type LeaveType = 'ANNUAL' | 'SICK' | 'MATERNITY'
 
@@ -30,13 +31,22 @@ interface TimeOffRequest {
   userEmail?: string
 }
 
+interface Employee { id: string; name: string | null; email: string }
+
+const EMPTY_FORM = { userId: '', leaveType: 'SICK' as LeaveType, startDate: '', endDate: '', reason: '' }
+
 export default function TimeoffsPage() {
   const [timeOffs, setTimeOffs] = useState<TimeOffRequest[]>([])
+  const [employees, setEmployees] = useState<Employee[]>([])
   const [loading, setLoading] = useState(true)
   const [actionInProgress, setActionInProgress] = useState<string | null>(null)
+  const [showModal, setShowModal] = useState(false)
+  const [form, setForm] = useState(EMPTY_FORM)
+  const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
     fetchRequests()
+    fetchEmployees()
   }, [])
 
   const fetchRequests = async () => {
@@ -54,24 +64,24 @@ export default function TimeoffsPage() {
     }
   }
 
-  const handleAction = async (
-    requestId: string,
-    action: 'approve' | 'reject',
-    reason?: string
-  ) => {
+  const fetchEmployees = async () => {
+    try {
+      const res = await fetch('/api/admin/users')
+      if (res.ok) {
+        const data = await res.json()
+        setEmployees(data.users ?? data ?? [])
+      }
+    } catch { /* silent */ }
+  }
+
+  const handleAction = async (requestId: string, action: 'approve' | 'reject', reason?: string) => {
     try {
       setActionInProgress(requestId)
       const res = await fetch('/api/admin/approve', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'timeoff',
-          requestId,
-          action,
-          rejectionReason: action === 'reject' ? reason : undefined,
-        }),
+        body: JSON.stringify({ type: 'timeoff', requestId, action, rejectionReason: action === 'reject' ? reason : undefined }),
       })
-
       if (res.ok) {
         await fetchRequests()
       } else {
@@ -86,6 +96,31 @@ export default function TimeoffsPage() {
     }
   }
 
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!form.userId || !form.startDate || !form.endDate) {
+      showToast('Veuillez remplir tous les champs obligatoires', 'warning')
+      return
+    }
+    setSubmitting(true)
+    try {
+      const res = await fetch('/api/admin/time-off', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      if (!res.ok) throw new Error()
+      showToast('Congé enregistré', 'success')
+      setShowModal(false)
+      setForm(EMPTY_FORM)
+      await fetchRequests()
+    } catch {
+      showToast('Erreur lors de l\'enregistrement', 'error')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   if (loading) {
     return <div className="p-8 text-center">Chargement...</div>
   }
@@ -94,9 +129,18 @@ export default function TimeoffsPage() {
 
   return (
     <div className="p-8">
-      <h1 className="text-3xl font-bold mb-8">
-        Demandes de Congé ({pending.length} en attente)
-      </h1>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold">
+          Demandes de Congé ({pending.length} en attente)
+        </h1>
+        <button
+          onClick={() => setShowModal(true)}
+          className="px-4 py-2 bg-[var(--pp-pos)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition"
+        >
+          + Ajouter un congé
+        </button>
+      </div>
+
       <div className="overflow-x-auto bg-[var(--pp-bg2)] rounded-lg border border-[var(--pp-line)]">
         <table className="w-full text-left">
           <thead className="bg-[var(--pp-bg)] border-b border-[var(--pp-line)]">
@@ -143,6 +187,92 @@ export default function TimeoffsPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Modal ajout congé */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-[var(--pp-bg)] rounded-2xl shadow-2xl w-full max-w-md p-6">
+            <h2 className="text-lg font-bold text-[var(--pp-ink)] mb-5">Enregistrer un congé</h2>
+            <form onSubmit={handleCreate} className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1.5">Employé *</label>
+                <select
+                  value={form.userId}
+                  onChange={e => setForm({ ...form, userId: e.target.value })}
+                  className="w-full px-3 py-2.5 border border-[var(--pp-line)] rounded-lg bg-[var(--pp-bg)] text-[var(--pp-ink)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)]"
+                  required
+                >
+                  <option value="">Sélectionner un employé…</option>
+                  {employees.map(emp => (
+                    <option key={emp.id} value={emp.id}>{emp.name ?? emp.email}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1.5">Type de congé *</label>
+                <select
+                  value={form.leaveType}
+                  onChange={e => setForm({ ...form, leaveType: e.target.value as LeaveType })}
+                  className="w-full px-3 py-2.5 border border-[var(--pp-line)] rounded-lg bg-[var(--pp-bg)] text-[var(--pp-ink)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)]"
+                >
+                  <option value="ANNUAL">Congé annuel</option>
+                  <option value="SICK">Congé maladie</option>
+                  <option value="MATERNITY">Congé maternité</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1.5">Du *</label>
+                  <input
+                    type="date"
+                    value={form.startDate}
+                    onChange={e => setForm({ ...form, startDate: e.target.value })}
+                    className="w-full px-3 py-2.5 border border-[var(--pp-line)] rounded-lg bg-[var(--pp-bg)] text-[var(--pp-ink)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)]"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1.5">Au *</label>
+                  <input
+                    type="date"
+                    value={form.endDate}
+                    onChange={e => setForm({ ...form, endDate: e.target.value })}
+                    className="w-full px-3 py-2.5 border border-[var(--pp-line)] rounded-lg bg-[var(--pp-bg)] text-[var(--pp-ink)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)]"
+                    required
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1.5">Note (optionnel)</label>
+                <input
+                  type="text"
+                  value={form.reason}
+                  onChange={e => setForm({ ...form, reason: e.target.value })}
+                  placeholder="ex: certificat médical reçu"
+                  className="w-full px-3 py-2.5 border border-[var(--pp-line)] rounded-lg bg-[var(--pp-bg)] text-[var(--pp-ink)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)]"
+                />
+              </div>
+              <p className="text-xs text-[var(--pp-muted)]">Le congé sera directement enregistré comme <strong>approuvé</strong>.</p>
+              <div className="flex gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => { setShowModal(false); setForm(EMPTY_FORM) }}
+                  className="flex-1 px-4 py-2.5 border border-[var(--pp-line)] rounded-lg text-sm text-[var(--pp-ink)] hover:bg-[var(--pp-bg2)] transition"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex-1 px-4 py-2.5 bg-[var(--pp-pos)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition disabled:opacity-60"
+                >
+                  {submitting ? 'Enregistrement…' : 'Enregistrer'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
