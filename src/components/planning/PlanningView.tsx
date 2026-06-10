@@ -1,9 +1,14 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { showToast } from '@/hooks/useToast'
 import { WeekGrid, ShiftData, UserData, TimeOffData, RTTData } from './WeekGrid'
 import { ShiftModal, ShiftFormData } from './ShiftModal'
+import { getCurrentPeriod, parseWorkDays } from '@/lib/rotation'
+
+interface RotationPeriod { id: string; order: number; label: string; shiftType: string | null; startTime: string | null; endTime: string | null; workDays: string }
+interface RotationCycle { id: string; name: string; periodUnit: 'WEEK' | 'DAY'; anchorDate: string; periods: RotationPeriod[] }
+interface TeamWithRotation { id: string; members: { userId: string }[]; rotationCycle: RotationCycle | null; rotationPhase: number | null }
 
 function getMonday(d: Date): Date {
   const date = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))
@@ -44,6 +49,7 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
   const [rtts, setRtts] = useState<RTTData[]>([])
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState<ModalState>({ open: false })
+  const [teams, setTeams] = useState<TeamWithRotation[]>([])
 
   const fetchData = useCallback(async (monday: Date) => {
     setLoading(true)
@@ -64,6 +70,37 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
   }, [apiBase])
 
   useEffect(() => { fetchData(weekStart) }, [weekStart, fetchData])
+
+  useEffect(() => {
+    if (apiBase !== '/api/admin') return
+    fetch('/api/admin/teams')
+      .then(r => r.ok ? r.json() : { teams: [] })
+      .then(d => setTeams(d.teams ?? []))
+      .catch(() => {})
+  }, [apiBase])
+
+  const userPhaseBadges = useMemo((): Map<string, string> => {
+    const map = new Map<string, string>()
+    for (const team of teams) {
+      if (!team.rotationCycle || team.rotationPhase == null) continue
+      const cycle = team.rotationCycle
+      const teamData = {
+        id: team.id,
+        rotationCycle: {
+          ...cycle,
+          anchorDate: new Date(cycle.anchorDate),
+          periods: cycle.periods.map(p => ({ ...p, workDays: parseWorkDays(p.workDays) })),
+        },
+        rotationPhase: team.rotationPhase,
+      }
+      const period = getCurrentPeriod(teamData, weekStart)
+      if (!period) continue
+      for (const m of team.members) {
+        map.set(m.userId, period.label)
+      }
+    }
+    return map
+  }, [teams, weekStart])
 
   const prevWeek = () => {
     setWeekStart(prev => {
@@ -179,6 +216,7 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
             users={users}
             timeOffs={timeOffs}
             rtts={rtts}
+            userPhaseBadges={userPhaseBadges}
             onCellClick={(userId, date, prefill) => setModal({ open: true, mode: 'create', userId, date, startTime: prefill?.startTime, endTime: prefill?.endTime })}
             onShiftClick={shift => setModal({ open: true, mode: 'edit', shift })}
           />

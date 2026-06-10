@@ -57,11 +57,12 @@ interface WeekGridProps {
   users: UserData[]
   timeOffs: TimeOffData[]
   rtts?: RTTData[]
+  userPhaseBadges?: Map<string, string>
   onCellClick: (userId: string, date: string, prefill?: { startTime: string; endTime: string }) => void
   onShiftClick: (shift: ShiftData) => void
 }
 
-export function WeekGrid({ weekStart, shifts, users, timeOffs, rtts, onCellClick, onShiftClick }: WeekGridProps) {
+export function WeekGrid({ weekStart, shifts, users, timeOffs, rtts, userPhaseBadges, onCellClick, onShiftClick }: WeekGridProps) {
   const monday = getMondayOf(weekStart)
   const days = Array.from({ length: 7 }, (_, i) => addDays(monday, i))
 
@@ -133,6 +134,11 @@ export function WeekGrid({ weekStart, shifts, users, timeOffs, rtts, onCellClick
                 </div>
                 {user.name && (
                   <div className="text-[10px] text-[var(--pp-muted)] truncate max-w-[128px]">{user.email}</div>
+                )}
+                {userPhaseBadges?.get(user.id) && (
+                  <div className="text-[10px] mt-0.5 px-1.5 py-0.5 rounded bg-[var(--pp-info)]/10 text-[var(--pp-info)] font-medium inline-block truncate max-w-[128px]">
+                    {userPhaseBadges.get(user.id)}
+                  </div>
                 )}
               </td>
               {days.map((day, i) => {

@@ -160,6 +160,7 @@ model Company {
   members               User[]          @relation("CompanyMembers")
   plan                  Plan?           @relation(fields: [planId], references: [id])
   teams                 Team[]
+  rotationCycles        RotationCycle[]
   sites                 Site[]
   featureFlags          CompanyFeatureFlag[]
   planHistory           PlanHistory[]
@@ -177,13 +178,49 @@ model Team {
   id                    String          @id @default(cuid())
   name                  String
   companyId             String
+  rotationCycleId       String?
+  rotationPhase         Int?
   createdAt             DateTime        @default(now())
   updatedAt             DateTime        @updatedAt
 
   company               Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
   members               TeamMember[]
+  rotationCycle         RotationCycle?  @relation(fields: [rotationCycleId], references: [id], onDelete: SetNull)
 
   @@index([companyId])
+  @@index([rotationCycleId])
+}
+
+model RotationCycle {
+  id          String           @id @default(cuid())
+  companyId   String
+  name        String
+  periodUnit  String           @default("WEEK") // WEEK | DAY
+  anchorDate  DateTime
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  company     Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  periods     RotationPeriod[]
+  teams       Team[]
+
+  @@index([companyId])
+}
+
+model RotationPeriod {
+  id          String         @id @default(cuid())
+  cycleId     String
+  order       Int
+  label       String
+  shiftType   String?
+  startTime   String?
+  endTime     String?
+  workDays    String         @default("[1,2,3,4,5]")
+
+  cycle       RotationCycle  @relation(fields: [cycleId], references: [id], onDelete: Cascade)
+
+  @@unique([cycleId, order])
+  @@index([cycleId])
 }
 
 model TeamMember {

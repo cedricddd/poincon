@@ -36,6 +36,9 @@ export async function GET() {
           user: { select: { id: true, name: true, email: true, role: true } },
         },
       },
+      rotationCycle: {
+        include: { periods: { orderBy: { order: 'asc' } } },
+      },
     },
     orderBy: { name: 'asc' },
   })
@@ -95,12 +98,19 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'Plan insuffisant' }, { status: 403 })
   }
 
-  const { id, name } = await req.json()
+  const { id, name, rotationCycleId, rotationPhase } = await req.json()
   if (!id) return NextResponse.json({ error: 'id requis' }, { status: 400 })
 
   const team = await prisma.team.update({
     where: { id },
-    data: { ...(name && { name }) },
+    data: {
+      ...(name && { name }),
+      ...(rotationCycleId !== undefined && { rotationCycleId: rotationCycleId || null }),
+      ...(rotationPhase !== undefined && { rotationPhase: rotationPhase !== null ? Number(rotationPhase) : null }),
+    },
+    include: {
+      rotationCycle: { include: { periods: { orderBy: { order: 'asc' } } } },
+    },
   })
 
   return NextResponse.json({ team })
