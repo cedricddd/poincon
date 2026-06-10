@@ -102,12 +102,13 @@ export default function AdminDashboard() {
   const load = useCallback(async () => {
     try {
     const { from, to } = weekRange()
-    const [req, sched, users, presence, reports] = await Promise.all([
+    const [req, sched, users, presence, reports, teamsData] = await Promise.all([
       fetch('/api/admin/requests').then(r => r.json()),
       fetch('/api/admin/schedule').then(r => r.json()),
       fetch('/api/admin/users').then(r => r.json()),
       fetch('/api/admin/presence').then(r => r.json()),
       fetch(`/api/admin/reports?from=${from}&to=${to}&page=1`).then(r => r.json()),
+      fetch('/api/admin/teams').then(r => r.ok ? r.json() : { teams: [] }),
     ])
 
     const schedules: any[] = sched.schedules ?? []
@@ -119,8 +120,19 @@ export default function AdminDashboard() {
       g.people.map((p: any) => ({ user: p.user, site: g.site, arrivalTime: p.arrivalTime }))
     )
 
-    // Employees without schedule
-    const noSchedule = allUsers.filter(u => u.role === 'EMPLOYEE' && !schedules.find((s: any) => s.userId === u.id && s.scheduleId)).length
+    // Employees in a rotation team don't need a work schedule
+    const rotationUserIds = new Set<string>(
+      (teamsData.teams ?? [])
+        .filter((t: any) => t.rotationCycle)
+        .flatMap((t: any) => (t.members ?? []).map((m: any) => m.userId))
+    )
+
+    // Employees without schedule (excluding rotation-managed employees)
+    const noSchedule = allUsers.filter(u =>
+      u.role === 'EMPLOYEE' &&
+      !rotationUserIds.has(u.id) &&
+      !schedules.find((s: any) => s.userId === u.id && s.scheduleId)
+    ).length
 
     // Week minutes
     const weekMinutes: number = reports.stats?.totalMinutes ?? 0

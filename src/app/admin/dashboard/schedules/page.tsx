@@ -189,24 +189,32 @@ function AssignmentsTab() {
                       )}
                     </td>
                     <td className="py-3 pr-4">
-                      <select
-                        value={type}
-                        onChange={e => setPending(p => ({ ...p, [row.userId]: e.target.value }))}
-                        className="px-2 py-1.5 border border-[var(--pp-line)] rounded-lg text-sm bg-[var(--pp-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] w-48"
-                      >
-                        <option value="">— Non configuré —</option>
-                        {Object.entries(TYPE_LABELS).map(([k, v]) => (
-                          <option key={k} value={k}>{v}</option>
-                        ))}
-                      </select>
-                      {type && (
-                        <p className="text-xs text-[var(--pp-muted)] mt-1 max-w-xs leading-relaxed">
-                          {TYPE_DESCRIPTIONS[type]}
-                        </p>
+                      {rotationMap[row.userId] ? (
+                        <div className="flex items-center gap-2 text-sm text-[var(--pp-muted)] italic">
+                          <span>↻ Géré par le cycle de rotation</span>
+                        </div>
+                      ) : (
+                        <>
+                          <select
+                            value={type}
+                            onChange={e => setPending(p => ({ ...p, [row.userId]: e.target.value }))}
+                            className="px-2 py-1.5 border border-[var(--pp-line)] rounded-lg text-sm bg-[var(--pp-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] w-48"
+                          >
+                            <option value="">— Non configuré —</option>
+                            {Object.entries(TYPE_LABELS).map(([k, v]) => (
+                              <option key={k} value={k}>{v}</option>
+                            ))}
+                          </select>
+                          {type && (
+                            <p className="text-xs text-[var(--pp-muted)] mt-1 max-w-xs leading-relaxed">
+                              {TYPE_DESCRIPTIONS[type]}
+                            </p>
+                          )}
+                        </>
                       )}
                     </td>
                     <td className="py-3 pr-4 hidden lg:table-cell">
-                      {hours !== null ? (
+                      {rotationMap[row.userId] ? null : hours !== null ? (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--pp-info)]/10 text-[var(--pp-info)]">
                           &gt; {hours}h/jour = heure sup.
                         </span>
@@ -217,7 +225,7 @@ function AssignmentsTab() {
                       )}
                     </td>
                     <td className="py-3">
-                      {dirty && (
+                      {!rotationMap[row.userId] && dirty && (
                         <Button size="sm" onClick={() => save(row.userId)} disabled={saving === row.userId}>
                           {saving === row.userId ? '…' : 'Sauver'}
                         </Button>
