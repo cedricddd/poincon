@@ -275,6 +275,20 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
           </span>
           Nuit (3×8)
         </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-flex gap-0.5">
+            <span className="inline-block w-3 h-4 rounded-l bg-violet-500/15 border border-violet-500/35" />
+            <span className="inline-block w-3 h-4 rounded-r bg-violet-500/8 border border-dashed border-violet-400/60" />
+          </span>
+          Temps partiel
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-flex gap-0.5">
+            <span className="inline-block w-3 h-4 rounded-l bg-teal-500/15 border border-teal-500/35" />
+            <span className="inline-block w-3 h-4 rounded-r bg-teal-500/8 border border-dashed border-teal-400/60" />
+          </span>
+          Variable
+        </span>
         <span className="text-[var(--pp-muted)]/50 hidden sm:inline">·</span>
         <span className="flex items-center gap-1">
           <span className="inline-block w-2.5 h-4 rounded bg-sky-500/15 border border-sky-500/35" />

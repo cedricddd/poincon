@@ -90,6 +90,22 @@ const SHIFT_TYPE_CONFIG: Record<string, { bg: string; hover: string; text: strin
     templateBg: 'bg-indigo-500/8',
     dashedBorder: 'border-indigo-400/60',
   },
+  PARTIAL: {
+    bg: 'bg-violet-500/15 border border-violet-500/35',
+    hover: 'hover:bg-violet-500/25',
+    text: 'text-violet-400',
+    label: 'Temps partiel',
+    templateBg: 'bg-violet-500/8',
+    dashedBorder: 'border-violet-400/60',
+  },
+  VARIABLE: {
+    bg: 'bg-teal-500/15 border border-teal-500/35',
+    hover: 'hover:bg-teal-500/25',
+    text: 'text-teal-400',
+    label: 'Variable',
+    templateBg: 'bg-teal-500/8',
+    dashedBorder: 'border-teal-400/60',
+  },
 }
 
 export function ShiftCell({ shift, leaveType, rttHours, rotationSlot, onClick }: ShiftCellProps) {

@@ -42,6 +42,8 @@ const SHIFT_TYPES = [
   { value: 'MORNING', label: 'Matin (2×8)', description: 'Ex. 06:00 – 14:00' },
   { value: 'AFTERNOON', label: 'Après-midi (2×8)', description: 'Ex. 14:00 – 22:00' },
   { value: 'NIGHT', label: 'Nuit (3×8)', description: 'Ex. 22:00 – 06:00' },
+  { value: 'PARTIAL', label: 'Temps partiel', description: 'Contrat réduit — heures à définir' },
+  { value: 'VARIABLE', label: 'Variable', description: 'Horaires flexibles ou irréguliers' },
 ]
 
 export function ShiftModal({ mode, initialData, users, shift, onSave, onDelete, onClose }: ShiftModalProps) {
