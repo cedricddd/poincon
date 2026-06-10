@@ -27,6 +27,7 @@ export interface ShiftData {
   date: string // ISO string
   startTime: string
   endTime: string
+  shiftType?: string | null
   note?: string | null
   isTemplate?: boolean
 }

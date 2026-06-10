@@ -20,7 +20,16 @@ export async function GET() {
     return NextResponse.json({ error: 'Plan insuffisant' }, { status: 403 })
   }
 
+  const admin = await prisma.user.findUnique({ where: { id: session.user.id }, select: { companyId: true } })
+  let companyId = admin?.companyId
+  if (!companyId) {
+    const company = await prisma.company.findFirst({ where: { adminId: session.user.id }, select: { id: true } })
+    companyId = company?.id
+  }
+  if (!companyId) return NextResponse.json({ teams: [] })
+
   const teams = await prisma.team.findMany({
+    where: { companyId },
     include: {
       members: {
         include: {

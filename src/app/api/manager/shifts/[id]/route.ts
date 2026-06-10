@@ -37,7 +37,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const shift = await prisma.shift.findFirst({ where: { id, userId: { in: memberIds } } })
   if (!shift) return NextResponse.json({ error: 'Shift introuvable' }, { status: 404 })
 
-  const { siteId, date, startTime, endTime, note } = await req.json()
+  const { siteId, date, startTime, endTime, shiftType, note } = await req.json()
 
   const updated = await prisma.shift.update({
     where: { id },
@@ -46,6 +46,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(date && { date: new Date(date + 'T00:00:00.000Z') }),
       ...(startTime && { startTime }),
       ...(endTime && { endTime }),
+      ...(shiftType && { shiftType }),
       ...(note !== undefined && { note: note ?? null }),
     },
     include: { user: { select: { id: true, name: true, email: true } } },

@@ -188,8 +188,20 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-4 text-xs text-[var(--pp-muted)]">
         <span className="flex items-center gap-1.5">
-          <span className="inline-block w-4 h-4 rounded bg-[var(--pp-info)]/15 border border-[var(--pp-info)]/30" />
-          Shift confirmé
+          <span className="inline-block w-4 h-4 rounded bg-[var(--pp-info)]/12 border border-[var(--pp-info)]/30" />
+          Journée
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-4 h-4 rounded bg-emerald-500/10 border border-emerald-500/30" />
+          Matin (2×8)
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-4 h-4 rounded bg-orange-400/10 border border-orange-400/30" />
+          Après-midi (2×8)
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-4 h-4 rounded bg-violet-500/10 border border-violet-500/30" />
+          Nuit (3×8)
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-4 h-4 rounded bg-violet-500/10 border border-dashed border-violet-400/50" />

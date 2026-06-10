@@ -7,6 +7,7 @@ export interface ShiftFormData {
   date: string // YYYY-MM-DD
   startTime: string
   endTime: string
+  shiftType: string
   note: string
 }
 
@@ -22,6 +23,7 @@ interface Shift {
   date: string
   startTime: string
   endTime: string
+  shiftType?: string | null
   note?: string | null
 }
 
@@ -35,11 +37,19 @@ interface ShiftModalProps {
   onClose: () => void
 }
 
+const SHIFT_TYPES = [
+  { value: 'DAY', label: 'Journée', description: 'Horaire de jour standard' },
+  { value: 'MORNING', label: 'Matin (2×8)', description: 'Ex. 06:00 – 14:00' },
+  { value: 'AFTERNOON', label: 'Après-midi (2×8)', description: 'Ex. 14:00 – 22:00' },
+  { value: 'NIGHT', label: 'Nuit (3×8)', description: 'Ex. 22:00 – 06:00' },
+]
+
 export function ShiftModal({ mode, initialData, users, shift, onSave, onDelete, onClose }: ShiftModalProps) {
   const [userId, setUserId] = useState(initialData.userId ?? '')
   const [date, setDate] = useState(initialData.date ?? '')
   const [startTime, setStartTime] = useState(initialData.startTime ?? '09:00')
   const [endTime, setEndTime] = useState(initialData.endTime ?? '17:00')
+  const [shiftType, setShiftType] = useState(initialData.shiftType ?? 'DAY')
   const [note, setNote] = useState(initialData.note ?? '')
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -51,6 +61,7 @@ export function ShiftModal({ mode, initialData, users, shift, onSave, onDelete, 
       setDate(shift.date.slice(0, 10))
       setStartTime(shift.startTime)
       setEndTime(shift.endTime)
+      setShiftType(shift.shiftType ?? 'DAY')
       setNote(shift.note ?? '')
     }
   }, [shift])
@@ -63,7 +74,7 @@ export function ShiftModal({ mode, initialData, users, shift, onSave, onDelete, 
     setSaving(true)
     setError('')
     try {
-      await onSave({ userId, date, startTime, endTime, note })
+      await onSave({ userId, date, startTime, endTime, shiftType, note })
       onClose()
     } catch {
       setError('Erreur lors de la sauvegarde.')
@@ -151,6 +162,27 @@ export function ShiftModal({ mode, initialData, users, shift, onSave, onDelete, 
                 onChange={e => setEndTime(e.target.value)}
                 className="w-full border border-[var(--pp-line)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] bg-[var(--pp-bg)]"
               />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1.5">Type d'horaire</label>
+            <div className="grid grid-cols-2 gap-2">
+              {SHIFT_TYPES.map(t => (
+                <button
+                  key={t.value}
+                  type="button"
+                  onClick={() => setShiftType(t.value)}
+                  className={`text-left px-3 py-2 rounded-lg border text-xs transition-all ${
+                    shiftType === t.value
+                      ? 'border-[var(--pp-info)] bg-[var(--pp-info)]/8 text-[var(--pp-info)]'
+                      : 'border-[var(--pp-line)] hover:border-[var(--pp-info)]/50 text-[var(--pp-ink)]'
+                  }`}
+                >
+                  <div className="font-medium">{t.label}</div>
+                  <div className="text-[10px] text-[var(--pp-muted)] mt-0.5">{t.description}</div>
+                </button>
+              ))}
             </div>
           </div>
 

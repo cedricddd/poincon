@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Plan insuffisant' }, { status: 403 })
   }
 
-  const { userId, siteId, date, startTime, endTime, note } = await req.json()
+  const { userId, siteId, date, startTime, endTime, shiftType, note } = await req.json()
   if (!userId || !date || !startTime || !endTime) {
     return NextResponse.json({ error: 'Champs requis: userId, date, startTime, endTime' }, { status: 400 })
   }
@@ -155,6 +155,7 @@ export async function POST(req: NextRequest) {
       date: new Date(date + 'T00:00:00.000Z'),
       startTime,
       endTime,
+      shiftType: shiftType ?? 'DAY',
       note: note ?? null,
     },
     include: { user: { select: { id: true, name: true, email: true } } },
