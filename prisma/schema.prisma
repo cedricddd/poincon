@@ -303,6 +303,7 @@ model TimeOffRequest {
   userId                String
   startDate             DateTime
   endDate               DateTime
+  leaveType             String          @default("ANNUAL") // ANNUAL, SICK, MATERNITY
   reason                String?
   status                String          @default("PENDING") // PENDING, APPROVED, REJECTED
   approvedBy            String?

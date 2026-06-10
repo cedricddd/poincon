@@ -6,10 +6,25 @@ import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 import { showToast } from '@/hooks/useToast'
 
+type LeaveType = 'ANNUAL' | 'SICK' | 'MATERNITY'
+
+const LEAVE_TYPE_LABELS: Record<LeaveType, string> = {
+  ANNUAL: 'Congé annuel',
+  SICK: 'Congé maladie',
+  MATERNITY: 'Congé maternité',
+}
+
+const LEAVE_TYPE_COLORS: Record<LeaveType, string> = {
+  ANNUAL: 'bg-[var(--pp-pos)]/12 text-[var(--pp-pos)]',
+  SICK: 'bg-orange-500/12 text-orange-600 dark:text-orange-400',
+  MATERNITY: 'bg-pink-500/12 text-pink-600 dark:text-pink-400',
+}
+
 interface TimeOffRequest {
   id: string
   startDate: string
   endDate: string
+  leaveType: LeaveType
   reason: string
   status: 'PENDING' | 'APPROVED' | 'REJECTED'
   approvedAt?: string
@@ -38,7 +53,7 @@ export default function TimeOffPage() {
   const [requests, setRequests] = useState<TimeOffRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
-  const [formData, setFormData] = useState({ startDate: '', endDate: '', reason: '' })
+  const [formData, setFormData] = useState({ startDate: '', endDate: '', leaveType: 'ANNUAL' as LeaveType, reason: '' })
 
   useEffect(() => { loadRequests() }, [])
 
@@ -71,7 +86,7 @@ export default function TimeOffPage() {
       })
       if (!res.ok) throw new Error()
       showToast('Demande de congé créée ✓', 'success')
-      setFormData({ startDate: '', endDate: '', reason: '' })
+      setFormData({ startDate: '', endDate: '', leaveType: 'ANNUAL', reason: '' })
       await loadRequests()
     } catch {
       showToast('Erreur lors de la création', 'error')
@@ -110,6 +125,18 @@ export default function TimeOffPage() {
             <Card>
               <h2 className="text-base font-semibold text-[var(--pp-ink)] mb-4">Nouvelle demande</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1.5">Type de congé</label>
+                  <select
+                    value={formData.leaveType}
+                    onChange={e => setFormData({ ...formData, leaveType: e.target.value as LeaveType })}
+                    className="w-full px-4 py-3.5 border border-[var(--pp-line)] rounded-xl bg-[var(--pp-bg)] text-[var(--pp-ink)] text-base focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)]"
+                  >
+                    <option value="ANNUAL">Congé annuel</option>
+                    <option value="SICK">Congé maladie</option>
+                    <option value="MATERNITY">Congé maternité</option>
+                  </select>
+                </div>
                 <div>
                   <label className="block text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1.5">Date de début</label>
                   <input type="date" value={formData.startDate}
@@ -183,6 +210,11 @@ export default function TimeOffPage() {
                     <div key={req.id} className="p-4 rounded-xl border border-[var(--pp-line)] bg-[var(--pp-bg)] hover:border-[var(--pp-info)]/30 transition">
                       <div className="flex items-start justify-between gap-3">
                         <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${LEAVE_TYPE_COLORS[req.leaveType ?? 'ANNUAL']}`}>
+                              {LEAVE_TYPE_LABELS[req.leaveType ?? 'ANNUAL']}
+                            </span>
+                          </div>
                           <p className="text-sm font-semibold text-[var(--pp-ink)]">
                             {fmt(req.startDate)} → {fmt(req.endDate)}
                           </p>

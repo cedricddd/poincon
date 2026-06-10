@@ -3,6 +3,7 @@
 interface RequestRowProps {
   id: string
   type: string
+  typeColor?: string
   employee: string
   email: string
   status: string
@@ -21,6 +22,7 @@ const statusColors: Record<string, string> = {
 export function AdminRequestRow({
   id,
   type,
+  typeColor,
   employee,
   email,
   status,
@@ -31,7 +33,11 @@ export function AdminRequestRow({
 }: RequestRowProps) {
   return (
     <tr className="border-b border-[var(--pp-line)] hover:bg-[var(--pp-bg2)]">
-      <td className="px-4 py-3">{type}</td>
+      <td className="px-4 py-3">
+        {typeColor ? (
+          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${typeColor}`}>{type}</span>
+        ) : type}
+      </td>
       <td className="px-4 py-3">
         <div>
           <div className="font-medium">{employee}</div>

@@ -4,11 +4,26 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useState } from 'react'
 import { AdminRequestRow } from '@/components/AdminRequestRow'
 
+type LeaveType = 'ANNUAL' | 'SICK' | 'MATERNITY'
+
+const LEAVE_TYPE_LABELS: Record<LeaveType, string> = {
+  ANNUAL: 'Congé annuel',
+  SICK: 'Congé maladie',
+  MATERNITY: 'Congé maternité',
+}
+
+const LEAVE_TYPE_COLORS: Record<LeaveType, string> = {
+  ANNUAL: 'bg-[var(--pp-pos)]/12 text-[var(--pp-pos)]',
+  SICK: 'bg-orange-500/12 text-orange-600 dark:text-orange-400',
+  MATERNITY: 'bg-pink-500/12 text-pink-600 dark:text-pink-400',
+}
+
 interface TimeOffRequest {
   id: string
   userId: string
   startDate: string
   endDate: string
+  leaveType?: LeaveType
   reason?: string
   status: string
   userName?: string
@@ -109,11 +124,12 @@ export default function TimeoffsPage() {
                   <AdminRequestRow
                     key={to.id}
                     id={to.id}
-                    type="Congé"
+                    type={LEAVE_TYPE_LABELS[to.leaveType ?? 'ANNUAL']}
+                    typeColor={LEAVE_TYPE_COLORS[to.leaveType ?? 'ANNUAL']}
                     employee={to.userName || 'Inconnu'}
                     email={to.userEmail || ''}
                     status={to.status}
-                    details={`${start.toLocaleDateString('fr-BE')} → ${end.toLocaleDateString('fr-BE')} (${days}j) — ${to.reason || 'Pas de raison'}`}
+                    details={`${start.toLocaleDateString('fr-BE')} → ${end.toLocaleDateString('fr-BE')} (${days}j)${to.reason ? ` — ${to.reason}` : ''}`}
                     disabled={actionInProgress === to.id}
                     onApprove={() => handleAction(to.id, 'approve')}
                     onReject={() => {

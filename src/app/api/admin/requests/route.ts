@@ -82,6 +82,7 @@ export async function GET(req: NextRequest) {
         userId: to.userId,
         startDate: to.startDate.toISOString(),
         endDate: to.endDate.toISOString(),
+        leaveType: to.leaveType,
         reason: to.reason,
         status: to.status,
         userName: to.user.name || 'Sans nom',

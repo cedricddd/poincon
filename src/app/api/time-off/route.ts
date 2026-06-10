@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { startDate, endDate, reason } = await req.json()
+    const { startDate, endDate, reason, leaveType } = await req.json()
     if (!startDate || !endDate) {
       return NextResponse.json({ error: 'Missing dates' }, { status: 400 })
     }
@@ -40,11 +40,13 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    const validLeaveTypes = ['ANNUAL', 'SICK', 'MATERNITY']
     const request = await prisma.timeOffRequest.create({
       data: {
         userId: session.user.id,
         startDate: start,
         endDate: end,
+        leaveType: validLeaveTypes.includes(leaveType) ? leaveType : 'ANNUAL',
         reason: reason || '',
       },
     })
