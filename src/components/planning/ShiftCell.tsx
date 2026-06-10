@@ -56,30 +56,34 @@ const LEAVE_CONFIG: Record<string, { bg: string; text: string; label: string; ic
   },
 }
 
-const SHIFT_TYPE_CONFIG: Record<string, { bg: string; hover: string; text: string; label: string }> = {
+const SHIFT_TYPE_CONFIG: Record<string, { bg: string; hover: string; text: string; label: string; dashedBorder: string }> = {
   DAY: {
     bg: 'bg-[var(--pp-info)]/12 border border-[var(--pp-info)]/30',
     hover: 'hover:bg-[var(--pp-info)]/20',
     text: 'text-[var(--pp-info)]',
     label: 'Journée',
+    dashedBorder: 'border-[var(--pp-info)]/50',
   },
   MORNING: {
     bg: 'bg-emerald-500/10 border border-emerald-500/30',
     hover: 'hover:bg-emerald-500/20',
     text: 'text-emerald-600 dark:text-emerald-400',
     label: 'Matin',
+    dashedBorder: 'border-emerald-500/50',
   },
   AFTERNOON: {
     bg: 'bg-orange-400/10 border border-orange-400/30',
     hover: 'hover:bg-orange-400/20',
     text: 'text-orange-600 dark:text-orange-400',
     label: 'Après-midi',
+    dashedBorder: 'border-orange-400/50',
   },
   NIGHT: {
     bg: 'bg-violet-500/10 border border-violet-500/30',
     hover: 'hover:bg-violet-500/20',
     text: 'text-violet-600 dark:text-violet-400',
     label: 'Nuit',
+    dashedBorder: 'border-violet-400/50',
   },
 }
 
@@ -128,19 +132,20 @@ export function ShiftCell({ shift, leaveType, rttHours, onClick }: ShiftCellProp
   }
 
   if (shift.isTemplate) {
+    const tplCfg = SHIFT_TYPE_CONFIG[shift.shiftType ?? 'DAY'] ?? SHIFT_TYPE_CONFIG.DAY
     return (
       <button
         onClick={onClick}
         title="Shift basé sur l'horaire assigné — cliquer pour confirmer"
-        className="h-full min-h-[56px] w-full rounded-md bg-violet-500/10 border border-dashed border-violet-400/50 hover:bg-violet-500/20 transition-all text-left px-2 py-1.5"
+        className={`h-full min-h-[56px] w-full rounded-md border border-dashed ${tplCfg.dashedBorder} ${tplCfg.hover} transition-all text-left px-2 py-1.5`}
       >
-        <div className="text-xs font-semibold text-violet-600 dark:text-violet-400 leading-tight">
+        <div className={`text-xs font-semibold ${tplCfg.text} leading-tight`}>
           {shift.startTime}–{shift.endTime}
         </div>
         {rttHours ? (
           <div className="text-[9px] text-amber-500 mt-0.5 leading-tight">↩ {rttHours}h récup.</div>
         ) : (
-          <div className="text-[10px] text-violet-400 mt-0.5 leading-tight">Horaire</div>
+          <div className={`text-[10px] ${tplCfg.text} opacity-60 mt-0.5 leading-tight`}>Horaire</div>
         )}
       </button>
     )

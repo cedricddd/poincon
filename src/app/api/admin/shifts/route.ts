@@ -6,6 +6,15 @@ function utcDateKey(d: Date): string {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`
 }
 
+function deriveShiftType(startTime: string, scheduleType: string): string {
+  if (scheduleType === 'NUIT') return 'NIGHT'
+  if (scheduleType === 'JOURNEE' || scheduleType === 'PARTIEL' || scheduleType === 'VARIABLE') return 'DAY'
+  const hours = parseInt(startTime.split(':')[0], 10)
+  if (hours >= 4 && hours < 12) return 'MORNING'
+  if (hours >= 12 && hours < 20) return 'AFTERNOON'
+  return 'NIGHT'
+}
+
 export async function GET(req: NextRequest) {
   const auth = await requireAdminWithCompany()
   if (!auth) return forbiddenError()
@@ -91,6 +100,7 @@ export async function GET(req: NextRequest) {
         date: day.toISOString(),
         startTime: us.workSchedule.startTime,
         endTime: us.workSchedule.endTime,
+        shiftType: deriveShiftType(us.workSchedule.startTime, us.workSchedule.type),
         note: null,
         isTemplate: true,
       })
