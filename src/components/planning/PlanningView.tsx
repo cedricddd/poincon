@@ -186,30 +186,49 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap items-center gap-4 text-xs text-[var(--pp-muted)]">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-[var(--pp-muted)]">
+        {/* Shift types — solid = confirmé, pointillé = horaire à confirmer */}
         <span className="flex items-center gap-1.5">
-          <span className="inline-block w-4 h-4 rounded bg-[var(--pp-info)]/12 border border-[var(--pp-info)]/30" />
+          <span className="inline-flex gap-0.5">
+            <span className="inline-block w-3 h-4 rounded-l bg-sky-500/15 border border-sky-500/35" />
+            <span className="inline-block w-3 h-4 rounded-r bg-sky-500/8 border border-dashed border-sky-400/60" />
+          </span>
           Journée
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block w-4 h-4 rounded bg-emerald-500/10 border border-emerald-500/30" />
+          <span className="inline-flex gap-0.5">
+            <span className="inline-block w-3 h-4 rounded-l bg-emerald-500/15 border border-emerald-500/35" />
+            <span className="inline-block w-3 h-4 rounded-r bg-emerald-500/8 border border-dashed border-emerald-400/60" />
+          </span>
           Matin (2×8)
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block w-4 h-4 rounded bg-orange-400/10 border border-orange-400/30" />
+          <span className="inline-flex gap-0.5">
+            <span className="inline-block w-3 h-4 rounded-l bg-amber-500/15 border border-amber-500/35" />
+            <span className="inline-block w-3 h-4 rounded-r bg-amber-500/8 border border-dashed border-amber-400/60" />
+          </span>
           Après-midi (2×8)
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block w-4 h-4 rounded bg-violet-500/10 border border-violet-500/30" />
+          <span className="inline-flex gap-0.5">
+            <span className="inline-block w-3 h-4 rounded-l bg-indigo-500/15 border border-indigo-500/35" />
+            <span className="inline-block w-3 h-4 rounded-r bg-indigo-500/8 border border-dashed border-indigo-400/60" />
+          </span>
           Nuit (3×8)
         </span>
-        <span className="flex items-center gap-1.5">
-          <span className="inline-block w-4 h-4 rounded bg-violet-500/10 border border-dashed border-violet-400/50" />
-          Horaire assigné (cliquer pour confirmer)
+        <span className="text-[var(--pp-muted)]/50 hidden sm:inline">·</span>
+        <span className="flex items-center gap-1">
+          <span className="inline-block w-2.5 h-4 rounded bg-sky-500/15 border border-sky-500/35" />
+          <span className="text-[var(--pp-muted)]/70">= confirmé</span>
         </span>
+        <span className="flex items-center gap-1">
+          <span className="inline-block w-2.5 h-4 rounded bg-sky-500/8 border border-dashed border-sky-400/60" />
+          <span className="text-[var(--pp-muted)]/70">= à confirmer</span>
+        </span>
+        <span className="text-[var(--pp-muted)]/50 hidden sm:inline">·</span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-4 h-4 rounded bg-amber-500/10 border border-dashed border-amber-400/50" />
-          Récupération approuvée
+          Récupération
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-4 h-4 rounded bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)]/25" />
@@ -225,7 +244,7 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-4 h-4 rounded border border-dashed border-[var(--pp-line)]" />
-          Cliquer pour créer
+          Créer
         </span>
       </div>
 

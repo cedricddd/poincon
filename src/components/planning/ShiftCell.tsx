@@ -56,34 +56,38 @@ const LEAVE_CONFIG: Record<string, { bg: string; text: string; label: string; ic
   },
 }
 
-const SHIFT_TYPE_CONFIG: Record<string, { bg: string; hover: string; text: string; label: string; dashedBorder: string }> = {
+const SHIFT_TYPE_CONFIG: Record<string, { bg: string; hover: string; text: string; label: string; templateBg: string; dashedBorder: string }> = {
   DAY: {
-    bg: 'bg-[var(--pp-info)]/12 border border-[var(--pp-info)]/30',
-    hover: 'hover:bg-[var(--pp-info)]/20',
-    text: 'text-[var(--pp-info)]',
+    bg: 'bg-sky-500/15 border border-sky-500/35',
+    hover: 'hover:bg-sky-500/25',
+    text: 'text-sky-400',
     label: 'Journée',
-    dashedBorder: 'border-[var(--pp-info)]/50',
+    templateBg: 'bg-sky-500/8',
+    dashedBorder: 'border-sky-400/60',
   },
   MORNING: {
-    bg: 'bg-emerald-500/10 border border-emerald-500/30',
-    hover: 'hover:bg-emerald-500/20',
-    text: 'text-emerald-600 dark:text-emerald-400',
+    bg: 'bg-emerald-500/15 border border-emerald-500/35',
+    hover: 'hover:bg-emerald-500/25',
+    text: 'text-emerald-400',
     label: 'Matin',
-    dashedBorder: 'border-emerald-500/50',
+    templateBg: 'bg-emerald-500/8',
+    dashedBorder: 'border-emerald-400/60',
   },
   AFTERNOON: {
-    bg: 'bg-orange-400/10 border border-orange-400/30',
-    hover: 'hover:bg-orange-400/20',
-    text: 'text-orange-600 dark:text-orange-400',
+    bg: 'bg-amber-500/15 border border-amber-500/35',
+    hover: 'hover:bg-amber-500/25',
+    text: 'text-amber-400',
     label: 'Après-midi',
-    dashedBorder: 'border-orange-400/50',
+    templateBg: 'bg-amber-500/8',
+    dashedBorder: 'border-amber-400/60',
   },
   NIGHT: {
-    bg: 'bg-violet-500/10 border border-violet-500/30',
-    hover: 'hover:bg-violet-500/20',
-    text: 'text-violet-600 dark:text-violet-400',
+    bg: 'bg-indigo-500/15 border border-indigo-500/35',
+    hover: 'hover:bg-indigo-500/25',
+    text: 'text-indigo-400',
     label: 'Nuit',
-    dashedBorder: 'border-violet-400/50',
+    templateBg: 'bg-indigo-500/8',
+    dashedBorder: 'border-indigo-400/60',
   },
 }
 
@@ -137,7 +141,7 @@ export function ShiftCell({ shift, leaveType, rttHours, onClick }: ShiftCellProp
       <button
         onClick={onClick}
         title="Shift basé sur l'horaire assigné — cliquer pour confirmer"
-        className={`h-full min-h-[56px] w-full rounded-md border border-dashed ${tplCfg.dashedBorder} ${tplCfg.hover} transition-all text-left px-2 py-1.5`}
+        className={`h-full min-h-[56px] w-full rounded-md border border-dashed ${tplCfg.templateBg} ${tplCfg.dashedBorder} ${tplCfg.hover} transition-all text-left px-2 py-1.5`}
       >
         <div className={`text-xs font-semibold ${tplCfg.text} leading-tight`}>
           {shift.startTime}–{shift.endTime}
