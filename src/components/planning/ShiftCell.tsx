@@ -7,6 +7,7 @@ interface Shift {
   startTime: string
   endTime: string
   note?: string | null
+  isTemplate?: boolean
 }
 
 interface ShiftCellProps {
@@ -31,6 +32,21 @@ export function ShiftCell({ shift, isTimeOff, onClick }: ShiftCellProps) {
         className="h-full min-h-[56px] w-full rounded-md border border-dashed border-[var(--pp-line)] hover:border-[var(--pp-info)] hover:bg-[var(--pp-info)]/5 transition-all group flex items-center justify-center"
       >
         <span className="text-xl text-[var(--pp-line)] group-hover:text-[var(--pp-info)] transition-colors leading-none">+</span>
+      </button>
+    )
+  }
+
+  if (shift.isTemplate) {
+    return (
+      <button
+        onClick={onClick}
+        title="Shift basé sur l'horaire assigné — cliquer pour confirmer"
+        className="h-full min-h-[56px] w-full rounded-md bg-violet-500/10 border border-dashed border-violet-400/50 hover:bg-violet-500/20 transition-all text-left px-2 py-1.5"
+      >
+        <div className="text-xs font-semibold text-violet-600 dark:text-violet-400 leading-tight">
+          {shift.startTime}–{shift.endTime}
+        </div>
+        <div className="text-[10px] text-violet-400 mt-0.5 leading-tight">Horaire</div>
       </button>
     )
   }

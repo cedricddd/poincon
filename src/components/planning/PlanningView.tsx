@@ -33,7 +33,7 @@ interface PlanningViewProps {
 
 type ModalState =
   | { open: false }
-  | { open: true; mode: 'create'; userId: string; date: string }
+  | { open: true; mode: 'create'; userId: string; date: string; startTime?: string; endTime?: string }
   | { open: true; mode: 'edit'; shift: ShiftData }
 
 export function PlanningView({ apiBase }: PlanningViewProps) {
@@ -176,7 +176,7 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
             shifts={shifts}
             users={users}
             timeOffs={timeOffs}
-            onCellClick={(userId, date) => setModal({ open: true, mode: 'create', userId, date })}
+            onCellClick={(userId, date, prefill) => setModal({ open: true, mode: 'create', userId, date, startTime: prefill?.startTime, endTime: prefill?.endTime })}
             onShiftClick={shift => setModal({ open: true, mode: 'edit', shift })}
           />
         )}
@@ -186,7 +186,11 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
       <div className="flex flex-wrap items-center gap-4 text-xs text-[var(--pp-muted)]">
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-4 h-4 rounded bg-[var(--pp-info)]/15 border border-[var(--pp-info)]/30" />
-          Shift planifié
+          Shift confirmé
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-4 h-4 rounded bg-violet-500/10 border border-dashed border-violet-400/50" />
+          Horaire assigné (cliquer pour confirmer)
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-4 h-4 rounded bg-[var(--pp-line)]/40" />
@@ -202,7 +206,7 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
       {modal.open && modal.mode === 'create' && (
         <ShiftModal
           mode="create"
-          initialData={{ userId: modal.userId, date: modal.date }}
+          initialData={{ userId: modal.userId, date: modal.date, startTime: modal.startTime, endTime: modal.endTime }}
           users={users}
           onSave={handleCreate}
           onClose={() => setModal({ open: false })}

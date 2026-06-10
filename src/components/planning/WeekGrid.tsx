@@ -28,6 +28,7 @@ export interface ShiftData {
   startTime: string
   endTime: string
   note?: string | null
+  isTemplate?: boolean
 }
 
 export interface UserData {
@@ -47,7 +48,7 @@ interface WeekGridProps {
   shifts: ShiftData[]
   users: UserData[]
   timeOffs: TimeOffData[]
-  onCellClick: (userId: string, date: string) => void
+  onCellClick: (userId: string, date: string, prefill?: { startTime: string; endTime: string }) => void
   onShiftClick: (shift: ShiftData) => void
 }
 
@@ -135,7 +136,11 @@ export function WeekGrid({ weekStart, shifts, users, timeOffs, onCellClick, onSh
                       isTimeOff={isTimeOff && !shift}
                       onClick={() => {
                         if (shift) {
-                          onShiftClick(shift)
+                          if (shift.isTemplate) {
+                            onCellClick(user.id, dk, { startTime: shift.startTime, endTime: shift.endTime })
+                          } else {
+                            onShiftClick(shift)
+                          }
                         } else if (!isTimeOff) {
                           onCellClick(user.id, dk)
                         }

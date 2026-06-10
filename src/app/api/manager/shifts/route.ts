@@ -3,6 +3,10 @@ import { prisma } from '@/lib/prisma'
 import { getUserPlan, planCanAccess } from '@/lib/plan'
 import { NextRequest, NextResponse } from 'next/server'
 
+function utcDateKey(d: Date): string {
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`
+}
+
 async function requireManagerScope(sessionUserId: string) {
   const managedTeams = await prisma.teamMember.findMany({
     where: { userId: sessionUserId, role: 'manager' },
@@ -67,7 +71,49 @@ export async function GET(req: NextRequest) {
     }),
   ])
 
-  return NextResponse.json({ shifts, users, timeOffs })
+  // Compute virtual template shifts from assigned work schedules
+  const userSchedules = await prisma.userSchedule.findMany({
+    where: { userId: { in: memberIds }, scheduleId: { not: null } },
+    include: { workSchedule: true },
+  })
+
+  const realShiftKeys = new Set(shifts.map(s => `${s.userId}__${utcDateKey(new Date(s.date))}`))
+
+  const timeOffKeys = new Set<string>()
+  for (const t of timeOffs) {
+    const start = new Date(t.startDate)
+    const end = new Date(t.endDate)
+    for (let i = 0; i < 7; i++) {
+      const day = new Date(weekStartDate.getTime() + i * 24 * 60 * 60 * 1000)
+      if (day >= start && day <= end) timeOffKeys.add(`${t.userId}__${utcDateKey(day)}`)
+    }
+  }
+
+  const templateShifts = []
+  for (const us of userSchedules) {
+    if (!us.workSchedule?.startTime || !us.workSchedule.endTime) continue
+    let daysOfWeek: number[]
+    try { daysOfWeek = JSON.parse(us.workSchedule.daysOfWeek) } catch { continue }
+    for (let i = 0; i < 7; i++) {
+      const day = new Date(weekStartDate.getTime() + i * 24 * 60 * 60 * 1000)
+      const isoDay = day.getUTCDay() === 0 ? 7 : day.getUTCDay()
+      if (!daysOfWeek.includes(isoDay)) continue
+      const dk = utcDateKey(day)
+      const key = `${us.userId}__${dk}`
+      if (realShiftKeys.has(key) || timeOffKeys.has(key)) continue
+      templateShifts.push({
+        id: `template_${us.userId}_${dk}`,
+        userId: us.userId,
+        date: day.toISOString(),
+        startTime: us.workSchedule.startTime,
+        endTime: us.workSchedule.endTime,
+        note: null,
+        isTemplate: true,
+      })
+    }
+  }
+
+  return NextResponse.json({ shifts: [...shifts, ...templateShifts], users, timeOffs })
 }
 
 export async function POST(req: NextRequest) {
