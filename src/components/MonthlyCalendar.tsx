@@ -75,8 +75,7 @@ export function MonthlyCalendar({ initialYear, initialMonth }: MonthlyCalendarPr
   }
 
   const getDateKey = (day: number) => {
-    const d = new Date(year, month - 1, day)
-    return d.toISOString().split('T')[0]
+    return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
   }
 
   const dayNames = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
