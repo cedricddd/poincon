@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
   const weekStartDate = new Date(weekStart + 'T00:00:00.000Z')
   const weekEndDate = new Date(weekStartDate.getTime() + 7 * 24 * 60 * 60 * 1000)
 
-  const [shifts, users, timeOffs] = await Promise.all([
+  const [shifts, users, timeOffs, rtts] = await Promise.all([
     prisma.shift.findMany({
       where: {
         userId: { in: memberIds },
@@ -68,6 +68,14 @@ export async function GET(req: NextRequest) {
         endDate: { gte: weekStartDate },
       },
       select: { userId: true, startDate: true, endDate: true },
+    }),
+    prisma.rTTRequest.findMany({
+      where: {
+        userId: { in: memberIds },
+        status: 'APPROVED',
+        date: { gte: weekStartDate, lt: weekEndDate },
+      },
+      select: { userId: true, date: true, hoursToRecover: true },
     }),
   ])
 
@@ -113,7 +121,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ shifts: [...shifts, ...templateShifts], users, timeOffs })
+  return NextResponse.json({ shifts: [...shifts, ...templateShifts], users, timeOffs, rtts })
 }
 
 export async function POST(req: NextRequest) {

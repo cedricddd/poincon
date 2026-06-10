@@ -13,15 +13,31 @@ interface Shift {
 interface ShiftCellProps {
   shift?: Shift
   isTimeOff?: boolean
+  rttHours?: number
   onClick: () => void
 }
 
-export function ShiftCell({ shift, isTimeOff, onClick }: ShiftCellProps) {
+export function ShiftCell({ shift, isTimeOff, rttHours, onClick }: ShiftCellProps) {
   if (isTimeOff && !shift) {
     return (
       <div className="h-full min-h-[56px] rounded-md bg-[var(--pp-line)]/40 flex items-center justify-center cursor-not-allowed select-none">
         <span className="text-sm text-[var(--pp-muted)]" title="Congé approuvé">🚫</span>
       </div>
+    )
+  }
+
+  if (!shift && rttHours) {
+    return (
+      <button
+        onClick={onClick}
+        title={`Récupération ${rttHours}h approuvée — cliquer pour planifier un shift`}
+        className="h-full min-h-[56px] w-full rounded-md bg-amber-500/10 border border-dashed border-amber-400/50 hover:bg-amber-500/20 transition-all text-left px-2 py-1.5"
+      >
+        <div className="text-xs font-semibold text-amber-600 dark:text-amber-400 leading-tight">
+          ↩ {rttHours}h
+        </div>
+        <div className="text-[10px] text-amber-400 mt-0.5 leading-tight">Récupération</div>
+      </button>
     )
   }
 
@@ -59,9 +75,11 @@ export function ShiftCell({ shift, isTimeOff, onClick }: ShiftCellProps) {
       <div className="text-xs font-semibold text-[var(--pp-info)] leading-tight">
         {shift.startTime}–{shift.endTime}
       </div>
-      {shift.note && (
+      {rttHours ? (
+        <div className="text-[9px] text-amber-500 mt-0.5 leading-tight">↩ {rttHours}h récup.</div>
+      ) : shift.note ? (
         <div className="text-[10px] text-[var(--pp-muted)] mt-0.5 truncate leading-tight">{shift.note}</div>
-      )}
+      ) : null}
     </button>
   )
 }

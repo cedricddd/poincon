@@ -43,16 +43,23 @@ export interface TimeOffData {
   endDate: string
 }
 
+export interface RTTData {
+  userId: string
+  date: string
+  hoursToRecover: number
+}
+
 interface WeekGridProps {
   weekStart: Date
   shifts: ShiftData[]
   users: UserData[]
   timeOffs: TimeOffData[]
+  rtts?: RTTData[]
   onCellClick: (userId: string, date: string, prefill?: { startTime: string; endTime: string }) => void
   onShiftClick: (shift: ShiftData) => void
 }
 
-export function WeekGrid({ weekStart, shifts, users, timeOffs, onCellClick, onShiftClick }: WeekGridProps) {
+export function WeekGrid({ weekStart, shifts, users, timeOffs, rtts, onCellClick, onShiftClick }: WeekGridProps) {
   const monday = getMondayOf(weekStart)
   const days = Array.from({ length: 7 }, (_, i) => addDays(monday, i))
 
@@ -74,6 +81,13 @@ export function WeekGrid({ weekStart, shifts, users, timeOffs, onCellClick, onSh
         timeOffSet.add(`${t.userId}__${dk}`)
       }
     }
+  }
+
+  // Build lookup: userId+dateKey → hoursToRecover (approved RTT)
+  const rttMap = new Map<string, number>()
+  for (const r of rtts ?? []) {
+    const dk = dateKey(new Date(r.date))
+    rttMap.set(`${r.userId}__${dk}`, r.hoursToRecover)
   }
 
   if (users.length === 0) {
@@ -124,6 +138,7 @@ export function WeekGrid({ weekStart, shifts, users, timeOffs, onCellClick, onSh
                 const key = `${user.id}__${dk}`
                 const shift = shiftMap.get(key)
                 const isTimeOff = timeOffSet.has(key)
+                const rttHours = rttMap.get(key)
                 const isWeekend = i >= 5
 
                 return (
@@ -134,6 +149,7 @@ export function WeekGrid({ weekStart, shifts, users, timeOffs, onCellClick, onSh
                     <ShiftCell
                       shift={shift}
                       isTimeOff={isTimeOff && !shift}
+                      rttHours={rttHours}
                       onClick={() => {
                         if (shift) {
                           if (shift.isTemplate) {

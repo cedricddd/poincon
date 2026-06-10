@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { showToast } from '@/hooks/useToast'
-import { WeekGrid, ShiftData, UserData, TimeOffData } from './WeekGrid'
+import { WeekGrid, ShiftData, UserData, TimeOffData, RTTData } from './WeekGrid'
 import { ShiftModal, ShiftFormData } from './ShiftModal'
 
 function getMonday(d: Date): Date {
@@ -41,6 +41,7 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
   const [shifts, setShifts] = useState<ShiftData[]>([])
   const [users, setUsers] = useState<UserData[]>([])
   const [timeOffs, setTimeOffs] = useState<TimeOffData[]>([])
+  const [rtts, setRtts] = useState<RTTData[]>([])
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState<ModalState>({ open: false })
 
@@ -54,6 +55,7 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
       setShifts(data.shifts ?? [])
       setUsers(data.users ?? [])
       setTimeOffs(data.timeOffs ?? [])
+      setRtts(data.rtts ?? [])
     } catch {
       showToast('Erreur lors du chargement du planning', 'error')
     } finally {
@@ -176,6 +178,7 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
             shifts={shifts}
             users={users}
             timeOffs={timeOffs}
+            rtts={rtts}
             onCellClick={(userId, date, prefill) => setModal({ open: true, mode: 'create', userId, date, startTime: prefill?.startTime, endTime: prefill?.endTime })}
             onShiftClick={shift => setModal({ open: true, mode: 'edit', shift })}
           />
@@ -191,6 +194,10 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-4 h-4 rounded bg-violet-500/10 border border-dashed border-violet-400/50" />
           Horaire assigné (cliquer pour confirmer)
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-4 h-4 rounded bg-amber-500/10 border border-dashed border-amber-400/50" />
+          Récupération approuvée
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-4 h-4 rounded bg-[var(--pp-line)]/40" />
