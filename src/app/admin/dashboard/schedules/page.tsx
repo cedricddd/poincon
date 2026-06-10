@@ -524,6 +524,9 @@ export default function SchedulesPage() {
         <p className="text-[var(--pp-muted)] text-sm mt-1">
           Assignez un gabarit d'horaire à chaque employé. Créez vos propres modèles ou utilisez les presets belges.
         </p>
+        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
+          ↻ Les employés membres d&apos;une équipe avec cycle de rotation n&apos;ont pas besoin d&apos;horaire fixe — la rotation détermine automatiquement leurs shifts dans le planning.
+        </p>
       </div>
 
       <div className="flex gap-1 mb-6 border-b border-[var(--pp-line)]">

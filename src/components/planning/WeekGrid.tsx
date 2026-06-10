@@ -58,11 +58,12 @@ interface WeekGridProps {
   timeOffs: TimeOffData[]
   rtts?: RTTData[]
   userPhaseBadges?: Map<string, string>
+  userRotationSlots?: Map<string, { startTime: string; endTime: string; shiftType: string | null }>
   onCellClick: (userId: string, date: string, prefill?: { startTime: string; endTime: string }) => void
   onShiftClick: (shift: ShiftData) => void
 }
 
-export function WeekGrid({ weekStart, shifts, users, timeOffs, rtts, userPhaseBadges, onCellClick, onShiftClick }: WeekGridProps) {
+export function WeekGrid({ weekStart, shifts, users, timeOffs, rtts, userPhaseBadges, userRotationSlots, onCellClick, onShiftClick }: WeekGridProps) {
   const monday = getMondayOf(weekStart)
   const days = Array.from({ length: 7 }, (_, i) => addDays(monday, i))
 
@@ -158,6 +159,7 @@ export function WeekGrid({ weekStart, shifts, users, timeOffs, rtts, userPhaseBa
                       shift={shift}
                       leaveType={leaveType && !shift ? leaveType : undefined}
                       rttHours={rttHours}
+                      rotationSlot={!shift && !leaveType ? userRotationSlots?.get(key) : undefined}
                       onClick={() => {
                         if (shift) {
                           if (shift.isTemplate) {
@@ -165,8 +167,13 @@ export function WeekGrid({ weekStart, shifts, users, timeOffs, rtts, userPhaseBa
                           } else {
                             onShiftClick(shift)
                           }
-                        } else if (!isTimeOff) {
-                          onCellClick(user.id, dk)
+                        } else if (!leaveType) {
+                          const slot = userRotationSlots?.get(key)
+                          if (slot) {
+                            onCellClick(user.id, dk, { startTime: slot.startTime, endTime: slot.endTime })
+                          } else {
+                            onCellClick(user.id, dk)
+                          }
                         }
                       }}
                     />

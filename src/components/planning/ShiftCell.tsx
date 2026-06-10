@@ -15,6 +15,7 @@ interface ShiftCellProps {
   shift?: Shift
   leaveType?: string
   rttHours?: number
+  rotationSlot?: { startTime: string; endTime: string; shiftType: string | null }
   onClick: () => void
 }
 
@@ -91,7 +92,7 @@ const SHIFT_TYPE_CONFIG: Record<string, { bg: string; hover: string; text: strin
   },
 }
 
-export function ShiftCell({ shift, leaveType, rttHours, onClick }: ShiftCellProps) {
+export function ShiftCell({ shift, leaveType, rttHours, rotationSlot, onClick }: ShiftCellProps) {
   if (leaveType) {
     const cfg = LEAVE_CONFIG[leaveType]
     if (cfg) {
@@ -120,6 +121,22 @@ export function ShiftCell({ shift, leaveType, rttHours, onClick }: ShiftCellProp
           ↩ {rttHours}h
         </div>
         <div className="text-[10px] text-amber-400 mt-0.5 leading-tight">Récupération</div>
+      </button>
+    )
+  }
+
+  if (!shift && rotationSlot) {
+    const rotCfg = SHIFT_TYPE_CONFIG[rotationSlot.shiftType ?? 'DAY'] ?? SHIFT_TYPE_CONFIG.DAY
+    return (
+      <button
+        onClick={onClick}
+        title={`Rotation — ${rotationSlot.startTime}–${rotationSlot.endTime} · Cliquer pour créer le shift`}
+        className={`h-full min-h-[56px] w-full rounded-md border border-dashed ${rotCfg.templateBg} ${rotCfg.dashedBorder} ${rotCfg.hover} transition-all text-left px-2 py-1.5`}
+      >
+        <div className={`text-xs font-semibold ${rotCfg.text} leading-tight opacity-80`}>
+          {rotationSlot.startTime}–{rotationSlot.endTime}
+        </div>
+        <div className={`text-[10px] ${rotCfg.text} opacity-50 mt-0.5 leading-tight`}>↻ Rotation</div>
       </button>
     )
   }

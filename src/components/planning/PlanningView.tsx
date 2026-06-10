@@ -79,8 +79,17 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
       .catch(() => {})
   }, [apiBase])
 
-  const userPhaseBadges = useMemo((): Map<string, string> => {
-    const map = new Map<string, string>()
+  const { userPhaseBadges, userRotationSlots } = useMemo((): {
+    userPhaseBadges: Map<string, string>
+    userRotationSlots: Map<string, { startTime: string; endTime: string; shiftType: string | null }>
+  } => {
+    const badges = new Map<string, string>()
+    const slots = new Map<string, { startTime: string; endTime: string; shiftType: string | null }>()
+    const days = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(weekStart)
+      d.setDate(d.getDate() + i)
+      return d
+    })
     for (const team of teams) {
       if (!team.rotationCycle || team.rotationPhase == null) continue
       const cycle = team.rotationCycle
@@ -93,13 +102,24 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
         },
         rotationPhase: team.rotationPhase,
       }
-      const period = getCurrentPeriod(teamData, weekStart)
-      if (!period) continue
-      for (const m of team.members) {
-        map.set(m.userId, period.label)
+      // Badge for the week (uses weekStart = Monday)
+      const weekPeriod = getCurrentPeriod(teamData, weekStart)
+      if (weekPeriod) {
+        for (const m of team.members) badges.set(m.userId, weekPeriod.label)
+      }
+      // Per-day ghost slots
+      for (const day of days) {
+        const period = getCurrentPeriod(teamData, day)
+        if (!period || !period.startTime || !period.endTime) continue
+        const dow = day.getDay() === 0 ? 7 : day.getDay()
+        if (!period.workDays.includes(dow)) continue
+        const dk = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`
+        for (const m of team.members) {
+          slots.set(`${m.userId}__${dk}`, { startTime: period.startTime, endTime: period.endTime, shiftType: period.shiftType })
+        }
       }
     }
-    return map
+    return { userPhaseBadges: badges, userRotationSlots: slots }
   }, [teams, weekStart])
 
   const prevWeek = () => {
@@ -217,6 +237,7 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
             timeOffs={timeOffs}
             rtts={rtts}
             userPhaseBadges={userPhaseBadges}
+            userRotationSlots={userRotationSlots}
             onCellClick={(userId, date, prefill) => setModal({ open: true, mode: 'create', userId, date, startTime: prefill?.startTime, endTime: prefill?.endTime })}
             onShiftClick={shift => setModal({ open: true, mode: 'edit', shift })}
           />
