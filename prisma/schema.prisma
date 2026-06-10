@@ -44,6 +44,7 @@ model User {
   defaultSite           Site?           @relation("DefaultSite", fields: [defaultSiteId], references: [id])
   twoFactorEnabled      Boolean         @default(false)
   twoFactorSecret       String?
+  apiKeys               ApiKey[]
 
   @@index([email])
   @@index([companyId])
@@ -165,6 +166,8 @@ model Company {
   featureFlags          CompanyFeatureFlag[]
   planHistory           PlanHistory[]
   invitations           UserInvitation[]
+  apiKeys               ApiKey[]
+  webhookEndpoints      WebhookEndpoint[]
 
   @@index([adminId])
   @@index([planId])
@@ -265,6 +268,57 @@ model PlanHistory {
 
   @@index([companyId])
   @@index([createdAt])
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  companyId   String
+  createdBy   String
+  name        String
+  keyHash     String    @unique
+  keyPrefix   String
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  creator     User      @relation(fields: [createdBy], references: [id])
+
+  @@index([companyId])
+  @@index([keyHash])
+}
+
+model WebhookEndpoint {
+  id          String            @id @default(cuid())
+  companyId   String
+  url         String
+  secret      String
+  events      String            @default("[]")
+  enabled     Boolean           @default(true)
+  description String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  company     Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  deliveries  WebhookDelivery[]
+
+  @@index([companyId])
+}
+
+model WebhookDelivery {
+  id           String          @id @default(cuid())
+  endpointId   String
+  event        String
+  payload      String
+  statusCode   Int?
+  responseBody String?
+  success      Boolean         @default(false)
+  attemptedAt  DateTime        @default(now())
+
+  endpoint     WebhookEndpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+
+  @@index([endpointId])
+  @@index([attemptedAt])
 }
 
 model ClockRecord {

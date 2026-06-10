@@ -87,9 +87,11 @@ const adminSubLinks = [
   { href: '/admin/dashboard/invitations', label: 'Invitations',  Icon: IconMail,     color: '#6366f1' },
   { href: '/admin/dashboard/sites',       label: 'Sites',        Icon: IconBuilding, color: '#8b5cf6' },
   { href: '/admin/dashboard/teams',     label: 'Équipes',      Icon: IconUsers,     color: '#ec4899' },
-  { href: '/admin/dashboard/audit',     label: 'Audit Trail',  Icon: IconLog,       color: '#a855f7' },
-  { href: '/admin/dashboard/reports',   label: 'Rapports',     Icon: IconBarChart,  color: '#6366f1' },
-  { href: '/admin/dashboard/settings',  label: 'Paramètres',   Icon: IconSettings,  color: '#64748b' },
+  { href: '/admin/dashboard/audit',                   label: 'Audit Trail',  Icon: IconLog,       color: '#a855f7' },
+  { href: '/admin/dashboard/reports',               label: 'Rapports',     Icon: IconBarChart,  color: '#6366f1' },
+  { href: '/admin/dashboard/reports/custom',        label: 'Rapports +',   Icon: IconBarChart,  color: '#8b5cf6' },
+  { href: '/admin/dashboard/settings',              label: 'Paramètres',   Icon: IconSettings,  color: '#64748b' },
+  { href: '/admin/dashboard/settings/integrations', label: 'Intégrations', Icon: IconActivity,  color: '#f59e0b' },
 ]
 
 const superAdminSubLinks = [

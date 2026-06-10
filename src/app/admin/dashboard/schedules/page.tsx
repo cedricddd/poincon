@@ -78,20 +78,39 @@ const TYPE_HOURS: Record<string, number> = {
 
 // ── Tab 1: Affectations ──────────────────────────────────────────────────────
 
+interface TeamRotationInfo { teamName: string; cycleName: string; phaseBadge: string | null }
+
 function AssignmentsTab() {
   const [rows, setRows] = useState<UserRow[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState<string | null>(null)
-  // pending stores the selected TYPE (string) per userId
   const [pending, setPending] = useState<Record<string, string>>({})
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
+  const [rotationMap, setRotationMap] = useState<Record<string, TeamRotationInfo>>({})
 
   const fetchRows = useCallback(() => {
     setLoading(true)
-    fetch('/api/admin/schedule')
-      .then(r => r.json())
-      .then(d => setRows(d.schedules ?? []))
+    Promise.all([
+      fetch('/api/admin/schedule').then(r => r.json()),
+      fetch('/api/admin/teams').then(r => r.ok ? r.json() : { teams: [] }),
+    ])
+      .then(([schedData, teamsData]) => {
+        setRows(schedData.schedules ?? [])
+        // Build userId → rotation info map
+        const map: Record<string, TeamRotationInfo> = {}
+        for (const team of (teamsData.teams ?? [])) {
+          if (!team.rotationCycle) continue
+          for (const member of team.members) {
+            map[member.userId] = {
+              teamName: team.name,
+              cycleName: team.rotationCycle.name,
+              phaseBadge: null,
+            }
+          }
+        }
+        setRotationMap(map)
+      })
       .finally(() => setLoading(false))
   }, [])
 
@@ -163,6 +182,11 @@ function AssignmentsTab() {
                     <td className="py-3 pr-4">
                       <p className="font-medium text-[var(--pp-ink)]">{row.user.name ?? '—'}</p>
                       <p className="text-xs text-[var(--pp-muted)]">{row.user.email}</p>
+                      {rotationMap[row.userId] && (
+                        <span className="inline-flex items-center gap-1 mt-1 text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium" title="Le cycle de rotation de l'équipe prend le dessus sur cet horaire pour le planning automatique">
+                          ↻ {rotationMap[row.userId].teamName} · {rotationMap[row.userId].cycleName}
+                        </span>
+                      )}
                     </td>
                     <td className="py-3 pr-4">
                       <select
