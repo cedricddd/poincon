@@ -200,8 +200,16 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
           Récupération approuvée
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block w-4 h-4 rounded bg-[var(--pp-line)]/40" />
-          🚫 Congé approuvé
+          <span className="inline-block w-4 h-4 rounded bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)]/25" />
+          Congé annuel
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-4 h-4 rounded bg-orange-500/10 border border-orange-500/25" />
+          Congé maladie
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-4 h-4 rounded bg-pink-500/10 border border-pink-500/25" />
+          Congé maternité
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-4 h-4 rounded border border-dashed border-[var(--pp-line)]" />

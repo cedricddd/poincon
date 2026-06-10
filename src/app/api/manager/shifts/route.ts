@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
         startDate: { lt: weekEndDate },
         endDate: { gte: weekStartDate },
       },
-      select: { userId: true, startDate: true, endDate: true },
+      select: { userId: true, startDate: true, endDate: true, leaveType: true },
     }),
     prisma.rTTRequest.findMany({
       where: {

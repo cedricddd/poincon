@@ -41,6 +41,7 @@ export interface TimeOffData {
   userId: string
   startDate: string
   endDate: string
+  leaveType?: string
 }
 
 export interface RTTData {
@@ -70,15 +71,15 @@ export function WeekGrid({ weekStart, shifts, users, timeOffs, rtts, onCellClick
     shiftMap.set(`${s.userId}__${k}`, s)
   }
 
-  // Build lookup: userId+dateKey → boolean (has approved time off)
-  const timeOffSet = new Set<string>()
+  // Build lookup: userId+dateKey → leaveType (approved time off)
+  const timeOffMap = new Map<string, string>()
   for (const t of timeOffs) {
     const start = new Date(t.startDate)
     const end = new Date(t.endDate)
     for (const day of days) {
       const dk = dateKey(day)
       if (day >= start && day <= end) {
-        timeOffSet.add(`${t.userId}__${dk}`)
+        timeOffMap.set(`${t.userId}__${dk}`, t.leaveType ?? 'ANNUAL')
       }
     }
   }
@@ -137,7 +138,7 @@ export function WeekGrid({ weekStart, shifts, users, timeOffs, rtts, onCellClick
                 const dk = dateKey(day)
                 const key = `${user.id}__${dk}`
                 const shift = shiftMap.get(key)
-                const isTimeOff = timeOffSet.has(key)
+                const leaveType = timeOffMap.get(key)
                 const rttHours = rttMap.get(key)
                 const isWeekend = i >= 5
 
@@ -148,7 +149,7 @@ export function WeekGrid({ weekStart, shifts, users, timeOffs, rtts, onCellClick
                   >
                     <ShiftCell
                       shift={shift}
-                      isTimeOff={isTimeOff && !shift}
+                      leaveType={leaveType && !shift ? leaveType : undefined}
                       rttHours={rttHours}
                       onClick={() => {
                         if (shift) {
