@@ -32,6 +32,8 @@ export async function GET(req: NextRequest) {
           id: true, name: true, email: true, role: true, createdAt: true,
           defaultSiteId: true,
           defaultSite: { select: { id: true, name: true } },
+          managerId: true,
+          manager: { select: { id: true, name: true, email: true } },
         },
         orderBy: { name: 'asc' },
       }),
@@ -102,6 +104,16 @@ export async function PATCH(req: NextRequest) {
     }
     if (password) data.password = await bcrypt.hash(password, 10)
     if ('defaultSiteId' in body) data.defaultSiteId = defaultSiteId ?? null
+    if ('managerId' in body) {
+      const mid = body.managerId ?? null
+      if (mid) {
+        const mgr = await prisma.user.findUnique({ where: { id: mid }, select: { companyId: true, role: true } })
+        if (!mgr || mgr.companyId !== admin.companyId || mgr.role !== 'MANAGER') {
+          return NextResponse.json({ error: 'Manager invalide' }, { status: 400 })
+        }
+      }
+      data.managerId = mid
+    }
 
     const user = await prisma.user.update({ where: { id }, data })
 

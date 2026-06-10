@@ -8,8 +8,9 @@ import { Card } from '@/components/Card'
 import { usePlan } from '@/hooks/usePlan'
 
 type Site = { id: string; name: string }
-type User = { id: string; name: string; email: string; role: string; createdAt: string; defaultSiteId: string | null; defaultSite: Site | null }
-type EditState = { name: string; email: string; role: string; password: string; defaultSiteId: string }
+type Manager = { id: string; name: string | null; email: string }
+type User = { id: string; name: string; email: string; role: string; createdAt: string; defaultSiteId: string | null; defaultSite: Site | null; managerId: string | null; manager: Manager | null }
+type EditState = { name: string; email: string; role: string; password: string; defaultSiteId: string; managerId: string }
 type SortField = 'name' | 'email' | 'role' | 'site' | 'createdAt'
 type SortDir = 'asc' | 'desc'
 
@@ -25,7 +26,7 @@ export default function UsersPage() {
   const [canUseManagers, setCanUseManagers] = useState(false)
   const [loading, setLoading] = useState(true)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [editData, setEditData] = useState<EditState>({ name: '', email: '', role: '', password: '', defaultSiteId: '' })
+  const [editData, setEditData] = useState<EditState>({ name: '', email: '', role: '', password: '', defaultSiteId: '', managerId: '' })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
@@ -55,7 +56,7 @@ export default function UsersPage() {
 
   const startEdit = (user: User) => {
     setEditingId(user.id)
-    setEditData({ name: user.name, email: user.email, role: user.role, password: '', defaultSiteId: user.defaultSiteId ?? '' })
+    setEditData({ name: user.name, email: user.email, role: user.role, password: '', defaultSiteId: user.defaultSiteId ?? '', managerId: user.managerId ?? '' })
     setError('')
   }
 
@@ -71,6 +72,7 @@ export default function UsersPage() {
         email: editData.email,
         role: editData.role,
         defaultSiteId: editData.defaultSiteId || null,
+        managerId: editData.managerId || null,
       }
       if (editData.password) body.password = editData.password
       const res = await fetch('/api/admin/users', {
@@ -203,6 +205,7 @@ export default function UsersPage() {
                   <th className={`${thClass} hidden md:table-cell`} onClick={() => toggleSort('site')}>
                     Site <SortIcon field="site" current={sortField} dir={sortDir} />
                   </th>
+                  <th className="pb-3 pr-4 font-medium hidden lg:table-cell">Manager</th>
                   <th className="pb-3 font-medium">Actions</th>
                 </tr>
               </thead>
@@ -228,6 +231,14 @@ export default function UsersPage() {
                           <select value={editData.defaultSiteId} onChange={e => setEditData(p => ({ ...p, defaultSiteId: e.target.value }))} className="px-2 py-1 border border-[var(--pp-info)] rounded focus:outline-none text-sm bg-[var(--pp-bg)]">
                             <option value="">— Aucun —</option>
                             {sites.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                          </select>
+                        </td>
+                        <td className="py-3 pr-4 hidden lg:table-cell">
+                          <select value={editData.managerId} onChange={e => setEditData(p => ({ ...p, managerId: e.target.value }))} className="px-2 py-1 border border-[var(--pp-info)] rounded focus:outline-none text-sm bg-[var(--pp-bg)]">
+                            <option value="">— Aucun —</option>
+                            {users.filter(u => u.role === 'MANAGER' && u.id !== user.id).map(m => (
+                              <option key={m.id} value={m.id}>{m.name ?? m.email}</option>
+                            ))}
                           </select>
                         </td>
                         <td className="py-3">
@@ -261,6 +272,13 @@ export default function UsersPage() {
                         </td>
                         <td className="py-3 pr-4 hidden md:table-cell text-xs text-[var(--pp-muted)]">
                           {user.defaultSite?.name ?? <span className="italic">—</span>}
+                        </td>
+                        <td className="py-3 pr-4 hidden lg:table-cell text-xs text-[var(--pp-muted)]">
+                          {user.manager ? (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 font-medium">
+                              {user.manager.name ?? user.manager.email}
+                            </span>
+                          ) : <span className="italic">—</span>}
                         </td>
                         <td className="py-3">
                           <div className="flex gap-2 flex-wrap">

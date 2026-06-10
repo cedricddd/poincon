@@ -417,16 +417,8 @@ export default function TeamsPage() {
                         <div>
                           <span className="text-sm font-medium text-[var(--pp-ink)]">{m.user.name ?? m.user.email}</span>
                           <span className="text-xs text-[var(--pp-muted)] ml-2">{m.user.email}</span>
-                          {m.role === 'manager' && (
-                            <span className="ml-2 text-xs px-2 py-0.5 bg-[var(--pp-info)]/10 text-[var(--pp-info)] rounded-full font-medium">Manager</span>
-                          )}
                         </div>
                         <div className="flex gap-2">
-                          {m.role !== 'manager' && (
-                            <button onClick={() => addMember(team.id, m.userId, 'manager')} className="text-xs px-2 py-1 border border-[var(--pp-info)] text-[var(--pp-info)] rounded hover:bg-[var(--pp-info)]/5">
-                              → Manager
-                            </button>
-                          )}
                           <button onClick={() => removeMember(team.id, m.userId)} className="text-xs px-2 py-1 border border-red-200 text-red-500 rounded hover:bg-red-50">
                             Retirer
                           </button>

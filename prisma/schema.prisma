@@ -45,9 +45,13 @@ model User {
   twoFactorEnabled      Boolean         @default(false)
   twoFactorSecret       String?
   apiKeys               ApiKey[]
+  managerId             String?
+  manager               User?           @relation("EmployeeManager", fields: [managerId], references: [id], onDelete: SetNull)
+  subordinates          User[]          @relation("EmployeeManager")
 
   @@index([email])
   @@index([companyId])
+  @@index([managerId])
 }
 
 
