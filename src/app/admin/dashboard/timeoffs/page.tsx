@@ -19,6 +19,29 @@ const LEAVE_TYPE_COLORS: Record<LeaveType, string> = {
   MATERNITY: 'bg-pink-500/12 text-pink-600 dark:text-pink-400',
 }
 
+const LEAVE_TYPE_ICONS: Record<LeaveType, React.ReactNode> = {
+  ANNUAL: (
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="4"/>
+      <line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
+      <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+      <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+      <line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+    </svg>
+  ),
+  SICK: (
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9"/>
+      <line x1="8" y1="12" x2="16" y2="12"/><line x1="12" y1="8" x2="12" y2="16"/>
+    </svg>
+  ),
+  MATERNITY: (
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+    </svg>
+  ),
+}
+
 interface TimeOffRequest {
   id: string
   userId: string
@@ -170,6 +193,7 @@ export default function TimeoffsPage() {
                     id={to.id}
                     type={LEAVE_TYPE_LABELS[to.leaveType ?? 'ANNUAL']}
                     typeColor={LEAVE_TYPE_COLORS[to.leaveType ?? 'ANNUAL']}
+                    typeIcon={LEAVE_TYPE_ICONS[to.leaveType ?? 'ANNUAL']}
                     employee={to.userName || 'Inconnu'}
                     email={to.userEmail || ''}
                     status={to.status}

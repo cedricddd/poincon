@@ -4,6 +4,7 @@ interface RequestRowProps {
   id: string
   type: string
   typeColor?: string
+  typeIcon?: React.ReactNode
   employee: string
   email: string
   status: string
@@ -23,6 +24,7 @@ export function AdminRequestRow({
   id,
   type,
   typeColor,
+  typeIcon,
   employee,
   email,
   status,
@@ -35,7 +37,9 @@ export function AdminRequestRow({
     <tr className="border-b border-[var(--pp-line)] hover:bg-[var(--pp-bg2)]">
       <td className="px-4 py-3">
         {typeColor ? (
-          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${typeColor}`}>{type}</span>
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${typeColor}`}>
+            {typeIcon}{type}
+          </span>
         ) : type}
       </td>
       <td className="px-4 py-3">

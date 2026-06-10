@@ -6,11 +6,38 @@ import { showToast } from '@/hooks/useToast'
 
 type LeaveType = 'ANNUAL' | 'SICK' | 'MATERNITY'
 const LEAVE_TYPE_LABELS: Record<LeaveType, string> = { ANNUAL: 'Congé annuel', SICK: 'Congé maladie', MATERNITY: 'Congé maternité' }
+const LEAVE_TYPE_COLORS: Record<LeaveType, string> = {
+  ANNUAL: 'bg-[var(--pp-pos)]/12 text-[var(--pp-pos)]',
+  SICK: 'bg-orange-500/12 text-orange-600 dark:text-orange-400',
+  MATERNITY: 'bg-pink-500/12 text-pink-600 dark:text-pink-400',
+}
+const LEAVE_TYPE_ICONS: Record<LeaveType, React.ReactNode> = {
+  ANNUAL: (
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="4"/>
+      <line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
+      <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+      <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+      <line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+    </svg>
+  ),
+  SICK: (
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9"/>
+      <line x1="8" y1="12" x2="16" y2="12"/><line x1="12" y1="8" x2="12" y2="16"/>
+    </svg>
+  ),
+  MATERNITY: (
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+    </svg>
+  ),
+}
 const EMPTY_LEAVE_FORM = { userId: '', leaveType: 'SICK' as LeaveType, startDate: '', endDate: '', reason: '' }
 
 interface RequestUser { id: string; name: string | null; email: string }
 interface Overtime { id: string; userId: string; date: string; overtimeHours: number; status: string; user: RequestUser }
-interface TimeOff { id: string; userId: string; startDate: string; endDate: string; reason?: string; status: string; user: RequestUser }
+interface TimeOff { id: string; userId: string; startDate: string; endDate: string; leaveType?: LeaveType; reason?: string; status: string; user: RequestUser }
 interface RTT { id: string; userId: string; date: string; hoursToRecover: number; reason?: string; status: string; user: RequestUser }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -151,14 +178,22 @@ export default function ManagerDashboard() {
         count={timeOffs.filter(t => t.status === 'PENDING').length}
         action={<button onClick={() => setShowLeaveModal(true)} className="text-xs px-3 py-1 bg-[var(--pp-pos)] text-white rounded-lg hover:opacity-90 transition font-medium">+ Ajouter</button>}
       >
-        {timeOffs.map(t => (
-          <Row key={t.id} user={t.user} status={t.status}
-            detail={`${fmtDate(t.startDate)} → ${fmtDate(t.endDate)}${t.reason ? ` — ${t.reason}` : ''}`}
-            onApprove={() => act('timeoff', t.id, 'approve')}
-            onReject={() => act('timeoff', t.id, 'reject')}
-            loading={acting === t.id}
-          />
-        ))}
+        {timeOffs.map(t => {
+          const lt = (t.leaveType ?? 'ANNUAL') as LeaveType
+          return (
+            <Row key={t.id} user={t.user} status={t.status}
+              badge={
+                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${LEAVE_TYPE_COLORS[lt]}`}>
+                  {LEAVE_TYPE_ICONS[lt]}{LEAVE_TYPE_LABELS[lt]}
+                </span>
+              }
+              detail={`${fmtDate(t.startDate)} → ${fmtDate(t.endDate)}${t.reason ? ` — ${t.reason}` : ''}`}
+              onApprove={() => act('timeoff', t.id, 'approve')}
+              onReject={() => act('timeoff', t.id, 'reject')}
+              loading={acting === t.id}
+            />
+          )
+        })}
       </Section>
 
       {/* RTT */}
@@ -265,16 +300,17 @@ function Section({ title, count, action, children }: { title: string; count: num
   )
 }
 
-function Row({ user, status, detail, onApprove, onReject, loading }: {
-  user: RequestUser; status: string; detail: string
+function Row({ user, status, detail, badge, onApprove, onReject, loading }: {
+  user: RequestUser; status: string; detail: string; badge?: React.ReactNode
   onApprove: () => void; onReject: () => void; loading: boolean
 }) {
   return (
     <div className="flex items-center justify-between px-5 py-3 gap-4">
       <div className="min-w-0">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="text-sm font-medium text-[var(--pp-ink)] truncate">{user.name ?? user.email}</span>
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[status] ?? ''}`}>{status}</span>
+          {badge}
         </div>
         <p className="text-xs text-[var(--pp-muted)] mt-0.5 truncate">{detail}</p>
       </div>
