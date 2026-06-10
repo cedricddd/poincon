@@ -39,6 +39,7 @@ model User {
   companyId             String?
   companyMember         Company?        @relation("CompanyMembers", fields: [companyId], references: [id])
   teamMemberships       TeamMember[]
+  shifts                Shift[]
   defaultSiteId         String?
   defaultSite           Site?           @relation("DefaultSite", fields: [defaultSiteId], references: [id])
   twoFactorEnabled      Boolean         @default(false)
@@ -102,6 +103,7 @@ model Site {
   company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
   users        User[]        @relation("DefaultSite")
   clockRecords ClockRecord[]
+  shifts       Shift[]
 
   @@index([active])
   @@index([companyId])
@@ -446,6 +448,25 @@ model UserInvitation {
   @@index([token])
   @@index([companyId])
   @@index([email])
+}
+
+model Shift {
+  id        String   @id @default(cuid())
+  userId    String
+  siteId    String?
+  date      DateTime // day of shift (midnight UTC)
+  startTime String   // "09:00"
+  endTime   String   // "17:00"
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  site      Site?    @relation(fields: [siteId], references: [id])
+
+  @@index([userId])
+  @@index([date])
+  @@index([userId, date])
 }
 
 model SuperAdminItem {

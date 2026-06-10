@@ -81,6 +81,7 @@ const adminSubLinks = [
   { href: '/admin/dashboard/timeoffs',  label: 'Congés',       Icon: IconCalendar,  color: '#0ea5e9' },
   { href: '/admin/dashboard/rtts',      label: 'Récupération', Icon: IconZap,       color: '#fb923c' },
   { href: '/admin/dashboard/schedules', label: 'Horaires',     Icon: IconActivity,  color: '#10b981' },
+  { href: '/admin/dashboard/planning',  label: 'Planning',     Icon: IconCalendar,  color: '#6366f1' },
   { href: '/admin/dashboard/presence',  label: 'Présences',    Icon: IconUserCheck, color: '#10b981' },
   { href: '/admin/dashboard/users',        label: 'Utilisateurs', Icon: IconUsers,    color: '#6366f1' },
   { href: '/admin/dashboard/invitations', label: 'Invitations',  Icon: IconMail,     color: '#6366f1' },
@@ -266,6 +267,7 @@ export function Sidebar() {
             <div className="space-y-0.5">
               {[
                 { href: '/manager/dashboard', label: 'Mon Équipe', Icon: IconUsers },
+                { href: '/manager/dashboard/planning', label: 'Planning', Icon: IconCalendar },
                 { href: '/manager/dashboard/presence', label: 'Présences', Icon: IconUserCheck },
               ].filter(({ href }) => {
                 if (href === '/manager/dashboard/presence' && presenceAccess !== null && !presenceAccess.presenceForManagers) return false
