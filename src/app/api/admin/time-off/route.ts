@@ -35,6 +35,6 @@ export async function POST(req: NextRequest) {
     },
   })
   await prisma.notification.create({ data: { userId, message: 'Congé enregistré', type: 'info' } })
-  await prisma.auditLog.create({ data: { userId: auth.session.user.id, action: 'admin_create', resource: 'timeOff', resourceId: record.id, changes: JSON.stringify({ startDate, endDate, reason, status }) } })
+  await prisma.auditLog.create({ data: { userId: auth.session.user.id, action: 'admin_create', resource: 'timeOff', resourceId: record.id, changes: JSON.stringify({ targetUserId: userId, startDate, endDate, leaveType: validLeaveTypes.includes(leaveType) ? leaveType : 'ANNUAL', reason: reason ?? null, status: status ?? 'APPROVED' }) } })
   return NextResponse.json({ record })
 }

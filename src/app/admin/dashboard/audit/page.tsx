@@ -42,6 +42,10 @@ const actionBadgeColor: Record<string, string> = {
   admin_approve: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
   admin_reject: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
   admin_balance_adjustment: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+  employee_request: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
+  manager_create: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200',
+  manager_approve: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+  manager_reject: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
 }
 
 const actionLabels: Record<string, string> = {
@@ -54,9 +58,13 @@ const actionLabels: Record<string, string> = {
   admin_delete_user: 'Suppr. Utilisateur',
   admin_invite_user: 'Invitation',
   admin_cancel_invitation: 'Annul. Invitation',
-  admin_approve: 'Approbation',
-  admin_reject: 'Refus',
+  admin_approve: 'Approbation Admin',
+  admin_reject: 'Refus Admin',
   admin_balance_adjustment: 'Ajust. Solde',
+  employee_request: 'Demande Employé',
+  manager_create: 'Congé par Manager',
+  manager_approve: 'Approbation Manager',
+  manager_reject: 'Refus Manager',
 }
 
 function formatDistanceToNow(dateString: string): string {
@@ -171,14 +179,22 @@ export default function AuditPage() {
       const c = JSON.parse(raw)
       const parts: string[] = []
 
-      const reasonLabels: Record<string, string> = {
+      // Time-off / leave events
+      const leaveTypeLabels: Record<string, string> = { ANNUAL: 'Congé annuel', SICK: 'Congé maladie', MATERNITY: 'Congé maternité' }
+      if (c.leaveType) parts.push(`Type: ${leaveTypeLabels[c.leaveType] ?? c.leaveType}`)
+      if (c.startDate) parts.push(`Du: ${new Date(c.startDate).toLocaleDateString('fr-BE')}`)
+      if (c.endDate) parts.push(`Au: ${new Date(c.endDate).toLocaleDateString('fr-BE')}`)
+      if (c.targetUserId) parts.push(`Employé ID: ${c.targetUserId}`)
+      if (c.status) parts.push(`Statut: ${c.status}`)
+
+      const clockReasonLabels: Record<string, string> = {
         forgot_clockin: 'Oublié pointer (arrivée)',
         forgot_clockout: 'Oublié dépointer (départ)',
         correction: "Correction d'erreur",
         other: 'Autre',
         manual_create: 'Création manuelle',
       }
-      if (c.reason) parts.push(`Motif: ${reasonLabels[c.reason] ?? c.reason}`)
+      if (c.reason && !c.leaveType) parts.push(`Motif: ${clockReasonLabels[c.reason] ?? c.reason}`)
       if (c.note) parts.push(`Note: ${c.note}`)
 
       if (c.before && c.after) {
@@ -324,12 +340,17 @@ export default function AuditPage() {
               <option value="">Toutes les actions</option>
               <option value="clock_in">Arrivée</option>
               <option value="clock_out">Départ</option>
+              <option value="employee_request">Demande Employé</option>
+              <option value="manager_create">Congé par Manager</option>
+              <option value="manager_approve">Approbation Manager</option>
+              <option value="manager_reject">Refus Manager</option>
+              <option value="admin_create">Création Admin</option>
+              <option value="admin_approve">Approbation Admin</option>
+              <option value="admin_reject">Refus Admin</option>
               <option value="admin_update_user">Modif. Utilisateur</option>
               <option value="admin_delete_user">Suppr. Utilisateur</option>
               <option value="admin_invite_user">Invitation</option>
               <option value="admin_cancel_invitation">Annul. Invitation</option>
-              <option value="admin_approve">Approbation</option>
-              <option value="admin_reject">Refus</option>
               <option value="admin_balance_adjustment">Ajust. Solde</option>
             </select>
           </div>

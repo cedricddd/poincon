@@ -1,5 +1,6 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { logAudit } from '@/lib/audit'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
@@ -41,14 +42,23 @@ export async function POST(req: NextRequest) {
     }
 
     const validLeaveTypes = ['ANNUAL', 'SICK', 'MATERNITY']
+    const resolvedLeaveType = validLeaveTypes.includes(leaveType) ? leaveType : 'ANNUAL'
     const request = await prisma.timeOffRequest.create({
       data: {
         userId: session.user.id,
         startDate: start,
         endDate: end,
-        leaveType: validLeaveTypes.includes(leaveType) ? leaveType : 'ANNUAL',
+        leaveType: resolvedLeaveType,
         reason: reason || '',
       },
+    })
+
+    await logAudit({
+      userId: session.user.id,
+      action: 'employee_request',
+      resource: 'timeOff',
+      resourceId: request.id,
+      changes: { startDate, endDate, leaveType: resolvedLeaveType, reason: reason || '', status: 'PENDING' },
     })
 
     return NextResponse.json(request, { status: 201 })

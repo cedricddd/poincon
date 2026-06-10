@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { getUserPlan, planCanAccess } from '@/lib/plan'
+import { logAudit } from '@/lib/audit'
 import { NextRequest, NextResponse } from 'next/server'
 
 async function requireManagerScope(sessionUserId: string) {
@@ -41,12 +42,13 @@ export async function POST(req: NextRequest) {
   }
 
   const validLeaveTypes = ['ANNUAL', 'SICK', 'MATERNITY']
+  const resolvedLeaveType = validLeaveTypes.includes(leaveType) ? leaveType : 'ANNUAL'
   const record = await prisma.timeOffRequest.create({
     data: {
       userId,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
-      leaveType: validLeaveTypes.includes(leaveType) ? leaveType : 'ANNUAL',
+      leaveType: resolvedLeaveType,
       reason: reason ?? null,
       status: 'APPROVED',
       approvedBy: session.user.id,
@@ -54,9 +56,18 @@ export async function POST(req: NextRequest) {
     },
   })
 
-  await prisma.notification.create({
-    data: { userId, message: 'Congé enregistré par votre manager', type: 'info' },
-  })
+  await Promise.all([
+    prisma.notification.create({
+      data: { userId, message: 'Congé enregistré par votre manager', type: 'info' },
+    }),
+    logAudit({
+      userId: session.user.id,
+      action: 'manager_create',
+      resource: 'timeOff',
+      resourceId: record.id,
+      changes: { targetUserId: userId, startDate, endDate, leaveType: resolvedLeaveType, reason: reason ?? null, status: 'APPROVED' },
+    }),
+  ])
 
   return NextResponse.json({ record }, { status: 201 })
 }
