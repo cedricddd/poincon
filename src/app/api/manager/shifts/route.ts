@@ -9,7 +9,9 @@ function utcDateKey(d: Date): string {
 
 function deriveShiftType(startTime: string, scheduleType: string): string {
   if (scheduleType === 'NUIT') return 'NIGHT'
-  if (scheduleType === 'JOURNEE' || scheduleType === 'PARTIEL' || scheduleType === 'VARIABLE') return 'DAY'
+  if (scheduleType === 'PARTIEL') return 'PARTIAL'
+  if (scheduleType === 'VARIABLE') return 'VARIABLE'
+  if (scheduleType === 'JOURNEE') return 'DAY'
   const hours = parseInt(startTime.split(':')[0], 10)
   if (hours >= 4 && hours < 12) return 'MORNING'
   if (hours >= 12 && hours < 20) return 'AFTERNOON'
