@@ -1,73 +1,81 @@
 export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { Card } from '@/components/Card'
-
-interface RevenueData {
-  mrrTotal: number
-  mrrMonthly: number
-  mrrYearly: number
-  arrTotal: number
-  subscriptionCount: number
-  monthlyBillingCount: number
-  yearlyBillingCount: number
-  monthlyData: Array<{
-    month: string
-    mrr: number
-    mrrMonthly: number
-    mrrYearly: number
-  }>
-}
+import { prisma } from '@/lib/prisma'
+import { STRIPE_PRICES } from '@/lib/stripe'
 
 export default async function SuperAdminDashboard() {
-  let stats = {
-    totalCompanies: 0,
-    activeCompanies: 0,
-    ghostCompanies: 0,
-    newCompaniesThisMonth: 0,
-    companiesWithPlan: 0,
-    totalUsers: 0,
-    activeUsers7d: 0,
-    activeUsers30d: 0,
-    churningCompanies: 0,
-    churnRate: 0,
-  }
+  const now = new Date()
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+  const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000)
 
-  let revenue: RevenueData = {
-    mrrTotal: 0,
-    mrrMonthly: 0,
-    mrrYearly: 0,
-    arrTotal: 0,
-    subscriptionCount: 0,
-    monthlyBillingCount: 0,
-    yearlyBillingCount: 0,
-    monthlyData: [],
-  }
+  const [
+    totalCompanies,
+    activeCompanies,
+    newCompaniesThisMonth,
+    companiesWithPlan,
+    churningCompanies,
+    totalUsers,
+    activeUsers7d,
+    activeUsers30d,
+    paidCompanies,
+  ] = await Promise.all([
+    prisma.company.count({ where: { deletedAt: null } }),
+    prisma.company.count({ where: { deletedAt: null, lastActivityAt: { gte: ninetyDaysAgo } } }),
+    prisma.company.count({ where: { deletedAt: null, createdAt: { gte: thirtyDaysAgo } } }),
+    prisma.company.count({ where: { deletedAt: null, planId: { not: null }, stripeSubscriptionId: { not: null } } }),
+    prisma.company.count({ where: { deletedAt: null, stripeSubscriptionId: { not: null }, stripeCancelAtPeriodEnd: true } }),
+    prisma.user.count({ where: { deletedAt: null } }),
+    prisma.user.count({ where: { deletedAt: null, clockRecords: { some: { arrivalTime: { gte: sevenDaysAgo } } } } }),
+    prisma.user.count({ where: { deletedAt: null, clockRecords: { some: { arrivalTime: { gte: thirtyDaysAgo } } } } }),
+    prisma.company.findMany({
+      where: { deletedAt: null, stripeSubscriptionId: { not: null }, planId: { not: null } },
+      include: { plan: { select: { name: true } } },
+    }),
+  ])
 
-  try {
-    const res = await fetch(
-      `${process.env.NEXTAUTH_URL}/api/super-admin/stats`,
-      {
-        headers: { 'Cache-Control': 'no-store' },
-        next: { revalidate: 0 },
-      }
-    )
-    if (res.ok) {
-      stats = await res.json()
+  const ghostCompanies = totalCompanies - activeCompanies
+  const churnRate = companiesWithPlan > 0 ? Math.round((churningCompanies / companiesWithPlan) * 100) : 0
+
+  const stats = { totalCompanies, activeCompanies, ghostCompanies, newCompaniesThisMonth, companiesWithPlan, totalUsers, activeUsers7d, activeUsers30d, churningCompanies, churnRate }
+
+  let mrrMonthly = 0
+  let mrrYearly = 0
+  const monthlyCount = { SOLO: 0, TEAM: 0, ENTERPRISE: 0 } as Record<string, number>
+  const yearlyCount  = { SOLO: 0, TEAM: 0, ENTERPRISE: 0 } as Record<string, number>
+
+  for (const company of paidCompanies) {
+    const planName = company.plan?.name as string
+    const billingCycle = company.stripeSubscriptionBillingCycle
+    if (!planName || !STRIPE_PRICES[planName]) continue
+    const prices = STRIPE_PRICES[planName]
+    if (billingCycle === 'monthly') {
+      mrrMonthly += prices.amount_monthly / 100
+      monthlyCount[planName] = (monthlyCount[planName] ?? 0) + 1
+    } else if (billingCycle === 'yearly') {
+      mrrYearly += prices.amount_yearly / 100 / 12
+      yearlyCount[planName] = (yearlyCount[planName] ?? 0) + 1
     }
-
-    const revenueRes = await fetch(
-      `${process.env.NEXTAUTH_URL}/api/super-admin/revenue`,
-      {
-        headers: { 'Cache-Control': 'no-store' },
-        next: { revalidate: 0 },
-      }
-    )
-    if (revenueRes.ok) {
-      revenue = await revenueRes.json()
-    }
-  } catch (error) {
-    console.error('Failed to fetch stats:', error)
   }
+
+  const mrrTotal = mrrMonthly + mrrYearly
+  const arrTotal = mrrTotal * 12
+  const monthlyBillingCount = Object.values(monthlyCount).reduce((a, b) => a + b, 0)
+  const yearlyBillingCount  = Object.values(yearlyCount).reduce((a, b) => a + b, 0)
+
+  const monthlyData = Array.from({ length: 12 }, (_, i) => {
+    const date = new Date(now)
+    date.setMonth(date.getMonth() - (11 - i))
+    return {
+      month: date.toLocaleString('fr-BE', { month: 'short', year: '2-digit' }),
+      mrr: mrrTotal,
+      mrrMonthly,
+      mrrYearly,
+    }
+  })
+
+  const revenue = { mrrTotal, mrrMonthly, mrrYearly, arrTotal, monthlyBillingCount, yearlyBillingCount, monthlyData }
 
   return (
     <div className="p-6 space-y-6">

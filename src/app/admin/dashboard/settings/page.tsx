@@ -2,7 +2,6 @@
 
 export const dynamic = 'force-dynamic'
 import { useState, useEffect, useRef } from 'react'
-import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { Card } from '@/components/Card'
 import { Button } from '@/components/Button'
@@ -336,9 +335,14 @@ export default function SettingsPage() {
                   </Button>
                 )}
                 {!isPaid && planName === 'FREE' && (
-                  <Link href="/#pricing" className="inline-flex items-center px-4 py-2 bg-[#7c3aed] text-white rounded-lg text-sm font-medium hover:bg-[#6d28d9] transition-colors">
-                    Passer à un plan payant →
-                  </Link>
+                  <>
+                    <a href="/api/stripe/checkout?plan=solo&billing=monthly" className="inline-flex items-center px-4 py-2 bg-[#7c3aed] text-white rounded-lg text-sm font-medium hover:bg-[#6d28d9] transition-colors">
+                      Solo — 49€/mois →
+                    </a>
+                    <a href="/api/stripe/checkout?plan=team&billing=monthly" className="inline-flex items-center px-4 py-2 bg-[#7c3aed] text-white rounded-lg text-sm font-medium hover:bg-[#6d28d9] transition-colors">
+                      Team — 99€/mois →
+                    </a>
+                  </>
                 )}
                 {!isPaid && planName !== 'FREE' && (
                   <p className="text-sm text-[var(--pp-muted)] italic">Plan activé manuellement — contactez le support pour la gestion de la facturation.</p>

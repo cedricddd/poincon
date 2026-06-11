@@ -27,7 +27,7 @@ export default function TwoFactorSetupPage() {
         setSecret(data.secret)
         setQrCodeDataUrl(data.qrCodeDataUrl)
       })
-  }, [session?.user])
+  }, [session?.user?.id])
 
   // Already set up and verified → go to dashboard
   useEffect(() => {
