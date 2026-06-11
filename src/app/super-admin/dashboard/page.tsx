@@ -87,14 +87,14 @@ export default async function SuperAdminDashboard() {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         <div className="rounded-xl border border-[var(--pp-line)] bg-[var(--pp-bg)] p-5 hover:shadow-md hover:-translate-y-0.5 transition">
           <div className="text-2xl font-bold tabular-nums text-[#10b981]">
-            €{revenue.mrrTotal.toLocaleString('fr-BE')}
+            €{revenue.mrrTotal.toLocaleString('fr-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <p className="text-xs text-[var(--pp-muted)] mt-2">MRR Total</p>
         </div>
 
         <div className="rounded-xl border border-[var(--pp-line)] bg-[var(--pp-bg)] p-5 hover:shadow-md hover:-translate-y-0.5 transition">
           <div className="text-2xl font-bold tabular-nums text-[#0ea5e9]">
-            €{revenue.arrTotal.toLocaleString('fr-BE')}
+            €{revenue.arrTotal.toLocaleString('fr-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <p className="text-xs text-[var(--pp-muted)] mt-2">ARR Total</p>
         </div>
@@ -188,11 +188,11 @@ export default async function SuperAdminDashboard() {
         <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
           <div>
             <p className="text-[var(--pp-muted)] text-xs">MRR Plans Mensuels</p>
-            <p className="text-lg font-bold text-[#6366f1]">€{revenue.mrrMonthly.toLocaleString('fr-BE')}</p>
+            <p className="text-lg font-bold text-[#6366f1]">€{revenue.mrrMonthly.toLocaleString('fr-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
           <div>
             <p className="text-[var(--pp-muted)] text-xs">MRR Plans Annuels (÷12)</p>
-            <p className="text-lg font-bold text-[#ec4899]">€{revenue.mrrYearly.toLocaleString('fr-BE')}</p>
+            <p className="text-lg font-bold text-[#ec4899]">€{revenue.mrrYearly.toLocaleString('fr-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
           <div>
             <p className="text-[var(--pp-muted)] text-xs">Ratio Mensuel/Annuel</p>
