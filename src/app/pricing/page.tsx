@@ -1,10 +1,7 @@
-import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
+import { PricingPlans } from './PricingPlans'
 
 export default async function PricingPage() {
   const session = await auth()
-  if (session?.user) {
-    redirect('/admin/dashboard/settings#subscription')
-  }
-  redirect('/#pricing')
+  return <PricingPlans isAuthenticated={!!session?.user} />
 }
