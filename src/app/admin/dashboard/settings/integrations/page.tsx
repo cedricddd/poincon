@@ -79,21 +79,26 @@ export default function IntegrationsPage() {
 
   const fetchAll = async () => {
     setLoading(true)
-    const [addonsRes, keysRes, whRes] = await Promise.allSettled([
-      fetch('/api/admin/addons'),
-      fetch('/api/admin/api-keys'),
-      fetch('/api/admin/webhooks'),
-    ])
-    if (addonsRes.status === 'fulfilled' && addonsRes.value.ok) {
-      const d = await addonsRes.value.json()
-      setAddons(d.addons ?? [])
+    const addonsRes = await fetch('/api/admin/addons')
+    if (addonsRes.ok) {
+      const d = await addonsRes.json()
+      const fetchedAddons: Addon[] = d.addons ?? []
+      setAddons(fetchedAddons)
       setPlan(d.plan ?? '')
-    }
-    if (keysRes.status === 'fulfilled' && keysRes.value.ok) {
-      setApiKeys((await keysRes.value.json()).keys ?? [])
-    }
-    if (whRes.status === 'fulfilled' && whRes.value.ok) {
-      setWebhooks((await whRes.value.json()).endpoints ?? [])
+
+      const apiEnabled = fetchedAddons.find(a => a.flag === 'addon_api_access')?.enabled ?? false
+      const whEnabled = fetchedAddons.find(a => a.flag === 'addon_webhooks')?.enabled ?? false
+
+      const [keysRes, whRes] = await Promise.allSettled([
+        apiEnabled ? fetch('/api/admin/api-keys') : Promise.resolve(null),
+        whEnabled ? fetch('/api/admin/webhooks') : Promise.resolve(null),
+      ])
+      if (keysRes.status === 'fulfilled' && keysRes.value?.ok) {
+        setApiKeys((await keysRes.value.json()).keys ?? [])
+      }
+      if (whRes.status === 'fulfilled' && whRes.value?.ok) {
+        setWebhooks((await whRes.value.json()).endpoints ?? [])
+      }
     }
     setLoading(false)
   }

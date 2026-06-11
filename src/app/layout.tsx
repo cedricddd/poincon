@@ -44,6 +44,9 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  alternates: {
+    canonical: 'https://pointon.be/',
+  },
   manifest: '/manifest.json',
   icons: {
     icon: '/favicon.ico',
@@ -59,7 +62,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
+  maximumScale: 5,
   themeColor: '#10b981',
 }
 

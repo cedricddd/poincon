@@ -146,7 +146,7 @@ export default function NewUserPage() {
             >
               <option value="EMPLOYEE">Employé</option>
               {canUseManagers && <option value="MANAGER">Manager</option>}
-              <option value="ADMIN">Administrateur</option>
+              <option value="ADMIN">Admin</option>
             </select>
           </div>
 
@@ -177,7 +177,7 @@ export default function NewUserPage() {
               type="button"
               variant="outline"
               size="md"
-              onClick={() => router.push('/admin/dashboard')}
+              onClick={() => router.push('/admin/dashboard/users')}
             >
               Annuler
             </Button>

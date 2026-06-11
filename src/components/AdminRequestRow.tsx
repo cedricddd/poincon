@@ -20,6 +20,12 @@ const statusColors: Record<string, string> = {
   REJECTED: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
 }
 
+const statusLabels: Record<string, string> = {
+  PENDING: 'En attente',
+  APPROVED: 'Approuvé',
+  REJECTED: 'Rejeté',
+}
+
 export function AdminRequestRow({
   id,
   type,
@@ -51,7 +57,7 @@ export function AdminRequestRow({
       <td className="px-4 py-3 text-sm">{details}</td>
       <td className="px-4 py-3">
         <span className={`px-3 py-1 rounded-full text-sm ${statusColors[status] || 'bg-[var(--pp-bg2)] text-[var(--pp-muted)]'}`}>
-          {status}
+          {statusLabels[status] ?? status}
         </span>
       </td>
       <td className="px-4 py-3">
@@ -59,6 +65,8 @@ export function AdminRequestRow({
           <button
             onClick={onApprove}
             disabled={disabled || status !== 'PENDING'}
+            title="Approuver"
+            aria-label="Approuver"
             className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600 disabled:opacity-50"
           >
             ✓
@@ -66,6 +74,8 @@ export function AdminRequestRow({
           <button
             onClick={onReject}
             disabled={disabled || status !== 'PENDING'}
+            title="Refuser"
+            aria-label="Refuser"
             className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600 disabled:opacity-50"
           >
             ✗

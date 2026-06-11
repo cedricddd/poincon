@@ -189,9 +189,9 @@ export async function PATCH(req: NextRequest) {
     const rawDurationMinutes = Math.round(
       (validatedDeparture.getTime() - existingRecord.arrivalTime.getTime()) / 60000
     )
-    if (rawDurationMinutes < 1 || rawDurationMinutes > 16 * 60) {
+    if (rawDurationMinutes < 0 || rawDurationMinutes > 16 * 60) {
       return NextResponse.json(
-        { error: 'Invalid duration (must be 1 minute to 16 hours)' },
+        { error: 'Invalid duration (must be 0 to 16 hours)' },
         { status: 400 }
       )
     }

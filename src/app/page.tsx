@@ -751,7 +751,7 @@ function CountUnit({ value, label }: { value: number; label: string }) {
       <div
         className="font-mono font-bold leading-none tabular-nums"
         style={{
-          fontSize: 'clamp(2.8rem, 8vw, 5.5rem)',
+          fontSize: 'clamp(1.8rem, 8vw, 5.5rem)',
           color: '#10b981',
           transform: flip ? 'translateY(-6px)' : 'translateY(0)',
           opacity: flip ? 0 : 1,
@@ -806,7 +806,7 @@ function CtaCountdown() {
         </div>
 
         {/* Countdown */}
-        <div className="flex items-start justify-center gap-6 md:gap-10 mb-4">
+        <div className="flex items-start justify-center gap-2 sm:gap-6 md:gap-10 mb-4">
           <CountUnit value={d} label="jours" />
           <span className="font-mono font-bold text-[#10b981] self-start mt-2" style={{ fontSize: 'clamp(2rem, 5vw, 4rem)', opacity: 0.4 }}>:</span>
           <CountUnit value={h} label="heures" />
@@ -1033,6 +1033,7 @@ export default function Home() {
               <h1
                 className="font-display font-bold text-white leading-[0.95] mb-7"
                 style={{ fontSize: 'clamp(3rem, 7vw, 5.5rem)' }}
+                aria-label="Pointeuse légale. Belge."
               >
                 Pointeuse<br />
                 <span style={{ color: '#10b981' }}>légale.</span><br />

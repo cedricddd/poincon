@@ -64,7 +64,7 @@ export function Header() {
     >
       <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" aria-label="Pointon — accueil">
+        <Link href="/" aria-label="Pointon — accueil" className="flex items-center min-h-[44px]">
           <Logo size="md" dark={!scrolled || dark} />
         </Link>
 

@@ -249,6 +249,16 @@ export default function ClockPage() {
             setSessions(prev => [...prev, record])
             return
           }
+
+          // 4xx = server validation error → show message, do NOT queue for offline retry
+          if ((res as Response).status < 500) {
+            const errorData = await (res as Response).json().catch(() => ({}))
+            showToast((errorData as any).error || 'Erreur de validation', 'error')
+            return
+          }
+
+          // 5xx → fall through to offline queue
+          throw new Error(`Server error ${(res as Response).status}`)
         } catch (err) {
           console.warn('Sync failed, saving locally:', err)
         }
@@ -301,6 +311,16 @@ export default function ClockPage() {
             setSessions(prev => prev.map(s => s.id === record.id ? record : s))
             return
           }
+
+          // 4xx = server validation error → show message, do NOT queue for offline retry
+          if ((res as Response).status < 500) {
+            const errorData = await (res as Response).json().catch(() => ({}))
+            showToast((errorData as any).error || 'Erreur de validation', 'error')
+            return
+          }
+
+          // 5xx → fall through to offline queue
+          throw new Error(`Server error ${(res as Response).status}`)
         } catch (err) {
           console.warn('Sync failed, saving locally:', err)
         }
