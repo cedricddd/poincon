@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
+import { sendWelcomeEmail, sendNewCompanyNotification } from '@/lib/mail'
 
 export async function POST(req: NextRequest) {
   try {
@@ -72,6 +73,18 @@ export async function POST(req: NextRequest) {
 
       return { user, company }
     })
+
+    // Fire-and-forget — don't block the response on email delivery
+    Promise.all([
+      sendWelcomeEmail({ to: email, name: fullName, companyName }),
+      sendNewCompanyNotification({
+        companyName,
+        adminName: fullName,
+        adminEmail: email,
+        vatNumber: companyVAT,
+        companyId: company.id,
+      }),
+    ]).catch((err) => console.error('Registration email error:', err))
 
     return NextResponse.json(
       {

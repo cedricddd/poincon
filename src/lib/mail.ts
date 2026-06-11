@@ -224,6 +224,113 @@ export async function sendPasswordResetEmail(params: {
   await transporter.sendMail({ from: FROM, to, subject, html })
 }
 
+export async function sendWelcomeEmail(params: {
+  to: string
+  name: string
+  companyName: string
+}) {
+  if (!process.env.BREVO_SMTP_KEY) return
+
+  const { to, name, companyName } = params
+  const appUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
+
+  const html = `
+    <div style="font-family:system-ui,sans-serif;max-width:580px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
+      <div style="background:#ffffff;border-radius:12px;padding:32px;border:1px solid #e2e8f0;">
+        <h1 style="margin:0 0 4px;font-size:22px;color:#0f172a;">Pointon</h1>
+        <p style="margin:0 0 20px;font-size:13px;color:#94a3b8;">Pointage légal belge</p>
+        <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 24px;">
+
+        <p style="color:#334155;margin:0 0 12px;">Bonjour ${name},</p>
+        <p style="color:#334155;margin:0 0 8px;">
+          Bienvenue sur <strong>Pointon</strong> ! Votre espace <strong>${companyName}</strong> est prêt.
+        </p>
+        <p style="color:#334155;margin:0 0 24px;">
+          Vous pouvez maintenant configurer votre entreprise, inviter vos collaborateurs et commencer le pointage.
+        </p>
+
+        <a href="${appUrl}/admin/onboarding"
+           style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:13px 28px;border-radius:8px;font-weight:600;font-size:15px;margin-bottom:28px;">
+          Configurer mon espace →
+        </a>
+
+        <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 20px;">
+
+        <p style="color:#475569;font-size:13px;margin:0 0 8px;"><strong>Ce que vous pouvez faire dès maintenant :</strong></p>
+        <ul style="color:#475569;font-size:13px;margin:0 0 24px;padding-left:20px;line-height:1.9;">
+          <li>Inviter vos employés (Paramètres → Utilisateurs)</li>
+          <li>Configurer vos sites de travail</li>
+          <li>Définir les horaires et plannings</li>
+          <li>Activer le pointage sur mobile ou tablette</li>
+        </ul>
+
+        <p style="color:#94a3b8;font-size:12px;margin:0;">
+          Pointon · ${new Date().getFullYear()} · Une question ? Répondez à cet email.
+        </p>
+      </div>
+    </div>
+  `
+
+  await transporter.sendMail({
+    from: FROM,
+    to,
+    subject: `Bienvenue sur Pointon, ${companyName} !`,
+    html,
+  })
+}
+
+export async function sendNewCompanyNotification(params: {
+  companyName: string
+  adminName: string
+  adminEmail: string
+  vatNumber: string
+  companyId: string
+}) {
+  if (!process.env.BREVO_SMTP_KEY) return
+
+  const { companyName, adminName, adminEmail, vatNumber, companyId } = params
+  const appUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
+  const notifyEmail = process.env.SUPER_ADMIN_NOTIFY_EMAIL ?? 'cedric@pointon.be'
+  const date = new Date().toLocaleString('fr-BE', { dateStyle: 'full', timeStyle: 'short' })
+
+  const html = `
+    <div style="font-family:system-ui,sans-serif;max-width:580px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
+      <div style="background:#ffffff;border-radius:12px;padding:32px;border:1px solid #e2e8f0;">
+        <h1 style="margin:0 0 4px;font-size:22px;color:#0f172a;">Pointon</h1>
+        <p style="margin:0 0 20px;font-size:13px;color:#94a3b8;">Notification super-admin</p>
+        <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 24px;">
+
+        <p style="color:#334155;margin:0 0 20px;font-size:16px;">
+          🆕 <strong>Nouvelle société inscrite</strong>
+        </p>
+
+        <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px;">
+          <tr><td style="padding:8px 0;color:#64748b;width:140px;">Société</td><td style="padding:8px 0;color:#0f172a;font-weight:600;">${companyName}</td></tr>
+          <tr><td style="padding:8px 0;color:#64748b;">Administrateur</td><td style="padding:8px 0;color:#0f172a;">${adminName}</td></tr>
+          <tr><td style="padding:8px 0;color:#64748b;">Email</td><td style="padding:8px 0;color:#0f172a;">${adminEmail}</td></tr>
+          <tr><td style="padding:8px 0;color:#64748b;">TVA</td><td style="padding:8px 0;color:#0f172a;">${vatNumber}</td></tr>
+          <tr><td style="padding:8px 0;color:#64748b;">Date</td><td style="padding:8px 0;color:#0f172a;">${date}</td></tr>
+          <tr><td style="padding:8px 0;color:#64748b;">Plan</td><td style="padding:8px 0;"><span style="background:#e0f2fe;color:#0369a1;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;">FREE</span></td></tr>
+        </table>
+
+        <a href="${appUrl}/super-admin/accounts"
+           style="display:inline-block;background:#6366f1;color:#fff;text-decoration:none;padding:11px 24px;border-radius:8px;font-weight:600;font-size:14px;">
+          Voir dans le super-admin →
+        </a>
+
+        <p style="color:#94a3b8;font-size:12px;margin-top:28px;">Pointon · Notification automatique</p>
+      </div>
+    </div>
+  `
+
+  await transporter.sendMail({
+    from: FROM,
+    to: notifyEmail,
+    subject: `🆕 Nouvelle société : ${companyName}`,
+    html,
+  })
+}
+
 export async function sendEmail(params: {
   to: string
   subject: string
