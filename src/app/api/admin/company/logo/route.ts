@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdminWithCompany } from '@/lib/admin-security'
 import { prisma } from '@/lib/prisma'
-import { writeFile, mkdir } from 'fs/promises'
+import { writeFile, mkdir, unlink } from 'fs/promises'
 import path from 'path'
 
 const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads', 'logos')
@@ -26,11 +26,23 @@ export async function POST(req: NextRequest) {
   const ext = file.name.split('.').pop()?.toLowerCase() ?? 'png'
   const filename = `${auth.admin.companyId}.${ext}`
 
+  // Delete old file if extension changed
+  const existing = await prisma.company.findUnique({
+    where: { id: auth.admin.companyId },
+    select: { logoUrl: true },
+  })
+  if (existing?.logoUrl) {
+    const oldName = path.basename(existing.logoUrl.split('?')[0])
+    if (oldName !== filename) {
+      await unlink(path.join(UPLOAD_DIR, oldName)).catch(() => {})
+    }
+  }
+
   await mkdir(UPLOAD_DIR, { recursive: true })
   const buffer = Buffer.from(await file.arrayBuffer())
   await writeFile(path.join(UPLOAD_DIR, filename), buffer)
 
-  const logoUrl = `/api/uploads/logos/${filename}`
+  const logoUrl = `/api/uploads/logos/${filename}?v=${Date.now()}`
   await prisma.company.update({
     where: { id: auth.admin.companyId },
     data: { logoUrl },
@@ -42,6 +54,15 @@ export async function POST(req: NextRequest) {
 export async function DELETE() {
   const auth = await requireAdminWithCompany()
   if (!auth) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  const existing = await prisma.company.findUnique({
+    where: { id: auth.admin.companyId },
+    select: { logoUrl: true },
+  })
+  if (existing?.logoUrl) {
+    const oldName = path.basename(existing.logoUrl.split('?')[0])
+    await unlink(path.join(UPLOAD_DIR, oldName)).catch(() => {})
+  }
 
   await prisma.company.update({
     where: { id: auth.admin.companyId },
