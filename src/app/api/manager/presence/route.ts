@@ -26,10 +26,10 @@ export async function GET(req: NextRequest) {
 
   const scope = req.nextUrl.searchParams.get('scope') ?? 'team'
 
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const tomorrow = new Date(today)
-  tomorrow.setDate(tomorrow.getDate() + 1)
+  const now = new Date()
+  const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+  const tomorrowUTC = new Date(todayUTC)
+  tomorrowUTC.setUTCDate(tomorrowUTC.getUTCDate() + 1)
 
   let memberIds: string[] | undefined
 
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
   const records = await prisma.clockRecord.findMany({
     where: {
       departureTime: null,
-      date: { gte: today, lt: tomorrow },
+      arrivalTime: { gte: todayUTC, lt: tomorrowUTC },
       user: {
         companyId: user.companyId!,
         ...(memberIds !== undefined && { id: { in: memberIds } }),
