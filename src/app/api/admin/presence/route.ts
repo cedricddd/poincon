@@ -13,6 +13,8 @@ export async function GET() {
     const tomorrowUTC = new Date(todayUTC)
     tomorrowUTC.setUTCDate(tomorrowUTC.getUTCDate() + 1)
 
+    console.log("[presence] companyId:", auth.admin.companyId, "range:", todayUTC.toISOString(), "→", tomorrowUTC.toISOString())
+
     const [records, visitors] = await Promise.all([
       // Employees clocked in today with no departure — filter on arrivalTime (always explicitly set)
       prisma.clockRecord.findMany({
@@ -57,6 +59,8 @@ export async function GET() {
       return a.site.name.localeCompare(b.site.name, "fr")
     })
 
+    console.log("[presence] records:", records.length, "visitors:", visitors.length)
+
     return NextResponse.json({
       groups,
       total: records.length,
@@ -65,6 +69,6 @@ export async function GET() {
     })
   } catch (err) {
     console.error("[presence] API error:", err)
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
+    return NextResponse.json({ error: "Erreur serveur", detail: String(err) }, { status: 500 })
   }
 }

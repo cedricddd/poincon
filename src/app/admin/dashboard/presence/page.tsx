@@ -45,15 +45,24 @@ export default function PresencePage() {
   const [data, setData] = useState<Data | null>(null)
   const [loading, setLoading] = useState(true)
   const [lastRefresh, setLastRefresh] = useState<string | null>(null)
+  const [apiError, setApiError] = useState<string | null>(null)
   const [filterSite, setFilterSite] = useState<string>('__all__')
   const [departingId, setDepartingId] = useState<string | null>(null)
 
   const load = useCallback(async () => {
-    const res = await fetch('/api/admin/presence')
-    if (res.ok) {
-      const d = await res.json()
-      setData(d)
-      setLastRefresh(d.asOf)
+    try {
+      const res = await fetch('/api/admin/presence')
+      if (res.ok) {
+        const d = await res.json()
+        setData(d)
+        setLastRefresh(d.asOf)
+        setApiError(null)
+      } else {
+        const body = await res.json().catch(() => ({}))
+        setApiError(`HTTP ${res.status} — ${body?.error ?? 'Erreur inconnue'}${body?.detail ? ': ' + body.detail : ''}`)
+      }
+    } catch (e) {
+      setApiError(`Erreur réseau: ${e}`)
     }
     setLoading(false)
   }, [])
@@ -102,6 +111,12 @@ export default function PresencePage() {
           </button>
         </div>
       </div>
+
+      {apiError && (
+        <div className="mb-4 p-3 rounded-lg bg-[var(--pp-neg)]/10 border border-[var(--pp-neg)]/30 text-[var(--pp-neg)] text-xs font-mono">
+          {apiError}
+        </div>
+      )}
 
       {loading ? (
         <p className="text-[var(--pp-muted)] text-sm">Chargement…</p>
