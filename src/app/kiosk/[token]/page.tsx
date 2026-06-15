@@ -459,27 +459,22 @@ export default function KioskPage() {
           </div>
         </div>
 
-        {/* Logo + company */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18, marginBottom: 44 }}>
+        {/* Logo */}
+        <div style={{ marginBottom: 44 }}>
           {info?.logoUrl ? (
-            <div className="kiosk-logo" style={{ width: 96, height: 96, borderRadius: 20, overflow: 'hidden', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Image src={info.logoUrl} alt="Logo" width={96} height={96} style={{ objectFit: 'contain', width: '100%', height: '100%', padding: 10 }} />
+            <div className="kiosk-logo" style={{ width: 148, height: 148, borderRadius: 28, overflow: 'hidden', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Image src={info.logoUrl} alt="Logo" width={148} height={148} style={{ objectFit: 'contain', width: '100%', height: '100%', padding: 16 }} />
             </div>
           ) : (
-            <div className="kiosk-logo" style={{ width: 96, height: 96, borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem' }}>
-              🏢
+            <div style={{ textAlign: 'center' }}>
+              <div className="kiosk-logo" style={{ width: 148, height: 148, borderRadius: 28, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3.5rem', marginBottom: 16 }}>
+                🏢
+              </div>
+              <h1 style={{ fontSize: '1.375rem', fontWeight: 600, color: 'rgba(255,255,255,0.88)', letterSpacing: '0.01em' }}>
+                {info?.companyName ?? '…'}
+              </h1>
             </div>
           )}
-          <div style={{ textAlign: 'center' }}>
-            <h1 style={{ fontSize: '1.375rem', fontWeight: 600, color: 'rgba(255,255,255,0.88)', letterSpacing: '0.01em', lineHeight: 1.2 }}>
-              {info?.companyName ?? '…'}
-            </h1>
-            {info?.siteName && (
-              <p style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.26)', letterSpacing: '0.16em', textTransform: 'uppercase', marginTop: 7, fontWeight: 400 }}>
-                {info.siteName}
-              </p>
-            )}
-          </div>
         </div>
 
         {/* Welcome word */}
@@ -507,8 +502,15 @@ export default function KioskPage() {
         </div>
 
         {/* Watermark */}
-        <div style={{ position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)', fontSize: '0.62rem', letterSpacing: '0.32em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.1)', whiteSpace: 'nowrap' }}>
-          Pointon
+        <div style={{ position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)', textAlign: 'center', whiteSpace: 'nowrap' }}>
+          {info?.siteName && (
+            <p style={{ fontSize: '0.62rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.18)', marginBottom: 4 }}>
+              {info.siteName}
+            </p>
+          )}
+          <p style={{ fontSize: '0.62rem', letterSpacing: '0.32em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.1)' }}>
+            Pointon
+          </p>
         </div>
       </div>
     )
