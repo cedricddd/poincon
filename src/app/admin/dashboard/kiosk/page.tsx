@@ -12,6 +12,7 @@ type KioskToken = {
   label: string | null
   siteId: string | null
   site: Site | null
+  theme: string
   createdAt: string
 }
 
@@ -26,6 +27,7 @@ export default function KioskPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [copied, setCopied] = useState<string | null>(null)
+  const [togglingTheme, setTogglingTheme] = useState<string | null>(null)
 
   const fetchTokens = () => {
     setLoading(true)
@@ -81,6 +83,23 @@ export default function KioskPage() {
 
   const kioskUrl = (token: string) =>
     typeof window !== 'undefined' ? `${window.location.origin}/kiosk/${token}` : `/kiosk/${token}`
+
+  const toggleTheme = async (t: KioskToken) => {
+    setTogglingTheme(t.id)
+    const newTheme = t.theme === 'light' ? 'dark' : 'light'
+    try {
+      const res = await fetch(`/api/admin/kiosk/tokens/${t.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ theme: newTheme }),
+      })
+      if (res.ok) {
+        setTokens(prev => prev.map(tk => tk.id === t.id ? { ...tk, theme: newTheme } : tk))
+      }
+    } finally {
+      setTogglingTheme(null)
+    }
+  }
 
   const planBlocked = plan && plan !== 'FREE' ? false : plan === 'FREE'
 
@@ -188,15 +207,23 @@ export default function KioskPage() {
                       Créé le {new Date(t.createdAt).toLocaleDateString('fr-BE', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+                    <button
+                      onClick={() => toggleTheme(t)}
+                      disabled={togglingTheme === t.id}
+                      title={t.theme === 'light' ? 'Passer en mode sombre' : 'Passer en mode clair'}
+                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-medium transition-colors disabled:opacity-50"
+                      style={t.theme === 'light'
+                        ? { borderColor: 'rgba(212,168,83,0.4)', color: '#92640a', background: 'rgba(212,168,83,0.08)' }
+                        : { borderColor: 'rgba(99,102,241,0.35)', color: '#4f46e5', background: 'rgba(99,102,241,0.06)' }
+                      }
+                    >
+                      {t.theme === 'light' ? '☀️ Clair' : '🌑 Sombre'}
+                    </button>
                     <Button size="sm" variant="outline" onClick={() => copyUrl(t.token)}>
                       {copied === t.token ? '✓ Copié' : 'Copier URL'}
                     </Button>
-                    <a
-                      href={kioskUrl(t.token)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
+                    <a href={kioskUrl(t.token)} target="_blank" rel="noopener noreferrer">
                       <Button size="sm" variant="outline">Ouvrir</Button>
                     </a>
                     <button

@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Upgrade required' }, { status: 403 })
     }
 
-    const { label, siteId } = await req.json()
+    const { label, siteId, theme } = await req.json()
 
     // Validate siteId belongs to this company
     if (siteId) {
@@ -66,11 +66,13 @@ export async function POST(req: NextRequest) {
     }
 
     const token = randomBytes(24).toString('base64url')
+    const safeTheme = theme === 'light' ? 'light' : 'dark'
 
     const kioskToken = await prisma.kioskToken.create({
       data: {
         token,
         companyId: ctx.companyId,
+        theme: safeTheme,
         ...(siteId ? { siteId } : {}),
         ...(label ? { label: label.trim() } : {}),
       },

@@ -592,6 +592,7 @@ model KioskToken {
   companyId String
   siteId    String?
   label     String?
+  theme     String   @default("dark")
   createdAt DateTime @default(now())
 
   company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
