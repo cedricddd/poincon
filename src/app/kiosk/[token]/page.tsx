@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Image from 'next/image'
 
-type Screen = 'home' | 'employee' | 'visitor' | 'result'
+type Screen = 'home' | 'employee' | 'visitor' | 'visitor_depart' | 'result'
 type ResultData = { success: boolean; title: string; subtitle: string }
 type KioskInfo = {
   companyName: string
@@ -316,6 +316,8 @@ export default function KioskPage() {
   const [visitorEmail, setVisitorEmail] = useState('')
   const [hostId, setHostId] = useState('')
   const [visitError, setVisitError] = useState('')
+  const [departEmail, setDepartEmail] = useState('')
+  const [departError, setDepartError] = useState('')
 
   const idleRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const wakeLockRef = useRef<WakeLockSentinel | null>(null)
@@ -383,6 +385,8 @@ export default function KioskPage() {
     setVisitorEmail('')
     setHostId('')
     setVisitError('')
+    setDepartEmail('')
+    setDepartError('')
     setResult(null)
     submitPending.current = false
   }, [])
@@ -452,6 +456,26 @@ export default function KioskPage() {
     if (loading) return
     if (d === '⌫') { setPin(p => p.slice(0, -1)); setPinError('') }
     else if (pin.length < 4) setPin(p => p + d)
+  }
+
+  const handleDepartSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (loading) return
+    setLoading(true)
+    setDepartError('')
+    try {
+      const res = await fetch(`/api/kiosk/${token}/visit-depart`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: departEmail.trim() }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setDepartError(data.error ?? 'Erreur'); setLoading(false); return }
+      showResult({ success: true, title: 'Départ enregistré', subtitle: `À bientôt, ${data.visitorName} !` })
+    } catch {
+      setDepartError('Erreur de connexion')
+      setLoading(false)
+    }
   }
 
   const handleVisitSubmit = async (e: React.FormEvent) => {
@@ -601,6 +625,16 @@ export default function KioskPage() {
           </button>
         </div>
 
+        {/* Visitor departure link */}
+        <button
+          onClick={() => setScreen('visitor_depart')}
+          style={{ marginTop: 28, background: 'none', border: 'none', cursor: 'pointer', color: t.c3, fontSize: '0.78rem', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 6, transition: 'color 0.15s' }}
+          onMouseEnter={e => (e.currentTarget.style.color = t.c1)}
+          onMouseLeave={e => (e.currentTarget.style.color = t.c3)}
+        >
+          <span style={{ fontSize: '1rem' }}>🚪</span> Je repars (visiteur)
+        </button>
+
         {/* Footer */}
         <div style={{ position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)', textAlign: 'center', whiteSpace: 'nowrap' }}>
           {info?.siteName && (
@@ -675,6 +709,52 @@ export default function KioskPage() {
             Vérification…
           </p>
         )}
+      </div>
+    )
+  }
+
+  // ── Visitor departure screen ────────────────────────────────────────────────
+  if (screen === 'visitor_depart') {
+    return (
+      <div className="kiosk-root" style={rootSx}>
+        <style>{styles}</style>
+        <BgGlows t={t} />
+
+        <button className="kiosk-back" onClick={goHome} style={{ position: 'absolute', top: 28, left: 32 }}>
+          <IconArrow /> Retour
+        </button>
+
+        <h2 className="kiosk-display" style={{ fontSize: '2.25rem', fontWeight: 300, color: t.c1, marginBottom: 6 }}>
+          Enregistrer mon départ
+        </h2>
+        <p style={{ fontSize: '0.7rem', color: t.c3, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 40 }}>
+          Entrez l&apos;email utilisé à votre arrivée
+        </p>
+
+        <form onSubmit={handleDepartSubmit} style={{ width: '100%', maxWidth: 400, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.67rem', color: t.c3, letterSpacing: '0.13em', textTransform: 'uppercase', marginBottom: 9 }}>Adresse email</label>
+            <input
+              type="email"
+              value={departEmail}
+              onChange={e => setDepartEmail(e.target.value)}
+              required
+              autoComplete="off"
+              placeholder="marie@exemple.be"
+              className="kiosk-field"
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus
+            />
+          </div>
+          {departError && <p style={{ color: t.error, fontSize: '0.85rem' }}>{departError}</p>}
+          <button
+            type="submit"
+            disabled={loading || !departEmail.trim()}
+            className="kiosk-submit"
+          >
+            {loading ? 'Vérification…' : 'Confirmer mon départ'}
+          </button>
+        </form>
       </div>
     )
   }

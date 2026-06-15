@@ -603,16 +603,17 @@ model KioskToken {
 }
 
 model KioskVisit {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   companyId    String
   siteId       String?
   visitorName  String
   visitorEmail String
   hostUserId   String
-  arrivedAt    DateTime @default(now())
+  arrivedAt    DateTime  @default(now())
+  departedAt   DateTime?
 
-  company      Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  host         User     @relation(fields: [hostUserId], references: [id])
+  company      Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  host         User      @relation(fields: [hostUserId], references: [id])
 
   @@index([companyId])
   @@index([arrivedAt])
