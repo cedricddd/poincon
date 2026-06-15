@@ -586,12 +586,12 @@ export default function KioskPage() {
         {/* Logo */}
         <div style={{ marginBottom: 44 }}>
           {info?.logoUrl ? (
-            <div className="kiosk-logo" style={{ width: 148, height: 148, borderRadius: 28, overflow: 'hidden', background: t.s1, border: `1px solid ${t.b1}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Image src={info.logoUrl} alt="Logo" width={148} height={148} style={{ objectFit: 'contain', width: '100%', height: '100%', padding: 16 }} />
+            <div className="kiosk-logo" style={{ width: 192, height: 192, borderRadius: 32, overflow: 'hidden', background: t.s1, border: `1px solid ${t.b1}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Image src={info.logoUrl} alt="Logo" width={192} height={192} style={{ objectFit: 'contain', width: '100%', height: '100%', padding: 20 }} />
             </div>
           ) : (
             <div style={{ textAlign: 'center' }}>
-              <div className="kiosk-logo" style={{ width: 148, height: 148, borderRadius: 28, background: t.s1, border: `1px solid ${t.b1}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3.5rem', marginBottom: 16 }}>
+              <div className="kiosk-logo" style={{ width: 192, height: 192, borderRadius: 32, background: t.s1, border: `1px solid ${t.b1}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '4rem', marginBottom: 16 }}>
                 🏢
               </div>
               <h1 style={{ fontSize: '1.375rem', fontWeight: 600, color: t.c1, letterSpacing: '0.01em' }}>
@@ -628,9 +628,14 @@ export default function KioskPage() {
         {/* Visitor departure link */}
         <button
           onClick={() => setScreen('visitor_depart')}
-          style={{ marginTop: 28, background: 'none', border: 'none', cursor: 'pointer', color: t.c3, fontSize: '0.78rem', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 6, transition: 'color 0.15s' }}
-          onMouseEnter={e => (e.currentTarget.style.color = t.c1)}
-          onMouseLeave={e => (e.currentTarget.style.color = t.c3)}
+          style={{
+            marginTop: 32, cursor: 'pointer', fontSize: '0.8rem', letterSpacing: '0.04em',
+            display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.18s ease',
+            color: t.c2, background: t.s1, border: `1px solid ${t.b1}`,
+            padding: '10px 20px', borderRadius: 10,
+          }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = t.c1; (e.currentTarget as HTMLButtonElement).style.borderColor = t.c6 }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = t.c2; (e.currentTarget as HTMLButtonElement).style.borderColor = t.b1 }}
         >
           <span style={{ fontSize: '1rem' }}>🚪</span> Je repars (visiteur)
         </button>

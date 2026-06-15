@@ -35,7 +35,6 @@ export async function GET() {
       },
       include: {
         host: { select: { id: true, name: true } },
-        site: { select: { id: true, name: true } },
       },
       orderBy: { arrivedAt: "asc" },
     }),

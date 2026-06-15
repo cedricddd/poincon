@@ -25,7 +25,6 @@ type Visitor = {
   arrivedAt: string
   departedAt: string | null
   host: { id: string; name: string | null }
-  site: { id: string; name: string } | null
 }
 
 type Data = {
