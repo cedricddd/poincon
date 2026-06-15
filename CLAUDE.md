@@ -17,9 +17,11 @@ docker-compose -f docker-compose.dev.yml logs -f app   # logs
 ## Schema Changes (dev — BOTH steps required)
 
 ```powershell
-docker-compose -f docker-compose.dev.yml run --rm -e "DATABASE_URL=postgresql://poincon:n0Ad5fxVQRhQocpiI4E7LGom0gu97ek@db:5432/poincon" app sh -c "apk add --no-cache openssl && npx prisma db push --skip-generate && npx prisma generate"
+docker-compose -f docker-compose.dev.yml run --rm app sh -c "apk add --no-cache openssl && npx prisma db push --skip-generate && npx prisma generate"
 docker-compose -f docker-compose.dev.yml up -d app
 ```
+
+> DATABASE_URL injecté automatiquement par docker-compose (pas besoin de -e)
 
 ## ⚠️ Deploy + Schema : db push OBLIGATOIRE en prod
 
@@ -62,8 +64,8 @@ ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker comp
 
 - **Prod**: pointon.be · OVH KS-5-A · LXC 106 (IP 141.94.102.226)
 - **SSH deploy**: `ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && git pull origin main && docker compose up -d --build app'"`
-- **CI/CD**: manuel pour l'instant → `/pointon-cicd`
+- **CI/CD**: GitHub Actions auto-deploy actif → `/pointon-cicd`
 
 ## Key Skills
 
-`/pointon-dev` · `/pointon-stripe` · `/pointon-cicd` · `/pointon-cron` · `/rtk-dev` · `/security-review`
+`/pointon-dev` · `/pointon-planning` · `/pointon-stripe` · `/pointon-cicd` · `/pointon-cron` · `/rtk-dev` · `/security-review`

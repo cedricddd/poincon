@@ -1,10 +1,10 @@
 ================================================================================
-                    POINTON - TODO LIST (MISE À JOUR 2026-06-03)
+                    POINTON - TODO LIST (MISE À JOUR 2026-06-10)
 ================================================================================
 
-Dernière mise à jour: 2026-06-08
-Version: 0.4.4
-État: Phases 1-15.8 + RGPD complétées. v0.4.4 : export RGPD Article 20, CookieBanner, certificat PDF conformité. Reste: Stripe live keys, smoke tests prod, mode kiosque, Peppol/Odoo, monitoring (low).
+Dernière mise à jour: 2026-06-10
+Version: 0.5.0
+État: Phases 1-16.1 complétées. v0.5.0 : planning module complet (grille hebdo, types shifts colorés, rotation cycles, congés), types de congés (annual/sick/maternity), add-ons (API keys, webhooks, custom reports), 2FA obligatoire ADMIN/SUPER_ADMIN. Reste: Stripe live keys, smoke tests prod, mode kiosque, Peppol/Odoo.
 
 ================================================================================
 PHASES COMPLÉTÉES (✓)
@@ -418,12 +418,104 @@ PHASE 15.8: FIX ARRONDI HEURES HEBDO + MIGRATION OVH (✓ COMPLÉTÉE — 2026-0
     ├─ Deploy validé : git pull + docker compose up -d --build app → build 12s, Started
     └─ CLAUDE.md + skills poincon-cicd/poincon-dev mis à jour (exit Hostinger)
 
+PHASE 15.9: SEO, DEMO & STRIPE BILLING (✓ COMPLÉTÉE — 2026-06-03)
+================================================================================
+
+✓ SEO — DONE (2026-06-03)
+    ├─ sitemap.ts + robots.ts (App Router)
+    ├─ JSON-LD structured data (Organization, WebSite)
+    └─ OpenGraph + meta tags améliorés sur landing + pricing
+
+✓ Compte démo — DONE (2026-06-03)
+    ├─ Script seed-demo (entreprise + employés + pointages réalistes)
+    ├─ DemoBanner (bandeau sur l'interface démo)
+    └─ Carte "demo" sur workspace super-admin
+
+✓ Workspace super-admin — DONE (2026-06-03)
+    ├─ Page /super-admin/workspace : vue technique des tenants
+    └─ Enterprise plan management (PATCH plan via super-admin)
+
+✓ Stripe billing renewal tracking — DONE (2026-06-03)
+    ├─ Champs stripeRenewalDate trackés sur Company
+    ├─ Emails de rappel renouvellement Solo/Team (cron test mode)
+    └─ Fix Stripe : billing=annual→yearly, redirect NEXTAUTH_URL, fix 401 unauthenticated
+
+✓ UX checkout — DONE (2026-06-03)
+    └─ /pricing/upgrade interstitial pour unauthenticated checkout
+
+PHASE 16.0: 2FA OBLIGATOIRE ADMIN/SUPER_ADMIN (✓ COMPLÉTÉE — 2026-06-08)
+================================================================================
+
+✓ TOTP 2FA mandatory pour ADMIN/SUPER_ADMIN — DONE (2026-06-08)
+    ├─ Pure Node.js TOTP RFC 6238 (remplace otplib — 0 dépendance externe)
+    ├─ src/lib/totp.ts — génération secret, QR code, validation
+    ├─ Setup : GET/POST /api/auth/2fa/setup
+    ├─ Challenge : POST /api/auth/2fa/challenge (après login)
+    ├─ Disable : POST /api/auth/2fa/disable (re-auth requis)
+    └─ Enforcement via proxy.ts (Next 16 — middleware.ts incompatible experimental build)
+
+✓ Fix build — DONE (2026-06-08)
+    └─ Suppression middleware.ts en doublon (proxy.ts fait tout)
+
+✓ RGPD sub-processors mis à jour — DONE (2026-06-08)
+    └─ Hostinger → OVH (Roubaix), ajout Sentry GmbH (DE)
+
+PHASE 16.1: PLANNING MODULE + CONGÉS + ADD-ONS (✓ COMPLÉTÉE — 2026-06-10)
+================================================================================
+
+✓ Module planning hebdomadaire — DONE (2026-06-10)
+    ├─ Page /admin/dashboard/planning (ADMIN + MANAGER)
+    ├─ Grille semaine : 7 jours × N employés
+    ├─ Template shifts (gabarits WorkSchedule) en fond transparent
+    ├─ Affichage congés approuvés avec badge RTT/Récupération (violet)
+    └─ Fix timezone bug getDateKey (toISOString() UTC shift)
+
+✓ Types de shifts avec couleurs — DONE (2026-06-10)
+    ├─ DAY (bleu) · MORNING (ambre) · AFTERNOON (orange) · NIGHT (indigo)
+    ├─ PARTIAL (violet) · VARIABLE (teal)
+    ├─ Templates colorisés par type de régime horaire
+    └─ Fix mapping PARTIEL→PARTIAL, VARIABLE→VARIABLE (noms DB anglais)
+
+✓ Types de congés — DONE (2026-06-10)
+    ├─ Modèle : ANNUAL (🌴) · SICK (🤒) · MATERNITY (👶)
+    ├─ Icônes distinctes dans liste demandes + grille planning
+    ├─ Admin + manager peuvent créer congé au nom d'un employé
+    └─ Audit trail complet sur time-off requests (toutes actions loggées)
+
+✓ Rotation cycles — DONE (2026-06-10)
+    ├─ Modèle RotationCycle (Prisma) + lib/rotation.ts
+    ├─ API GET/POST /api/admin/rotation-cycles
+    ├─ Équipes peuvent avoir un cycle de rotation (rotationCycleId sur Team)
+    └─ Ghost shifts rotation affichés dans la grille (bordure pointillée)
+
+✓ Add-ons + API Keys + Webhooks — DONE (2026-06-10)
+    ├─ Système add-ons plan-gated : API keys, webhooks, custom reports, enforce 2FA
+    ├─ GET/POST /api/admin/addons — activer/désactiver add-ons
+    ├─ GET/POST/DELETE /api/admin/api-keys — clés API par company (lib/apikey.ts)
+    ├─ lib/webhook.ts — envoi events à URL externe configurée
+    └─ Page /admin/dashboard/reports/custom
+
+✓ Users — manager assignment — DONE (2026-06-10)
+    ├─ Colonne assignation manager dans tableau utilisateurs
+    └─ Bouton "Retirer manager d'équipe" dans la fiche utilisateur
+
+✓ Dashboard — fix compteur horaires — DONE (2026-06-10)
+    ├─ Exclusion des employés en rotation du compteur "sans planning"
+    └─ UI horaires améliorée (avertissement rotation visible)
+
 ================================================================================
 CE QUI RESTE À FAIRE
 ================================================================================
 
 PRIORITÉ 1 — PROD (DERNIER BLOCANT)
 ================================================================================
+
+[ ] Surveiller publication loi 2027 au Moniteur belge
+    ├─ Le texte n'est pas encore publié (en cours : National Labour Council → parlement)
+    ├─ Dès publication : relever le niveau CPS exact (2 ou 3) + montants amendes officiels
+    ├─ Mettre à jour la landing page avec les montants exacts et un lien vers le Moniteur belge
+    └─ Sources à surveiller : https://www.ejustice.just.fgov.be/cgi/welcome.pl (Moniteur belge)
+                               https://www.emploi.belgique.be (SPF Emploi)
 
 [ ] Stripe live keys — remplacer clés test par clés production dans .env LXC 106
     └─ Puis : docker compose up -d app (recreate) + tester checkout complet
@@ -434,6 +526,18 @@ PRIORITÉ 1 — PROD (DERNIER BLOCANT)
     ├─ Invitation employé + flow set-password
     ├─ Stripe checkout (live) + webhook
     └─ Export CSV + PDF rapports
+
+[ ] Add-ons / Intégrations — boutons "Activer" non fonctionnels (UI shell uniquement)
+    ├─ Page /admin/dashboard/settings/integrations affiche les 5 add-ons (UI OK)
+    ├─ Bouton "Activer" ne fait rien → l'API POST /api/admin/addons n'est pas branchée
+    ├─ À implémenter : POST /api/admin/addons → toggle enabled + persist en DB
+    ├─ Modèle Prisma : vérifier si CompanyAddon existe ou à créer (champ JSON ou table)
+    ├─ Accès API (29€/mois) → brancher sur onglet "Clés API" (déjà UI)
+    ├─ Webhooks (19€/mois) → brancher sur onglet "Webhooks" (déjà UI)
+    ├─ Kiosk avancé (19€/mois) → gating add-on pour /kiosk/[token]
+    ├─ Export RGPD (15€/mois) → gating add-on pour /api/user/export étendu
+    ├─ Rapports custom (15€/mois) → gating add-on pour /admin/dashboard/reports/custom
+    └─ Facturation add-ons : via Stripe (subscription items) ou simple flag DB ?
 
 PRIORITÉ 2 — RGPD & LÉGAL (✓ COMPLÉTÉE — 2026-06-08)
 ================================================================================
@@ -470,17 +574,39 @@ PRIORITÉ 3 — MODE KIOSQUE TABLETTE (NOUVELLE FEATURE)
     ├─ Logo société affiché (utilise le logo uploadé dans les paramètres admin)
     └─ À clarifier : longueur PIN, prix supplément, multi-sites
 
-PRIORITÉ 4 — MONITORING & SUPPORT
+PRIORITÉ 4 — MONITORING & SUPPORT (✓ COMPLÉTÉE — 2026-06-08)
 ================================================================================
 
-[ ] Uptime monitoring — Uptime Robot ou Better Uptime (gratuit)
-    └─ Alerter si pointon.be tombe + Mailcow
+✓ Uptime monitoring — Uptime Kuma self-hosted — DONE (2026-06-08)
+    ├─ Proxmox maison : LXC 200 Debian 13, Docker isolé, IP 192.168.1.153
+    ├─ Uptime Kuma v2.4.0 · accès : http://192.168.1.153:3001 (LAN) / https://uptime.ced-it.be (externe via NPM LXC 101)
+    ├─ Monitor HTTP(s) → https://pointon.be (60s) : 200 OK ✓
+    ├─ Monitor HTTP(s) → https://mail.pointon.be (60s) : 200 OK ✓
+    ├─ Alertes Gmail → cedric.deroanne@gmail.com (App Password SMTP) ✓
+    ├─ App Android connectée ✓
+    └─ Monitors autres LXC Proxmox : suivi séparé (hors scope Pointon)
 
-[ ] Error tracking — Sentry (Next.js SDK)
-    └─ Capturer les erreurs JS + API silencieuses en prod
+✓ Error tracking — Sentry (Next.js SDK) — DONE (2026-06-08)
+    ├─ @sentry/nextjs installé + instrumentation.ts (server/edge init)
+    ├─ DSN EU : ingest.de.sentry.io (conformité RGPD hébergement EU)
+    ├─ CSP mise à jour : connect-src inclut *.ingest.de.sentry.io
+    ├─ beforeSend : headers sensibles filtrés (authorization, cookie, x-cron-secret)
+    ├─ tracesSampleRate : 10% en prod, 100% en dev
+    └─ Vérifié : erreurs serveur capturées dans Sentry Issues
 
-[ ] Onboarding guidé — flow "créer company + inviter 1er employé" en 5 min
-    └─ Optionnel : wizard étape par étape au premier login admin
+✓ Onboarding guidé — wizard 3 étapes au premier login admin — DONE (2026-06-08)
+    ├─ Champ onboardingCompleted sur Company (Prisma + db push prod)
+    ├─ Auto-redirect /admin/onboarding si !onboardingCompleted (layout admin)
+    ├─ x-pathname forwarding proxy.ts → headers() pour éviter redirect loop
+    ├─ Étape 1 : nom société + upload logo
+    ├─ Étape 2 : invitation premier employé (skippable)
+    ├─ Étape 3 : succès → POST /api/admin/onboarding/complete → dashboard
+    └─ Comptes existants en prod protégés (UPDATE companies SET onboardingCompleted=true)
+
+✓ Fix healthcheck Docker — DONE (2026-06-08)
+    ├─ Problème : localhost résolu en ::1 (IPv6) par Alpine, Next.js écoute IPv4 seulement
+    ├─ Fix : localhost → 127.0.0.1 dans docker-compose.yml
+    └─ Container pointon-app : unhealthy → healthy ✓
 
 PRIORITÉ 5 — FEATURES SI DEMANDÉ (NICE TO HAVE)
 ================================================================================
@@ -490,10 +616,10 @@ PRIORITÉ 5 — FEATURES SI DEMANDÉ (NICE TO HAVE)
     ├─ Déduction automatique X min/jour sans bouton (règle vs action employé)
     └─ Alerte si pause dépasse X minutes
 
-[ ] 2FA Multi-Factor Authentication — priorité basse
-    ├─ Toggle dans /admin/dashboard/settings (activer/désactiver)
-    ├─ Email-based pour commencer (SMS/authenticator phase 2)
-    └─ Doit pouvoir être désactivé pour les tests
+✓ 2FA Multi-Factor Authentication — DONE (2026-06-08) → voir PHASE 16.0
+    ├─ TOTP RFC 6238 obligatoire ADMIN/SUPER_ADMIN (pas email-based, TOTP app)
+    ├─ Enforced via proxy.ts (Next 16 experimental build mode)
+    └─ Add-on "Enforce 2FA" pour forcer sur tous les rôles (cc84de8)
 
 [ ] Admin dashboard — plus de stats (nice to have)
     └─ ex. : heures totales semaine, taux de présence, absences non justifiées
@@ -548,9 +674,9 @@ PRODUCTION DEPLOYMENT (EN COURS)
 ✓ Domaine & DNS — DONE (2026-06-01)
     ✓ Domaine : pointon.be (OVH, DNS Anycast, DNSSEC activé)
     ✓ Zone DNS : A, MX, SPF configurés
-    [ ] NEXTAUTH_URL=https://pointon.be à configurer dans .env LXC 106
-    [ ] Proxy host NPM (LXC 101) : pointon.be → 10.0.0.106:3001 + SSL Let's Encrypt
-    [ ] DNS MX DKIM/DMARC (délivrabilité Mailcow)
+    ✓ NEXTAUTH_URL=https://pointon.be configuré dans .env LXC 106 — DONE (2026-06-03)
+    ✓ Proxy host NPM (LXC 101) : pointon.be → 10.0.0.106:3001 + SSL Let's Encrypt — DONE (2026-06-03)
+    ✓ DNS MX DKIM/DMARC (délivrabilité Mailcow) — DONE (2026-06-03)
 
 ✓ App déployée sur OVH — DONE (2026-06-03)
     ✓ Deploy manuel SSH validé : git pull + docker compose up -d --build app
@@ -578,6 +704,43 @@ PRODUCTION DEPLOYMENT (EN COURS)
     [ ] Smoke tests complets (login, clock in/out, exports, Stripe, invitations)
     [ ] Performance (Lighthouse audit, response time < 500ms)
     [ ] Security (SSL check, OWASP top 10, no secrets in logs)
+
+================================================================================
+MARKETING & ACQUISITION (À FAIRE — ajouté 2026-06-13)
+================================================================================
+
+LANDING PAGE — CORRECTIONS RAPIDES
+✓ Compteurs animés ("0 PME belges / 0 min Setup...") — vérifié OK en prod (2026-06-13)
+[ ] Remplacer contact@ced-it.be → contact@pointon.be sur la landing + footer
+    └─ Email @ced-it.be crée une dissonance pour une PME horeca qui veut "parler à un expert Pointon"
+
+LANDING PAGE — CONTENU CONFIANCE (sans faux témoignages)
+[ ] Ajouter section sanctions légales
+    ├─ Vérifier le montant exact des amendes (source : Securex, Liantis, texte de loi)
+    └─ Message type : "En cas d'inspection sans enregistrement conforme : amende jusqu'à X€ par travailleur"
+[ ] Demander citation/endorsement au comptable
+    ├─ Offre : accès Enterprise gratuit à vie en échange d'une citation signée (nom, cabinet, ville)
+    ├─ Citation idéale : conformité légale + simplicité d'utilisation
+    └─ Si ça marche → répliquer avec secrétariat social (Liantis, Securex, Partena) ou consultant RH
+[ ] Programme bêta "accès anticipé" — transformer l'absence de clients en force
+    └─ Offre fondateur : plan Solo à vie à 50% pour les X premières entreprises
+
+ACQUISITION — SEO (à démarrer maintenant)
+[ ] Créer contenu SEO autour de la loi 2027 (article de blog ou page dédiée)
+    ├─ Mots-clés : "obligation enregistrement temps travail 2027", "logiciel pointage obligatoire belgique"
+    └─ Le SEO prend 6-12 mois → commencer maintenant pour être positionné à l'échéance
+
+ACQUISITION — LANDING PAGES SECTORIELLES (avant Google Ads)
+[ ] /horeca — "La pointeuse pour l'horeca belge"
+[ ] /nettoyage — "Gestion équipes mobiles, conforme 2027"
+[ ] /construction — "Pointage chantier, conforme loi belge 2027"
+    └─ Ces pages augmentent le Quality Score Google Ads et doublent les conversions
+
+ACQUISITION — GOOGLE ADS (automne 2026)
+[ ] Lancer campagnes Search en octobre/novembre 2026 (6 semaines avant l'échéance)
+    ├─ Budget de départ suggéré : 300-600€/mois
+    ├─ Mots-clés prioritaires : "application pointage belgique 2027", "logiciel pointage PME"
+    └─ Prérequis : tracking de conversion Google Ads branché sur la page post-inscription
 
 ================================================================================
 NOTES & COMMENTS
@@ -611,6 +774,6 @@ Building blocks already done:
 - Branding Pointon v0.4.0 (logo, favicon, rename) ✓
 - Auth error messages user-friendly ✓
 
-Remaining work : Stripe live (critique) + smoke tests prod + mode kiosque PIN + Peppol/Odoo + monitoring
+Remaining work : Stripe live (critique) + smoke tests prod + mode kiosque PIN + Peppol/Odoo
 
 ================================================================================
