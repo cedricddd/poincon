@@ -24,25 +24,23 @@ export async function POST(req: NextRequest) {
   }
 
   const ext = file.name.split('.').pop()?.toLowerCase() ?? 'png'
-  const filename = `${auth.admin.companyId}.${ext}`
+  const filename = `${auth.admin.companyId}-${Date.now()}.${ext}`
 
-  // Delete old file if extension changed
+  // Delete previous logo file
   const existing = await prisma.company.findUnique({
     where: { id: auth.admin.companyId },
     select: { logoUrl: true },
   })
   if (existing?.logoUrl) {
-    const oldName = path.basename(existing.logoUrl.split('?')[0])
-    if (oldName !== filename) {
-      await unlink(path.join(UPLOAD_DIR, oldName)).catch(() => {})
-    }
+    const oldName = path.basename(existing.logoUrl)
+    await unlink(path.join(UPLOAD_DIR, oldName)).catch(() => {})
   }
 
   await mkdir(UPLOAD_DIR, { recursive: true })
   const buffer = Buffer.from(await file.arrayBuffer())
   await writeFile(path.join(UPLOAD_DIR, filename), buffer)
 
-  const logoUrl = `/api/uploads/logos/${filename}?v=${Date.now()}`
+  const logoUrl = `/api/uploads/logos/${filename}`
   await prisma.company.update({
     where: { id: auth.admin.companyId },
     data: { logoUrl },
@@ -60,7 +58,7 @@ export async function DELETE() {
     select: { logoUrl: true },
   })
   if (existing?.logoUrl) {
-    const oldName = path.basename(existing.logoUrl.split('?')[0])
+    const oldName = path.basename(existing.logoUrl)
     await unlink(path.join(UPLOAD_DIR, oldName)).catch(() => {})
   }
 
