@@ -64,6 +64,9 @@ function IconHome() {
 function IconMail() {
   return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
 }
+function IconTablet() {
+  return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+}
 
 /* ── Nav config ──────────────────────────────────────────────────────────── */
 
@@ -90,6 +93,7 @@ const adminSubLinks = [
   { href: '/admin/dashboard/audit',                   label: 'Audit Trail',  Icon: IconLog,       color: '#a855f7' },
   { href: '/admin/dashboard/reports',               label: 'Rapports',     Icon: IconBarChart,  color: '#6366f1' },
   { href: '/admin/dashboard/reports/custom',        label: 'Rapports +',   Icon: IconBarChart,  color: '#8b5cf6' },
+  { href: '/admin/dashboard/kiosk',                  label: 'Kiosque',      Icon: IconTablet,    color: '#06b6d4' },
   { href: '/admin/dashboard/settings',              label: 'Paramètres',   Icon: IconSettings,  color: '#64748b' },
   { href: '/admin/dashboard/settings/integrations', label: 'Intégrations', Icon: IconActivity,  color: '#f59e0b' },
 ]

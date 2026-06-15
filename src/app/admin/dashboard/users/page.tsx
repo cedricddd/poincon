@@ -14,6 +14,77 @@ type EditState = { name: string; email: string; role: string; password: string; 
 type SortField = 'name' | 'email' | 'role' | 'site' | 'createdAt'
 type SortDir = 'asc' | 'desc'
 
+function PinModal({ user, onClose }: { user: User; onClose: () => void }) {
+  const [pin, setPin] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [msg, setMsg] = useState('')
+  const [error, setError] = useState('')
+
+  const handleSet = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!/^\d{4}$/.test(pin)) { setError('Le PIN doit contenir exactement 4 chiffres.'); return }
+    setSaving(true); setError(''); setMsg('')
+    const res = await fetch(`/api/admin/users/${user.id}/pin`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin }),
+    })
+    setSaving(false)
+    if (!res.ok) { setError((await res.json()).error ?? 'Erreur'); return }
+    setMsg('PIN défini.'); setPin('')
+  }
+
+  const handleClear = async () => {
+    if (!confirm(`Supprimer le PIN kiosque de ${user.name} ?`)) return
+    setSaving(true); setError(''); setMsg('')
+    const res = await fetch(`/api/admin/users/${user.id}/pin`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin: null }),
+    })
+    setSaving(false)
+    if (!res.ok) { setError((await res.json()).error ?? 'Erreur'); return }
+    setMsg('PIN supprimé.')
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
+      <div className="bg-[var(--pp-bg)] rounded-2xl shadow-2xl p-6 w-80 border border-[var(--pp-line)]" onClick={e => e.stopPropagation()}>
+        <h3 className="text-base font-semibold text-[var(--pp-ink)] mb-1">PIN Kiosque</h3>
+        <p className="text-xs text-[var(--pp-muted)] mb-4">{user.name}</p>
+
+        {msg && <p className="text-xs text-green-600 mb-3">{msg}</p>}
+        {error && <p className="text-xs text-red-500 mb-3">{error}</p>}
+
+        <form onSubmit={handleSet} className="space-y-3">
+          <input
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]{4}"
+            maxLength={4}
+            value={pin}
+            onChange={e => { setPin(e.target.value.replace(/\D/g, '')); setError('') }}
+            placeholder="1 2 3 4"
+            className="w-full px-4 py-3 text-center text-xl tracking-[0.5em] border border-[var(--pp-line)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
+          />
+          <Button type="submit" size="md" disabled={saving} className="w-full">
+            {saving ? '…' : 'Définir le PIN'}
+          </Button>
+        </form>
+
+        <div className="flex justify-between mt-3">
+          <button onClick={handleClear} disabled={saving} className="text-xs text-[var(--pp-neg)] hover:underline">
+            Supprimer le PIN
+          </button>
+          <button onClick={onClose} className="text-xs text-[var(--pp-muted)] hover:underline">
+            Fermer
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function SortIcon({ field, current, dir }: { field: SortField; current: SortField; dir: SortDir }) {
   if (field !== current) return <span className="ml-1 text-[var(--pp-line)]">⇅</span>
   return <span className="ml-1 text-[var(--pp-info)]">{dir === 'asc' ? '↑' : '↓'}</span>
@@ -32,6 +103,7 @@ export default function UsersPage() {
   const [search, setSearch] = useState('')
   const [sortField, setSortField] = useState<SortField>('name')
   const [sortDir, setSortDir] = useState<SortDir>('asc')
+  const [pinUser, setPinUser] = useState<User | null>(null)
 
   const fetchUsers = () => {
     setLoading(true)
@@ -129,6 +201,7 @@ export default function UsersPage() {
 
   return (
     <div className="p-6 md:p-8">
+      {pinUser && <PinModal user={pinUser} onClose={() => setPinUser(null)} />}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Utilisateurs</h1>
@@ -286,6 +359,7 @@ export default function UsersPage() {
                               <Button size="sm" variant="outline">Voir</Button>
                             </Link>
                             <Button size="sm" variant="outline" onClick={() => startEdit(user)}>Modifier</Button>
+                            <Button size="sm" variant="outline" onClick={() => setPinUser(user)} title="PIN kiosque">PIN</Button>
                             <button onClick={() => anonymizeUser(user.id, user.name)} className="text-xs text-[var(--pp-muted)] hover:underline px-2" title="Anonymiser les logs RGPD">
                               Anonymiser
                             </button>

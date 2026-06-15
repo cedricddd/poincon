@@ -331,6 +331,51 @@ export async function sendNewCompanyNotification(params: {
   })
 }
 
+export async function sendKioskVisitorEmail(params: {
+  to: string
+  hostName: string | null
+  visitorName: string
+  visitorEmail: string
+  companyName: string
+  arrivedAt: Date
+}) {
+  if (!process.env.BREVO_SMTP_KEY) return
+
+  const { to, hostName, visitorName, visitorEmail, companyName, arrivedAt } = params
+  const greeting = hostName ? `Bonjour ${hostName},` : 'Bonjour,'
+  const time = arrivedAt.toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
+
+  const html = `
+    <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
+      <div style="background:#ffffff;border-radius:12px;padding:32px;border:1px solid #e2e8f0;">
+        <h1 style="margin:0 0 4px;font-size:22px;color:#0f172a;">Pointon</h1>
+        <p style="margin:0 0 20px;font-size:13px;color:#94a3b8;">Notification visiteur</p>
+        <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 24px;">
+
+        <p style="color:#334155;margin:0 0 16px;">${greeting}</p>
+        <p style="color:#334155;margin:0 0 24px;">
+          Votre visiteur <strong>${visitorName}</strong> vient d'arriver à la réception à <strong>${time}</strong>.
+        </p>
+
+        <div style="background:#f1f5f9;border-radius:8px;padding:16px;margin-bottom:24px;">
+          <p style="margin:0 0 6px;font-size:14px;color:#475569;"><strong>Visiteur</strong></p>
+          <p style="margin:0 0 2px;font-size:15px;color:#0f172a;font-weight:600;">${visitorName}</p>
+          <p style="margin:0;font-size:14px;color:#64748b;">${visitorEmail}</p>
+        </div>
+
+        <p style="color:#94a3b8;font-size:12px;margin:0;">Pointon · ${companyName} · ${new Date().getFullYear()}</p>
+      </div>
+    </div>
+  `
+
+  await transporter.sendMail({
+    from: FROM,
+    to,
+    subject: `🏷️ Visiteur arrivé : ${visitorName}`,
+    html,
+  })
+}
+
 export async function sendEmail(params: {
   to: string
   subject: string

@@ -9,6 +9,7 @@ export type PlanFeature =
   | 'managers'
   | 'presences'
   | 'planning'
+  | 'kiosk'
 
 // Add-on flags (purchasable on TEAM, included in ENTERPRISE)
 export const ADDON_FLAGS = [
@@ -30,10 +31,10 @@ export const ADDON_INFO: Record<AddonFlag, { name: string; description: string; 
 
 // Plan limits constants — source of truth
 export const PLAN_LIMITS = {
-  FREE:       { maxEmployees: 3,   maxManagers: 0,  maxSites: 1,  csvExportsPerMonth: 1,  scheduledExport: null,      hasTeams: false, hasAdvancedReports: false, hasPresences: true, hasPlanning: false },
-  SOLO:       { maxEmployees: 15,  maxManagers: 0,  maxSites: 1,  csvExportsPerMonth: -1, scheduledExport: null,      hasTeams: false, hasAdvancedReports: true,  hasPresences: true, hasPlanning: true  },
-  TEAM:       { maxEmployees: 50,  maxManagers: 5,  maxSites: 5,  csvExportsPerMonth: -1, scheduledExport: 'monthly', hasTeams: true,  hasAdvancedReports: true,  hasPresences: true, hasPlanning: true  },
-  ENTERPRISE: { maxEmployees: -1,  maxManagers: -1, maxSites: -1, csvExportsPerMonth: -1, scheduledExport: 'weekly',  hasTeams: true,  hasAdvancedReports: true,  hasPresences: true, hasPlanning: true  },
+  FREE:       { maxEmployees: 3,   maxManagers: 0,  maxSites: 1,  csvExportsPerMonth: 1,  scheduledExport: null,      hasTeams: false, hasAdvancedReports: false, hasPresences: true, hasPlanning: false, hasKiosk: false },
+  SOLO:       { maxEmployees: 15,  maxManagers: 0,  maxSites: 1,  csvExportsPerMonth: -1, scheduledExport: null,      hasTeams: false, hasAdvancedReports: true,  hasPresences: true, hasPlanning: true,  hasKiosk: true  },
+  TEAM:       { maxEmployees: 50,  maxManagers: 5,  maxSites: 5,  csvExportsPerMonth: -1, scheduledExport: 'monthly', hasTeams: true,  hasAdvancedReports: true,  hasPresences: true, hasPlanning: true,  hasKiosk: true  },
+  ENTERPRISE: { maxEmployees: -1,  maxManagers: -1, maxSites: -1, csvExportsPerMonth: -1, scheduledExport: 'weekly',  hasTeams: true,  hasAdvancedReports: true,  hasPresences: true, hasPlanning: true,  hasKiosk: true  },
 } as const
 
 export type PlanName = keyof typeof PLAN_LIMITS
@@ -77,6 +78,7 @@ export function planCanAccess(plan: PlanName, feature: PlanFeature): boolean {
     case 'unlimited_csv_export':     return limits.csvExportsPerMonth === -1
     case 'scheduled_export_monthly': return limits.scheduledExport === 'monthly' || limits.scheduledExport === 'weekly'
     case 'scheduled_export_weekly':  return limits.scheduledExport === 'weekly'
+    case 'kiosk':                    return limits.hasKiosk
     default:                         return false
   }
 }
