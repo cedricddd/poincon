@@ -13,6 +13,7 @@ type KioskInfo = {
   siteName: string | null
   label: string | null
   theme: string | null
+  visitorsEnabled: boolean
 }
 type Employee = { id: string; name: string | null }
 
@@ -618,27 +619,31 @@ export default function KioskPage() {
             <span style={{ fontSize: '1.05rem', fontWeight: 600, letterSpacing: '0.01em' }}>Je suis employé</span>
             <span style={{ fontSize: '0.7rem', color: t.c3, letterSpacing: '0.05em', fontWeight: 400 }}>Pointer mon arrivée · départ</span>
           </button>
-          <button className="kiosk-btn-vis" onClick={() => setScreen('visitor')}>
-            <div style={{ color: t.visIcon }}><IconBadge /></div>
-            <span style={{ fontSize: '1.05rem', fontWeight: 600, letterSpacing: '0.01em' }}>Je suis visiteur</span>
-            <span style={{ fontSize: '0.7rem', color: t.c3, letterSpacing: '0.05em', fontWeight: 400 }}>Enregistrer ma visite</span>
-          </button>
+          {info?.visitorsEnabled && (
+            <button className="kiosk-btn-vis" onClick={() => setScreen('visitor')}>
+              <div style={{ color: t.visIcon }}><IconBadge /></div>
+              <span style={{ fontSize: '1.05rem', fontWeight: 600, letterSpacing: '0.01em' }}>Je suis visiteur</span>
+              <span style={{ fontSize: '0.7rem', color: t.c3, letterSpacing: '0.05em', fontWeight: 400 }}>Enregistrer ma visite</span>
+            </button>
+          )}
         </div>
 
         {/* Visitor departure link */}
-        <button
-          onClick={() => setScreen('visitor_depart')}
-          style={{
-            marginTop: 32, cursor: 'pointer', fontSize: '0.8rem', letterSpacing: '0.04em',
-            display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.18s ease',
-            color: t.c2, background: t.s1, border: `1px solid ${t.b1}`,
-            padding: '10px 20px', borderRadius: 10,
-          }}
-          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = t.c1; (e.currentTarget as HTMLButtonElement).style.borderColor = t.c6 }}
-          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = t.c2; (e.currentTarget as HTMLButtonElement).style.borderColor = t.b1 }}
-        >
-          <span style={{ fontSize: '1rem' }}>🚪</span> Je repars (visiteur)
-        </button>
+        {info?.visitorsEnabled && (
+          <button
+            onClick={() => setScreen('visitor_depart')}
+            style={{
+              marginTop: 32, cursor: 'pointer', fontSize: '0.8rem', letterSpacing: '0.04em',
+              display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.18s ease',
+              color: t.c2, background: t.s1, border: `1px solid ${t.b1}`,
+              padding: '10px 20px', borderRadius: 10,
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = t.c1; (e.currentTarget as HTMLButtonElement).style.borderColor = t.c6 }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = t.c2; (e.currentTarget as HTMLButtonElement).style.borderColor = t.b1 }}
+          >
+            <span style={{ fontSize: '1rem' }}>🚪</span> Je repars (visiteur)
+          </button>
+        )}
 
         {/* Footer */}
         <div style={{ position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)', textAlign: 'center', whiteSpace: 'nowrap' }}>

@@ -13,6 +13,7 @@ type KioskToken = {
   siteId: string | null
   site: Site | null
   theme: string
+  visitorsEnabled: boolean
   createdAt: string
 }
 
@@ -28,6 +29,7 @@ export default function KioskPage() {
   const [success, setSuccess] = useState('')
   const [copied, setCopied] = useState<string | null>(null)
   const [togglingTheme, setTogglingTheme] = useState<string | null>(null)
+  const [togglingVisitors, setTogglingVisitors] = useState<string | null>(null)
 
   const fetchTokens = () => {
     setLoading(true)
@@ -83,6 +85,22 @@ export default function KioskPage() {
 
   const kioskUrl = (token: string) =>
     typeof window !== 'undefined' ? `${window.location.origin}/kiosk/${token}` : `/kiosk/${token}`
+
+  const toggleVisitors = async (t: KioskToken) => {
+    setTogglingVisitors(t.id)
+    try {
+      const res = await fetch(`/api/admin/kiosk/tokens/${t.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visitorsEnabled: !t.visitorsEnabled }),
+      })
+      if (res.ok) {
+        setTokens(prev => prev.map(tk => tk.id === t.id ? { ...tk, visitorsEnabled: !t.visitorsEnabled } : tk))
+      }
+    } finally {
+      setTogglingVisitors(null)
+    }
+  }
 
   const toggleTheme = async (t: KioskToken) => {
     setTogglingTheme(t.id)
@@ -208,6 +226,18 @@ export default function KioskPage() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+                    <button
+                      onClick={() => toggleVisitors(t)}
+                      disabled={togglingVisitors === t.id}
+                      title={t.visitorsEnabled ? 'Désactiver les visiteurs' : 'Activer les visiteurs'}
+                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-medium transition-colors disabled:opacity-50"
+                      style={t.visitorsEnabled
+                        ? { borderColor: 'rgba(16,185,129,0.35)', color: '#059669', background: 'rgba(16,185,129,0.07)' }
+                        : { borderColor: 'rgba(156,163,175,0.35)', color: '#6b7280', background: 'rgba(156,163,175,0.07)' }
+                      }
+                    >
+                      {t.visitorsEnabled ? '👤 Visiteurs' : '🚫 Visiteurs'}
+                    </button>
                     <button
                       onClick={() => toggleTheme(t)}
                       disabled={togglingTheme === t.id}

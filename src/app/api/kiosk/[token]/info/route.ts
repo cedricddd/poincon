@@ -31,6 +31,7 @@ export async function GET(
       siteName: kioskToken.site?.name ?? null,
       label: kioskToken.label,
       theme: kioskToken.theme,
+      visitorsEnabled: kioskToken.visitorsEnabled,
     })
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })

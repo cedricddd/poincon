@@ -587,13 +587,14 @@ model SuperAdminItem {
 }
 
 model KioskToken {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  companyId String
-  siteId    String?
-  label     String?
-  theme     String   @default("dark")
-  createdAt DateTime @default(now())
+  id               String   @id @default(cuid())
+  token            String   @unique
+  companyId        String
+  siteId           String?
+  label            String?
+  theme            String   @default("dark")
+  visitorsEnabled  Boolean  @default(true)
+  createdAt        DateTime @default(now())
 
   company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   site      Site?    @relation(fields: [siteId], references: [id])
