@@ -57,9 +57,12 @@ function computeShiftDuration(
   // Arrival before shift start → snap to shift start (early presence doesn't count)
   const effectiveArrival = actualArrival < shiftStart ? shiftStart : actualArrival
 
-  // Departure within grace period → snap to shift end (no overtime)
+  // Departure at/after shift end within grace → snap to shift end (no overtime).
+  // Early departures use actual time.
   const graceEnd = new Date(shiftEnd.getTime() + OVERTIME_GRACE_MINUTES * 60000)
-  const effectiveDeparture = actualDeparture <= graceEnd ? shiftEnd : actualDeparture
+  const effectiveDeparture = actualDeparture >= shiftEnd && actualDeparture <= graceEnd
+    ? shiftEnd
+    : actualDeparture
 
   const duration = Math.round((effectiveDeparture.getTime() - effectiveArrival.getTime()) / 60000)
   const hoursStandard = Math.round((shiftEnd.getTime() - shiftStart.getTime()) / 60000) / 60
