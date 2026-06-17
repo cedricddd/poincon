@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const body = await req.json()
-  const { name, type, startTime, endTime, hoursPerDay, weeklyHours, daysOfWeek, description } = body
+  const { name, type, startTime, endTime, hoursPerDay, weeklyHours, daysOfWeek, description, dayConfig } = body
 
   if (!name || !type || !startTime || !endTime) {
     return NextResponse.json({ error: 'Champs requis manquants' }, { status: 400 })
@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
       hoursPerDay: hoursPerDay ?? 8,
       weeklyHours: weeklyHours ?? 38,
       daysOfWeek: JSON.stringify(daysOfWeek ?? [1, 2, 3, 4, 5]),
+      dayConfig: dayConfig ?? null,
       description: description ?? null,
       isPreset: false,
     },
@@ -52,7 +53,7 @@ export async function PATCH(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const body = await req.json()
-  const { id, name, type, startTime, endTime, hoursPerDay, weeklyHours, daysOfWeek, description } = body
+  const { id, name, type, startTime, endTime, hoursPerDay, weeklyHours, daysOfWeek, description, dayConfig } = body
   if (!id) return NextResponse.json({ error: 'ID requis' }, { status: 400 })
 
   const existing = await prisma.workSchedule.findUnique({ where: { id } })
@@ -68,6 +69,7 @@ export async function PATCH(req: NextRequest) {
       ...(hoursPerDay !== undefined && { hoursPerDay }),
       ...(weeklyHours !== undefined && { weeklyHours }),
       ...(daysOfWeek && { daysOfWeek: JSON.stringify(daysOfWeek) }),
+      ...(dayConfig !== undefined && { dayConfig }),
       ...(description !== undefined && { description }),
     },
   })

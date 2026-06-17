@@ -34,7 +34,7 @@ export async function PATCH(req: NextRequest) {
   const auth = await requireAdminWithCompany()
   if (!auth) return forbiddenError()
 
-  const { userId, scheduleType } = await req.json()
+  const { userId, scheduleId } = await req.json()
   if (!userId) return NextResponse.json({ error: 'userId requis' }, { status: 400 })
 
   if (!(await canAccessUser(auth.admin.companyId, userId))) {
@@ -44,13 +44,11 @@ export async function PATCH(req: NextRequest) {
   let resolvedHours = 8
   let resolvedScheduleId: string | null = null
 
-  if (scheduleType) {
-    const preset = await prisma.workSchedule.findFirst({
-      where: { type: scheduleType, isPreset: true },
-    })
-    if (!preset) return NextResponse.json({ error: "Type d'horaire inconnu" }, { status: 400 })
-    resolvedHours = preset.hoursPerDay
-    resolvedScheduleId = preset.id
+  if (scheduleId) {
+    const ws = await prisma.workSchedule.findUnique({ where: { id: scheduleId } })
+    if (!ws) return NextResponse.json({ error: 'Gabarit introuvable' }, { status: 400 })
+    resolvedHours = ws.hoursPerDay
+    resolvedScheduleId = ws.id
   }
 
   const schedule = await prisma.userSchedule.upsert({
@@ -66,7 +64,7 @@ export async function PATCH(req: NextRequest) {
       action: 'admin_update_schedule',
       resource: 'UserSchedule',
       resourceId: userId,
-      changes: JSON.stringify({ scheduleType, hoursPerDay: resolvedHours }),
+      changes: JSON.stringify({ scheduleId: resolvedScheduleId, hoursPerDay: resolvedHours }),
     },
   })
 

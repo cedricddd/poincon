@@ -14,6 +14,7 @@ type WorkSchedule = {
   hoursPerDay: number
   weeklyHours: number
   daysOfWeek: string
+  dayConfig?: string | null
   description?: string
   isPreset: boolean
 }
@@ -52,35 +53,47 @@ const TYPE_DESCRIPTIONS: Record<string, string> = {
 
 const DAYS_SHORT = ['', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di']
 
-function DayBadges({ daysJson }: { daysJson: string }) {
+type DayType = 'off' | 'office' | 'remote' | 'half'
+
+const DAY_CONFIG_STYLES: Record<Exclude<DayType, 'off'>, { bg: string; title: string }> = {
+  office: { bg: 'bg-[var(--pp-info)] text-white',  title: 'Bureau' },
+  remote: { bg: 'bg-emerald-500 text-white',        title: 'Télétravail' },
+  half:   { bg: 'bg-amber-500 text-white',          title: 'Demi-journée' },
+}
+
+function DayBadges({ daysJson, dayConfigJson }: { daysJson: string; dayConfigJson?: string | null }) {
   let days: number[] = []
+  let cfg: Record<string, string> = {}
   try { days = JSON.parse(daysJson) } catch { }
+  try { if (dayConfigJson) cfg = JSON.parse(dayConfigJson) } catch { }
+
   return (
     <span className="flex gap-0.5">
-      {[1, 2, 3, 4, 5, 6, 7].map(d => (
-        <span key={d} className={`text-[10px] px-1 py-0.5 rounded font-medium ${
-          days.includes(d)
-            ? 'bg-[var(--pp-info)] text-white'
-            : 'bg-[var(--pp-line)] text-[var(--pp-muted)]'
-        }`}>
-          {DAYS_SHORT[d]}
-        </span>
-      ))}
+      {[1, 2, 3, 4, 5, 6, 7].map(d => {
+        const worked = days.includes(d)
+        const type = worked ? ((cfg[d] ?? cfg[String(d)]) as Exclude<DayType, 'off'> | undefined ?? 'office') : null
+        const style = type ? DAY_CONFIG_STYLES[type] : null
+        return (
+          <span
+            key={d}
+            title={style?.title}
+            className={`text-[10px] px-1 py-0.5 rounded font-medium ${
+              style ? style.bg : 'bg-[var(--pp-line)] text-[var(--pp-muted)]'
+            }`}
+          >
+            {DAYS_SHORT[d]}
+          </span>
+        )
+      })}
     </span>
   )
 }
 
-// Heures/jour de référence par type (pour affichage dans le dropdown)
-const TYPE_HOURS: Record<string, number> = {
-  JOURNEE: 8, '2X8': 8, '3X8': 8, '4X8': 8, '5X8': 8,
-  '2X12': 12, NUIT: 8, PARTIEL: 4, VARIABLE: 8,
-}
-
 // ── Tab 1: Affectations ──────────────────────────────────────────────────────
 
-interface TeamRotationInfo { teamName: string; cycleName: string; phaseBadge: string | null }
+interface TeamRotationInfo { teamName: string; cycleName: string }
 
-function AssignmentsTab() {
+function AssignmentsTab({ allSchedules }: { allSchedules: WorkSchedule[] }) {
   const [rows, setRows] = useState<UserRow[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState<string | null>(null)
@@ -97,16 +110,11 @@ function AssignmentsTab() {
     ])
       .then(([schedData, teamsData]) => {
         setRows(schedData.schedules ?? [])
-        // Build userId → rotation info map
         const map: Record<string, TeamRotationInfo> = {}
         for (const team of (teamsData.teams ?? [])) {
           if (!team.rotationCycle) continue
           for (const member of team.members) {
-            map[member.userId] = {
-              teamName: team.name,
-              cycleName: team.rotationCycle.name,
-              phaseBadge: null,
-            }
+            map[member.userId] = { teamName: team.name, cycleName: team.rotationCycle.name }
           }
         }
         setRotationMap(map)
@@ -116,19 +124,18 @@ function AssignmentsTab() {
 
   useEffect(() => { fetchRows() }, [fetchRows])
 
-  const currentType = (row: UserRow) =>
-    pending[row.userId] !== undefined
-      ? pending[row.userId]
-      : (row.workSchedule?.type ?? '')
+  const currentScheduleId = (row: UserRow) =>
+    pending[row.userId] !== undefined ? pending[row.userId] : (row.scheduleId ?? '')
 
   const save = async (userId: string) => {
-    const scheduleType = pending[userId] || null
+    const rawId = pending[userId] ?? ''
+    const scheduleId = rawId === '' ? null : rawId
     setSaving(userId)
     setError('')
     const res = await fetch('/api/admin/schedule', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, scheduleType }),
+      body: JSON.stringify({ userId, scheduleId }),
     })
     if (!res.ok) setError((await res.json()).error ?? 'Erreur')
     setSaving(null)
@@ -140,10 +147,11 @@ function AssignmentsTab() {
 
   const filteredRows = rows.filter(row => {
     const q = search.toLowerCase()
-    return !q
-      || (row.user.name ?? '').toLowerCase().includes(q)
-      || row.user.email.toLowerCase().includes(q)
+    return !q || (row.user.name ?? '').toLowerCase().includes(q) || row.user.email.toLowerCase().includes(q)
   })
+
+  const customSchedules = allSchedules.filter(s => !s.isPreset)
+  const presetSchedules = allSchedules.filter(s => s.isPreset)
 
   return (
     <div className="space-y-3">
@@ -173,9 +181,9 @@ function AssignmentsTab() {
                 <tr><td colSpan={4} className="py-6 text-center text-[var(--pp-muted)] text-sm italic">Aucun utilisateur.</td></tr>
               )}
               {filteredRows.map(row => {
-                const type = currentType(row)
+                const selId = currentScheduleId(row)
                 const dirty = pending[row.userId] !== undefined
-                const hours = type ? TYPE_HOURS[type] : null
+                const selectedSchedule = allSchedules.find(s => s.id === selId)
 
                 return (
                   <tr key={row.userId}>
@@ -196,27 +204,37 @@ function AssignmentsTab() {
                       ) : (
                         <>
                           <select
-                            value={type}
+                            value={selId}
                             onChange={e => setPending(p => ({ ...p, [row.userId]: e.target.value }))}
-                            className="px-2 py-1.5 border border-[var(--pp-line)] rounded-lg text-sm bg-[var(--pp-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] w-48"
+                            className="px-2 py-1.5 border border-[var(--pp-line)] rounded-lg text-sm bg-[var(--pp-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] w-52"
                           >
                             <option value="">— Non configuré —</option>
-                            {Object.entries(TYPE_LABELS).map(([k, v]) => (
-                              <option key={k} value={k}>{v}</option>
-                            ))}
+                            {customSchedules.length > 0 && (
+                              <optgroup label="Mes gabarits">
+                                {customSchedules.map(s => (
+                                  <option key={s.id} value={s.id}>{s.name}</option>
+                                ))}
+                              </optgroup>
+                            )}
+                            <optgroup label="Gabarits prédéfinis">
+                              {presetSchedules.map(s => (
+                                <option key={s.id} value={s.id}>{s.name}</option>
+                              ))}
+                            </optgroup>
                           </select>
-                          {type && (
+                          {selectedSchedule && (
                             <p className="text-xs text-[var(--pp-muted)] mt-1 max-w-xs leading-relaxed">
-                              {TYPE_DESCRIPTIONS[type]}
+                              {selectedSchedule.startTime}–{selectedSchedule.endTime} · {selectedSchedule.hoursPerDay}h/j · {selectedSchedule.weeklyHours}h/sem
+                              {selectedSchedule.description && ` — ${selectedSchedule.description}`}
                             </p>
                           )}
                         </>
                       )}
                     </td>
                     <td className="py-3 pr-4 hidden lg:table-cell">
-                      {rotationMap[row.userId] ? null : hours !== null ? (
+                      {rotationMap[row.userId] ? null : selectedSchedule ? (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--pp-info)]/10 text-[var(--pp-info)]">
-                          &gt; {hours}h/jour = heure sup.
+                          &gt; {selectedSchedule.hoursPerDay}h/jour = heure sup.
                         </span>
                       ) : (
                         <span className="text-xs italic text-[var(--pp-muted)]">
@@ -244,9 +262,28 @@ function AssignmentsTab() {
 
 // ── Tab 2: Gabarits ──────────────────────────────────────────────────────────
 
+const DAY_CYCLE: DayType[] = ['off', 'office', 'remote', 'half']
+
+const DAY_BUTTON_STYLES: Record<DayType, string> = {
+  off:    'border-[var(--pp-line)] text-[var(--pp-muted)] hover:border-[var(--pp-info)]',
+  office: 'bg-[var(--pp-info)] text-white border-[var(--pp-info)]',
+  remote: 'bg-emerald-500 text-white border-emerald-500',
+  half:   'bg-amber-500 text-white border-amber-500',
+}
+
+const DAY_BUTTON_TITLES: Record<DayType, string> = {
+  off:    'Inactif — cliquer pour activer (bureau)',
+  office: 'Bureau — cliquer : télétravail',
+  remote: 'Télétravail — cliquer : demi-journée',
+  half:   'Demi-journée — cliquer : désactiver',
+}
+
 const EMPTY_FORM = {
   name: '', type: 'JOURNEE', startTime: '09:00', endTime: '17:00',
-  hoursPerDay: 8, weeklyHours: 38, daysOfWeek: [1, 2, 3, 4, 5], description: '',
+  hoursPerDay: 8, weeklyHours: 38,
+  daysOfWeek: [1, 2, 3, 4, 5],
+  dayConfig: {} as Record<number, string>,
+  description: '',
 }
 
 function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onRefresh: () => void }) {
@@ -256,13 +293,24 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  const toggleDay = (d: number) =>
-    setForm(f => ({
-      ...f,
-      daysOfWeek: f.daysOfWeek.includes(d)
+  const getDayState = (d: number): DayType => {
+    if (!form.daysOfWeek.includes(d)) return 'off'
+    return (form.dayConfig[d] as 'remote' | 'half') ?? 'office'
+  }
+
+  const cycleDay = (d: number) => {
+    const current = getDayState(d)
+    const next = DAY_CYCLE[(DAY_CYCLE.indexOf(current) + 1) % DAY_CYCLE.length]
+    setForm(f => {
+      const newDays = next === 'off'
         ? f.daysOfWeek.filter(x => x !== d)
-        : [...f.daysOfWeek, d].sort(),
-    }))
+        : f.daysOfWeek.includes(d) ? f.daysOfWeek : [...f.daysOfWeek, d].sort()
+      const newCfg = { ...f.dayConfig }
+      if (next === 'off' || next === 'office') delete newCfg[d]
+      else newCfg[d] = next
+      return { ...f, daysOfWeek: newDays, dayConfig: newCfg }
+    })
+  }
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -271,11 +319,22 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
     setSaving(true)
     setError('')
     const method = editId ? 'PATCH' : 'POST'
-    const body = editId ? { ...form, id: editId } : form
+    const payload = {
+      name: form.name,
+      type: form.type,
+      startTime: form.startTime,
+      endTime: form.endTime,
+      hoursPerDay: form.hoursPerDay,
+      weeklyHours: form.weeklyHours,
+      daysOfWeek: form.daysOfWeek,
+      dayConfig: Object.keys(form.dayConfig).length > 0 ? JSON.stringify(form.dayConfig) : null,
+      description: form.description,
+      ...(editId && { id: editId }),
+    }
     const res = await fetch('/api/admin/work-schedules', {
       method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      body: JSON.stringify(payload),
     })
     if (!res.ok) {
       setError((await res.json()).error ?? 'Erreur serveur')
@@ -298,11 +357,14 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
 
   const startEdit = (t: WorkSchedule) => {
     setEditId(t.id)
+    let parsedDayConfig: Record<number, string> = {}
+    try { if (t.dayConfig) parsedDayConfig = JSON.parse(t.dayConfig) } catch {}
     setForm({
       name: t.name, type: t.type,
       startTime: t.startTime, endTime: t.endTime,
       hoursPerDay: t.hoursPerDay, weeklyHours: t.weeklyHours,
       daysOfWeek: JSON.parse(t.daysOfWeek),
+      dayConfig: parsedDayConfig,
       description: t.description ?? '',
     })
     setShowForm(true)
@@ -404,19 +466,31 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[var(--pp-muted)] mb-2">Jours travaillés</label>
+              <label className="block text-xs font-medium text-[var(--pp-muted)] mb-2">
+                Jours travaillés
+                <span className="ml-2 font-normal opacity-60">(clic = bureau → télétravail → demi-journée → inactif)</span>
+              </label>
               <div className="flex gap-1.5">
-                {[1, 2, 3, 4, 5, 6, 7].map(d => (
-                  <button
-                    key={d} type="button" onClick={() => toggleDay(d)}
-                    className={`w-9 py-1.5 rounded text-xs font-medium border transition ${
-                      form.daysOfWeek.includes(d)
-                        ? 'bg-[var(--pp-info)] text-white border-[var(--pp-info)]'
-                        : 'border-[var(--pp-line)] text-[var(--pp-muted)] hover:border-[var(--pp-info)]'
-                    }`}
-                  >
-                    {DAYS_SHORT[d]}
-                  </button>
+                {[1, 2, 3, 4, 5, 6, 7].map(d => {
+                  const state = getDayState(d)
+                  return (
+                    <button
+                      key={d} type="button"
+                      onClick={() => cycleDay(d)}
+                      title={DAY_BUTTON_TITLES[state]}
+                      className={`w-9 py-1.5 rounded text-xs font-medium border transition ${DAY_BUTTON_STYLES[state]}`}
+                    >
+                      {DAYS_SHORT[d]}
+                    </button>
+                  )
+                })}
+              </div>
+              <div className="flex gap-4 mt-2">
+                {([['office', 'var(--pp-info)', 'Bureau'], ['remote', '#10b981', 'Télétravail'], ['half', '#f59e0b', 'Demi-journée']] as const).map(([, color, label]) => (
+                  <span key={label} className="flex items-center gap-1 text-[10px] text-[var(--pp-muted)]">
+                    <span className="w-2.5 h-2.5 rounded-sm inline-block shrink-0" style={{ backgroundColor: color }} />
+                    {label}
+                  </span>
                 ))}
               </div>
             </div>
@@ -498,7 +572,7 @@ function ScheduleGrid({ templates, onEdit, onDelete, editable }: {
                 <p className="text-xs text-[var(--pp-muted)] mb-2">
                   {t.startTime}–{t.endTime} &nbsp;·&nbsp; {t.hoursPerDay}h/j &nbsp;·&nbsp; {t.weeklyHours}h/sem
                 </p>
-                <DayBadges daysJson={t.daysOfWeek} />
+                <DayBadges daysJson={t.daysOfWeek} dayConfigJson={t.dayConfig} />
                 {t.description && (
                   <p className="text-xs text-[var(--pp-muted)] mt-2 leading-relaxed">{t.description}</p>
                 )}
@@ -553,7 +627,7 @@ export default function SchedulesPage() {
       </div>
 
       {tab === 'assignments'
-        ? <AssignmentsTab />
+        ? <AssignmentsTab allSchedules={templates} />
         : <TemplatesTab templates={templates} onRefresh={fetchTemplates} />
       }
     </div>
