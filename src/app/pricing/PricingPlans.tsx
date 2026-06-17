@@ -1,8 +1,38 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { Logo } from '@/components/Logo'
+
+function useAnimatedNumber(target: number, duration = 480) {
+  const [displayed, setDisplayed] = useState(target)
+  const prevRef = useRef(target)
+  const frameRef = useRef<number>(0)
+  const startRef = useRef<number>(0)
+
+  useEffect(() => {
+    const from = prevRef.current
+    if (from === target) return
+    cancelAnimationFrame(frameRef.current)
+    startRef.current = performance.now()
+
+    const tick = (now: number) => {
+      const t = Math.min((now - startRef.current) / duration, 1)
+      const ease = 1 - Math.pow(1 - t, 3) // easeOutCubic
+      setDisplayed(from + (target - from) * ease)
+      if (t < 1) {
+        frameRef.current = requestAnimationFrame(tick)
+      } else {
+        setDisplayed(target)
+        prevRef.current = target
+      }
+    }
+    frameRef.current = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frameRef.current)
+  }, [target, duration])
+
+  return displayed
+}
 
 const freePlan = {
   name: 'FREE',
@@ -109,6 +139,31 @@ function getCtaText(planName: string, isAuthenticated: boolean): string {
 
 function fmtPrice(n: number) {
   return n.toLocaleString('fr-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
+function AnimatedPriceDisplay({
+  price,
+  annual,
+  annualTotal,
+  annualSavings,
+}: {
+  price: number
+  annual: boolean
+  annualTotal: number | null
+  annualSavings: number | null
+}) {
+  const displayed = useAnimatedNumber(price)
+  return (
+    <div className="mb-1">
+      <span className="text-3xl font-bold text-[var(--pp-ink)] tabular-nums">{fmtPrice(displayed)}€</span>
+      <span className="text-sm text-[var(--pp-muted)] ml-1">/mois HTVA</span>
+      {annual && annualTotal && (
+        <p className="text-xs text-[var(--pp-muted)] mt-0.5">
+          facturé {annualTotal}€/an · économisez {annualSavings}€
+        </p>
+      )}
+    </div>
+  )
 }
 
 export function PricingPlans({ isAuthenticated }: { isAuthenticated: boolean }) {
@@ -241,15 +296,12 @@ export function PricingPlans({ isAuthenticated }: { isAuthenticated: boolean }) 
                       <span className="text-3xl font-bold text-[var(--pp-pos)]">Devis</span>
                     </div>
                   ) : (
-                    <div className="mb-1">
-                      <span className="text-3xl font-bold text-[var(--pp-ink)]">{fmtPrice(price)}€</span>
-                      <span className="text-sm text-[var(--pp-muted)] ml-1">/mois HTVA</span>
-                      {annual && plan.annualTotal && (
-                        <p className="text-xs text-[var(--pp-muted)] mt-0.5">
-                          facturé {plan.annualTotal}€/an · économisez {plan.annualSavings}€
-                        </p>
-                      )}
-                    </div>
+                    <AnimatedPriceDisplay
+                      price={price}
+                      annual={annual}
+                      annualTotal={plan.annualTotal}
+                      annualSavings={plan.annualSavings}
+                    />
                   )}
 
                   <p className="text-xs text-[var(--pp-muted)] mt-1">{plan.limit}</p>
