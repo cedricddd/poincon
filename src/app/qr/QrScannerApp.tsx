@@ -152,9 +152,6 @@ export function QrScannerApp() {
     setScreen('home')
   }, [stopCamera])
 
-  const requestCameraAndScan = useCallback(async () => {
-    await startCamera()
-  }, [startCamera])
 
   const startCamera = useCallback(async () => {
     setScanError('')
