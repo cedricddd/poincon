@@ -7,6 +7,33 @@ import { Button } from '@/components/Button'
 import { ThemeVideo } from '@/components/ThemeVideo'
 import { Logo } from '@/components/Logo'
 
+/* ─── Animated number hook ──────────────────────────────────────────────── */
+
+function useAnimatedNumber(target: number, duration = 480) {
+  const [displayed, setDisplayed] = useState(target)
+  const prevRef = useRef(target)
+  const frameRef = useRef<number>(0)
+  const startRef = useRef<number>(0)
+
+  useEffect(() => {
+    const from = prevRef.current
+    if (from === target) return
+    cancelAnimationFrame(frameRef.current)
+    startRef.current = performance.now()
+    const tick = (now: number) => {
+      const t = Math.min((now - startRef.current) / duration, 1)
+      const ease = 1 - Math.pow(1 - t, 3)
+      setDisplayed(from + (target - from) * ease)
+      if (t < 1) { frameRef.current = requestAnimationFrame(tick) }
+      else { setDisplayed(target); prevRef.current = target }
+    }
+    frameRef.current = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frameRef.current)
+  }, [target, duration])
+
+  return displayed
+}
+
 /* ─── Scroll reveal hook ────────────────────────────────────────────────── */
 
 function useReveal() {
@@ -671,6 +698,27 @@ function StepCard({ s, delay, isLast }: { s: typeof steps[0]; delay: number; isL
 
 /* ─── Pricing card ───────────────────────────────────────────────────────── */
 
+function AnimatedPriceBlock({ price, annual, annualTotal, annualSavings }: {
+  price: number; annual: boolean; annualTotal?: number | null; annualSavings?: number | null
+}) {
+  const displayed = useAnimatedNumber(price)
+  return (
+    <div className="mb-1">
+      <div className="flex items-end gap-1">
+        <span className="font-display font-bold text-[var(--pp-ink)] tabular-nums" style={{ fontSize: '2rem', lineHeight: 1 }}>
+          {displayed.toLocaleString('fr-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€
+        </span>
+        <span className="text-xs text-[var(--pp-muted)] mb-1">/mois HTVA</span>
+      </div>
+      {annual && annualTotal && (
+        <p className="text-xs text-[var(--pp-muted)] mt-0.5">
+          facturé {annualTotal}€/an · économisez {annualSavings}€
+        </p>
+      )}
+    </div>
+  )
+}
+
 function PricingCard({ tier, annual, delay }: { tier: typeof pricingTiers[0]; annual: boolean; delay: number }) {
   const ref = useReveal()
   const [hovered, setHovered] = useState(false)
@@ -718,19 +766,7 @@ function PricingCard({ tier, annual, delay }: { tier: typeof pricingTiers[0]; an
             <span className="font-display font-bold text-[var(--pp-pos)]" style={{ fontSize: '2rem' }}>Gratuit</span>
           </div>
         ) : (
-          <div className="mb-1">
-            <div className="flex items-end gap-1">
-              <span className="font-display font-bold text-[var(--pp-ink)]" style={{ fontSize: '2rem', lineHeight: 1 }}>
-                {price.toLocaleString('fr-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€
-              </span>
-              <span className="text-xs text-[var(--pp-muted)] mb-1">/mois HTVA</span>
-            </div>
-            {annual && tier.annualTotal && (
-              <p className="text-xs text-[var(--pp-muted)] mt-0.5">
-                facturé {tier.annualTotal}€/an · économisez {tier.annualSavings}€
-              </p>
-            )}
-          </div>
+          <AnimatedPriceBlock price={price} annual={annual} annualTotal={tier.annualTotal} annualSavings={tier.annualSavings} />
         )}
         <p className="text-xs text-[var(--pp-muted)] mt-1">{tier.limit}</p>
         {tier.extraSeat && (
