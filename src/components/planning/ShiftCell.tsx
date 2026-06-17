@@ -8,6 +8,7 @@ interface Shift {
   endTime: string
   shiftType?: string | null
   scheduleName?: string | null
+  dayConfigType?: string | null
   note?: string | null
   isTemplate?: boolean
 }
@@ -170,11 +171,15 @@ export function ShiftCell({ shift, leaveType, rttHours, rotationSlot, onClick }:
   }
 
   if (shift.isTemplate) {
-    const tplCfg = SHIFT_TYPE_CONFIG[shift.shiftType ?? 'DAY'] ?? SHIFT_TYPE_CONFIG.DAY
+    const dayType = shift.dayConfigType
+    const tplCfg =
+      dayType === 'remote' ? { text: 'text-emerald-400', templateBg: 'bg-emerald-500/8', dashedBorder: 'border-emerald-400/60', hover: 'hover:bg-emerald-500/20', title: 'Télétravail' } :
+      dayType === 'half'   ? { text: 'text-amber-400',   templateBg: 'bg-amber-500/8',   dashedBorder: 'border-amber-400/60',   hover: 'hover:bg-amber-500/20',   title: 'Demi-journée' } :
+      { ...SHIFT_TYPE_CONFIG[shift.shiftType ?? 'DAY'] ?? SHIFT_TYPE_CONFIG.DAY, title: 'Bureau' }
     return (
       <button
         onClick={onClick}
-        title="Shift basé sur l'horaire assigné — cliquer pour confirmer"
+        title={`${tplCfg.title} — basé sur l'horaire assigné · cliquer pour confirmer`}
         className={`h-full min-h-[56px] w-full rounded-md border border-dashed ${tplCfg.templateBg} ${tplCfg.dashedBorder} ${tplCfg.hover} transition-all text-left px-2 py-1.5`}
       >
         <div className={`text-xs font-semibold ${tplCfg.text} leading-tight`}>
@@ -183,7 +188,7 @@ export function ShiftCell({ shift, leaveType, rttHours, rotationSlot, onClick }:
         {rttHours ? (
           <div className="text-[9px] text-amber-500 mt-0.5 leading-tight">↩ {rttHours}h récup.</div>
         ) : (
-          <div className={`text-[10px] ${tplCfg.text} opacity-60 mt-0.5 leading-tight truncate`}>{shift.scheduleName ?? 'Horaire'}</div>
+          <div className={`text-[10px] ${tplCfg.text} opacity-60 mt-0.5 leading-tight truncate`}>{shift.scheduleName ?? tplCfg.title}</div>
         )}
       </button>
     )

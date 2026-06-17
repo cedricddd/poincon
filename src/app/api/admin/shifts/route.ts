@@ -95,6 +95,8 @@ export async function GET(req: NextRequest) {
     if (!us.workSchedule?.startTime || !us.workSchedule.endTime) continue
     let daysOfWeek: number[]
     try { daysOfWeek = JSON.parse(us.workSchedule.daysOfWeek) } catch { continue }
+    let dayConfig: Record<string, string> = {}
+    try { if (us.workSchedule.dayConfig) dayConfig = JSON.parse(us.workSchedule.dayConfig) } catch {}
     for (let i = 0; i < 7; i++) {
       const day = new Date(weekStartDate.getTime() + i * 24 * 60 * 60 * 1000)
       const isoDay = day.getUTCDay() === 0 ? 7 : day.getUTCDay()
@@ -110,6 +112,7 @@ export async function GET(req: NextRequest) {
         endTime: us.workSchedule.endTime,
         shiftType: deriveShiftType(us.workSchedule.startTime, us.workSchedule.type),
         scheduleName: us.workSchedule.name,
+        dayConfigType: dayConfig[String(isoDay)] ?? 'office',
         note: null,
         isTemplate: true,
       })
