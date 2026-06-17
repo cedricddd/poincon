@@ -4,49 +4,69 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Logo } from '@/components/Logo'
 
-const plans = [
+const freePlan = {
+  name: 'FREE',
+  label: 'Free',
+  limit: '3 utilisateurs inclus',
+  features: ['Pointage mobile (PWA)', 'Export CSV (30 derniers jours)', 'Rapports basiques'],
+  includes: ['Audit trail immuable', 'Multi-appareils', 'Authentification sécurisée'],
+}
+
+const paidPlans = [
   {
-    name: 'FREE',
-    label: 'Free',
-    monthlyPrice: 0,
-    annualPrice: 0,
-    limit: '1 admin · 3 employés',
+    name: 'STARTER',
+    label: 'Starter',
+    monthlyPrice: 19.90,
+    annualMonthlyPrice: 16.58,
+    annualTotal: 199,
+    annualSavings: 40,
+    limit: '5 utilisateurs inclus',
     highlight: false,
-    features: ['Pointage mobile (PWA)', 'Export CSV 1×/mois', 'Rapports basiques'],
-    includesLabel: 'Inclus :',
-    includes: ['Audit trail immuable', 'Multi-appareils', 'Authentification sécurisée'],
-  },
-  {
-    name: 'SOLO',
-    label: 'Solo',
-    monthlyPrice: 49,
-    annualPrice: 39,
-    limit: '1 admin · 10 employés',
-    highlight: false,
-    features: ['Export CSV/PDF illimité', 'Rapports avancés', 'Notifications email'],
+    extraSeat: 2.90,
+    features: ['Mode kiosque tablette', 'Export CSV/PDF illimité', 'Notifications email'],
     includesLabel: 'Tout Free inclus :',
     includes: ['Support email', 'Heures supp automatiques', 'Congés & Récupération'],
   },
   {
     name: 'TEAM',
     label: 'Team',
-    monthlyPrice: 99,
-    annualPrice: 79,
-    limit: '5 managers · 50 employés',
+    monthlyPrice: 44.90,
+    annualMonthlyPrice: 37.42,
+    annualTotal: 449,
+    annualSavings: 90,
+    limit: '15 utilisateurs inclus',
     highlight: true,
-    features: ["Gestion d'équipes", 'Rôle Manager', 'Export planifié mensuel'],
-    includesLabel: 'Tout Solo inclus :',
+    extraSeat: 2.60,
+    features: ['Planning & congés', 'Rôle Manager', 'Exports planifiés'],
+    includesLabel: 'Tout Starter inclus :',
     includes: ['Support prioritaire', 'Multi-sites', 'Dashboard manager'],
+  },
+  {
+    name: 'BUSINESS',
+    label: 'Business',
+    monthlyPrice: 69.90,
+    annualMonthlyPrice: 58.25,
+    annualTotal: 699,
+    annualSavings: 140,
+    limit: '30 utilisateurs inclus',
+    highlight: false,
+    extraSeat: 2.20,
+    features: ['API & intégrations', 'Rapports avancés', 'Multi-sociétés'],
+    includesLabel: 'Tout Team inclus :',
+    includes: ['SLA garanti 99.9%', 'Onboarding dédié', 'Facturation personnalisée'],
   },
   {
     name: 'ENTERPRISE',
     label: 'Enterprise',
     monthlyPrice: null,
-    annualPrice: null,
-    limit: 'Employés illimités',
+    annualMonthlyPrice: null,
+    annualTotal: null,
+    annualSavings: null,
+    limit: 'Utilisateurs illimités',
     highlight: false,
+    extraSeat: null,
     features: ['Managers illimités', 'Export planifié hebdo', 'SLA garanti'],
-    includesLabel: 'Tout Team inclus :',
+    includesLabel: 'Tout Business inclus :',
     includes: ['Support dédié', 'Onboarding personnalisé', 'Contrat sur mesure'],
   },
 ]
@@ -64,24 +84,31 @@ function CheckIcon({ pos }: { pos?: boolean }) {
   )
 }
 
-function getCtaHref(plan: typeof plans[0], annual: boolean, isAuthenticated: boolean): string {
-  if (plan.name === 'FREE') {
+function getCtaHref(planName: string, annual: boolean, isAuthenticated: boolean): string {
+  if (planName === 'FREE') {
     return isAuthenticated ? '/admin/dashboard' : '/signup'
   }
-  if (plan.name === 'ENTERPRISE') {
+  if (planName === 'ENTERPRISE') {
     return 'mailto:contact@pointon.be'
   }
   const billing = annual ? 'yearly' : 'monthly'
   if (isAuthenticated) {
-    return `/api/stripe/checkout?plan=${plan.name.toLowerCase()}&billing=${billing}`
+    return `/api/stripe/checkout?plan=${planName.toLowerCase()}&billing=${billing}`
   }
-  return `/pricing/upgrade?plan=${plan.name}&billing=${billing}`
+  return `/pricing/upgrade?plan=${planName}&billing=${billing}`
 }
 
-function getCtaText(plan: typeof plans[0], isAuthenticated: boolean): string {
-  if (plan.name === 'FREE') return isAuthenticated ? 'Mon tableau de bord' : 'Commencer gratuitement'
-  if (plan.name === 'ENTERPRISE') return 'Nous contacter'
-  return `Choisir ${plan.label}`
+function getCtaText(planName: string, isAuthenticated: boolean): string {
+  if (planName === 'FREE') return isAuthenticated ? 'Mon tableau de bord' : 'Commencer gratuitement'
+  if (planName === 'ENTERPRISE') return 'Nous contacter'
+  if (planName === 'STARTER') return 'Choisir Starter'
+  if (planName === 'TEAM') return 'Choisir Team'
+  if (planName === 'BUSINESS') return 'Choisir Business'
+  return 'Choisir ce plan'
+}
+
+function fmtPrice(n: number) {
+  return n.toLocaleString('fr-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 export function PricingPlans({ isAuthenticated }: { isAuthenticated: boolean }) {
@@ -117,6 +144,7 @@ export function PricingPlans({ isAuthenticated }: { isAuthenticated: boolean }) 
           <p className="text-[var(--pp-muted)] text-lg">
             Sans engagement. Changez ou résiliez à tout moment.
           </p>
+          <p className="text-xs text-[var(--pp-muted)] mt-2">Tous les prix sont indiqués HTVA (TVA belge 21% en sus).</p>
 
           {/* Billing toggle */}
           <div className="inline-flex items-center gap-3 mt-8 bg-[var(--pp-surface,var(--pp-bg))] border border-[var(--pp-line)] rounded-full p-1">
@@ -142,18 +170,50 @@ export function PricingPlans({ isAuthenticated }: { isAuthenticated: boolean }) 
               <span className={`text-xs font-bold px-2 py-0.5 rounded-full transition-colors ${
                 annual ? 'bg-[var(--pp-pos)] text-white' : 'bg-[var(--pp-pos)]/15 text-[var(--pp-pos)]'
               }`}>
-                −20%
+                −17%
               </span>
             </button>
           </div>
+          {annual && (
+            <p className="text-xs text-[var(--pp-pos)] mt-3 font-medium">
+              ✓ 2 mois offerts — facturé en une fois pour l'année
+            </p>
+          )}
         </div>
 
-        {/* Plan cards */}
+        {/* FREE — horizontal strip */}
+        <div className="mb-6 rounded-2xl border border-[var(--pp-line)] bg-[var(--pp-bg)] p-5">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div>
+                <span className="text-lg font-bold text-[var(--pp-ink)]">Free</span>
+                <span className="text-[var(--pp-muted)] text-sm ml-2">· {freePlan.limit} · Toujours gratuit</span>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="flex flex-wrap gap-x-4 gap-y-1">
+                {freePlan.features.map(f => (
+                  <span key={f} className="inline-flex items-center gap-1.5 text-xs text-[var(--pp-muted)]">
+                    <CheckIcon /> {f}
+                  </span>
+                ))}
+              </div>
+              <a
+                href={getCtaHref('FREE', annual, isAuthenticated)}
+                className="shrink-0 px-5 py-2 rounded-xl border border-[var(--pp-line)] text-sm font-semibold text-[var(--pp-ink)] hover:border-[var(--pp-pos)] hover:text-[var(--pp-pos)] transition-colors text-center"
+              >
+                {getCtaText('FREE', isAuthenticated)}
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Paid plan cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {plans.map((plan) => {
-            const price = annual ? plan.annualPrice : plan.monthlyPrice
-            const href = getCtaHref(plan, annual, isAuthenticated)
-            const ctaText = getCtaText(plan, isAuthenticated)
+          {paidPlans.map((plan) => {
+            const price = annual ? plan.annualMonthlyPrice : plan.monthlyPrice
+            const href = getCtaHref(plan.name, annual, isAuthenticated)
+            const ctaText = getCtaText(plan.name, isAuthenticated)
 
             return (
               <div
@@ -180,28 +240,27 @@ export function PricingPlans({ isAuthenticated }: { isAuthenticated: boolean }) 
                     <div className="mb-1">
                       <span className="text-3xl font-bold text-[var(--pp-pos)]">Devis</span>
                     </div>
-                  ) : price === 0 ? (
-                    <div className="mb-1">
-                      <span className="text-3xl font-bold text-[var(--pp-pos)]">Gratuit</span>
-                    </div>
                   ) : (
                     <div className="mb-1">
-                      <span className="text-3xl font-bold text-[var(--pp-ink)]">{price}€</span>
+                      <span className="text-3xl font-bold text-[var(--pp-ink)]">{fmtPrice(price)}€</span>
                       <span className="text-sm text-[var(--pp-muted)] ml-1">/mois HTVA</span>
-                      {annual && (
+                      {annual && plan.annualTotal && (
                         <p className="text-xs text-[var(--pp-muted)] mt-0.5">
-                          facturé {plan.name === 'SOLO' ? '470' : '950'}€/an
+                          facturé {plan.annualTotal}€/an · économisez {plan.annualSavings}€
                         </p>
                       )}
                     </div>
                   )}
 
-                  <p className="text-xs text-[var(--pp-muted)] mt-1 mb-5">{plan.limit}</p>
+                  <p className="text-xs text-[var(--pp-muted)] mt-1">{plan.limit}</p>
+                  {plan.extraSeat && (
+                    <p className="text-xs text-[var(--pp-muted)]">+{plan.extraSeat}€/siège supplémentaire</p>
+                  )}
 
                   {/* CTA */}
                   <a
                     href={href}
-                    className={`block w-full py-2.5 rounded-xl text-sm font-semibold text-center transition-all ${
+                    className={`block w-full py-2.5 rounded-xl text-sm font-semibold text-center transition-all mt-4 ${
                       plan.highlight
                         ? 'bg-[var(--pp-pos)] text-white hover:opacity-90'
                         : 'border border-[var(--pp-line)] text-[var(--pp-ink)] hover:border-[var(--pp-pos)] hover:text-[var(--pp-pos)]'
@@ -245,18 +304,46 @@ export function PricingPlans({ isAuthenticated }: { isAuthenticated: boolean }) 
           <p className="text-center text-sm text-[var(--pp-muted)] mt-8">
             💡 Passez à la facturation annuelle et{' '}
             <button onClick={() => setAnnual(true)} className="text-[var(--pp-pos)] font-semibold underline underline-offset-2 hover:opacity-80">
-              économisez 20%
+              économisez 17% (2 mois offerts)
             </button>
           </p>
         )}
         {annual && (
           <p className="text-center text-sm text-[var(--pp-pos)] font-medium mt-8">
-            ✓ Vous économisez jusqu'à 240€/an avec la facturation annuelle
+            ✓ Vous économisez jusqu'à 140€/an avec la facturation annuelle
           </p>
         )}
 
+        {/* Trust badges */}
+        <div className="mt-12 flex flex-wrap justify-center gap-6 text-xs text-[var(--pp-muted)]">
+          <span className="flex items-center gap-1.5">
+            <svg className="w-3.5 h-3.5 text-[var(--pp-pos)]" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8l3.5 3.5 6.5-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Paiement sécurisé Stripe
+          </span>
+          <span className="flex items-center gap-1.5">
+            <svg className="w-3.5 h-3.5 text-[var(--pp-pos)]" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8l3.5 3.5 6.5-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Zéro GPS · RGPD compliant
+          </span>
+          <span className="flex items-center gap-1.5">
+            <svg className="w-3.5 h-3.5 text-[var(--pp-pos)]" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8l3.5 3.5 6.5-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Conforme loi belge 2027
+          </span>
+          <span className="flex items-center gap-1.5">
+            <svg className="w-3.5 h-3.5 text-[var(--pp-pos)]" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8l3.5 3.5 6.5-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Résiliable à tout moment
+          </span>
+        </div>
+
         {/* Footer links */}
-        <div className="text-center mt-12 text-xs text-[var(--pp-muted)] space-x-4">
+        <div className="text-center mt-10 text-xs text-[var(--pp-muted)] space-x-4">
           <Link href="/legal/terms" className="hover:underline">Conditions d'utilisation</Link>
           <Link href="/legal/privacy" className="hover:underline">Confidentialité</Link>
           <a href="mailto:contact@pointon.be" className="hover:underline">Contact</a>

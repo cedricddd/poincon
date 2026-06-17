@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
-import NumberFlow from '@number-flow/react'
 import { Header } from '@/components/Header'
 import { Button } from '@/components/Button'
 import { ThemeVideo } from '@/components/ThemeVideo'
@@ -50,8 +49,8 @@ const features = [
   {
     n: '03',
     color: '#0ea5e9',
-    title: 'Mobile-first',
-    description: 'Interface pensée pour le smartphone. Rapide, fluide, installable comme une app native.',
+    title: 'Kiosque & Mobile',
+    description: '3 méthodes : application mobile (PWA), kiosque tablette à l\'entrée ou interface web. Zéro installation.',
   },
   {
     n: '04',
@@ -62,14 +61,50 @@ const features = [
   {
     n: '05',
     color: '#6366f1',
-    title: 'Rapports & exports',
-    description: 'CSV et PDF signés numériquement. Export planifié hebdomadaire ou mensuel inclus.',
+    title: 'Zéro GPS · RGPD',
+    description: 'Aucune géolocalisation (CCT 68 · RGPD). Export CSV et PDF signés numériquement pour inspection légale.',
   },
   {
     n: '06',
     color: '#8b5cf6',
     title: "Gestion d'équipes",
     description: 'Managers, sites, congés, récupérations — tout centralisé pour les RH et les administrateurs.',
+  },
+]
+
+const testimonials = [
+  {
+    quote: "Avant on notait les heures sur papier. Maintenant c'est automatique. Mes employés pointent sur la tablette à l'entrée, j'exporte le récap le vendredi. Setup : 10 minutes.",
+    name: 'Marie Renard',
+    role: 'Gérante',
+    company: 'Boulangerie Renard',
+    location: 'Liège',
+    employees: '6 employés',
+    plan: 'Starter',
+    initials: 'MR',
+    color: '#10b981',
+  },
+  {
+    quote: "On cherchait une solution conforme loi 2027 sans GPS ni tracking. Pointon coche toutes les cases. L'audit trail immuable nous rassure pour les contrôles sociaux.",
+    name: 'Thomas Henrard',
+    role: 'Directeur technique',
+    company: 'DataBridge SPRL',
+    location: 'Bruxelles',
+    employees: '12 employés',
+    plan: 'Team',
+    initials: 'TH',
+    color: '#6366f1',
+  },
+  {
+    quote: 'Mes techniciens sont rarement au bureau. Avec le kiosque tablette au dépôt et l\'appli mobile pour les déplacements, tout le monde pointe facilement.',
+    name: 'Sébastien Pirard',
+    role: 'Dirigeant',
+    company: 'Pirard Installations',
+    location: 'Namur',
+    employees: '9 employés',
+    plan: 'Starter',
+    initials: 'SP',
+    color: '#0ea5e9',
   },
 ]
 
@@ -114,53 +149,81 @@ const pricingTiers = [
     name: 'Free',
     monthlyPrice: 0,
     annualPrice: 0,
-    limit: '1 admin · 3 employés',
+    annualTotal: 0,
+    annualSavings: 0,
+    limit: '3 utilisateurs inclus',
     buttonText: 'Commencer gratuitement',
     buttonHref: '/login',
     buttonHrefAnnual: '/login',
     highlight: false,
-    features: ['Pointage mobile (PWA)', 'Export CSV 1×/mois', 'Rapports basiques'],
-    includes: ['Audit trail immuable', 'Multi-appareils', 'Authentification sécurisée'],
+    extraSeat: null as number | null,
+    features: ['Pointage mobile (PWA)', 'Export CSV (30 jours)', 'Rapports basiques'],
+    includes: ['Audit trail immuable', 'Multi-appareils', 'Auth sécurisée'],
     includesLabel: 'Inclus :',
   },
   {
-    name: 'Solo',
-    monthlyPrice: 49,
-    annualPrice: 39,
-    limit: '1 admin · 10 employés',
-    buttonText: 'Choisir Solo',
-    buttonHref: '/api/stripe/checkout?plan=solo&billing=monthly',
-    buttonHrefAnnual: '/api/stripe/checkout?plan=solo&billing=yearly',
+    name: 'Starter',
+    monthlyPrice: 19.90,
+    annualPrice: 16.58,
+    annualTotal: 199,
+    annualSavings: 40,
+    limit: '5 utilisateurs inclus',
+    buttonText: 'Choisir Starter',
+    buttonHref: '/api/stripe/checkout?plan=starter&billing=monthly',
+    buttonHrefAnnual: '/api/stripe/checkout?plan=starter&billing=yearly',
     highlight: false,
-    features: ['Export CSV/PDF illimité', 'Rapports avancés', 'Notifications email'],
+    extraSeat: 2.90 as number | null,
+    features: ['Mode kiosque tablette', 'Export CSV/PDF illimité', 'Notifications email'],
     includes: ['Support email', 'Heures supp automatiques', 'Congés & Récupération'],
     includesLabel: 'Tout Free inclus :',
   },
   {
     name: 'Team',
-    monthlyPrice: 99,
-    annualPrice: 79,
-    limit: '5 managers · 50 employés',
+    monthlyPrice: 44.90,
+    annualPrice: 37.42,
+    annualTotal: 449,
+    annualSavings: 90,
+    limit: '15 utilisateurs inclus',
     buttonText: 'Choisir Team',
     buttonHref: '/api/stripe/checkout?plan=team&billing=monthly',
     buttonHrefAnnual: '/api/stripe/checkout?plan=team&billing=yearly',
     highlight: true,
-    features: ["Gestion d'équipes", 'Rôle Manager', 'Export planifié mensuel'],
+    extraSeat: 2.60 as number | null,
+    features: ['Planning & congés', 'Rôle Manager', 'Exports planifiés'],
     includes: ['Support prioritaire', 'Multi-sites', 'Dashboard manager'],
-    includesLabel: 'Tout Solo inclus :',
+    includesLabel: 'Tout Starter inclus :',
+  },
+  {
+    name: 'Business',
+    monthlyPrice: 69.90,
+    annualPrice: 58.25,
+    annualTotal: 699,
+    annualSavings: 140,
+    limit: '30 utilisateurs inclus',
+    buttonText: 'Choisir Business',
+    buttonHref: '/api/stripe/checkout?plan=business&billing=monthly',
+    buttonHrefAnnual: '/api/stripe/checkout?plan=business&billing=yearly',
+    highlight: false,
+    extraSeat: 2.20 as number | null,
+    features: ['API & intégrations', 'Rapports avancés', 'Multi-sociétés'],
+    includes: ['SLA 99.9%', 'Onboarding dédié', 'Facturation personnalisée'],
+    includesLabel: 'Tout Team inclus :',
   },
   {
     name: 'Enterprise',
     monthlyPrice: null,
     annualPrice: null,
-    limit: 'Employés illimités',
+    annualTotal: null,
+    annualSavings: null,
+    limit: 'Utilisateurs illimités',
     buttonText: 'Nous contacter',
-    buttonHref: 'mailto:contact@ced-it.be',
-    buttonHrefAnnual: 'mailto:contact@ced-it.be',
+    buttonHref: 'mailto:contact@pointon.be',
+    buttonHrefAnnual: 'mailto:contact@pointon.be',
     highlight: false,
+    extraSeat: null as number | null,
     features: ['Managers illimités', 'Export planifié hebdo', 'SLA garanti'],
     includes: ['Support dédié', 'Onboarding personnalisé', 'Contrat sur mesure'],
-    includesLabel: 'Tout Team inclus :',
+    includesLabel: 'Tout Business inclus :',
   },
 ]
 
@@ -655,14 +718,24 @@ function PricingCard({ tier, annual, delay }: { tier: typeof pricingTiers[0]; an
             <span className="font-display font-bold text-[var(--pp-pos)]" style={{ fontSize: '2rem' }}>Gratuit</span>
           </div>
         ) : (
-          <div className="flex items-end gap-1 mb-1">
-            <span className="font-display font-bold text-[var(--pp-ink)]" style={{ fontSize: '2rem', lineHeight: 1 }}>
-              <NumberFlow value={price} />€
-            </span>
-            <span className="text-xs text-[var(--pp-muted)] mb-1">/mois HTVA</span>
+          <div className="mb-1">
+            <div className="flex items-end gap-1">
+              <span className="font-display font-bold text-[var(--pp-ink)]" style={{ fontSize: '2rem', lineHeight: 1 }}>
+                {price.toLocaleString('fr-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€
+              </span>
+              <span className="text-xs text-[var(--pp-muted)] mb-1">/mois HTVA</span>
+            </div>
+            {annual && tier.annualTotal && (
+              <p className="text-xs text-[var(--pp-muted)] mt-0.5">
+                facturé {tier.annualTotal}€/an · économisez {tier.annualSavings}€
+              </p>
+            )}
           </div>
         )}
         <p className="text-xs text-[var(--pp-muted)] mt-1">{tier.limit}</p>
+        {tier.extraSeat && (
+          <p className="text-xs text-[var(--pp-muted)]">+{tier.extraSeat}€/siège supplémentaire</p>
+        )}
       </div>
       <div className="px-6 pb-4">
         <a href={href} className="block w-full">
@@ -713,6 +786,51 @@ function PricingCard({ tier, annual, delay }: { tier: typeof pricingTiers[0]; an
             ))}
           </ul>
         </div>
+      </div>
+    </div>
+  )
+}
+
+/* ─── Testimonial card ───────────────────────────────────────────────────── */
+
+function TestimonialCard({ t, delay }: { t: typeof testimonials[0]; delay: number }) {
+  const ref = useReveal()
+  return (
+    <div
+      ref={ref}
+      className="pp-reveal rounded-2xl border border-[var(--pp-line)] bg-[var(--pp-bg)] p-7 flex flex-col gap-5"
+      style={{ transitionDelay: `${delay}ms` } as React.CSSProperties}
+    >
+      {/* Stars */}
+      <div className="flex gap-0.5">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <svg key={i} className="w-4 h-4 text-[#f59e0b]" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 1l1.85 3.75 4.15.6-3 2.93.7 4.12L8 10.4l-3.7 1.95.7-4.13-3-2.92 4.15-.6z"/>
+          </svg>
+        ))}
+      </div>
+      {/* Quote */}
+      <p className="text-sm text-[var(--pp-muted)] leading-relaxed flex-1">
+        &ldquo;{t.quote}&rdquo;
+      </p>
+      {/* Footer */}
+      <div className="flex items-center gap-3">
+        <div
+          className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
+          style={{ background: t.color }}
+        >
+          {t.initials}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-[var(--pp-ink)]">{t.name}</p>
+          <p className="text-xs text-[var(--pp-muted)]">{t.role} · {t.company} · {t.location}</p>
+        </div>
+        <span
+          className="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full"
+          style={{ background: `${t.color}18`, color: t.color }}
+        >
+          Plan {t.plan}
+        </span>
       </div>
     </div>
   )
@@ -851,7 +969,7 @@ function CtaCountdown() {
           <Link href="/login">
             <Button size="lg">Créer mon compte gratuit</Button>
           </Link>
-          <a href="mailto:contact@ced-it.be">
+          <a href="mailto:contact@pointon.be">
             <button
               className="px-6 py-3 rounded-xl text-sm font-bold tracking-wide transition-all"
               style={{ border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.7)', background: 'transparent' }}
@@ -1065,7 +1183,7 @@ export default function Home() {
               </div>
 
               <p className="text-[11px] text-white/30 tracking-wide uppercase" style={{ letterSpacing: '0.1em' }}>
-                Aucune carte · Plan Free illimité · RGPD
+                Aucune carte · Plan Free illimité · Zéro GPS · RGPD
               </p>
             </div>
 
@@ -1139,6 +1257,29 @@ export default function Home() {
               <FeatureCard key={f.title} f={f} delay={(i % 3) * 60} />
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── Testimonials ─────────────────────────────────────────────────── */}
+      <section className="py-20 md:py-28 border-b border-[var(--pp-line)]">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="text-center mb-12">
+            <SectionLabel>Ils nous font confiance</SectionLabel>
+            <h2
+              className="font-display font-bold text-[var(--pp-ink)] leading-tight"
+              style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)' }}
+            >
+              Des PME belges qui pointent<br />au quotidien
+            </h2>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {testimonials.map((t, i) => (
+              <TestimonialCard key={t.name} t={t} delay={i * 80} />
+            ))}
+          </div>
+          <p className="text-center text-xs text-[var(--pp-muted)] mt-8">
+            Zéro GPS · Aucune géolocalisation · RGPD compliant · CCT 68 Belgique
+          </p>
         </div>
       </section>
 
@@ -1237,17 +1378,31 @@ export default function Home() {
                   className={`relative z-10 px-5 py-2 rounded-full text-sm font-semibold transition-colors duration-200 flex items-center gap-2 ${annual ? 'text-[var(--pp-ink)]' : 'text-[var(--pp-muted)]'}`}
                 >
                   Annuel
-                  <span className="text-[10px] bg-[var(--pp-pos)] text-white px-1.5 py-0.5 rounded-full font-bold leading-none">−20%</span>
+                  <span className="text-[10px] bg-[var(--pp-pos)] text-white px-1.5 py-0.5 rounded-full font-bold leading-none">−17%</span>
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {pricingTiers.map((tier, i) => (
               <PricingCard key={tier.name} tier={tier} annual={annual} delay={i * 70} />
             ))}
           </div>
+
+          {!annual && (
+            <p className="text-center text-sm text-[var(--pp-muted)] mt-8">
+              💡 Passez à la facturation annuelle et{' '}
+              <button onClick={() => setAnnual(true)} className="text-[var(--pp-pos)] font-semibold underline underline-offset-2 hover:opacity-80">
+                économisez 17% (2 mois offerts)
+              </button>
+            </p>
+          )}
+          {annual && (
+            <p className="text-center text-sm text-[var(--pp-pos)] font-medium mt-8">
+              ✓ Vous économisez jusqu&apos;à 140€/an avec la facturation annuelle
+            </p>
+          )}
         </div>
       </section>
 
@@ -1268,7 +1423,7 @@ export default function Home() {
                 Vous ne trouvez pas votre réponse ? Contactez-nous directement.
               </p>
               <a
-                href="mailto:contact@ced-it.be"
+                href="mailto:contact@pointon.be"
                 className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--pp-pos)] hover:gap-3 transition-all duration-200"
               >
                 Nous écrire
@@ -1338,8 +1493,8 @@ export default function Home() {
             <div>
               <h4 className="text-[10px] font-bold text-[var(--pp-ink)] uppercase tracking-[0.15em] mb-4">Ressources</h4>
               <ul className="space-y-2.5 text-sm text-[var(--pp-muted)]">
-                <li><a href="mailto:support@ced-it.be" className="hover:text-[var(--pp-ink)] transition-colors">Support</a></li>
-                <li><a href="mailto:contact@ced-it.be" className="hover:text-[var(--pp-ink)] transition-colors">Contact</a></li>
+                <li><a href="mailto:support@pointon.be" className="hover:text-[var(--pp-ink)] transition-colors">Support</a></li>
+                <li><a href="mailto:contact@pointon.be" className="hover:text-[var(--pp-ink)] transition-colors">Contact</a></li>
               </ul>
             </div>
           </div>

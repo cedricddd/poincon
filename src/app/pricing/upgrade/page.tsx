@@ -14,30 +14,46 @@ const PLAN_INFO: Record<string, {
   yearlyNote: string
   features: string[]
 }> = {
-  SOLO: {
-    label: 'Solo',
-    color: '#6366f1',
-    monthly: '49€/mois',
-    yearly: '39€/mois',
-    yearlyNote: 'facturé 470€/an',
-    features: ['Jusqu\'à 5 employés', 'Pointage mobile & web', 'Export CSV'],
+  STARTER: {
+    label: 'Starter',
+    color: '#10b981',
+    monthly: '19,90€/mois HTVA',
+    yearly: '16,58€/mois HTVA',
+    yearlyNote: 'facturé 199€/an · économisez 40€',
+    features: ['5 utilisateurs inclus', 'Mode kiosque tablette', 'Export CSV/PDF illimité', '+2,90€/siège supplémentaire'],
   },
   TEAM: {
     label: 'Team',
+    color: '#6366f1',
+    monthly: '44,90€/mois HTVA',
+    yearly: '37,42€/mois HTVA',
+    yearlyNote: 'facturé 449€/an · économisez 90€',
+    features: ['15 utilisateurs inclus', 'Planning & congés', 'Rôle Manager', '+2,60€/siège supplémentaire'],
+  },
+  BUSINESS: {
+    label: 'Business',
     color: '#8b5cf6',
-    monthly: '99€/mois',
-    yearly: '79€/mois',
-    yearlyNote: 'facturé 950€/an',
-    features: ['Jusqu\'à 25 employés', 'Équipes & sites multiples', 'Exports automatiques', 'Rapports avancés'],
+    monthly: '69,90€/mois HTVA',
+    yearly: '58,25€/mois HTVA',
+    yearlyNote: 'facturé 699€/an · économisez 140€',
+    features: ['30 utilisateurs inclus', 'API & intégrations', 'SLA 99.9%', '+2,20€/siège supplémentaire'],
+  },
+  SOLO: {
+    label: 'Starter',
+    color: '#10b981',
+    monthly: '19,90€/mois HTVA',
+    yearly: '16,58€/mois HTVA',
+    yearlyNote: 'facturé 199€/an · économisez 40€',
+    features: ['5 utilisateurs inclus', 'Mode kiosque tablette', 'Export CSV/PDF illimité'],
   },
 }
 
 function UpgradeContent() {
   const searchParams = useSearchParams()
-  const plan = (searchParams.get('plan') ?? 'SOLO').toUpperCase()
+  const plan = (searchParams.get('plan') ?? 'STARTER').toUpperCase()
   const billing = searchParams.get('billing') ?? 'monthly'
 
-  const info = PLAN_INFO[plan] ?? PLAN_INFO.SOLO
+  const info = PLAN_INFO[plan] ?? PLAN_INFO.STARTER
   const price = billing === 'yearly' ? info.yearly : info.monthly
   const checkoutUrl = `/api/stripe/checkout?plan=${plan.toLowerCase()}&billing=${billing}`
 
