@@ -119,13 +119,17 @@ model Site {
 
 model Plan {
   id                    String          @id @default(cuid())
-  name                  String          @unique // FREE | SOLO | TEAM | ENTERPRISE
+  name                  String          @unique // FREE | STARTER | TEAM | BUSINESS | ENTERPRISE
   maxEmployees          Int             // -1 = illimité
   maxManagers           Int             // 0 = pas de managers
   maxCsvExportsPerMonth Int             // -1 = illimité, 0 = désactivé
   scheduledExport       String?         // null | "monthly" | "weekly"
   hasTeams              Boolean         @default(false)
   hasAdvancedReports    Boolean         @default(false)
+  hasKiosk              Boolean         @default(false)
+  hasPlanning           Boolean         @default(false)
+  baseIncludedSeats     Int             @default(0)  // seats included in base price
+  pricePerExtraSeatCents Int            @default(0)  // price per extra seat in euro cents
   stripePriceIdMonthly  String?
   stripePriceIdYearly   String?
   createdAt             DateTime        @default(now())
@@ -432,6 +436,7 @@ model WorkSchedule {
   hoursPerDay   Float          @default(8)
   weeklyHours   Float          @default(38)
   daysOfWeek    String         @default("[1,2,3,4,5]") // JSON: 1=Lun … 7=Dim
+  dayConfig     String?        // JSON: {"1":"remote","3":"half"} — per-day type override
   description   String?
   isPreset      Boolean        @default(false)
   createdAt     DateTime       @default(now())

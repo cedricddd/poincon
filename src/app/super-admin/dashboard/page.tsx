@@ -42,8 +42,8 @@ export default async function SuperAdminDashboard() {
 
   let mrrMonthly = 0
   let mrrYearly = 0
-  const monthlyCount = { SOLO: 0, TEAM: 0, ENTERPRISE: 0 } as Record<string, number>
-  const yearlyCount  = { SOLO: 0, TEAM: 0, ENTERPRISE: 0 } as Record<string, number>
+  const monthlyCount: Record<string, number> = {}
+  const yearlyCount: Record<string, number>  = {}
 
   for (const company of paidCompanies) {
     const planName = company.plan?.name as string
@@ -51,10 +51,10 @@ export default async function SuperAdminDashboard() {
     if (!planName || !STRIPE_PRICES[planName]) continue
     const prices = STRIPE_PRICES[planName]
     if (billingCycle === 'monthly') {
-      mrrMonthly += prices.amount_monthly / 100
+      mrrMonthly += prices.monthlyBaseCents / 100
       monthlyCount[planName] = (monthlyCount[planName] ?? 0) + 1
     } else if (billingCycle === 'yearly') {
-      mrrYearly += prices.amount_yearly / 100 / 12
+      mrrYearly += prices.yearlyBaseCents / 100 / 12
       yearlyCount[planName] = (yearlyCount[planName] ?? 0) + 1
     }
   }

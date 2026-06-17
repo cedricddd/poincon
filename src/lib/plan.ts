@@ -11,7 +11,7 @@ export type PlanFeature =
   | 'planning'
   | 'kiosk'
 
-// Add-on flags (purchasable on TEAM, included in ENTERPRISE)
+// Add-on flags (purchasable on TEAM/BUSINESS, included in ENTERPRISE)
 export const ADDON_FLAGS = [
   'addon_api_access',
   'addon_webhooks',
@@ -30,11 +30,15 @@ export const ADDON_INFO: Record<AddonFlag, { name: string; description: string; 
 }
 
 // Plan limits constants — source of truth
+// Pricing (HTVA): FREE=0 | STARTER=19.90 | TEAM=44.90 | BUSINESS=69.90 | ENTERPRISE=sur devis
+// Extra seats (HTVA): STARTER=+2.90/seat | TEAM=+2.60/seat | BUSINESS=+2.20/seat
+// Annual billing: -17% (2 months free), paid upfront
 export const PLAN_LIMITS = {
-  FREE:       { maxEmployees: 3,   maxManagers: 0,  maxSites: 1,  csvExportsPerMonth: 1,  scheduledExport: null,      hasTeams: false, hasAdvancedReports: false, hasPresences: true, hasPlanning: false, hasKiosk: false },
-  SOLO:       { maxEmployees: 15,  maxManagers: 0,  maxSites: 1,  csvExportsPerMonth: -1, scheduledExport: null,      hasTeams: false, hasAdvancedReports: true,  hasPresences: true, hasPlanning: true,  hasKiosk: true  },
-  TEAM:       { maxEmployees: 50,  maxManagers: 5,  maxSites: 5,  csvExportsPerMonth: -1, scheduledExport: 'monthly', hasTeams: true,  hasAdvancedReports: true,  hasPresences: true, hasPlanning: true,  hasKiosk: true  },
-  ENTERPRISE: { maxEmployees: -1,  maxManagers: -1, maxSites: -1, csvExportsPerMonth: -1, scheduledExport: 'weekly',  hasTeams: true,  hasAdvancedReports: true,  hasPresences: true, hasPlanning: true,  hasKiosk: true  },
+  FREE:       { maxEmployees: 3,   maxManagers: 0,  maxSites: 1,  csvExportsPerMonth: 1,  csvExportMaxDays: 30,  scheduledExport: null,      hasTeams: false, hasAdvancedReports: false, hasPresences: true, hasPlanning: false, hasKiosk: false, baseIncludedSeats: 3,  pricePerExtraSeatCents: 0    },
+  STARTER:    { maxEmployees: 5,   maxManagers: 0,  maxSites: 3,  csvExportsPerMonth: -1, csvExportMaxDays: -1,  scheduledExport: null,      hasTeams: false, hasAdvancedReports: true,  hasPresences: true, hasPlanning: false, hasKiosk: true,  baseIncludedSeats: 5,  pricePerExtraSeatCents: 290  },
+  TEAM:       { maxEmployees: 15,  maxManagers: 5,  maxSites: 5,  csvExportsPerMonth: -1, csvExportMaxDays: -1,  scheduledExport: 'monthly', hasTeams: true,  hasAdvancedReports: true,  hasPresences: true, hasPlanning: true,  hasKiosk: true,  baseIncludedSeats: 15, pricePerExtraSeatCents: 260  },
+  BUSINESS:   { maxEmployees: 30,  maxManagers: 10, maxSites: 10, csvExportsPerMonth: -1, csvExportMaxDays: -1,  scheduledExport: 'monthly', hasTeams: true,  hasAdvancedReports: true,  hasPresences: true, hasPlanning: true,  hasKiosk: true,  baseIncludedSeats: 30, pricePerExtraSeatCents: 220  },
+  ENTERPRISE: { maxEmployees: -1,  maxManagers: -1, maxSites: -1, csvExportsPerMonth: -1, csvExportMaxDays: -1,  scheduledExport: 'weekly',  hasTeams: true,  hasAdvancedReports: true,  hasPresences: true, hasPlanning: true,  hasKiosk: true,  baseIncludedSeats: -1, pricePerExtraSeatCents: 0    },
 } as const
 
 export type PlanName = keyof typeof PLAN_LIMITS
@@ -75,12 +79,19 @@ export function planCanAccess(plan: PlanName, feature: PlanFeature): boolean {
     case 'managers':                 return limits.maxManagers !== 0
     case 'presences':                return limits.hasPresences
     case 'planning':                 return limits.hasPlanning
+    case 'kiosk':                    return limits.hasKiosk
     case 'unlimited_csv_export':     return limits.csvExportsPerMonth === -1
     case 'scheduled_export_monthly': return limits.scheduledExport === 'monthly' || limits.scheduledExport === 'weekly'
     case 'scheduled_export_weekly':  return limits.scheduledExport === 'weekly'
-    case 'kiosk':                    return limits.hasKiosk
     default:                         return false
   }
+}
+
+/**
+ * Get the max CSV export date range for a plan (in days). -1 = unlimited.
+ */
+export function planCsvExportMaxDays(plan: PlanName): number {
+  return PLAN_LIMITS[plan].csvExportMaxDays
 }
 
 /**
@@ -156,10 +167,34 @@ export async function getMealBreakEnabled(companyId: string): Promise<boolean> {
 }
 
 /**
- * Check if a company can add more employees.
+ * Check if a company can add more employees (active members, not counting pending invitations).
  */
 export async function canAddEmployee(companyId: string, currentCount: number): Promise<boolean> {
   const plan = await getCompanyPlan(companyId)
   const max = PLAN_LIMITS[plan].maxEmployees
   return max === -1 || currentCount < max
+}
+
+/**
+ * Count active seats for a company: users who clocked in at least once in the last 30 days.
+ */
+export async function getActiveSeatsCount(companyId: string): Promise<number> {
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+  const result = await prisma.clockRecord.groupBy({
+    by: ['userId'],
+    where: {
+      arrivalTime: { gte: since },
+      user: { companyId, active: true, deletedAt: null },
+    },
+  })
+  return result.length
+}
+
+/**
+ * Count active members in a company (active, not soft-deleted).
+ */
+export async function getActiveMemberCount(companyId: string): Promise<number> {
+  return prisma.user.count({
+    where: { companyId, active: true, deletedAt: null },
+  })
 }

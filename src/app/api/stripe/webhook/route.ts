@@ -39,10 +39,13 @@ export async function POST(req: NextRequest) {
       const { userId, companyId, plan } = session.metadata ?? {}
       if (!companyId || !plan) break
 
-      const planRecord = await getPlanByName(plan)
+      // Support legacy SOLO metadata (in case of old sessions)
+      const resolvedPlan = plan === 'SOLO' ? 'STARTER' : plan
+      const planRecord = await getPlanByName(resolvedPlan)
       // Get subscription to extract billing cycle
       const stripe = getStripe()
-      const sub = await stripe.subscriptions.retrieve(session.subscription as string)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const sub = await stripe.subscriptions.retrieve(session.subscription as string) as any
       const billingCycle = getBillingCycle(sub)
 
       await prisma.company.update({

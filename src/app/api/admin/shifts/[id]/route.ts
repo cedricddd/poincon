@@ -1,5 +1,6 @@
 import { requireAdminWithCompany, forbiddenError } from '@/lib/admin-security'
 import { prisma } from '@/lib/prisma'
+import { getCompanyPlan, planCanAccess } from '@/lib/plan'
 import { NextRequest, NextResponse } from 'next/server'
 
 async function getShiftForAdmin(id: string, companyId: string) {
@@ -11,6 +12,11 @@ async function getShiftForAdmin(id: string, companyId: string) {
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAdminWithCompany()
   if (!auth) return forbiddenError()
+
+  const plan = await getCompanyPlan(auth.admin.companyId)
+  if (!planCanAccess(plan, 'planning')) {
+    return NextResponse.json({ error: 'Upgrade required', plan, feature: 'planning' }, { status: 403 })
+  }
 
   const { id } = await params
   const shift = await getShiftForAdmin(id, auth.admin.companyId)

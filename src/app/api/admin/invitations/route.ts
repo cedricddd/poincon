@@ -3,6 +3,7 @@ import { requireAdminWithCompany } from '@/lib/admin-security'
 import { prisma } from '@/lib/prisma'
 import { sendInvitationEmail } from '@/lib/mail'
 import { logAudit } from '@/lib/audit'
+import { getCompanyPlan, getActiveMemberCount, PLAN_LIMITS } from '@/lib/plan'
 
 export async function GET() {
   const auth = await requireAdminWithCompany()
@@ -23,6 +24,19 @@ export async function POST(req: NextRequest) {
 
   const { email, name, role } = await req.json()
   if (!email) return NextResponse.json({ error: 'Email requis' }, { status: 400 })
+
+  // Plan gate: enforce max employee limit before inviting
+  const plan = await getCompanyPlan(auth.admin.companyId)
+  const maxEmployees = PLAN_LIMITS[plan].maxEmployees
+  if (maxEmployees !== -1) {
+    const currentCount = await getActiveMemberCount(auth.admin.companyId)
+    if (currentCount >= maxEmployees) {
+      return NextResponse.json(
+        { error: `Limite du plan ${plan} atteinte (${maxEmployees} utilisateurs max). Passez à un plan supérieur pour ajouter des membres.` },
+        { status: 403 }
+      )
+    }
+  }
 
   const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase().trim() } })
   if (existing) return NextResponse.json({ error: 'Un compte existe déjà avec cet email' }, { status: 409 })

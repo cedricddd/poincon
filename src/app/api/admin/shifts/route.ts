@@ -1,5 +1,6 @@
 import { requireAdminWithCompany, canAccessUser, forbiddenError } from '@/lib/admin-security'
 import { prisma } from '@/lib/prisma'
+import { getCompanyPlan, planCanAccess } from '@/lib/plan'
 import { NextRequest, NextResponse } from 'next/server'
 
 function utcDateKey(d: Date): string {
@@ -20,6 +21,11 @@ function deriveShiftType(startTime: string, scheduleType: string): string {
 export async function GET(req: NextRequest) {
   const auth = await requireAdminWithCompany()
   if (!auth) return forbiddenError()
+
+  const plan = await getCompanyPlan(auth.admin.companyId)
+  if (!planCanAccess(plan, 'planning')) {
+    return NextResponse.json({ error: 'Upgrade required', plan, feature: 'planning' }, { status: 403 })
+  }
 
   const weekStart = req.nextUrl.searchParams.get('weekStart')
   if (!weekStart || !/^\d{4}-\d{2}-\d{2}$/.test(weekStart)) {
@@ -115,6 +121,11 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const auth = await requireAdminWithCompany()
   if (!auth) return forbiddenError()
+
+  const plan = await getCompanyPlan(auth.admin.companyId)
+  if (!planCanAccess(plan, 'planning')) {
+    return NextResponse.json({ error: 'Upgrade required', plan, feature: 'planning' }, { status: 403 })
+  }
 
   const { userId, siteId, date, startTime, endTime, shiftType, note } = await req.json()
   if (!userId || !date || !startTime || !endTime) {

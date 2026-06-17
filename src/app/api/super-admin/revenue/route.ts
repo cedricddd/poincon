@@ -26,11 +26,11 @@ export async function GET() {
     let mrrMonthly = 0 // Monthly subscriptions converted to monthly value
     let mrrYearly = 0 // Yearly subscriptions converted to monthly value (divided by 12)
 
-    const monthlyCount = { SOLO: 0, TEAM: 0, ENTERPRISE: 0 }
-    const yearlyCount = { SOLO: 0, TEAM: 0, ENTERPRISE: 0 }
+    const monthlyCount: Record<string, number> = {}
+    const yearlyCount: Record<string, number> = {}
 
     for (const company of companies) {
-      const planName = company.plan?.name as 'SOLO' | 'TEAM' | 'ENTERPRISE'
+      const planName = company.plan?.name as string
       const billingCycle = company.stripeSubscriptionBillingCycle
 
       if (!planName || !STRIPE_PRICES[planName]) continue
@@ -38,14 +38,11 @@ export async function GET() {
       const prices = STRIPE_PRICES[planName]
 
       if (billingCycle === 'monthly') {
-        const monthlyAmount = prices.amount_monthly / 100 // Convert cents to euros
-        mrrMonthly += monthlyAmount
-        monthlyCount[planName] = (monthlyCount[planName] || 0) + 1
+        mrrMonthly += prices.monthlyBaseCents / 100
+        monthlyCount[planName] = (monthlyCount[planName] ?? 0) + 1
       } else if (billingCycle === 'yearly') {
-        const yearlyAmount = prices.amount_yearly / 100
-        const monthlyEquivalent = yearlyAmount / 12
-        mrrYearly += monthlyEquivalent
-        yearlyCount[planName] = (yearlyCount[planName] || 0) + 1
+        mrrYearly += prices.yearlyBaseCents / 100 / 12
+        yearlyCount[planName] = (yearlyCount[planName] ?? 0) + 1
       }
     }
 

@@ -1,7 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { isAdminRole } from '@/lib/roles'
-import { getUserPlan, planCanAccess } from '@/lib/plan'
+import { getUserPlan, planCanAccess, planCsvExportMaxDays } from '@/lib/plan'
 import { NextRequest, NextResponse } from 'next/server'
 
 
@@ -32,6 +32,7 @@ export async function GET(req: NextRequest) {
 
   const plan = await getUserPlan(session.user.id)
   const canFilter = planCanAccess(plan, 'advanced_reports')
+  const maxDays = planCsvExportMaxDays(plan)
 
   const adminUser = await prisma.user.findUnique({
     where: { id: session.user.id },
@@ -45,13 +46,31 @@ export async function GET(req: NextRequest) {
   const from = canFilter ? searchParams.get('from') : null
   const to = canFilter ? searchParams.get('to') : null
 
+  // Enforce max date range for FREE plan (30 days)
+  if (maxDays !== -1 && from && to) {
+    const fromDate = new Date(from)
+    const toDate = new Date(to)
+    const diffDays = (toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24)
+    if (diffDays > maxDays) {
+      return NextResponse.json(
+        { error: `Le plan ${plan} limite les exports à ${maxDays} jours maximum. Passez à STARTER ou supérieur pour exporter sans limite.` },
+        { status: 403 }
+      )
+    }
+  }
+
+  // FREE without filter: cap to last 30 days automatically
+  const effectiveFrom = maxDays !== -1 && !from
+    ? new Date(Date.now() - maxDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    : from
+
   const where = {
     user: { companyId: adminUser.companyId },
     ...(userId ? { userId } : {}),
     ...(siteId ? { siteId } : {}),
-    ...(from || to ? {
+    ...((effectiveFrom || to) ? {
       date: {
-        ...(from ? { gte: new Date(from) } : {}),
+        ...(effectiveFrom ? { gte: new Date(effectiveFrom) } : {}),
         ...(to ? { lte: new Date(to + 'T23:59:59') } : {}),
       },
     } : {}),
