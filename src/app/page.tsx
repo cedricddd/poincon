@@ -281,6 +281,95 @@ const faqs = [
   },
 ]
 
+/* ─── Pointing methods data ─────────────────────────────────────────────── */
+
+const pointingMethods = [
+  {
+    color: '#10b981',
+    title: 'Mobile PWA',
+    description: "Arrivée et départ en 1 tap depuis n'importe quel smartphone. Sans installation.",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="17" r="1"/>
+      </svg>
+    ),
+  },
+  {
+    color: '#0ea5e9',
+    title: 'Kiosque tablette',
+    description: "PIN 4 chiffres à l'entrée du bureau. Idéal pour les équipes fixes sur site.",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="4" height="4" rx="1"/><rect x="10" y="3" width="4" height="4" rx="1"/>
+        <rect x="17" y="3" width="4" height="4" rx="1"/><rect x="3" y="10" width="4" height="4" rx="1"/>
+        <rect x="10" y="10" width="4" height="4" rx="1"/><rect x="17" y="10" width="4" height="4" rx="1"/>
+        <rect x="3" y="17" width="4" height="4" rx="1"/><rect x="10" y="17" width="4" height="4" rx="1"/>
+        <rect x="17" y="17" width="4" height="4" rx="1"/>
+      </svg>
+    ),
+  },
+  {
+    color: '#f59e0b',
+    title: 'QR Code',
+    description: '1 QR par site. 1 scan = 1 pointage instantané. Imprimable, infalsifiable.',
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+        <rect x="5" y="5" width="3" height="3" rx="0.5" fill="currentColor" stroke="none"/>
+        <rect x="16" y="5" width="3" height="3" rx="0.5" fill="currentColor" stroke="none"/>
+        <rect x="5" y="16" width="3" height="3" rx="0.5" fill="currentColor" stroke="none"/>
+        <path d="M14 14h3v3M14 20h7M20 14v3"/>
+      </svg>
+    ),
+  },
+  {
+    color: '#6366f1',
+    title: 'Interface web',
+    description: "Depuis n'importe quel PC et navigateur. Même expérience, même simplicité.",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 21h8M12 18v3"/>
+      </svg>
+    ),
+  },
+]
+
+/* ─── Kiosk tablet mockup ─────────────────────────────────────────────────── */
+
+function KioskTablet({ dark }: { dark: boolean }) {
+  const screen = dark ? '#111827' : '#e8f5f0'
+  const ink = dark ? 'rgba(249,250,251,0.9)' : 'rgba(0,0,0,0.8)'
+  const muted = dark ? 'rgba(156,163,175,0.7)' : 'rgba(0,0,0,0.35)'
+  const bezel = dark ? '#0d1117' : '#1a1a1a'
+  return (
+    <div style={{ width: 180 }}>
+      <div style={{ background: bezel, borderRadius: '1.5rem', padding: 10, boxShadow: dark ? '0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.05)' : '0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06)' }}>
+        <div style={{ background: screen, borderRadius: '1rem', padding: 16 }}>
+          <div style={{ textAlign: 'center', marginBottom: 10 }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981', margin: '0 auto 6px' }} />
+            <div style={{ fontSize: 9, fontWeight: 700, color: '#10b981', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>Kiosque</div>
+          </div>
+          <div style={{ fontSize: 10, color: ink, textAlign: 'center' as const, marginBottom: 10, fontWeight: 600 }}>Siège Bruxelles</div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 7, marginBottom: 12 }}>
+            {[0, 1, 2, 3].map(i => (
+              <div key={i} style={{ width: 9, height: 9, borderRadius: '50%', background: i < 2 ? '#10b981' : 'transparent', border: `1.5px solid ${i < 2 ? '#10b981' : muted}` }} />
+            ))}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 }}>
+            {['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'].map(k => (
+              <div key={k} style={{ height: 22, borderRadius: 6, background: dark ? '#1f2937' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: ink, border: `1px solid ${dark ? '#374151' : '#e5e7eb'}` }}>
+                {k}
+              </div>
+            ))}
+          </div>
+          <div style={{ textAlign: 'center' as const, marginTop: 10, fontSize: 8, color: muted, textTransform: 'uppercase' as const, letterSpacing: '0.1em' }}>PIN requis</div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ─── Hero clock widget (phone mockup) ──────────────────────────────────── */
 
 function HeroClockWidget() {
@@ -346,11 +435,16 @@ function HeroClockWidget() {
   const sideBtn  = dark ? '#060a10' : '#111'
 
   return (
-    /* Phone shell */
-    <div
-      className="relative mx-auto select-none"
-      style={{ width: 'min(280px, 80vw)', transition: 'all 0.3s ease' }}
-    >
+    <div className="relative mx-auto select-none" style={{ width: 'min(380px, 92vw)' }}>
+      {/* Tablet kiosk — behind phone */}
+      <div
+        className="absolute hidden sm:block pointer-events-none"
+        style={{ right: 0, top: 20, transform: 'rotate(4deg) scale(0.85)', transformOrigin: 'top right', opacity: 0.38, zIndex: 0 }}
+      >
+        <KioskTablet dark={dark} />
+      </div>
+      {/* Phone */}
+      <div className="relative" style={{ width: 'min(280px, 80vw)', zIndex: 1, transition: 'all 0.3s ease' }}>
       {/* Outer bezel */}
       <div
         className="relative rounded-[2.8rem] overflow-hidden"
@@ -479,6 +573,7 @@ function HeroClockWidget() {
       <div className="absolute top-28 w-1 h-12 rounded-l-sm" style={{ background: sideBtn, right: '-9px' }} />
       <div className="absolute top-20 w-1 h-8 rounded-r-sm" style={{ background: sideBtn, left: '-9px' }} />
       <div className="absolute top-32 w-1 h-8 rounded-r-sm" style={{ background: sideBtn, left: '-9px' }} />
+      </div>
     </div>
   )
 }
@@ -593,15 +688,26 @@ function StatCounter({ value, suffix, label, delay = 0 }: { value: number; suffi
 
 function FeatureCard({ f, delay }: { f: typeof features[0]; delay: number }) {
   const ref = useReveal()
+  const [hovered, setHovered] = useState(false)
   return (
     <div
       ref={ref}
-      className="pp-reveal bg-[var(--pp-bg)] p-7 group transition-colors hover:bg-[var(--pp-bg2)]"
-      style={{ transitionDelay: `${delay}ms` } as React.CSSProperties}
+      className="pp-reveal p-7 group"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        transitionDelay: `${delay}ms`,
+        background: 'var(--pp-bg2)',
+        boxShadow: hovered ? `inset 0 0 0 1px ${f.color}55` : `inset 0 2px 0 ${f.color}55`,
+        transition: 'box-shadow 0.2s ease, background 0.2s ease',
+      } as React.CSSProperties}
     >
       <div className="flex items-start justify-between mb-5">
         <span className="text-[11px] font-bold tracking-[0.15em] uppercase" style={{ color: f.color }}>{f.n}</span>
-        <span className="w-2 h-2 rounded-full opacity-50 group-hover:opacity-100 transition-opacity" style={{ background: f.color }} />
+        <span
+          className="w-2 h-2 rounded-full transition-opacity"
+          style={{ background: f.color, opacity: hovered ? 1 : 0.5 }}
+        />
       </div>
       <h3 className="font-display font-bold text-[var(--pp-ink)] text-lg mb-2.5">{f.title}</h3>
       <p className="text-sm text-[var(--pp-muted)] leading-relaxed">{f.description}</p>
@@ -872,6 +978,57 @@ function TestimonialCard({ t, delay }: { t: typeof testimonials[0]; delay: numbe
   )
 }
 
+/* ─── Placeholder testimonial card ─────────────────────────────────────── */
+
+function PlaceholderTestimonialCard({ delay }: { delay: number }) {
+  const ref = useReveal()
+  return (
+    <div
+      ref={ref}
+      className="pp-reveal rounded-2xl p-7 flex flex-col gap-5"
+      style={{
+        transitionDelay: `${delay}ms`,
+        background: 'transparent',
+        border: '1px dashed var(--pp-line)',
+      } as React.CSSProperties}
+    >
+      <div className="flex gap-0.5">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <svg key={i} className="w-4 h-4 text-[var(--pp-line)]" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 1l1.85 3.75 4.15.6-3 2.93.7 4.12L8 10.4l-3.7 1.95.7-4.13-3-2.92 4.15-.6z"/>
+          </svg>
+        ))}
+      </div>
+      <p className="text-sm text-[var(--pp-muted)] leading-relaxed flex-1 italic opacity-60">
+        &ldquo;Votre témoignage ici — partagez votre expérience avec Pointon.&rdquo;
+      </p>
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-full flex items-center justify-center border border-dashed border-[var(--pp-line)]">
+          <svg className="w-5 h-5 text-[var(--pp-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-[var(--pp-muted)] opacity-70">Votre entreprise</p>
+          <p className="text-xs text-[var(--pp-muted)] opacity-50">Belgique</p>
+        </div>
+      </div>
+      <a
+        href="mailto:contact@pointon.be"
+        className="inline-flex items-center justify-center gap-2 text-xs font-bold px-4 py-2.5 rounded-xl w-full transition-all"
+        style={{ border: '1px solid var(--pp-line)', color: 'var(--pp-muted)' }}
+        onMouseEnter={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = '#10b981'; el.style.color = '#10b981' }}
+        onMouseLeave={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = 'var(--pp-line)'; el.style.color = 'var(--pp-muted)' }}
+      >
+        Nous contacter
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </a>
+    </div>
+  )
+}
+
 /* ─── CTA Countdown ─────────────────────────────────────────────────────── */
 
 const LAW_DATE = new Date('2027-01-01T00:00:00')
@@ -1088,6 +1245,45 @@ function FaqItem({ q, a, n }: { q: string; a: string; n: string }) {
   )
 }
 
+/* ─── Pointing method card ──────────────────────────────────────────────── */
+
+function PointingMethodCard({ m, delay }: { m: typeof pointingMethods[0]; delay: number }) {
+  const ref = useReveal()
+  const [hovered, setHovered] = useState(false)
+  return (
+    <div
+      ref={ref}
+      className="pp-reveal rounded-2xl p-6 flex flex-col gap-4"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        transitionDelay: `${delay}ms`,
+        background: 'var(--pp-bg)',
+        border: `1px solid ${hovered ? m.color + '55' : 'var(--pp-line)'}`,
+        boxShadow: hovered ? `0 12px 32px ${m.color}14` : 'none',
+        transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+      } as React.CSSProperties}
+    >
+      <div
+        className="w-14 h-14 rounded-2xl flex items-center justify-center"
+        style={{
+          background: hovered ? `${m.color}18` : `${m.color}10`,
+          border: `1px solid ${m.color}30`,
+          color: m.color,
+          transition: 'background 0.2s ease, transform 0.2s ease',
+          transform: hovered ? 'scale(1.08)' : 'scale(1)',
+        }}
+      >
+        {m.icon}
+      </div>
+      <div>
+        <h3 className="font-display font-bold text-[var(--pp-ink)] text-base mb-1.5">{m.title}</h3>
+        <p className="text-sm text-[var(--pp-muted)] leading-relaxed">{m.description}</p>
+      </div>
+    </div>
+  )
+}
+
 /* ─── Section label ─────────────────────────────────────────────────────── */
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
@@ -1187,10 +1383,10 @@ export default function Home() {
               <h1
                 className="font-display font-bold text-white leading-[0.95] mb-7"
                 style={{ fontSize: 'clamp(3rem, 7vw, 5.5rem)' }}
-                aria-label="Pointeuse légale. Belge."
+                aria-label="Pointez. Conforme. Belge."
               >
-                Pointeuse<br />
-                <span style={{ color: '#10b981' }}>légale.</span><br />
+                Pointez.<br />
+                <span style={{ color: '#10b981' }}>Conforme.</span><br />
                 Belge.
               </h1>
 
@@ -1296,6 +1492,27 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Méthodes de pointage ─────────────────────────────────────────── */}
+      <section id="methods" className="py-20 md:py-28 border-b border-[var(--pp-line)]" style={{ background: 'var(--pp-bg2)' }}>
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="text-center mb-12">
+            <SectionLabel>Comment pointer</SectionLabel>
+            <h2
+              className="font-display font-bold text-[var(--pp-ink)] leading-tight"
+              style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)' }}
+            >
+              4 façons de pointer.<br />Zéro friction.
+            </h2>
+            <p className="text-[var(--pp-muted)] mt-3 max-w-md mx-auto">Chaque équipe est différente. Pointon s'adapte à votre réalité.</p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {pointingMethods.map((m, i) => (
+              <PointingMethodCard key={m.title} m={m} delay={i * 80} />
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Testimonials ─────────────────────────────────────────────────── */}
       <section className="py-20 md:py-28 border-b border-[var(--pp-line)]">
         <div className="mx-auto max-w-6xl px-4">
@@ -1308,12 +1525,16 @@ export default function Home() {
               Des PME belges qui pointent<br />au quotidien
             </h2>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {testimonials.map((t, i) => (
               <TestimonialCard key={t.name} t={t} delay={i * 80} />
             ))}
+            <PlaceholderTestimonialCard delay={testimonials.length * 80} />
           </div>
-          <p className="text-center text-xs text-[var(--pp-muted)] mt-8">
+          <p className="text-center text-xs text-[var(--pp-muted)] mt-6">
+            Ces témoignages sont représentatifs de cas d&apos;usage réels.
+          </p>
+          <p className="text-center text-xs text-[var(--pp-muted)] mt-1">
             Zéro GPS · Aucune géolocalisation · RGPD compliant · CCT 68 Belgique
           </p>
         </div>
