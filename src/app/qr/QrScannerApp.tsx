@@ -88,7 +88,7 @@ function DelIcon() {
   )
 }
 
-function CameraDeniedInstructions({ onRetry }: { onRetry: () => void }) {
+function CameraDeniedInstructions({ onRetry, camError }: { onRetry: () => void; camError?: string }) {
   const isIOS = typeof navigator !== 'undefined' && /iPhone|iPad|iPod/i.test(navigator.userAgent)
 
   const steps = isIOS
@@ -128,6 +128,11 @@ function CameraDeniedInstructions({ onRetry }: { onRetry: () => void }) {
       >
         Réessayer
       </button>
+      {camError && (
+        <p className="text-white/25 text-[11px] mt-5 font-mono break-words leading-snug">
+          {camError}
+        </p>
+      )}
     </>
   )
 }
@@ -142,6 +147,7 @@ export function QrScannerApp() {
   const [result, setResult] = useState<ClockResult | null>(null)
   const [scanError, setScanError] = useState('')
   const [fetchingSite, setFetchingSite] = useState(false)
+  const [camError, setCamError] = useState('')
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -199,7 +205,18 @@ export function QrScannerApp() {
 
   const startCamera = useCallback(async () => {
     setScanError('')
+    setCamError('')
     processingRef.current = false
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setCamError(
+        window.isSecureContext
+          ? 'API caméra indisponible (navigator.mediaDevices absent)'
+          : 'Contexte non sécurisé (HTTPS requis pour la caméra)'
+      )
+      setCamPerm('denied')
+      setScreen('setup')
+      return
+    }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
@@ -211,7 +228,32 @@ export function QrScannerApp() {
         await videoRef.current.play()
       }
       setScreen('scanning')
-    } catch {
+    } catch (err) {
+      const e = err as { name?: string; message?: string }
+      const name = e?.name ?? 'Error'
+      // NotAllowedError = permission refusée ; NotFoundError = pas de caméra ;
+      // NotReadableError = caméra utilisée par une autre app ; OverconstrainedError = contrainte impossible
+      if (name === 'OverconstrainedError') {
+        // Retry sans contrainte facingMode (certains appareils n'ont qu'une caméra frontale)
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true })
+          streamRef.current = stream
+          setCamPerm('granted')
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream
+            await videoRef.current.play()
+          }
+          setScreen('scanning')
+          return
+        } catch (err2) {
+          const e2 = err2 as { name?: string; message?: string }
+          setCamError(`${e2?.name ?? 'Error'} — ${e2?.message ?? ''}`)
+          setCamPerm('denied')
+          setScreen('setup')
+          return
+        }
+      }
+      setCamError(`${name} — ${e?.message ?? ''}`)
       setCamPerm('denied')
       setScreen('setup')
     }
@@ -382,7 +424,7 @@ export function QrScannerApp() {
             </h1>
 
             {camPerm === 'denied' ? (
-              <CameraDeniedInstructions onRetry={startCamera} />
+              <CameraDeniedInstructions onRetry={startCamera} camError={camError} />
             ) : (
               <>
                 <p className="text-white/50 text-sm mb-8 leading-relaxed">
