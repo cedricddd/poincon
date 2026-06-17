@@ -1,7 +1,7 @@
 'use client'
 
 export const dynamic = 'force-dynamic'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 
@@ -54,6 +54,13 @@ const TYPE_DESCRIPTIONS: Record<string, string> = {
 const DAYS_SHORT = ['', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di']
 
 type DayType = 'off' | 'office' | 'remote' | 'half'
+type DayConfigEntry = { type: Exclude<DayType, 'off'>; startTime: string; endTime: string }
+
+function calcDayHours(startTime: string, endTime: string): number {
+  const [sh, sm] = startTime.split(':').map(Number)
+  const [eh, em] = endTime.split(':').map(Number)
+  return Math.max(0, Math.round(((eh * 60 + em) - (sh * 60 + sm)) / 60 * 2) / 2)
+}
 
 const DAY_CONFIG_STYLES: Record<Exclude<DayType, 'off'>, { bg: string; title: string }> = {
   office: { bg: 'bg-[var(--pp-info)] text-white',  title: 'Bureau' },
@@ -61,9 +68,15 @@ const DAY_CONFIG_STYLES: Record<Exclude<DayType, 'off'>, { bg: string; title: st
   half:   { bg: 'bg-orange-500 text-white',         title: 'Demi-journée' },
 }
 
+function parseDayType(entry: unknown): Exclude<DayType, 'off'> {
+  if (typeof entry === 'string') return entry as Exclude<DayType, 'off'>
+  if (entry && typeof entry === 'object' && 'type' in entry) return (entry as DayConfigEntry).type
+  return 'office'
+}
+
 function DayBadges({ daysJson, dayConfigJson }: { daysJson: string; dayConfigJson?: string | null }) {
   let days: number[] = []
-  let cfg: Record<string, string> = {}
+  let cfg: Record<string, unknown> = {}
   try { days = JSON.parse(daysJson) } catch { }
   try { if (dayConfigJson) cfg = JSON.parse(dayConfigJson) } catch { }
 
@@ -71,7 +84,7 @@ function DayBadges({ daysJson, dayConfigJson }: { daysJson: string; dayConfigJso
     <span className="flex gap-0.5">
       {[1, 2, 3, 4, 5, 6, 7].map(d => {
         const worked = days.includes(d)
-        const type = worked ? ((cfg[d] ?? cfg[String(d)]) as Exclude<DayType, 'off'> | undefined ?? 'office') : null
+        const type = worked ? parseDayType(cfg[d] ?? cfg[String(d)]) : null
         const style = type ? DAY_CONFIG_STYLES[type] : null
         return (
           <span
@@ -278,11 +291,14 @@ const DAY_BUTTON_TITLES: Record<DayType, string> = {
   half:   'Demi-journée — cliquer : désactiver',
 }
 
+function makeDefaultDayConfig(days: number[], startTime: string, endTime: string): Record<number, DayConfigEntry> {
+  return Object.fromEntries(days.map(d => [d, { type: 'office' as const, startTime, endTime }]))
+}
+
 const EMPTY_FORM = {
   name: '', type: 'JOURNEE', startTime: '09:00', endTime: '17:00',
-  hoursPerDay: 8, weeklyHours: 38,
   daysOfWeek: [1, 2, 3, 4, 5],
-  dayConfig: {} as Record<number, string>,
+  dayConfig: makeDefaultDayConfig([1, 2, 3, 4, 5], '09:00', '17:00'),
   description: '',
 }
 
@@ -293,9 +309,23 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
+  const weeklyHoursCalc = useMemo(() => {
+    let total = 0
+    for (const d of form.daysOfWeek) {
+      const e = form.dayConfig[d]
+      total += calcDayHours(e?.startTime ?? form.startTime, e?.endTime ?? form.endTime)
+    }
+    return Math.round(total * 2) / 2
+  }, [form.daysOfWeek, form.dayConfig, form.startTime, form.endTime])
+
+  const hoursPerDayCalc = useMemo(() => {
+    if (form.daysOfWeek.length === 0) return 0
+    return Math.round(weeklyHoursCalc / form.daysOfWeek.length * 2) / 2
+  }, [weeklyHoursCalc, form.daysOfWeek.length])
+
   const getDayState = (d: number): DayType => {
     if (!form.daysOfWeek.includes(d)) return 'off'
-    return (form.dayConfig[d] as 'remote' | 'half') ?? 'office'
+    return form.dayConfig[d]?.type ?? 'office'
   }
 
   const cycleDay = (d: number) => {
@@ -306,8 +336,15 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
         ? f.daysOfWeek.filter(x => x !== d)
         : f.daysOfWeek.includes(d) ? f.daysOfWeek : [...f.daysOfWeek, d].sort()
       const newCfg = { ...f.dayConfig }
-      if (next === 'off' || next === 'office') delete newCfg[d]
-      else newCfg[d] = next
+      if (next === 'off') {
+        delete newCfg[d]
+      } else {
+        newCfg[d] = {
+          type: next as Exclude<DayType, 'off'>,
+          startTime: newCfg[d]?.startTime ?? f.startTime,
+          endTime: newCfg[d]?.endTime ?? f.endTime,
+        }
+      }
       return { ...f, daysOfWeek: newDays, dayConfig: newCfg }
     })
   }
@@ -324,8 +361,8 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
       type: form.type,
       startTime: form.startTime,
       endTime: form.endTime,
-      hoursPerDay: form.hoursPerDay,
-      weeklyHours: form.weeklyHours,
+      hoursPerDay: hoursPerDayCalc,
+      weeklyHours: weeklyHoursCalc,
       daysOfWeek: form.daysOfWeek,
       dayConfig: Object.keys(form.dayConfig).length > 0 ? JSON.stringify(form.dayConfig) : null,
       description: form.description,
@@ -357,13 +394,29 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
 
   const startEdit = (t: WorkSchedule) => {
     setEditId(t.id)
-    let parsedDayConfig: Record<number, string> = {}
-    try { if (t.dayConfig) parsedDayConfig = JSON.parse(t.dayConfig) } catch {}
+    const days: number[] = JSON.parse(t.daysOfWeek)
+    const parsedDayConfig: Record<number, DayConfigEntry> = {}
+    try {
+      if (t.dayConfig) {
+        const raw = JSON.parse(t.dayConfig) as Record<string, unknown>
+        for (const [key, val] of Object.entries(raw)) {
+          const d = parseInt(key)
+          if (typeof val === 'string') {
+            parsedDayConfig[d] = { type: val as Exclude<DayType, 'off'>, startTime: t.startTime, endTime: t.endTime }
+          } else if (val && typeof val === 'object' && 'type' in val) {
+            const v = val as Partial<DayConfigEntry>
+            parsedDayConfig[d] = { type: v.type ?? 'office', startTime: v.startTime ?? t.startTime, endTime: v.endTime ?? t.endTime }
+          }
+        }
+      }
+    } catch {}
+    for (const d of days) {
+      if (!parsedDayConfig[d]) parsedDayConfig[d] = { type: 'office', startTime: t.startTime, endTime: t.endTime }
+    }
     setForm({
       name: t.name, type: t.type,
       startTime: t.startTime, endTime: t.endTime,
-      hoursPerDay: t.hoursPerDay, weeklyHours: t.weeklyHours,
-      daysOfWeek: JSON.parse(t.daysOfWeek),
+      daysOfWeek: days,
       dayConfig: parsedDayConfig,
       description: t.description ?? '',
     })
@@ -444,27 +497,6 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Heures / jour</label>
-                <input
-                  type="number" step="0.5" min="1" max="24"
-                  value={form.hoursPerDay}
-                  onChange={e => setForm(f => ({ ...f, hoursPerDay: parseFloat(e.target.value) }))}
-                  className="w-full px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Heures / semaine</label>
-                <input
-                  type="number" step="0.5" min="1" max="60"
-                  value={form.weeklyHours}
-                  onChange={e => setForm(f => ({ ...f, weeklyHours: parseFloat(e.target.value) }))}
-                  className="w-full px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
-                />
-              </div>
-            </div>
-
             <div>
               <label className="block text-xs font-medium text-[var(--pp-muted)] mb-2">
                 Jours travaillés
@@ -493,6 +525,66 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
                   </span>
                 ))}
               </div>
+
+              {/* Per-day hours table */}
+              {form.daysOfWeek.length > 0 && (
+                <div className="mt-3 border border-[var(--pp-line)] rounded-lg overflow-hidden">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="bg-[var(--pp-bg2)]">
+                        <th className="text-left px-3 py-2 text-[var(--pp-muted)] font-medium w-10">Jour</th>
+                        <th className="px-2 py-2 text-[var(--pp-muted)] font-medium text-center">Début</th>
+                        <th className="px-2 py-2 text-[var(--pp-muted)] font-medium text-center">Fin</th>
+                        <th className="px-3 py-2 text-[var(--pp-muted)] font-medium text-right">Durée</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[var(--pp-line)]">
+                      {[...form.daysOfWeek].sort((a, b) => a - b).map(d => {
+                        const entry = form.dayConfig[d]
+                        const st = entry?.startTime ?? form.startTime
+                        const et = entry?.endTime ?? form.endTime
+                        const dtype = entry?.type ?? 'office'
+                        const hours = calcDayHours(st, et)
+                        const color = dtype === 'remote' ? 'text-cyan-400' : dtype === 'half' ? 'text-orange-400' : 'text-[var(--pp-info)]'
+                        return (
+                          <tr key={d} className="hover:bg-[var(--pp-bg2)]/40">
+                            <td className={`px-3 py-1.5 font-semibold ${color}`}>{DAYS_SHORT[d]}</td>
+                            <td className="px-2 py-1 text-center">
+                              <input
+                                type="time" value={st}
+                                onChange={e => setForm(f => ({
+                                  ...f,
+                                  dayConfig: { ...f.dayConfig, [d]: { ...(f.dayConfig[d] ?? { type: 'office' as const }), startTime: e.target.value } }
+                                }))}
+                                className="w-24 px-2 py-1 border border-[var(--pp-line)] rounded text-xs bg-[var(--pp-bg)] focus:outline-none focus:ring-1 focus:ring-[var(--pp-info)]"
+                              />
+                            </td>
+                            <td className="px-2 py-1 text-center">
+                              <input
+                                type="time" value={et}
+                                onChange={e => setForm(f => ({
+                                  ...f,
+                                  dayConfig: { ...f.dayConfig, [d]: { ...(f.dayConfig[d] ?? { type: 'office' as const }), endTime: e.target.value } }
+                                }))}
+                                className="w-24 px-2 py-1 border border-[var(--pp-line)] rounded text-xs bg-[var(--pp-bg)] focus:outline-none focus:ring-1 focus:ring-[var(--pp-info)]"
+                              />
+                            </td>
+                            <td className={`px-3 py-1.5 text-right font-bold ${color}`}>{hours}h</td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                    <tfoot>
+                      <tr className="bg-[var(--pp-bg2)] border-t border-[var(--pp-line)]">
+                        <td colSpan={2} className="px-3 py-1.5 text-[var(--pp-muted)] text-xs font-medium">Total</td>
+                        <td className="px-3 py-1.5 text-right text-xs font-bold text-[var(--pp-ink)]" colSpan={2}>
+                          {weeklyHoursCalc}h/sem · {hoursPerDayCalc}h/j moy.
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              )}
             </div>
 
             <div>

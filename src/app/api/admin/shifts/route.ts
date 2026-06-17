@@ -95,7 +95,7 @@ export async function GET(req: NextRequest) {
     if (!us.workSchedule?.startTime || !us.workSchedule.endTime) continue
     let daysOfWeek: number[]
     try { daysOfWeek = JSON.parse(us.workSchedule.daysOfWeek) } catch { continue }
-    let dayConfig: Record<string, string> = {}
+    let dayConfig: Record<string, unknown> = {}
     try { if (us.workSchedule.dayConfig) dayConfig = JSON.parse(us.workSchedule.dayConfig) } catch {}
     for (let i = 0; i < 7; i++) {
       const day = new Date(weekStartDate.getTime() + i * 24 * 60 * 60 * 1000)
@@ -104,15 +104,22 @@ export async function GET(req: NextRequest) {
       const dk = utcDateKey(day)
       const key = `${us.userId}__${dk}`
       if (realShiftKeys.has(key) || timeOffKeys.has(key)) continue
+      const rawEntry = dayConfig[String(isoDay)]
+      const dayConfigType = typeof rawEntry === 'string' ? rawEntry
+        : (rawEntry && typeof rawEntry === 'object' && 'type' in rawEntry ? (rawEntry as { type: string }).type : 'office')
+      const perDayStart = (rawEntry && typeof rawEntry === 'object' && 'startTime' in rawEntry)
+        ? (rawEntry as { startTime: string }).startTime : us.workSchedule.startTime
+      const perDayEnd = (rawEntry && typeof rawEntry === 'object' && 'endTime' in rawEntry)
+        ? (rawEntry as { endTime: string }).endTime : us.workSchedule.endTime
       templateShifts.push({
         id: `template_${us.userId}_${dk}`,
         userId: us.userId,
         date: day.toISOString(),
-        startTime: us.workSchedule.startTime,
-        endTime: us.workSchedule.endTime,
-        shiftType: deriveShiftType(us.workSchedule.startTime, us.workSchedule.type),
+        startTime: perDayStart,
+        endTime: perDayEnd,
+        shiftType: deriveShiftType(perDayStart, us.workSchedule.type),
         scheduleName: us.workSchedule.name,
-        dayConfigType: dayConfig[String(isoDay)] ?? 'office',
+        dayConfigType,
         note: null,
         isTemplate: true,
       })
