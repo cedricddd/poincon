@@ -88,6 +88,50 @@ function DelIcon() {
   )
 }
 
+function CameraDeniedInstructions({ onRetry }: { onRetry: () => void }) {
+  const isIOS = typeof navigator !== 'undefined' && /iPhone|iPad|iPod/i.test(navigator.userAgent)
+
+  const steps = isIOS
+    ? [
+        'Ouvrez les Réglages du téléphone',
+        'Appuyez sur Safari',
+        'Caméra → sélectionnez « Autoriser »',
+        'Revenez ici et appuyez sur Réessayer',
+      ]
+    : [
+        'Ouvrez Chrome (le navigateur, pas cette appli)',
+        'Menu ⋮ → Paramètres → Paramètres du site → Caméra',
+        'Trouvez app.pointon.be et sélectionnez Autoriser',
+        'Revenez ici et appuyez sur Réessayer',
+      ]
+
+  return (
+    <>
+      <p className="text-white/50 text-sm mb-6 leading-relaxed">
+        L&apos;accès à la caméra a été refusé.
+        {isIOS ? ' La permission se gère dans les Réglages iOS :' : ' La permission se gère dans Chrome :'}
+      </p>
+      <div className="text-left space-y-3 mb-8">
+        {steps.map((step, i) => (
+          <div key={i} className="flex items-start gap-3">
+            <div className="w-6 h-6 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="text-indigo-400 text-xs font-bold">{i + 1}</span>
+            </div>
+            <p className="text-white/60 text-sm leading-snug">{step}</p>
+          </div>
+        ))}
+      </div>
+      <button
+        onClick={onRetry}
+        className="w-full py-4 rounded-2xl text-white font-semibold transition-all active:scale-[0.98]"
+        style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
+      >
+        Réessayer
+      </button>
+    </>
+  )
+}
+
 export function QrScannerApp() {
   const [screen, setScreen] = useState<AppScreen>('checking')
   const [camPerm, setCamPerm] = useState<CamPerm>('prompt')
@@ -338,33 +382,7 @@ export function QrScannerApp() {
             </h1>
 
             {camPerm === 'denied' ? (
-              <>
-                <p className="text-white/50 text-sm mb-8 leading-relaxed">
-                  L&apos;accès à la caméra a été refusé. Pour le réactiver&nbsp;:
-                </p>
-                <div className="text-left space-y-3 mb-8">
-                  {[
-                    'Maintenez l\'icône de l\'app appuyée',
-                    'Appuyez sur « Infos sur l\'application »',
-                    'Autorisations → Caméra → Autoriser',
-                    'Revenez ici et réessayez',
-                  ].map((step, i) => (
-                    <div key={i} className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-indigo-400 text-xs font-bold">{i + 1}</span>
-                      </div>
-                      <p className="text-white/60 text-sm leading-snug">{step}</p>
-                    </div>
-                  ))}
-                </div>
-                <button
-                  onClick={startCamera}
-                  className="w-full py-4 rounded-2xl text-white font-semibold transition-all active:scale-[0.98]"
-                  style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
-                >
-                  Réessayer
-                </button>
-              </>
+              <CameraDeniedInstructions onRetry={startCamera} />
             ) : (
               <>
                 <p className="text-white/50 text-sm mb-8 leading-relaxed">
