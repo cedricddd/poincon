@@ -109,6 +109,7 @@ export async function GET(req: NextRequest) {
         startTime: us.workSchedule.startTime,
         endTime: us.workSchedule.endTime,
         shiftType: deriveShiftType(us.workSchedule.startTime, us.workSchedule.type),
+        scheduleName: us.workSchedule.name,
         note: null,
         isTemplate: true,
       })

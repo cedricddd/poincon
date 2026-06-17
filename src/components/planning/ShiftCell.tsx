@@ -7,6 +7,7 @@ interface Shift {
   startTime: string
   endTime: string
   shiftType?: string | null
+  scheduleName?: string | null
   note?: string | null
   isTemplate?: boolean
 }
@@ -182,7 +183,7 @@ export function ShiftCell({ shift, leaveType, rttHours, rotationSlot, onClick }:
         {rttHours ? (
           <div className="text-[9px] text-amber-500 mt-0.5 leading-tight">↩ {rttHours}h récup.</div>
         ) : (
-          <div className={`text-[10px] ${tplCfg.text} opacity-60 mt-0.5 leading-tight`}>Horaire</div>
+          <div className={`text-[10px] ${tplCfg.text} opacity-60 mt-0.5 leading-tight truncate`}>{shift.scheduleName ?? 'Horaire'}</div>
         )}
       </button>
     )

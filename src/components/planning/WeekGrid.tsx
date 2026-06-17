@@ -28,6 +28,7 @@ export interface ShiftData {
   startTime: string
   endTime: string
   shiftType?: string | null
+  scheduleName?: string | null
   note?: string | null
   isTemplate?: boolean
 }
