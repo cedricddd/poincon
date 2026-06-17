@@ -173,8 +173,8 @@ export function ShiftCell({ shift, leaveType, rttHours, rotationSlot, onClick }:
   if (shift.isTemplate) {
     const dayType = shift.dayConfigType
     const tplCfg =
-      dayType === 'remote' ? { text: 'text-emerald-400', templateBg: 'bg-emerald-500/8', dashedBorder: 'border-emerald-400/60', hover: 'hover:bg-emerald-500/20', title: 'Télétravail' } :
-      dayType === 'half'   ? { text: 'text-amber-400',   templateBg: 'bg-amber-500/8',   dashedBorder: 'border-amber-400/60',   hover: 'hover:bg-amber-500/20',   title: 'Demi-journée' } :
+      dayType === 'remote' ? { text: 'text-cyan-400',   templateBg: 'bg-cyan-500/8',   dashedBorder: 'border-cyan-400/60',   hover: 'hover:bg-cyan-500/20',   title: 'Télétravail' } :
+      dayType === 'half'   ? { text: 'text-orange-400', templateBg: 'bg-orange-500/8', dashedBorder: 'border-orange-400/60', hover: 'hover:bg-orange-500/20', title: 'Demi-journée' } :
       { ...SHIFT_TYPE_CONFIG[shift.shiftType ?? 'DAY'] ?? SHIFT_TYPE_CONFIG.DAY, title: 'Bureau' }
     return (
       <button

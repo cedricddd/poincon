@@ -57,8 +57,8 @@ type DayType = 'off' | 'office' | 'remote' | 'half'
 
 const DAY_CONFIG_STYLES: Record<Exclude<DayType, 'off'>, { bg: string; title: string }> = {
   office: { bg: 'bg-[var(--pp-info)] text-white',  title: 'Bureau' },
-  remote: { bg: 'bg-emerald-500 text-white',        title: 'Télétravail' },
-  half:   { bg: 'bg-amber-500 text-white',          title: 'Demi-journée' },
+  remote: { bg: 'bg-cyan-500 text-white',           title: 'Télétravail' },
+  half:   { bg: 'bg-orange-500 text-white',         title: 'Demi-journée' },
 }
 
 function DayBadges({ daysJson, dayConfigJson }: { daysJson: string; dayConfigJson?: string | null }) {
@@ -267,8 +267,8 @@ const DAY_CYCLE: DayType[] = ['off', 'office', 'remote', 'half']
 const DAY_BUTTON_STYLES: Record<DayType, string> = {
   off:    'border-[var(--pp-line)] text-[var(--pp-muted)] hover:border-[var(--pp-info)]',
   office: 'bg-[var(--pp-info)] text-white border-[var(--pp-info)]',
-  remote: 'bg-emerald-500 text-white border-emerald-500',
-  half:   'bg-amber-500 text-white border-amber-500',
+  remote: 'bg-cyan-500 text-white border-cyan-500',
+  half:   'bg-orange-500 text-white border-orange-500',
 }
 
 const DAY_BUTTON_TITLES: Record<DayType, string> = {
@@ -486,7 +486,7 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
                 })}
               </div>
               <div className="flex gap-4 mt-2">
-                {([['office', 'var(--pp-info)', 'Bureau'], ['remote', '#10b981', 'Télétravail'], ['half', '#f59e0b', 'Demi-journée']] as const).map(([, color, label]) => (
+                {([['office', 'var(--pp-info)', 'Bureau'], ['remote', '#06b6d4', 'Télétravail'], ['half', '#f97316', 'Demi-journée']] as const).map(([, color, label]) => (
                   <span key={label} className="flex items-center gap-1 text-[10px] text-[var(--pp-muted)]">
                     <span className="w-2.5 h-2.5 rounded-sm inline-block shrink-0" style={{ backgroundColor: color }} />
                     {label}

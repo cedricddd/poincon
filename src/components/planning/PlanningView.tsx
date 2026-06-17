@@ -319,6 +319,15 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
           <span className="inline-block w-4 h-4 rounded border border-dashed border-[var(--pp-line)]" />
           Créer
         </span>
+        <span className="text-[var(--pp-muted)]/50 hidden sm:inline">·</span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-4 h-4 rounded bg-cyan-500/8 border border-dashed border-cyan-400/60" />
+          Télétravail
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-4 h-4 rounded bg-orange-500/8 border border-dashed border-orange-400/60" />
+          Demi-journée
+        </span>
       </div>
 
       {/* Modal */}
