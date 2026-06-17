@@ -298,6 +298,10 @@ const pointingMethods = [
     color: '#0ea5e9',
     title: 'Kiosque tablette',
     description: "PIN 4 chiffres à l'entrée du bureau. Idéal pour les équipes fixes sur site.",
+    subFeature: {
+      label: 'Mode visiteur inclus',
+      detail: 'Accueil, badge horodaté et suivi des passages externes — sans compte Pointon.',
+    },
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="3" width="4" height="4" rx="1"/><rect x="10" y="3" width="4" height="4" rx="1"/>
@@ -1276,10 +1280,24 @@ function PointingMethodCard({ m, delay }: { m: typeof pointingMethods[0]; delay:
       >
         {m.icon}
       </div>
-      <div>
+      <div className="flex-1">
         <h3 className="font-display font-bold text-[var(--pp-ink)] text-base mb-1.5">{m.title}</h3>
         <p className="text-sm text-[var(--pp-muted)] leading-relaxed">{m.description}</p>
       </div>
+      {'subFeature' in m && m.subFeature && (
+        <div
+          className="mt-auto pt-4"
+          style={{ borderTop: `1px solid ${m.color}25` }}
+        >
+          <div className="flex items-center gap-1.5 mb-1">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill={m.color}>
+              <path d="M5 0l1.12 3.45H9.51L6.69 5.59l1.07 3.32L5 7l-2.76 1.91 1.07-3.32L.49 3.45H3.88z"/>
+            </svg>
+            <span className="text-[11px] font-bold" style={{ color: m.color }}>{m.subFeature.label}</span>
+          </div>
+          <p className="text-xs text-[var(--pp-muted)] leading-relaxed">{m.subFeature.detail}</p>
+        </div>
+      )}
     </div>
   )
 }
