@@ -223,10 +223,7 @@ export function QrScannerApp() {
       })
       streamRef.current = stream
       setCamPerm('granted')
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream
-        await videoRef.current.play()
-      }
+      // Le flux est attaché à la vidéo dans un useEffect, une fois l'élément monté
       setScreen('scanning')
     } catch (err) {
       const e = err as { name?: string; message?: string }
@@ -239,10 +236,6 @@ export function QrScannerApp() {
           const stream = await navigator.mediaDevices.getUserMedia({ video: true })
           streamRef.current = stream
           setCamPerm('granted')
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream
-            await videoRef.current.play()
-          }
           setScreen('scanning')
           return
         } catch (err2) {
@@ -258,6 +251,16 @@ export function QrScannerApp() {
       setScreen('setup')
     }
   }, [])
+
+  // Attache le flux caméra à l'élément vidéo une fois monté (screen === 'scanning')
+  useEffect(() => {
+    if (screen !== 'scanning') return
+    const video = videoRef.current
+    const stream = streamRef.current
+    if (!video || !stream) return
+    video.srcObject = stream
+    video.play().catch(() => {})
+  }, [screen])
 
   // QR scan loop
   useEffect(() => {
