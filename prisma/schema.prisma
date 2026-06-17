@@ -99,13 +99,15 @@ model VerificationToken {
 }
 
 model Site {
-  id           String        @id @default(cuid())
-  name         String
-  address      String?
-  active       Boolean       @default(true)
-  companyId    String
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id               String        @id @default(cuid())
+  name             String
+  address          String?
+  active           Boolean       @default(true)
+  companyId        String
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  qrToken          String?       @unique
+  qrTokenExpiresAt DateTime?
 
   company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
   users        User[]        @relation("DefaultSite")
@@ -115,6 +117,7 @@ model Site {
 
   @@index([active])
   @@index([companyId])
+  @@index([qrToken])
 }
 
 model Plan {

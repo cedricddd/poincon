@@ -14,6 +14,149 @@ interface Site {
   _count: { users: number }
 }
 
+interface QrData {
+  token: string
+  url: string
+  qrDataUrl: string
+  siteId: string
+  siteName: string
+  expiresAt: string | null
+}
+
+function QrModal({ site, onClose }: { site: Site; onClose: () => void }) {
+  const [qr, setQr] = useState<QrData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [rotating, setRotating] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  async function load() {
+    setLoading(true)
+    const res = await fetch(`/api/admin/sites/${site.id}/qr`)
+    if (res.ok) setQr(await res.json())
+    setLoading(false)
+  }
+
+  async function rotate() {
+    setRotating(true)
+    const res = await fetch(`/api/admin/sites/${site.id}/qr`, { method: 'POST' })
+    if (res.ok) setQr(await res.json())
+    setRotating(false)
+  }
+
+  async function copy() {
+    if (!qr) return
+    await navigator.clipboard.writeText(qr.url)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  function print() {
+    if (!qr) return
+    const w = window.open('', '_blank')
+    if (!w) return
+    w.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>QR Code — ${qr.siteName}</title>
+        <style>
+          body { font-family: sans-serif; text-align: center; padding: 40px; }
+          img { width: 280px; height: 280px; display: block; margin: 0 auto 20px; }
+          h1 { font-size: 24px; margin-bottom: 8px; }
+          p { color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <h1>Pointage — ${qr.siteName}</h1>
+        <img src="${qr.qrDataUrl}" alt="QR Code" />
+        <p>Scannez ce code pour pointer votre arrivée ou départ.</p>
+        <p style="font-size:12px; color:#999; margin-top:16px;">Pointon · pointon.be</p>
+      </body>
+      </html>
+    `)
+    w.document.close()
+    w.print()
+  }
+
+  useEffect(() => { load() }, [site.id])
+
+  const expiresAt = qr?.expiresAt ? new Date(qr.expiresAt) : null
+  const expiresLabel = expiresAt
+    ? expiresAt.toLocaleString('fr-BE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+    : null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4" onClick={onClose}>
+      <div
+        className="bg-[var(--pp-bg)] rounded-2xl border border-[var(--pp-line)] shadow-2xl w-full max-w-sm overflow-hidden"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--pp-line)]">
+          <div>
+            <h2 className="font-semibold text-[var(--pp-ink)]">QR Code — {site.name}</h2>
+            <p className="text-xs text-[var(--pp-muted)] mt-0.5">Scan → pointage instantané</p>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-[var(--pp-bg2)] transition-colors text-[var(--pp-muted)]">
+            <svg viewBox="0 0 16 16" fill="none" width="14" height="14">
+              <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* QR image */}
+        <div className="flex flex-col items-center py-8 px-6 gap-4">
+          {loading ? (
+            <div className="w-[280px] h-[280px] rounded-xl border border-[var(--pp-line)] bg-[var(--pp-bg2)] flex items-center justify-center">
+              <span className="text-sm text-[var(--pp-muted)]">Génération...</span>
+            </div>
+          ) : qr ? (
+            <>
+              <div className="rounded-xl border-4 border-[var(--pp-line)] overflow-hidden bg-white">
+                <img src={qr.qrDataUrl} alt="QR Code" width={280} height={280} />
+              </div>
+              {expiresLabel && (
+                <p className="text-xs text-[var(--pp-muted)] text-center">
+                  Expire le {expiresLabel} · Rotation automatique à minuit
+                </p>
+              )}
+            </>
+          ) : (
+            <p className="text-sm text-red-500">Erreur lors de la génération</p>
+          )}
+        </div>
+
+        {/* Actions */}
+        {qr && (
+          <div className="px-6 pb-6 space-y-2">
+            <div className="flex gap-2">
+              <button
+                onClick={copy}
+                className="flex-1 py-2.5 rounded-xl border border-[var(--pp-line)] text-sm font-medium text-[var(--pp-ink)] hover:bg-[var(--pp-bg2)] transition-colors"
+              >
+                {copied ? '✓ Copié !' : 'Copier le lien'}
+              </button>
+              <button
+                onClick={print}
+                className="flex-1 py-2.5 rounded-xl bg-[var(--pp-pos)] text-white text-sm font-medium hover:opacity-90 transition-opacity"
+              >
+                Imprimer
+              </button>
+            </div>
+            <button
+              onClick={rotate}
+              disabled={rotating}
+              className="w-full py-2.5 rounded-xl border border-[var(--pp-line)] text-xs font-medium text-[var(--pp-muted)] hover:text-red-500 hover:border-red-300 transition-colors disabled:opacity-50"
+            >
+              {rotating ? 'Renouvellement...' : "↺ Renouveler maintenant (invalide l'ancien)"}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function SitesPage() {
   const { planInfo, upgradeTo } = usePlan()
   const [sites, setSites] = useState<Site[]>([])
@@ -23,6 +166,7 @@ export default function SitesPage() {
   const [editingSite, setEditingSite] = useState<Site | null>(null)
   const [form, setForm] = useState({ name: "", address: "" })
   const [submitting, setSubmitting] = useState(false)
+  const [qrSite, setQrSite] = useState<Site | null>(null)
 
   async function fetchSites() {
     const res = await fetch("/api/admin/sites")
@@ -105,6 +249,7 @@ export default function SitesPage() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
+      {qrSite && <QrModal site={qrSite} onClose={() => setQrSite(null)} />}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Sites</h1>
@@ -238,7 +383,22 @@ export default function SitesPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap justify-end">
+                <button
+                  onClick={() => setQrSite(site)}
+                  className="text-xs border border-[var(--pp-pos)]/40 text-[var(--pp-pos)] px-3 py-1.5 rounded-lg hover:bg-[var(--pp-pos)]/10 transition-colors flex items-center gap-1.5"
+                >
+                  <svg viewBox="0 0 16 16" fill="none" width="12" height="12">
+                    <rect x="1" y="1" width="5" height="5" rx="0.5" stroke="currentColor" strokeWidth="1.3"/>
+                    <rect x="10" y="1" width="5" height="5" rx="0.5" stroke="currentColor" strokeWidth="1.3"/>
+                    <rect x="1" y="10" width="5" height="5" rx="0.5" stroke="currentColor" strokeWidth="1.3"/>
+                    <rect x="2.5" y="2.5" width="2" height="2" fill="currentColor"/>
+                    <rect x="11.5" y="2.5" width="2" height="2" fill="currentColor"/>
+                    <rect x="2.5" y="11.5" width="2" height="2" fill="currentColor"/>
+                    <path d="M10 10h2v2h-2zM12 12h2v2h-2zM10 14h2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                  </svg>
+                  QR
+                </button>
                 <button
                   onClick={() => toggleActive(site)}
                   className="text-xs border border-[var(--pp-line)] text-[var(--pp-muted)] px-3 py-1.5 rounded-lg hover:bg-[var(--pp-bg)] transition-colors"

@@ -57,6 +57,7 @@ export default function ClockPage() {
   const [viewMode, setViewMode] = useState<'week' | 'month'>('week')
   const [sites, setSites] = useState<Site[]>([])
   const [selectedSiteId, setSelectedSiteId] = useState<string>('')
+  const [isViaQr, setIsViaQr] = useState(false)
 
   // Meal break state
   const [mealBreakEnabled, setMealBreakEnabled] = useState(false)
@@ -80,13 +81,22 @@ export default function ClockPage() {
     return () => clearInterval(interval)
   }, [getPendingActions])
 
-  // Load sites
+  // Load sites — pre-select from QR param if present
   useEffect(() => {
+    const qrSiteId = typeof window !== 'undefined'
+      ? new URLSearchParams(window.location.search).get('siteId')
+      : null
+
     fetch('/api/user/sites')
       .then(r => r.json())
-      .then(({ sites, defaultSiteId }) => {
+      .then(({ sites, defaultSiteId }: { sites: Site[]; defaultSiteId: string | null }) => {
         setSites(sites)
-        setSelectedSiteId(defaultSiteId ?? '')
+        if (qrSiteId && sites.some((s: Site) => s.id === qrSiteId)) {
+          setSelectedSiteId(qrSiteId)
+          setIsViaQr(true)
+        } else {
+          setSelectedSiteId(defaultSiteId ?? '')
+        }
       })
       .catch(() => {})
   }, [])
@@ -452,10 +462,17 @@ export default function ClockPage() {
             <div className={`grid gap-3 ${sites.length > 0 ? 'grid-cols-2' : 'grid-cols-1'}`}>
               {sites.length > 0 && (
                 <div>
-                  <label className="block text-[10px] font-semibold text-[var(--pp-muted)] mb-1.5 uppercase tracking-wider">Site</label>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <label className="text-[10px] font-semibold text-[var(--pp-muted)] uppercase tracking-wider">Site</label>
+                    {isViaQr && (
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[var(--pp-pos)]/15 text-[var(--pp-pos)] uppercase tracking-wide">
+                        Via QR
+                      </span>
+                    )}
+                  </div>
                   <select
                     value={selectedSiteId}
-                    onChange={e => setSelectedSiteId(e.target.value)}
+                    onChange={e => { setSelectedSiteId(e.target.value); setIsViaQr(false) }}
                     disabled={isClockedIn}
                     className="w-full px-3 py-3 border border-[var(--pp-line)] rounded-xl bg-[var(--pp-bg)] text-[var(--pp-ink)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)] disabled:opacity-50 touch-manipulation"
                   >
