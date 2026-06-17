@@ -23,7 +23,7 @@ const paidPlans = [
     limit: '5 utilisateurs inclus',
     highlight: false,
     extraSeat: 2.90,
-    features: ['Mode kiosque tablette', 'Export CSV/PDF illimité', 'Notifications email'],
+    features: ['Mode kiosque tablette', 'QR code par site (1 scan = pointage)', 'Export CSV/PDF illimité'],
     includesLabel: 'Tout Free inclus :',
     includes: ['Support email', 'Heures supp automatiques', 'Congés & Récupération'],
   },

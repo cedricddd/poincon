@@ -49,8 +49,8 @@ const features = [
   {
     n: '03',
     color: '#0ea5e9',
-    title: 'Kiosque & Mobile',
-    description: '3 méthodes : application mobile (PWA), kiosque tablette à l\'entrée ou interface web. Zéro installation.',
+    title: 'Kiosque, QR & Mobile',
+    description: '4 méthodes : application mobile (PWA), kiosque tablette, QR code imprimable par site (1 scan = pointage instantané) ou interface web. Zéro installation.',
   },
   {
     n: '04',
@@ -173,7 +173,7 @@ const pricingTiers = [
     buttonHrefAnnual: '/api/stripe/checkout?plan=starter&billing=yearly',
     highlight: false,
     extraSeat: 2.90 as number | null,
-    features: ['Mode kiosque tablette', 'Export CSV/PDF illimité', 'Notifications email'],
+    features: ['Mode kiosque tablette', 'QR code par site (1 scan = pointage)', 'Export CSV/PDF illimité'],
     includes: ['Support email', 'Heures supp automatiques', 'Congés & Récupération'],
     includesLabel: 'Tout Free inclus :',
   },
@@ -189,7 +189,7 @@ const pricingTiers = [
     buttonHrefAnnual: '/api/stripe/checkout?plan=team&billing=yearly',
     highlight: true,
     extraSeat: 2.60 as number | null,
-    features: ['Planning & congés', 'Rôle Manager', 'Exports planifiés'],
+    features: ['Planning & congés avancés', 'Rôle Manager', 'Exports planifiés'],
     includes: ['Support prioritaire', 'Multi-sites', 'Dashboard manager'],
     includesLabel: 'Tout Starter inclus :',
   },

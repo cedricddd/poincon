@@ -4,12 +4,13 @@ import { prisma } from '@/lib/prisma'
 import { Logo } from '@/components/Logo'
 
 interface Props {
-  params: { token: string }
+  params: Promise<{ token: string }>
 }
 
 export default async function QrPage({ params }: Props) {
+  const { token } = await params
   const site = await prisma.site.findUnique({
-    where: { qrToken: params.token },
+    where: { qrToken: token },
     select: {
       id: true,
       name: true,

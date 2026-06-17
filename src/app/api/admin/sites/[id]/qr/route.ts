@@ -16,11 +16,12 @@ function qrUrl(token: string, req: NextRequest): string {
   return `${base}/qr/${token}`
 }
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAdminWithCompany()
   if (!auth) return forbiddenError()
 
-  const site = await resolveSite(params.id, auth.admin.companyId)
+  const { id } = await params
+  const site = await resolveSite(id, auth.admin.companyId)
   if (!site) return NextResponse.json({ error: 'Site introuvable' }, { status: 404 })
 
   const token = await getOrRefreshSiteQrToken(site.id)
@@ -43,11 +44,12 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   })
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAdminWithCompany()
   if (!auth) return forbiddenError()
 
-  const site = await resolveSite(params.id, auth.admin.companyId)
+  const { id } = await params
+  const site = await resolveSite(id, auth.admin.companyId)
   if (!site) return NextResponse.json({ error: 'Site introuvable' }, { status: 404 })
 
   const token = await forceRotateSiteQrToken(site.id)
