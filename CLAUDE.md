@@ -21,25 +21,27 @@ docker-compose -f docker-compose.dev.yml run --rm app sh -c "apk add --no-cache 
 docker-compose -f docker-compose.dev.yml up -d app
 ```
 
-> DATABASE_URL injecté automatiquement par docker-compose (pas besoin de -e)
-
-## ⚠️ Deploy + Schema : db push OBLIGATOIRE en prod
-
-Si `prisma/schema.prisma` a changé, exécuter **après le deploy** :
+## ⚠️ Schema en prod (obligatoire après deploy si schema modifié)
 
 ```bash
-ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker compose run --rm app sh -c \"npx prisma db push\"'"
+# ⚠️ Toujours pinner la version (npx sans version = prisma v7 incompatible)
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker compose run --rm app sh -c \"npx prisma@5.22.0 db push --accept-data-loss\"'"
 ```
 
-> **Sans ça** : tables manquantes → P2021 silencieux → UI vide.
-> Vérifier : `git diff HEAD~1 prisma/schema.prisma`
+> Vérifier : `git diff HEAD~1 prisma/schema.prisma` — Sans ça : P2021 silencieux → UI vide.
+
+## Seed en prod (après fresh deploy ou ajout de plans)
+
+```bash
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker compose run --rm app sh -c \"npm install bcryptjs --no-save --quiet && node prisma/seed.js\"'"
+```
 
 ## Key Facts
 
-- **DB port**: 5433 externe · interne Docker: `db:5432`
-- **Migrations**: `db push` only — JAMAIS `migrate dev` (shadow DB incompatible)
-- **Env vars**: Docker lit `.env` (PAS `.env.local`)
-- **Build prod**: `--experimental-build-mode compile` (bug Next 16 prerender)
+- **DB** : 5433 externe · interne Docker `db:5432` · `.env` (PAS `.env.local`)
+- **Migrations** : `db push` only — JAMAIS `migrate dev`
+- **Build prod** : `--experimental-build-mode compile` (bug Next 16)
+- **Plans seed** : `node prisma/seed.js` après fresh deploy (table Plan vide par défaut)
 
 ## Roles: SUPER_ADMIN > ADMIN > MANAGER > EMPLOYEE
 
@@ -62,10 +64,10 @@ ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker comp
 
 ## Deploy
 
-- **Prod**: pointon.be · OVH KS-5-A · LXC 106 (IP 141.94.102.226)
-- **SSH deploy**: `ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && git pull origin main && docker compose up -d --build app'"`
-- **CI/CD**: GitHub Actions auto-deploy actif → `/pointon-cicd`
+- **Prod** : pointon.be · OVH KS-5-A · LXC 106 (141.94.102.226)
+- **SSH** : `ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && git pull origin main && docker compose up -d --build app'"`
+- **CI/CD** : GitHub Actions auto-deploy → `/pointon-cicd`
 
 ## Key Skills
 
-`/pointon-dev` · `/pointon-planning` · `/pointon-stripe` · `/pointon-cicd` · `/pointon-cron` · `/rtk-dev` · `/security-review`
+`/pointon-dev` · `/pointon-kiosk` · `/pointon-planning` · `/pointon-stripe` · `/pointon-cicd` · `/pointon-cron` · `/rtk-dev` · `/security-review`
