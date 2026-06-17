@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 
-type AppScreen = 'home' | 'scanning' | 'pin' | 'clocking' | 'result'
+type AppScreen = 'checking' | 'setup' | 'home' | 'scanning' | 'pin' | 'clocking' | 'result'
+type CamPerm = 'granted' | 'prompt' | 'denied'
 
 interface SiteInfo {
   token: string
@@ -88,7 +89,8 @@ function DelIcon() {
 }
 
 export function QrScannerApp() {
-  const [screen, setScreen] = useState<AppScreen>('home')
+  const [screen, setScreen] = useState<AppScreen>('checking')
+  const [camPerm, setCamPerm] = useState<CamPerm>('prompt')
   const [siteInfo, setSiteInfo] = useState<SiteInfo | null>(null)
   const [pin, setPin] = useState('')
   const [pinError, setPinError] = useState('')
@@ -107,6 +109,28 @@ export function QrScannerApp() {
   // Load jsQR once
   useEffect(() => {
     import('jsqr').then(m => { jsQRRef.current = m.default }).catch(() => {})
+  }, [])
+
+  // Check camera permission on mount
+  useEffect(() => {
+    if (!navigator.permissions) {
+      setCamPerm('prompt')
+      setScreen('setup')
+      return
+    }
+    navigator.permissions.query({ name: 'camera' as PermissionName }).then(status => {
+      const state = status.state as CamPerm
+      setCamPerm(state)
+      setScreen(state === 'granted' ? 'home' : 'setup')
+      status.onchange = () => {
+        const next = status.state as CamPerm
+        setCamPerm(next)
+        if (next === 'granted') setScreen('home')
+      }
+    }).catch(() => {
+      setCamPerm('prompt')
+      setScreen('setup')
+    })
   }, [])
 
   const stopCamera = useCallback(() => {
@@ -128,6 +152,10 @@ export function QrScannerApp() {
     setScreen('home')
   }, [stopCamera])
 
+  const requestCameraAndScan = useCallback(async () => {
+    await startCamera()
+  }, [startCamera])
+
   const startCamera = useCallback(async () => {
     setScanError('')
     processingRef.current = false
@@ -136,13 +164,15 @@ export function QrScannerApp() {
         video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
       })
       streamRef.current = stream
+      setCamPerm('granted')
       if (videoRef.current) {
         videoRef.current.srcObject = stream
         await videoRef.current.play()
       }
       setScreen('scanning')
     } catch {
-      setScanError("Accès caméra refusé. Autorisez l'accès dans les paramètres du navigateur.")
+      setCamPerm('denied')
+      setScreen('setup')
     }
   }, [])
 
@@ -275,6 +305,96 @@ export function QrScannerApp() {
 
       <div className="relative z-10 w-full max-w-xs">
 
+        {/* ── CHECKING ── */}
+        {screen === 'checking' && (
+          <div className="flex items-center justify-center">
+            <svg className="animate-spin w-8 h-8 text-indigo-400" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+            </svg>
+          </div>
+        )}
+
+        {/* ── SETUP (permission) ── */}
+        {screen === 'setup' && (
+          <div className="text-center">
+            <div
+              className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-5"
+              style={{
+                background: camPerm === 'denied'
+                  ? 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.08))'
+                  : 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(99,102,241,0.08))',
+                border: `1px solid ${camPerm === 'denied' ? 'rgba(239,68,68,0.35)' : 'rgba(99,102,241,0.35)'}`,
+              }}
+            >
+              <svg width="38" height="38" viewBox="0 0 24 24" fill="none"
+                stroke={camPerm === 'denied' ? '#f87171' : '#818cf8'}
+                strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
+                {camPerm === 'denied' && <line x1="2" y1="2" x2="22" y2="22" />}
+              </svg>
+            </div>
+
+            <h1 className="text-xl font-bold text-white mb-2">
+              {camPerm === 'denied' ? 'Caméra bloquée' : 'Autoriser la caméra'}
+            </h1>
+
+            {camPerm === 'denied' ? (
+              <>
+                <p className="text-white/50 text-sm mb-8 leading-relaxed">
+                  L&apos;accès à la caméra a été refusé. Pour le réactiver&nbsp;:
+                </p>
+                <div className="text-left space-y-3 mb-8">
+                  {[
+                    'Maintenez l\'icône de l\'app appuyée',
+                    'Appuyez sur « Infos sur l\'application »',
+                    'Autorisations → Caméra → Autoriser',
+                    'Revenez ici et réessayez',
+                  ].map((step, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-indigo-400 text-xs font-bold">{i + 1}</span>
+                      </div>
+                      <p className="text-white/60 text-sm leading-snug">{step}</p>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={startCamera}
+                  className="w-full py-4 rounded-2xl text-white font-semibold transition-all active:scale-[0.98]"
+                  style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
+                >
+                  Réessayer
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="text-white/50 text-sm mb-8 leading-relaxed">
+                  Pour scanner les QR codes de vos sites, l&apos;application a besoin d&apos;accéder à votre caméra.
+                </p>
+                <button
+                  onClick={startCamera}
+                  className="w-full py-4 rounded-2xl text-white font-semibold text-lg flex items-center justify-center gap-3 transition-all active:scale-[0.98]"
+                  style={{
+                    background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                    boxShadow: '0 0 30px rgba(99,102,241,0.3)',
+                  }}
+                >
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                    <circle cx="12" cy="13" r="4" />
+                  </svg>
+                  Autoriser la caméra
+                </button>
+                <p className="text-white/20 text-xs mt-4">
+                  Utilisé uniquement pour lire les QR codes
+                </p>
+              </>
+            )}
+          </div>
+        )}
+
         {/* ── HOME ── */}
         {screen === 'home' && (
           <div className="text-center">
@@ -297,12 +417,6 @@ export function QrScannerApp() {
               <h1 className="text-2xl font-bold text-white">Pointon QR</h1>
               <p className="text-white/40 text-sm mt-1">Pointage sans application</p>
             </div>
-
-            {scanError && (
-              <div className="mb-5 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20">
-                <p className="text-red-400 text-sm">{scanError}</p>
-              </div>
-            )}
 
             {fetchingSite ? (
               <div className="flex items-center justify-center gap-3 py-4">
