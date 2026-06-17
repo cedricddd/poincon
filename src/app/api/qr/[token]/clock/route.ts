@@ -5,6 +5,33 @@ import { logAudit } from '@/lib/audit'
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ token: string }> }
+) {
+  const { token } = await params
+  const site = await prisma.site.findUnique({
+    where: { qrToken: token },
+    select: {
+      name: true,
+      active: true,
+      qrTokenExpiresAt: true,
+      company: { select: { name: true, logoUrl: true } },
+    },
+  })
+  if (!site || !site.active) {
+    return NextResponse.json({ error: 'QR code invalide' }, { status: 404 })
+  }
+  if (site.qrTokenExpiresAt && site.qrTokenExpiresAt < new Date()) {
+    return NextResponse.json({ error: 'QR code expiré' }, { status: 410 })
+  }
+  return NextResponse.json({
+    siteName: site.name,
+    companyName: site.company.name,
+    logoUrl: site.company.logoUrl,
+  })
+}
+
 const OVERTIME_GRACE_MINUTES = 30
 
 function computeShiftDuration(

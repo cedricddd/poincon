@@ -61,17 +61,17 @@ function NumKey({ label, onClick, disabled }: { label: string | React.ReactNode;
 function CompanyLogo({ logoUrl, companyName }: { logoUrl: string | null; companyName: string }) {
   if (logoUrl) {
     return (
-      <div className="h-14 flex items-center justify-center mb-1">
-        <Image
-          src={logoUrl}
-          alt={companyName}
-          width={180}
-          height={56}
-          className="max-h-14 max-w-[180px] w-auto h-auto object-contain"
-          style={{ filter: 'brightness(0) invert(1)' }}
-          onError={() => {}}
-          unoptimized
-        />
+      <div className="flex items-center justify-center mb-1">
+        <div className="bg-white rounded-xl px-5 py-2.5 inline-flex items-center justify-center">
+          <Image
+            src={logoUrl}
+            alt={companyName}
+            width={160}
+            height={44}
+            className="max-h-11 max-w-[160px] w-auto h-auto object-contain"
+            unoptimized
+          />
+        </div>
       </div>
     )
   }
