@@ -3,24 +3,48 @@ import { auth } from '@/auth'
 
 const AUTH_ROUTES = ['/api/auth/signin', '/api/auth/callback', '/api/auth/signup']
 const TWO_FA_PATHS = ['/2fa/setup', '/2fa/challenge', '/api/auth/2fa/']
+const PROTECTED_PATHS = ['/app', '/admin', '/super-admin']
+
+function buildCSP(nonce: string): string {
+  const isDev = process.env.NODE_ENV !== 'production'
+  return [
+    "default-src 'self'",
+    isDev
+      ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+      : `script-src 'self' 'nonce-${nonce}'`,
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    "font-src 'self'",
+    "connect-src 'self' https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.de.sentry.io",
+    "frame-ancestors 'self'",
+  ].join('; ')
+}
 
 export default auth((req) => {
   const { pathname } = req.nextUrl
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
+  const csp = buildCSP(nonce)
 
-  if (AUTH_ROUTES.some(r => pathname.startsWith(r))) {
-    return NextResponse.next()
+  const requestHeaders = new Headers(req.headers)
+  requestHeaders.set('x-pathname', pathname)
+  requestHeaders.set('x-nonce', nonce)
+
+  const withHeaders = () => {
+    const res = NextResponse.next({ request: { headers: requestHeaders } })
+    res.headers.set('Content-Security-Policy', csp)
+    return res
   }
 
-  // 2FA pages must be accessible with a partial (unverified) session
-  if (TWO_FA_PATHS.some(p => pathname.startsWith(p))) {
-    return NextResponse.next()
-  }
+  if (AUTH_ROUTES.some(r => pathname.startsWith(r))) return withHeaders()
+  if (TWO_FA_PATHS.some(p => pathname.startsWith(p))) return withHeaders()
+
+  const isProtected = PROTECTED_PATHS.some(p => pathname.startsWith(p))
 
   if (!req.auth) {
-    return NextResponse.redirect(new URL('/login', req.url))
+    if (isProtected) return NextResponse.redirect(new URL('/login', req.url))
+    return withHeaders()
   }
 
-  // Admins must complete 2FA before accessing any protected route
   const { role, twoFactorEnabled, twoFactorVerified } = req.auth.user as {
     role: string
     twoFactorEnabled?: boolean
@@ -28,7 +52,7 @@ export default auth((req) => {
   }
   const isAdmin = role === 'ADMIN' || role === 'SUPER_ADMIN'
 
-  if (isAdmin && !twoFactorVerified) {
+  if (isProtected && isAdmin && !twoFactorVerified) {
     if (twoFactorEnabled) {
       return NextResponse.redirect(new URL('/2fa/challenge', req.url))
     } else {
@@ -36,12 +60,11 @@ export default auth((req) => {
     }
   }
 
-  // Forward pathname so server layouts can read it via headers()
-  const requestHeaders = new Headers(req.headers)
-  requestHeaders.set('x-pathname', pathname)
-  return NextResponse.next({ request: { headers: requestHeaders } })
+  return withHeaders()
 })
 
 export const config = {
-  matcher: ['/app/:path*', '/admin/:path*', '/super-admin/:path*', '/api/auth/signin', '/api/auth/callback/:path*', '/api/auth/signup'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml)$).*)',
+  ],
 }
