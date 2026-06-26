@@ -26,6 +26,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    # Load every var from .env into the container (avoids the trap of forgetting
+    # to list a new var here). Explicit `environment:` below still overrides.
+    env_file:
+      - .env
     environment:
       NODE_ENV: production
       DATABASE_URL: ${DATABASE_URL:-}
