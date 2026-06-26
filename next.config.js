@@ -4,28 +4,15 @@ const { withSentryConfig } = require('@sentry/nextjs')
 
 const isDev = process.env.NODE_ENV !== 'production'
 
+// CSP is set dynamically via middleware (src/middleware.ts) using per-request nonces.
+// Static headers only — no CSP here.
 const securityHeaders = [
   { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
-  // camera=(self) : requis par le scanner QR (/qr) ; toujours bloqué pour les iframes tierces
+  // camera=(self) : requis par le scanner QR (/qr)
   { key: 'Permissions-Policy', value: 'camera=(self), microphone=(), geolocation=()' },
-  {
-    key: 'Content-Security-Policy',
-    value: [
-      "default-src 'self'",
-      // unsafe-eval requis par react-refresh (hot reload) en dev uniquement
-      isDev
-        ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
-        : "script-src 'self' 'unsafe-inline'",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob:",
-      "font-src 'self'",
-      "connect-src 'self' https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.de.sentry.io",
-      "frame-ancestors 'self'",
-    ].join('; '),
-  },
 ]
 
 const nextConfig = {

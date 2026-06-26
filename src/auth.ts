@@ -1,6 +1,7 @@
 import NextAuth, { type NextAuthConfig } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import { prisma } from '@/lib/prisma'
+import { rateLimit } from '@/lib/rateLimit'
 import bcrypt from 'bcryptjs'
 
 export const authConfig: NextAuthConfig = {
@@ -16,6 +17,9 @@ export const authConfig: NextAuthConfig = {
         const email = credentials?.email as string | undefined
         const password = credentials?.password as string | undefined
         if (!email || !password) return null
+
+        const { allowed } = rateLimit(`login:${email.toLowerCase().trim()}`, 10, 15 * 60 * 1000)
+        if (!allowed) throw new Error('TooManyAttempts')
 
         try {
           const user = await prisma.user.findUnique({ where: { email } })

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Syne, DM_Sans } from 'next/font/google'
+import { headers } from 'next/headers'
 import './globals.css'
 import { Providers } from './providers'
 import { auth } from '@/auth'
@@ -71,7 +72,8 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const session = await auth()
+  const [session, hdrs] = await Promise.all([auth(), headers()])
+  const nonce = hdrs.get('x-nonce') ?? undefined
   return (
     <html lang="fr" suppressHydrationWarning className={`${syne.variable} ${dmSans.variable}`}>
       <head>
@@ -79,8 +81,9 @@ export default async function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/icon-192.svg" />
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}
-        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('pp-theme');if(t==='dark')document.documentElement.classList.add('dark');else if(t==='light')document.documentElement.classList.add('light');}catch(e){}})();` }} />
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('pp-theme');if(t==='dark')document.documentElement.classList.add('dark');else if(t==='light')document.documentElement.classList.add('light');}catch(e){}})();` }} />
         <script
+          nonce={nonce}
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
@@ -105,7 +108,7 @@ export default async function RootLayout({
       <body className="antialiased" suppressHydrationWarning>
         <Providers session={session}>{children}</Providers>
         <CookieBanner />
-        <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker'in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js');});}` }} />
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: `if('serviceWorker'in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js');});}` }} />
       </body>
     </html>
   )

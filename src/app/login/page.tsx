@@ -62,9 +62,13 @@ export default function LoginPage() {
       })
 
       if (result?.error) {
-        setError(result.error === 'CredentialsSignin'
-          ? 'Email ou mot de passe incorrect.'
-          : 'Service temporairement indisponible. Réessayez dans quelques secondes.')
+        setError(
+          result.error === 'CredentialsSignin'
+            ? 'Email ou mot de passe incorrect.'
+            : result.error === 'TooManyAttempts'
+              ? 'Trop de tentatives. Réessayez dans 15 minutes.'
+              : 'Service temporairement indisponible. Réessayez dans quelques secondes.'
+        )
       } else if (result?.ok) {
         if (rememberMe) {
           localStorage.setItem('rememberedEmail', email)
