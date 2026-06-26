@@ -1,0 +1,511 @@
+================================================================================
+                    POINTON - TODO LIST (MISE À JOUR 2026-06-26)
+================================================================================
+
+Dernière mise à jour: 2026-06-26
+Version: 0.7.0
+État: v0.7.0 — Stripe Tax 21% actif, sync factures Stripe→Odoo (TVA + identité société),
+      facturation par siège (modèle souple + triggers + cron reconcile), catalogue 12 prix Stripe (test).
+      Reste : bascule Stripe LIVE (script scripts/stripe-go-live.mjs), smoke tests prod, add-ons self-service.
+
+================================================================================
+PHASES COMPLÉTÉES (✓)
+================================================================================
+
+PHASE 1: MVP (✓ COMPLÉTÉE)
+================================================================================
+✓ Authentification NextAuth v5 (email/password) + JWT strategy
+✓ Pages login/signup/set-password
+✓ Pointage arrivée/départ (clock in/out)
+✓ Calcul durée réelle
+✓ Sauvegarde PostgreSQL (Docker)
+✓ Design responsive (mobile → desktop)
+✓ Historique hebdomadaire (bar chart)
+✓ Calendrier mensuel avec heures
+✓ Widget Solde Heures sur dashboard
+✓ Build production (Next 16 fix: await params on dynamic routes)
+
+PHASE 2: DEMANDES & SOLDE (✓ COMPLÉTÉE)
+================================================================================
+✓ Page "Demandes de Congé" (formulaire, statuts, toast)
+✓ Page "Demandes de récupération" (formulaire, statuts, toast)
+✓ Modèle DetectedOvertime (auto-détection au pointage départ)
+✓ Balance API complète (heures sup - récupération - congés = solde net)
+✓ Widget Solde mis à jour (heures sup, récupération, congés, solde net)
+✓ Notifications toast système
+
+PHASE 3: ADMIN DASHBOARD (✓ COMPLÉTÉE)
+================================================================================
+✓ Layout admin avec vérification de rôle
+✓ Page /admin/dashboard (vue globale avec 4 cards)
+✓ Validation des demandes : DetectedOvertime, TimeOffRequest, RTTRequest
+✓ Boutons Approuver/Rejeter avec mise à jour statut
+✓ Tri demandes : PENDING en premier, puis par date décroissante
+✓ Configuration horaires par employé (/admin/dashboard/schedules)
+    ✓ Onglet Affectations (assigner régime à chaque employé)
+    ✓ Onglet Gabarits (presets belges + gabarits personnalisés)
+✓ Gestion utilisateurs (/admin/dashboard/users)
+    ✓ Liste avec édition inline (nom, email, rôle, site par défaut)
+    ✓ Créer un nouvel utilisateur avec site par défaut (/admin/dashboard/users/new)
+✓ API /api/admin/work-schedules (CRUD gabarits)
+✓ API /api/admin/schedule (GET + PATCH affectations)
+✓ API /api/admin/users (CRUD utilisateurs + defaultSiteId)
+✓ AuditLog sur les actions admin
+
+PHASE 4: INFRASTRUCTURE (✓ COMPLÉTÉE)
+================================================================================
+✓ Migration SQLite → PostgreSQL
+✓ Docker complet (dev + prod)
+    ✓ docker-compose.dev.yml (hot reload, port 3000)
+    ✓ docker-compose.yml (production)
+    ✓ Service migrate (profile tools)
+    ✓ Service cron (rappel fin de journée, busybox crond)
+    ✓ Seed Prisma (presets WorkSchedule)
+✓ .env.example + .env.local.template
+✓ Documentation Docker (DOCKER.md, DEMARRER.md)
+✓ DATABASE_URL source unique vérité — DONE (2026-05-29 v0.4.0)
+    ├─ docker-compose refactoré : ${DATABASE_URL} direct depuis .env
+    └─ Suppression reconstruction manuelle des credentials DB (bug mismatch volume)
+
+PHASE 5: SITES & PRÉSENCES (✓ COMPLÉTÉE)
+================================================================================
+✓ Modèle Site (id, name, address, createdAt)
+✓ Gestion sites admin (/admin/dashboard/sites)
+✓ Site par défaut sur utilisateur (defaultSiteId)
+    ✓ Assignable à la création (/admin/dashboard/users/new)
+    ✓ Modifiable en édition inline (/admin/dashboard/users)
+✓ ClockRecord lié au site (siteId via defaultSite utilisateur)
+✓ Page Présences en cours (/admin/dashboard/presence)
+    ✓ Liste temps réel des personnes pointées, groupées par site
+    ✓ Filtre par site (pills)
+    ✓ Auto-refresh 60s + bouton manuel
+    ✓ Badge animé avec comptage total
+
+PHASE 6: RAPPORTS & EXPORT (✓ COMPLÉTÉE)
+================================================================================
+✓ Page Rapports admin (/admin/dashboard/reports)
+    ✓ Tableau de tous les pointages avec filtres (employé, site, dates)
+    ✓ Colonnes : Employé, Email, Date, Arrivée, Départ, Durée, Lieu, Site
+    ✓ Statistiques : total heures, moyenne/pointage, nb incomplets, heures sup
+    ✓ Pagination (50 par page)
+    ✓ Mode avancé/simple (filtres et PDF masqués en mode simple) — 2026-05-29
+✓ Export CSV (pointages filtrés, format comptabilité)
+✓ Export PDF (jsPDF + autotable) — affiché en mode avancé uniquement
+✓ API /api/admin/reports (GET paginé + stats)
+✓ API /api/admin/reports/export (CSV)
+
+PHASE 7: UX & FEATURES EMPLOYÉ (✓ COMPLÉTÉE)
+================================================================================
+✓ Page Rapports employé (/app/reports) — tableau personnel avec filtres
+✓ Localisation au pointage (Sur site / Télétravail / Déplacement)
+✓ PWA (Mobile)
+    ✓ manifest.json
+    ✓ Service Worker (cache-first assets, network-first navigation)
+    ✓ Icônes SVG 192px et 512px (wordmark Pointon centré sur fond mauve) — v0.4.0
+    ✓ Navigation mobile (bottom nav bar)
+✓ Notifications email (Brevo SMTP)
+    ✓ Email HTML quand demande approuvée/rejetée (congé, récupération, heures sup)
+    ✓ Rappel fin de journée si présence > hoursPerDay+1h (adapté par horaire employé)
+        ✓ Seuil intelligent : skip si < hoursPerDay+1h (encore en poste)
+        ✓ Skip si > 15h (anomalie = oubli de pointage)
+        ✓ Cron Docker (busybox crond, 17h heure belge lun-ven)
+        ✓ Route /api/cron/end-of-day-reminder sécurisée (CRON_SECRET)
+    ✓ Domaine expéditeur : noreply@pointon.be (Mailcow LXC 110, SPF/DKIM/DMARC) — DONE (2026-06-03)
+
+PHASE 8: ÉQUIPES & PERMISSIONS (✓ COMPLÉTÉE)
+================================================================================
+✓ Modèle Team + assignation employés
+✓ Rôle MANAGER (/manager/dashboard) — sous-admin équipe uniquement
+✓ Rôles : ADMIN / MANAGER / EMPLOYEE
+✓ Plan gate MANAGER : rôle bloqué en FREE/STARTER (API + UI) — DONE (2026-05-22)
+    ├─ /api/auth/signup : refuse MANAGER si plan FREE/STARTER
+    ├─ /api/admin/users PATCH : refuse MANAGER si plan FREE/STARTER
+    ├─ GET /api/admin/users : retourne canUseManagers (bool)
+    └─ UI create/edit : masque l'option Manager si plan insuffisant
+✓ Widget "Prochains congés" (team view) — API /api/manager/team-calendar + UI manager/dashboard — DONE (2026-05-29)
+
+PHASE 9: PLANS & MONÉTISATION (✓ COMPLÉTÉE)
+================================================================================
+✓ Helper planCanAccess(plan, feature) implémenté + appliqué aux routes API
+✓ Stripe checkout endpoint (/api/stripe/checkout?plan=X&billing=X)
+✓ Stripe cancel/reactivate endpoints (POST /api/stripe/cancel + /reactivate)
+✓ Webhook Stripe /api/stripe/webhook (customer.subscription.updated)
+✓ stripeCancelAtPeriodEnd trackés en DB
+✓ Super-admin role + /super-admin/layout (override Enterprise plan)
+✓ Company management API (/api/admin/company) — logo upload, etc.
+✓ Multi-tenancy : ALL admin data isolated by company (companyId foreign key)
+✓ Landing page public (page.tsx)
+✓ Pricing table interactive (FREE / SOLO / TEAM / ENTERPRISE)
+    ✓ Toggle Mensuel/Annuel (-20%)
+    ✓ Features listées par plan
+    ✓ CTA buttons (Essai gratuit / Choisir)
+
+✓ Nouvelle structure plans FREE/STARTER/TEAM/BUSINESS/ENTERPRISE — DONE (2026-06-17)
+    ├─ SOLO → STARTER (19.90€ HTVA, 5 sièges inclus, +2.90€/siège extra)
+    ├─ Nouveau tier BUSINESS (69.90€ HTVA, 30 sièges, +2.20€/siège, 10 sites)
+    ├─ ENTERPRISE : sur devis, illimité, export hebdo, all add-ons inclus
+    ├─ Prix par siège extra : STARTER=2.90€ · TEAM=2.60€ · BUSINESS=2.20€
+    ├─ Prisma schema + seed.js mis à jour (5 plans)
+    ├─ Stripe checkout + webhook mis à jour
+    └─ Animation compteur prix sur toggle mensuel/annuel
+
+✓ Page /pricing (comparatif complet) — DONE (2026-06-11)
+    ├─ Tableau comparatif features par plan avec toggle mensuel/annuel
+    └─ Animation prix
+
+✓ UX checkout — DONE (2026-06-03)
+    └─ /pricing/upgrade interstitiel pour unauthenticated checkout
+
+✓ Stripe Tax TVA integration (21% BE) — fait 2026-06-26 (cf. PHASE 17)
+    └─ Reste roadmap : autoliquidation UE B2B (tax_id_collection actif) + 0% hors UE à valider en LIVE
+[ ] PayPal alternative payment method — HORS SCOPE
+[ ] Odoo + Peppol integration — ROADMAP
+
+PHASE 9.5: INVITATIONS EMPLOYÉS & AUTHENTIFICATION (✓ COMPLÉTÉE)
+================================================================================
+✓ Modèle UserInvitation (token, companyId, role, expiresAt, usedAt) en Prisma
+✓ API GET /api/admin/invitations - lister invitations (company-filtered)
+✓ API POST /api/admin/invitations - générer token 48h + envoyer email Brevo
+✓ API DELETE /api/admin/invitations?id=xxx - annuler invitation
+✓ API GET /api/auth/set-password?token=xxx - valider token + retourner email/name
+✓ API POST /api/auth/set-password - créer user + marquer invitation usedAt
+✓ Page /set-password?token=xxx - formulaire créer mdp + auto-login après
+✓ Validation token - expiration vérifiée, single-use enforced
+✓ API /api/auth/company-lookup?email=xxx - lookup company par email (pour signup)
+✓ Email invitation template (sendInvitationEmail() en Brevo)
+✓ Page UI /admin/dashboard/users/invite - formulaire inviter avec validation
+    ✓ Champs : email, name (optional), role (select EMPLOYEE/MANAGER)
+    ✓ Toast confirmation + liste invitations envoyées
+    ✓ Pouvoir annuler/renvoyer invitation — DONE (2026-05-29)
+✓ Page UI /admin/dashboard/invitations - gestion complète — DONE (2026-05-29)
+    ✓ Liste des invitations (email, role, status, date expiration)
+    ✓ Boutons : Renvoyer / Annuler / Copier lien
+    ✓ API PATCH /api/admin/invitations?id=xxx (renvoyer = nouveau token + email)
+
+✓ Emails welcome + notification super-admin au signup — DONE (2026-06-11)
+    ├─ Email HTML de bienvenue envoyé à l'admin après inscription
+    └─ Notification super-admin (cedric) à chaque nouvelle company créée
+
+PHASE 9.6: PAGES LÉGALES & COMPLIANCE (✓ COMPLÉTÉE — 2026-05-25)
+================================================================================
+✓ /legal/privacy (RGPD Privacy Policy)
+✓ /legal/terms (Terms of Service)
+✓ /legal/compliance (Belgium 2027 & CJUE Compliance Badge)
+✓ /legal/security (Security Practices)
+
+PHASE 10: AUTHENTICATION IMPROVEMENTS (✓ COMPLÉTÉE — 2026-05-22)
+================================================================================
+✓ "Se souvenir de moi" — DONE (2026-05-22)
+✓ Password reset / "Forgot password" flow — DONE (2026-05-22)
+✓ Password change (self-service) — DONE (2026-05-22)
+
+PHASE 11: AUDIT TRAIL ENHANCEMENTS (✓ COMPLÉTÉE — 2026-05-22)
+================================================================================
+✓ Audit Trail data: captured & stored
+✓ Export CSV + Export PDF audit logs
+✓ Fix dark mode audit
+✓ Filtre actions enrichi
+✓ Fix PWA offline sync
+✓ layout.tsx: next/script (React 19 compat)
+✓ Footer landing : liens mis à jour
+
+PHASE 12: SUPER-ADMIN ENHANCEMENTS (✓ COMPLÉTÉE)
+================================================================================
+✓ /super-admin/dashboard (revenue MRR/ARR, stats marketing)
+✓ /super-admin/accounts (lister/modifier/supprimer companies)
+✓ /super-admin/email (email management)
+✓ /super-admin/profile (profil + change password)
+✓ /super-admin/workspace (vue technique tenants, Enterprise management)
+✓ Fix MRR/ARR : 2 décimales forcées (format fr-BE sans ambiguïté) — 2026-06-11
+
+PHASE 13: DASHBOARD PLAN-AWARE (✓ COMPLÉTÉE — 2026-05-29)
+================================================================================
+✓ usePlan() hook + UpgradeBanner component
+✓ Banners upgrade contextuels sur dashboard, users, teams, sites
+✓ maxSites par plan + gating POST /api/admin/sites
+✓ Sidebar icône 🔒 si plan insuffisant
+
+PHASE 14: SHIFT-AWARE OVERTIME & WEEKLY STATS (✓ COMPLÉTÉE — 2026-05-29)
+================================================================================
+✓ Calcul overtime shift-aware (grace period, snap arrivée/départ, night shift)
+✓ API /api/clock/weekly — données réelles DB (bar chart /app/clock)
+✓ Fix arrondi bar chart semaine — 2026-06-03
+
+PHASE 15: BRANDING, PAUSE REPAS, TERMINOLOGIE BELGE (✓ COMPLÉTÉE)
+================================================================================
+✓ Rename PoinçOn → Pointon + logo SVG wordmark — v0.4.0
+✓ "RTT" → "Récupération" dans toute l'interface
+✓ Pause repas : toggle admin, modèle BreakEntry, API pause, UI employé, présence
+✓ Édition pointages admin : PATCH/POST/DELETE + modal motif + recalcul duration
+✓ Fix timezone UTC+2 (ISO strings côté client)
+✓ Audit trail pour toggle mealBreakEnabled + paramètres présence
+
+PHASE 15.8: MIGRATION OVH (✓ COMPLÉTÉE — 2026-06-03)
+================================================================================
+✓ OVH KS-5-A · Proxmox VE 9 · LXC 106 (docker-pointon, port 3001)
+✓ pointon.be · CI/CD GitHub Actions · Let's Encrypt · backups Proxmox
+
+PHASE 16.0: 2FA OBLIGATOIRE ADMIN/SUPER_ADMIN (✓ COMPLÉTÉE — 2026-06-08)
+================================================================================
+✓ TOTP RFC 6238 obligatoire ADMIN/SUPER_ADMIN (Pure Node.js, 0 dépendance)
+✓ Setup / Challenge / Disable — enforced via proxy.ts
+✓ Add-on "Enforce 2FA" pour forcer sur tous les rôles
+
+PHASE 16.1: PLANNING MODULE + CONGÉS + ADD-ONS (✓ COMPLÉTÉE — 2026-06-10)
+================================================================================
+✓ Module planning hebdomadaire (/admin/dashboard/planning)
+✓ Types de shifts avec couleurs (DAY/MORNING/AFTERNOON/NIGHT/PARTIAL/VARIABLE)
+✓ Types de congés : ANNUAL (🌴) / SICK (🤒) / MATERNITY (👶)
+✓ Rotation cycles (RotationCycle, ghost shifts en grille)
+✓ Add-ons système (CompanyFeatureFlag, lib/apikey.ts, lib/webhook.ts)
+    ✓ API GET /api/admin/addons — liste add-ons + statut enabled
+    ✓ API GET/POST/DELETE /api/admin/api-keys
+    ✓ API webhooks sortants
+    ✓ Page /admin/dashboard/settings/integrations (3 onglets : add-ons, API keys, webhooks)
+✓ Users — manager assignment + retrait manager d'équipe
+✓ Dashboard — fix compteur horaires (exclusion rotation)
+
+PHASE 16.2: MONITORING & ONBOARDING (✓ COMPLÉTÉE — 2026-06-08)
+================================================================================
+✓ Uptime Kuma (LXC 200) — pointon.be + mail.pointon.be monitored
+✓ Sentry (DSN EU) — erreurs serveur trackées, headers sensibles filtrés
+✓ Onboarding wizard 3 étapes (nom société, invitation, succès)
+✓ Cookie consent banner (RGPD)
+✓ Certificat de conformité PDF (4 catégories)
+✓ /api/user/export — droit portabilité RGPD Article 20
+✓ Fix healthcheck Docker (localhost → 127.0.0.1 pour IPv4 Alpine)
+
+PHASE 16.3: FIXES QA PROD (✓ COMPLÉTÉE — 2026-06-11)
+================================================================================
+✓ canonical, viewport zoom, H1 a11y, /pricing 404, logo touch target
+✓ cancel redirect, status labels FR, prefetch 403 integrations
+
+PHASE 16.4: MODE KIOSQUE TABLETTE (✓ COMPLÉTÉE — 2026-06-15)
+================================================================================
+✓ Page publique /kiosk/[token] (pas de login, token généré par admin)
+✓ Plan gate : FREE → 403, STARTER/TEAM/BUSINESS/ENTERPRISE → OK
+✓ PIN 4 chiffres bcrypt (User.kioskPin) — auto-submit, clock-in/clock-out
+✓ Visiteurs : formulaire email/nom/société, email Brevo hôte interne
+✓ departedAt : bouton départ kiosque + bouton admin + email auto
+✓ Tableau visiteurs dans /admin/dashboard/presence (badge "En salle")
+✓ visitorsEnabled toggle par terminal (PATCH /api/admin/kiosk/tokens/[id])
+✓ Thème DARK / LIGHT par terminal (toggle admin + PATCH API + Prisma field)
+✓ Logo KioskToken avec timestamp (cache-bust, supprimé au re-upload)
+✓ Wake lock tablette + idle auto-reset 60s
+✓ Rate limits : clock 10/5min · visite 5/1min
+✓ Landing : mention du mode kiosque dans les méthodes de pointage
+
+PHASE 16.5: QR CODE POINTAGE (✓ COMPLÉTÉE — 2026-06-17)
+================================================================================
+✓ Phase 1 : /qr/[token] — caméra native, scan QR code, PIN 4 chiffres
+    ├─ Bienvenue/Au revoir animés après pointage
+    ├─ Fix async params (Next 15+ breaking change)
+    └─ QR mentionné sur la landing page
+✓ Phase 2 : /qr (scanner app PWA intégré jsQR)
+    ├─ Proactive camera permission flow
+    ├─ Instructions Android/iOS spécifiques si accès refusé
+    ├─ Fix Permissions-Policy : camera=(self)
+    ├─ Fix srcObject attaché après montage vidéo (évite TDZ en prod)
+    └─ Logo affiché correctement
+✓ Phase 3 : QR par site avec rotation 24h
+    ├─ Token QR régénéré toutes les 24h (sécurité anti-copie)
+    └─ Un QR par site, géré dans /admin/dashboard/sites
+
+PHASE 16.6: LANDING PAGE & PRICING REDESIGN (✓ COMPLÉTÉE — 2026-06-17)
+================================================================================
+✓ Redesign landing 5 sections : contrast cards, dual-device hero, tagline,
+  méthodes de pointage (kiosque PIN + QR + mobile PWA), témoignages
+✓ Badge "0 GPS" + badge conformité 2027
+✓ Animation compteur prix (toggle mensuel/annuel)
+✓ contact@pointon.be uniformisé sur toute la landing et le footer
+✓ Nouvelle grille pricing avec plans FREE/STARTER/TEAM/BUSINESS/ENTERPRISE
+✓ Page /pricing (comparatif complet, animation prix)
+
+PHASE 16.7: PLANNING PER-DAY CONFIG (✓ COMPLÉTÉE — 2026-06-17)
+================================================================================
+✓ WorkSchedule : heures début/fin configurables par jour de la semaine
+✓ Type par jour : bureau / télétravail / demi-journée (dayConfig JSON)
+✓ Calcul automatique heures hebdo depuis les configs par jour
+✓ Templates planning colorisés par dayConfig type (couleurs distinctes)
+✓ Sélection gabarit par ID dans affectations, fix nom schedule affiché
+
+PHASE 17: STRIPE TAX + ODOO + FACTURATION PAR SIÈGE (✓ COMPLÉTÉE — 2026-06-26)
+================================================================================
+✓ Stripe Tax 21% BE activé (tax_behavior exclusive, services électroniques)
+✓ Sync facture Stripe → Odoo (account.move via XML-RPC)
+    ✓ TVA lue depuis invoice.total_taxes[] (invoice.tax retiré API récente)
+    ✓ Identité société depuis table Company (nom/adresse/tél/TVA), pas Stripe
+    ✓ Idempotence ré-essayable (retry si odooInvoiceId manquant)
+✓ Catalogue Stripe : 6 produits + 12 prix (3 plans × mensuel/annuel × base/siège), test mode
+✓ Facturation par siège — modèle SOUPLE (validé bout-en-bout test mode)
+    ✓ Company.stripeSeatItemId + billedSeats
+    ✓ src/lib/billing.ts → syncSeatQuantity (annuel=always_invoice, mensuel=create_prorations)
+    ✓ Capture item siège au checkout.session.completed
+    ✓ Triggers temps réel : invitation acceptée (+1), membre supprimé (-1)
+    ✓ canAddEmployee : FREE plafonné, plans payants illimités (surplus facturé)
+    ✓ Cron /api/cron/reconcile-seats (0 4 * * *) + ?companyId= pour ops
+    ✓ UI Réglages→Abonnement (membres/inclus/sièges/coût) + page Users (badge/bannière souple)
+✓ docker-compose : env_file .env (fini le piège des vars oubliées)
+
+================================================================================
+CE QUI RESTE À FAIRE
+================================================================================
+
+PROCHAINE SESSION (DEMAIN) — FINITION FACTURATION PAR SIÈGE
+================================================================================
+[ ] Tester le chemin ANNUEL (always_invoice) — on n'a validé que le mensuel
+    └─ Créer une sub annuelle test, ajouter un siège → vérifier facture prorata immédiate
+[ ] ⚠️ Changement de plan (upgrade/downgrade) : le prix/siège diffère par plan
+    ├─ Si le plan change et un item siège existe avec l'ANCIEN price → le supprimer + recréer au bon price
+    └─ Durcir syncSeatQuantity (détecter price mismatch sur l'item existant), tester STARTER→TEAM
+[ ] Resync sièges sur customer.subscription.updated (si l'admin change via le portail Stripe)
+[ ] Validation UI bout-en-bout des triggers : inviter un membre qui dépasse le seuil
+    └─ voir badge "+1 siège" + panneau coût + item siège dans Stripe
+[ ] Décision : l'admin compte-t-il comme un siège ? (getActiveMemberCount inclut tout le monde)
+[ ] (UX) Estimation du coût AVANT d'inviter, dans le modal d'invitation
+[ ] (Qualité) Test unitaire syncSeatQuantity (mock Stripe) — add / update / remove / no-op
+
+PRIORITÉ 1 — PROD (BLOCANTS RESTANTS)
+================================================================================
+
+[ ] Bascule Stripe LIVE — catalogue + clés (script semi-auto)
+    ├─ 1) node scripts/stripe-go-live.mjs  (STRIPE_SECRET_KEY_LIVE=sk_live_xxx)
+    │     → crée 6 produits + 12 prix en LIVE, imprime le bloc STRIPE_PRICE_* à coller
+    ├─ 2) .env LXC 106 : remplacer STRIPE_SECRET_KEY + STRIPE_PUBLISHABLE_KEY
+    │     + STRIPE_WEBHOOK_SECRET (créer endpoint webhook dans Dashboard LIVE) + les 12 STRIPE_PRICE_*
+    ├─ 3) Activer Stripe Tax en mode LIVE (TVA 21% BE, services électroniques)
+    └─ 4) docker compose up -d --force-recreate app + checkout réel sur pointon.be → vérifier facture Odoo
+       Note : ZÉRO code à changer entre Test et Live (cf. memory project_seat_billing)
+
+[ ] Seed plans prod — 5 plans après mise à jour Stripe
+    └─ ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker compose run --rm app sh -c \"npm install bcryptjs --no-save --quiet && node prisma/seed.js\"'"
+    └─ Nécessaire car structure plans a changé (SOLO→STARTER, +BUSINESS)
+
+[ ] Prisma db push prod — schema a changé depuis dernier deploy
+    └─ ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker compose run --rm app sh -c \"npx prisma@5.22.0 db push --accept-data-loss\"'"
+    └─ Vérifier d'abord : git diff HEAD~20 prisma/schema.prisma
+
+[ ] Smoke tests end-to-end sur pointon.be
+    ├─ Login / logout tous les rôles (admin, manager, employé)
+    ├─ Clock in / clock out + pause repas
+    ├─ Invitation employé + flow set-password
+    ├─ Mode kiosque : générer token, PIN employé, visiteur, thème
+    ├─ QR code : générer, scanner, PIN
+    ├─ Stripe checkout (live) + webhook
+    └─ Export CSV + PDF rapports
+
+[ ] Add-ons self-service — bouton "Activer" est un toast factice
+    ├─ État actuel : onClick → showToast('Redirection Stripe en cours...') sans redirect
+    ├─ POST /api/admin/addons réservé SUPER_ADMIN uniquement (pas self-service)
+    ├─ À implémenter :
+    │   ├─ Option A (recommandée) : redirect vers Stripe checkout avec subscription item
+    │   │   → checkout.session.create avec line_items add-on price_id
+    │   │   → webhook invoice.paid → POST /api/admin/addons (SUPER_ADMIN interne)
+    │   └─ Option B (simple) : contact email pour activation manuelle (quick win)
+    └─ Concerné : API Access (29€) · Webhooks (19€) · Kiosk avancé (19€) · Export RGPD (15€) · Rapports custom (15€)
+
+[ ] Surveiller publication loi 2027 au Moniteur belge (externe, aucun code)
+    ├─ Texte pas encore publié (National Labour Council → parlement)
+    ├─ Dès publication : niveau CPS exact (2 ou 3) + montants amendes officiels
+    └─ Sources : ejustice.just.fgov.be (Moniteur) · emploi.belgique.be (SPF Emploi)
+
+PRIORITÉ 2 — MARKETING & ACQUISITION (CODE POSSIBLE)
+================================================================================
+
+[ ] Section "sanctions légales" sur la landing page
+    ├─ Vérifier montant amendes (source : Securex, Liantis, texte de loi)
+    └─ Message type : "En cas d'inspection sans enregistrement conforme : amende X€/travailleur"
+
+[ ] Contenu SEO loi 2027 (page dédiée /blog/pointage-obligatoire-2027 ou article)
+    ├─ Mots-clés : "obligation enregistrement temps travail 2027", "logiciel pointage obligatoire belgique"
+    └─ SEO prend 6-12 mois → commencer maintenant pour être positionné à l'échéance
+
+[ ] Landing pages sectorielles
+    ├─ /horeca — "La pointeuse pour l'horeca belge"
+    ├─ /nettoyage — "Gestion équipes mobiles, conforme 2027"
+    └─ /construction — "Pointage chantier, conforme loi belge 2027"
+
+PRIORITÉ 3 — MARKETING (ACTIONS HUMAINES)
+================================================================================
+
+[ ] Programme bêta "accès anticipé"
+    └─ Offre fondateur : plan STARTER à vie à 50% pour les X premières entreprises
+
+[ ] Citation/endorsement comptable
+    ├─ Offre : accès Enterprise gratuit à vie en échange d'une citation signée
+    └─ Répliquer si succès : Liantis, Securex, Partena, consultant RH
+
+[ ] Google Ads — lancer en octobre/novembre 2026
+    ├─ Budget suggéré : 300-600€/mois
+    ├─ Mots-clés : "application pointage belgique 2027", "logiciel pointage PME"
+    └─ Prérequis : tracking conversion Google Ads sur page post-inscription
+
+PRIORITÉ 4 — NICE TO HAVE
+================================================================================
+
+[ ] Pause repas — évolutions
+    ├─ Durée min/max configurable (ex. min 15min, max 60min)
+    ├─ Déduction automatique X min/jour sans action employé
+    └─ Alerte si pause dépasse X minutes
+
+[ ] Admin dashboard — stats supplémentaires
+    └─ Heures totales semaine, taux présence, absences non justifiées
+
+[ ] Dark mode par défaut — décision (actuellement : choix utilisateur → garder ainsi ?)
+
+ROADMAP LOINTAINE (HORS SCOPE IMMÉDIAT)
+================================================================================
+
+[ ] Peppol + Odoo — facturation B2B belge (obligatoire jan 2026, tolérance expirée)
+    ├─ Format UBL BIS 3.0 (EN 16931) · pénalité non-conformité : 1.500€ min
+    ├─ webhook invoice.payment_succeeded Stripe → facture Odoo API XML-RPC
+    └─ Bloqueur : identifiants Odoo manquants
+
+[ ] Stripe Tax TVA (21% BE, autoliquidation UE B2B, 0% hors UE)
+    └─ automatic_tax, tax_id_collection, billing_address_collection dans checkout
+
+[ ] GPS localisation (Phase 2+ — RGPD-friendly)
+[ ] Multi-langue FR/NL/DE (Phase 2+)
+[ ] White-label pour revendeurs (Phase 2+)
+[ ] PayPal (hors scope)
+
+================================================================================
+PRODUCTION DEPLOYMENT
+================================================================================
+
+✓ Infra OVH KS-5-A — DONE (2026-06-03)
+    ✓ 141.94.102.226 · Proxmox VE 9 · Roubaix RBX8
+    ✓ LXC 101 : nginx-proxy (NPM + SSL Let's Encrypt)
+    ✓ LXC 106 : docker-pointon (Portainer + app port 3001)
+    ✓ LXC 107 : docker-saas (réservé CED-IT SaaS)
+    ✓ LXC 110 : mailcow (mail.pointon.be)
+    ✓ LXC 200 : Uptime Kuma v2.4.0 (uptime.ced-it.be)
+
+✓ Domaine & DNS — DONE (2026-06-01)
+    ✓ pointon.be (OVH, DNS Anycast, DNSSEC)
+    ✓ SPF/DKIM/DMARC Mailcow · NEXTAUTH_URL configuré · NPM proxy + SSL
+
+✓ App déployée & opérationnelle — DONE (2026-06-03)
+    ✓ CI/CD GitHub Actions → auto-deploy
+    ✓ Build Next 16 (--experimental-build-mode compile) : ~12s
+    ✓ .env LXC 106 complet (NEXTAUTH_URL, SECRET, BREVO, SENTRY)
+    ✓ Plans seedés (⚠ à re-seeder : 5 plans depuis v0.6.0)
+    [ ] Stripe live keys → à remplacer dans .env LXC 106
+    [ ] db push si schema modifié (voir checklist CLAUDE.md)
+
+✓ SSL/HTTPS · Backups Proxmox · Renouvellement OVH — DONE
+
+[ ] Post-Deploy Tests
+    [ ] Smoke tests complets (login, kiosque, QR, Stripe live, exports)
+    [ ] Performance (Lighthouse audit, response time < 500ms)
+    [ ] Security (SSL check, OWASP top 10, no secrets in logs)
+
+================================================================================
+BLOQUEURS EXTERNES RÉSOLUS
+================================================================================
+
+✓ Email domain SPF/DKIM/DMARC — Mailcow LXC 110 · noreply@pointon.be
+✓ Contact email landing — contact@pointon.be (ced-it.be supprimé)
+✓ Loi 2027 — landing conforme, montants exacts à confirmer après publication Moniteur
+
+================================================================================
