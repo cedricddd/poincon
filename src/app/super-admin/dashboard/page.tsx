@@ -10,6 +10,18 @@ export default async function SuperAdminDashboard() {
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
   const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000)
 
+  const baseWhere = { deletedAt: null, isInternal: false }
+
+  const internalIds = (await prisma.company.findMany({
+    where: { isInternal: true },
+    select: { id: true },
+  })).map(c => c.id)
+
+  const userWhere = {
+    deletedAt: null,
+    ...(internalIds.length > 0 && { companyMember: { isInternal: false } }),
+  }
+
   const [
     totalCompanies,
     activeCompanies,
@@ -21,16 +33,16 @@ export default async function SuperAdminDashboard() {
     activeUsers30d,
     paidCompanies,
   ] = await Promise.all([
-    prisma.company.count({ where: { deletedAt: null } }),
-    prisma.company.count({ where: { deletedAt: null, lastActivityAt: { gte: ninetyDaysAgo } } }),
-    prisma.company.count({ where: { deletedAt: null, createdAt: { gte: thirtyDaysAgo } } }),
-    prisma.company.count({ where: { deletedAt: null, planId: { not: null }, stripeSubscriptionId: { not: null } } }),
-    prisma.company.count({ where: { deletedAt: null, stripeSubscriptionId: { not: null }, stripeCancelAtPeriodEnd: true } }),
-    prisma.user.count({ where: { deletedAt: null } }),
-    prisma.user.count({ where: { deletedAt: null, clockRecords: { some: { arrivalTime: { gte: sevenDaysAgo } } } } }),
-    prisma.user.count({ where: { deletedAt: null, clockRecords: { some: { arrivalTime: { gte: thirtyDaysAgo } } } } }),
+    prisma.company.count({ where: baseWhere }),
+    prisma.company.count({ where: { ...baseWhere, lastActivityAt: { gte: ninetyDaysAgo } } }),
+    prisma.company.count({ where: { ...baseWhere, createdAt: { gte: thirtyDaysAgo } } }),
+    prisma.company.count({ where: { ...baseWhere, planId: { not: null }, stripeSubscriptionId: { not: null } } }),
+    prisma.company.count({ where: { ...baseWhere, stripeSubscriptionId: { not: null }, stripeCancelAtPeriodEnd: true } }),
+    prisma.user.count({ where: userWhere }),
+    prisma.user.count({ where: { ...userWhere, clockRecords: { some: { arrivalTime: { gte: sevenDaysAgo } } } } }),
+    prisma.user.count({ where: { ...userWhere, clockRecords: { some: { arrivalTime: { gte: thirtyDaysAgo } } } } }),
     prisma.company.findMany({
-      where: { deletedAt: null, stripeSubscriptionId: { not: null }, planId: { not: null } },
+      where: { ...baseWhere, stripeSubscriptionId: { not: null }, planId: { not: null } },
       include: { plan: { select: { name: true } } },
     }),
   ])
