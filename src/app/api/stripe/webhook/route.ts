@@ -1,4 +1,4 @@
-import { getStripe } from '@/lib/stripe'
+import { getStripe, STRIPE_PLAN_CONFIG } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
 import { isOdooConfigured, syncInvoiceToOdoo } from '@/lib/odoo'
 import { NextRequest, NextResponse } from 'next/server'
@@ -71,12 +71,23 @@ export async function POST(req: NextRequest) {
       const sub = await stripe.subscriptions.retrieve(session.subscription as string) as any
       const billingCycle = getBillingCycle(sub)
 
+      // Identify the "extra seats" subscription item so we can update its quantity later
+      const cfg = STRIPE_PLAN_CONFIG[resolvedPlan.toUpperCase()]
+      const seatPriceId = billingCycle === 'yearly'
+        ? cfg?.stripePriceIdExtraSeatYearly
+        : cfg?.stripePriceIdExtraSeatMonthly
+      const seatItem = seatPriceId
+        ? sub.items?.data?.find((i: any) => i.price?.id === seatPriceId)
+        : null
+
       await prisma.company.update({
         where: { id: companyId },
         data: {
           stripeCustomerId: session.customer,
           stripeSubscriptionId: session.subscription,
           stripeSubscriptionBillingCycle: billingCycle,
+          stripeSeatItemId: seatItem?.id ?? null,
+          billedSeats: seatItem?.quantity ?? 0,
           stripeCurrentPeriodStart: sub.current_period_start ? new Date(sub.current_period_start * 1000) : undefined,
           stripeCurrentPeriodEnd: sub.current_period_end ? new Date(sub.current_period_end * 1000) : undefined,
           planId: planRecord?.id ?? undefined,

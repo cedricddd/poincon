@@ -152,6 +152,8 @@ model Company {
   stripeCustomerId      String?
   stripeSubscriptionId  String?
   stripeSubscriptionBillingCycle String? // "monthly" | "yearly" — null si pas de subscription active
+  stripeSeatItemId      String?   // ID du subscription item "sièges supplémentaires" (pour update quantity)
+  billedSeats           Int       @default(0) // dernière quantité de sièges supp. poussée vers Stripe
   stripeCurrentPeriodStart DateTime? // début de la période en cours (Stripe)
   stripeCurrentPeriodEnd   DateTime? // fin de la période en cours = date de prochain renouvellement
   stripeCancelAtPeriodEnd Boolean @default(false)
