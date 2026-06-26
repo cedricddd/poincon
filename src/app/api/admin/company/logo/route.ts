@@ -6,7 +6,7 @@ import path from 'path'
 
 const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads', 'logos')
 const MAX_SIZE = 2 * 1024 * 1024 // 2 MB
-const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml']
+const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp']
 
 export async function POST(req: NextRequest) {
   const auth = await requireAdminWithCompany()

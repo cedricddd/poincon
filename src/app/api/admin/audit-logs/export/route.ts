@@ -57,8 +57,12 @@ export async function GET(req: NextRequest) {
     ]),
   ]
 
+  const safeCell = (v: string) => {
+    const s = String(v)
+    return /^[=+\-@\t\r]/.test(s) ? `'${s}` : s
+  }
   const csv = rows
-    .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    .map(row => row.map(cell => `"${safeCell(cell).replace(/"/g, '""')}"`).join(','))
     .join('\r\n')
 
   const filename = `audit-trail-${new Date().toISOString().slice(0, 10)}.csv`

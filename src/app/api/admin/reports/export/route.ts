@@ -97,8 +97,12 @@ export async function GET(req: NextRequest) {
     r.site?.name ?? '',
   ])
 
+  const safeCell = (v: string) => {
+    const s = String(v)
+    return /^[=+\-@\t\r]/.test(s) ? `'${s}` : s
+  }
   const csv = [header, ...rows]
-    .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(';'))
+    .map(row => row.map(cell => `"${safeCell(cell).replace(/"/g, '""')}"`).join(';'))
     .join('\r\n')
 
   const filename = `pointages_${from ?? 'all'}_${to ?? 'all'}.csv`

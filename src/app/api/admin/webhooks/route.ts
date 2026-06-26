@@ -59,7 +59,19 @@ export async function POST(req: NextRequest) {
   const { url, events = [], description } = await req.json()
   if (!url?.trim()) return NextResponse.json({ error: 'url requis' }, { status: 400 })
 
-  try { new URL(url) } catch { return NextResponse.json({ error: 'URL invalide' }, { status: 400 }) }
+  let parsed: URL
+  try { parsed = new URL(url) } catch { return NextResponse.json({ error: 'URL invalide' }, { status: 400 }) }
+  if (!['http:', 'https:'].includes(parsed.protocol)) {
+    return NextResponse.json({ error: 'URL invalide' }, { status: 400 })
+  }
+  const h = parsed.hostname
+  if (
+    h === 'localhost' || h === '127.0.0.1' || h === '0.0.0.0' || h === '::1' ||
+    h === '169.254.169.254' ||
+    /^10\./.test(h) || /^192\.168\./.test(h) || /^172\.(1[6-9]|2\d|3[01])\./.test(h)
+  ) {
+    return NextResponse.json({ error: 'URL interne non autorisée' }, { status: 400 })
+  }
 
   const count = await prisma.webhookEndpoint.count({ where: { companyId } })
   if (count >= 10) return NextResponse.json({ error: 'Maximum 10 webhooks' }, { status: 400 })
