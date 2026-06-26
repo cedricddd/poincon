@@ -112,7 +112,14 @@ export async function POST(req: NextRequest) {
       const invoice = event.data.object as any
       if (!invoice.customer || !invoice.amount_paid || invoice.amount_paid <= 0) break
 
-      const company = await resolveCompany(invoice.customer)
+      let company = await resolveCompany(invoice.customer)
+      // Fallback: first payment race condition — checkout.session.completed may not have
+      // written stripeCustomerId yet, so try matching by subscriptionId
+      if (!company && invoice.subscription) {
+        company = await prisma.company.findFirst({
+          where: { stripeSubscriptionId: invoice.subscription },
+        }) ?? null
+      }
       if (!company) break
 
       // Idempotency: skip if already recorded
