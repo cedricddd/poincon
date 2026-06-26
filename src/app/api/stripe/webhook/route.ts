@@ -3,6 +3,28 @@ import { prisma } from '@/lib/prisma'
 import { isOdooConfigured, syncInvoiceToOdoo } from '@/lib/odoo'
 import { NextRequest, NextResponse } from 'next/server'
 
+// Parse Pointon's free-text company address into Odoo's structured fields.
+// Expected format: "Rue de la Régence 45, 4000 Liège" (street, ZIP city).
+// Falls back to putting the whole string in line1 if the pattern doesn't match.
+function parseBelgianAddress(
+  address: string | null | undefined
+): { line1: string; city: string | null; postal_code: string | null; country: string } | null {
+  if (!address?.trim()) return null
+  const parts = address.split(',').map(p => p.trim()).filter(Boolean)
+  const line1 = parts[0] ?? address.trim()
+  let city: string | null = null
+  let postal_code: string | null = null
+  const tail = parts.slice(1).join(' ').trim()
+  const m = tail.match(/(\d{4,5})\s+(.+)/)
+  if (m) {
+    postal_code = m[1]
+    city = m[2].trim()
+  } else if (tail) {
+    city = tail
+  }
+  return { line1, city, postal_code, country: 'BE' }
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.text()
   const sig = req.headers.get('stripe-signature')
@@ -136,6 +158,9 @@ export async function POST(req: NextRequest) {
         select: {
           name: true,
           vatNumber: true,
+          address: true,
+          phone: true,
+          contactEmail: true,
           stripeSubscriptionBillingCycle: true,
           plan: { select: { name: true } },
         },
@@ -158,24 +183,28 @@ export async function POST(req: NextRequest) {
       console.log('[webhook] invoice.payment_succeeded', invoice.id, 'odooConfigured=', isOdooConfigured())
       if (isOdooConfigured()) {
         try {
+          // Pointon Company data is the authoritative source for billing identity.
+          // Stripe's customer_name is just the cardholder (often the email) and its
+          // address may be missing, so we prefer our own DB and fall back to Stripe.
           const stripeVat = invoice.customer_tax_ids?.[0]?.value ?? null
-          const vatNumber = stripeVat ?? companyFull?.vatNumber ?? null
+          const vatNumber = companyFull?.vatNumber ?? stripeVat ?? null
           const invoiceDate = new Date(invoice.created * 1000).toISOString().split('T')[0]
           // subtotal = HTVA (before tax, before credits)
           const amountHtva = invoice.subtotal ?? invoice.amount_paid
+          const billingAddress = parseBelgianAddress(companyFull?.address) ?? invoice.customer_address ?? null
 
           const odooId = await syncInvoiceToOdoo({
             stripeInvoiceId: invoice.id,
-            customerEmail: invoice.customer_email ?? `company-${company.id}@pointon.be`,
-            customerName: invoice.customer_name ?? companyFull?.name ?? 'Client Pointon',
+            customerEmail: companyFull?.contactEmail ?? invoice.customer_email ?? `company-${company.id}@pointon.be`,
+            customerName: companyFull?.name ?? invoice.customer_name ?? 'Client Pointon',
             vatNumber,
             amountHtva,
             taxAmount: invoice.tax ?? 0,
             plan: planName ?? 'UNKNOWN',
             billingCycle,
             invoiceDate,
-            billingAddress: invoice.customer_address ?? null,
-            customerPhone: invoice.customer_phone ?? null,
+            billingAddress,
+            customerPhone: companyFull?.phone ?? invoice.customer_phone ?? null,
           })
 
           await prisma.stripeInvoice.update({
