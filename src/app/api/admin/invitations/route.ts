@@ -25,14 +25,14 @@ export async function POST(req: NextRequest) {
   const { email, name, role } = await req.json()
   if (!email) return NextResponse.json({ error: 'Email requis' }, { status: 400 })
 
-  // Plan gate: enforce max employee limit before inviting
+  // Plan gate: only FREE has a hard cap. On paid plans, members beyond the
+  // included seats are billed per-seat (soft model — see syncSeatQuantity).
   const plan = await getCompanyPlan(auth.admin.companyId)
-  const maxEmployees = PLAN_LIMITS[plan].maxEmployees
-  if (maxEmployees !== -1) {
+  if (plan === 'FREE') {
     const currentCount = await getActiveMemberCount(auth.admin.companyId)
-    if (currentCount >= maxEmployees) {
+    if (currentCount >= PLAN_LIMITS.FREE.maxEmployees) {
       return NextResponse.json(
-        { error: `Limite du plan ${plan} atteinte (${maxEmployees} utilisateurs max). Passez à un plan supérieur pour ajouter des membres.` },
+        { error: `Limite du plan gratuit atteinte (${PLAN_LIMITS.FREE.maxEmployees} utilisateurs). Passez à un plan payant pour ajouter des membres.` },
         { status: 403 }
       )
     }

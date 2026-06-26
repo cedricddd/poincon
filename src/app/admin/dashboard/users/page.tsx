@@ -91,7 +91,7 @@ function SortIcon({ field, current, dir }: { field: SortField; current: SortFiel
 }
 
 export default function UsersPage() {
-  const { planInfo, upgradeTo } = usePlan()
+  const { planInfo } = usePlan()
   const [users, setUsers] = useState<User[]>([])
   const [sites, setSites] = useState<Site[]>([])
   const [canUseManagers, setCanUseManagers] = useState(false)
@@ -208,15 +208,24 @@ export default function UsersPage() {
           <div className="flex items-center gap-2 mt-1">
             <p className="text-[var(--pp-muted)] text-sm">{users.length} compte{users.length !== 1 ? 's' : ''}</p>
             {planInfo && planInfo.maxEmployees !== -1 && (
-              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                users.length >= planInfo.maxEmployees
-                  ? 'bg-red-100 text-red-700'
-                  : users.length >= planInfo.maxEmployees * 0.8
-                  ? 'bg-yellow-100 text-yellow-700'
-                  : 'bg-gray-100 text-gray-500'
-              }`}>
-                {users.length}/{planInfo.maxEmployees} max ({planInfo.plan})
-              </span>
+              planInfo.plan === 'FREE' ? (
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  users.length >= planInfo.maxEmployees
+                    ? 'bg-red-100 text-red-700'
+                    : users.length >= planInfo.maxEmployees * 0.8
+                    ? 'bg-yellow-100 text-yellow-700'
+                    : 'bg-gray-100 text-gray-500'
+                }`}>
+                  {users.length}/{planInfo.maxEmployees} max (FREE)
+                </span>
+              ) : (
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  users.length > planInfo.maxEmployees ? 'bg-[#7c3aed]/10 text-[#7c3aed]' : 'bg-gray-100 text-gray-500'
+                }`}>
+                  {users.length} membre{users.length !== 1 ? 's' : ''} · {planInfo.maxEmployees} inclus
+                  {users.length > planInfo.maxEmployees ? ` · +${users.length - planInfo.maxEmployees} siège(s)` : ''}
+                </span>
+              )
             )}
           </div>
         </div>
@@ -230,15 +239,24 @@ export default function UsersPage() {
         </div>
       </div>
 
-      {planInfo && planInfo.maxEmployees !== -1 && users.length >= planInfo.maxEmployees && (
+      {planInfo && planInfo.plan === 'FREE' && planInfo.maxEmployees !== -1 && users.length >= planInfo.maxEmployees && (
         <div className="mb-4 p-4 rounded-xl border border-orange-200 bg-orange-50 flex items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-medium text-orange-800">Limite d&apos;employés atteinte ({users.length}/{planInfo.maxEmployees})</p>
-            <p className="text-xs text-orange-600 mt-0.5">Passez au plan {upgradeTo} pour ajouter davantage d&apos;employés.</p>
+            <p className="text-sm font-medium text-orange-800">Limite du plan gratuit atteinte ({users.length}/{planInfo.maxEmployees})</p>
+            <p className="text-xs text-orange-600 mt-0.5">Passez à un plan payant pour ajouter davantage d&apos;employés.</p>
           </div>
           <Link href="/pricing" className="shrink-0 px-3 py-1.5 bg-orange-600 text-white text-xs font-medium rounded-lg hover:opacity-90">
             Upgrader
           </Link>
+        </div>
+      )}
+
+      {planInfo && planInfo.plan !== 'FREE' && planInfo.maxEmployees !== -1 && users.length > planInfo.maxEmployees && (
+        <div className="mb-4 p-4 rounded-xl border border-[#7c3aed]/20 bg-[#7c3aed]/5">
+          <p className="text-sm text-[#7c3aed]">
+            {users.length - planInfo.maxEmployees} siège(s) supplémentaire(s) facturé(s) au-delà des {planInfo.maxEmployees} inclus.
+            {' '}Détail dans <Link href="/admin/dashboard/settings" className="underline font-medium">Réglages → Abonnement</Link>.
+          </p>
         </div>
       )}
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { syncSeatQuantitySafe } from '@/lib/billing'
 import bcrypt from 'bcryptjs'
 
 export async function GET(req: NextRequest) {
@@ -59,6 +60,9 @@ export async function POST(req: NextRequest) {
 
     return user
   })
+
+  // New active member → reconcile billed seats with Stripe (non-blocking)
+  syncSeatQuantitySafe(invitation.companyId)
 
   return NextResponse.json({ ok: true, email: invitation.email })
 }

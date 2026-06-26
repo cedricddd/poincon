@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdminWithCompany } from '@/lib/admin-security'
 import { prisma } from '@/lib/prisma'
+import { getActiveMemberCount } from '@/lib/plan'
+import { STRIPE_PLAN_CONFIG } from '@/lib/stripe'
 
 export async function GET() {
   const auth = await requireAdminWithCompany()
@@ -16,7 +18,28 @@ export async function GET() {
     },
   })
 
-  return NextResponse.json(company)
+  // Seat usage: active members vs included seats, and the extra-seat cost.
+  // Only meaningful on billable plans (STARTER/TEAM/BUSINESS).
+  let seatUsage = null
+  const planName = company?.plan?.name?.toUpperCase()
+  const cfg = planName ? STRIPE_PLAN_CONFIG[planName] : undefined
+  if (company && cfg && cfg.baseIncludedSeats >= 0) {
+    const activeMembers = await getActiveMemberCount(company.id)
+    const includedSeats = cfg.baseIncludedSeats
+    const extraSeats = Math.max(0, activeMembers - includedSeats)
+    const isYearly = company.stripeSubscriptionBillingCycle === 'yearly'
+    const pricePerSeatCents = isYearly ? cfg.pricePerExtraSeatYearlyCents : cfg.pricePerExtraSeatMonthlyCents
+    seatUsage = {
+      activeMembers,
+      includedSeats,
+      extraSeats,
+      pricePerSeatCents,
+      extraCostCents: extraSeats * pricePerSeatCents,
+      cycle: isYearly ? 'yearly' : 'monthly',
+    }
+  }
+
+  return NextResponse.json({ ...company, seatUsage })
 }
 
 export async function PATCH(req: NextRequest) {

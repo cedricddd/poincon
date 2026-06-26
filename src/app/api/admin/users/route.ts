@@ -2,6 +2,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { isAdminRole } from '@/lib/roles'
 import { getCompanyPlan, planCanAccess, PLAN_LIMITS } from '@/lib/plan'
+import { syncSeatQuantitySafe } from '@/lib/billing'
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { createHash } from 'crypto'
@@ -178,6 +179,9 @@ export async function DELETE(req: NextRequest) {
         changes: JSON.stringify({}),
       },
     })
+
+    // Member removed → reconcile billed seats with Stripe (non-blocking)
+    syncSeatQuantitySafe(admin.companyId)
 
     return NextResponse.json({ success: true })
   } catch (error) {

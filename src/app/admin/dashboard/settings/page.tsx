@@ -21,6 +21,14 @@ interface CompanySettings {
   stripeSubscriptionBillingCycle: string | null
   stripeCancelAtPeriodEnd: boolean
   planExpiresAt: string | null
+  seatUsage: {
+    activeMembers: number
+    includedSeats: number
+    extraSeats: number
+    pricePerSeatCents: number
+    extraCostCents: number
+    cycle: string
+  } | null
 }
 
 export default function SettingsPage() {
@@ -307,6 +315,42 @@ export default function SettingsPage() {
                   </span>
                 )}
               </div>
+
+              {settings?.seatUsage && (() => {
+                const su = settings.seatUsage
+                const euros = (cents: number) => (cents / 100).toLocaleString('fr-BE', { minimumFractionDigits: 2 })
+                const per = su.cycle === 'yearly' ? '/an' : '/mois'
+                return (
+                  <div className="p-4 bg-[var(--pp-bg)] border border-[var(--pp-line)] rounded-lg space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-[var(--pp-muted)]">Membres actifs</span>
+                      <span className="font-medium text-[var(--pp-ink)]">{su.activeMembers}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-[var(--pp-muted)]">Inclus dans le plan</span>
+                      <span className="font-medium text-[var(--pp-ink)]">{su.includedSeats}</span>
+                    </div>
+                    {su.extraSeats > 0 ? (
+                      <>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-[var(--pp-muted)]">Sièges supplémentaires</span>
+                          <span className="font-medium text-[var(--pp-ink)]">
+                            {su.extraSeats} × {euros(su.pricePerSeatCents)}&nbsp;€
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm pt-2 border-t border-[var(--pp-line)]">
+                          <span className="font-medium text-[var(--pp-ink)]">Coût sièges supp.</span>
+                          <span className="font-semibold text-[#7c3aed]">+{euros(su.extraCostCents)}&nbsp;€{per} HTVA</span>
+                        </div>
+                      </>
+                    ) : (
+                      <p className="text-sm text-[var(--pp-muted)] pt-1">
+                        {su.includedSeats - su.activeMembers} siège(s) encore disponible(s) avant facturation supplémentaire.
+                      </p>
+                    )}
+                  </div>
+                )
+              })()}
 
               {isCancelling && (
                 <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">

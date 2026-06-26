@@ -168,11 +168,15 @@ export async function getMealBreakEnabled(companyId: string): Promise<boolean> {
 
 /**
  * Check if a company can add more employees (active members, not counting pending invitations).
+ *
+ * Soft billing model: paid plans have no hard cap — members beyond the included
+ * seats are billed per-seat (see syncSeatQuantity). Only FREE enforces a hard
+ * cap, since it has no subscription to bill the overflow against.
  */
 export async function canAddEmployee(companyId: string, currentCount: number): Promise<boolean> {
   const plan = await getCompanyPlan(companyId)
-  const max = PLAN_LIMITS[plan].maxEmployees
-  return max === -1 || currentCount < max
+  if (plan === 'FREE') return currentCount < PLAN_LIMITS.FREE.maxEmployees
+  return true // paid plans: unlimited seats, overflow billed automatically
 }
 
 /**
