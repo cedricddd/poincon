@@ -101,6 +101,7 @@ export async function GET(req: NextRequest) {
       customer: company?.stripeCustomerId ?? undefined,
       // Stripe Tax — TVA 21% belge automatique
       automatic_tax: { enabled: true },
+      billing_address_collection: 'required',
       customer_update: company?.stripeCustomerId ? { address: 'auto' } : undefined,
       tax_id_collection: { enabled: true },
       metadata: {

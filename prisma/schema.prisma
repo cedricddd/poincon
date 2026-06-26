@@ -184,6 +184,7 @@ model Company {
   webhookEndpoints      WebhookEndpoint[]
   kioskTokens           KioskToken[]
   kioskVisits           KioskVisit[]
+  stripeInvoices        StripeInvoice[]
 
   @@index([adminId])
   @@index([planId])
@@ -592,6 +593,22 @@ model SuperAdminItem {
   position  Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model StripeInvoice {
+  id              String    @id @default(cuid())
+  stripeInvoiceId String    @unique
+  companyId       String
+  amountPaid      Int       // centimes TTC
+  currency        String    @default("eur")
+  plan            String?
+  odooInvoiceId   Int?
+  odooSyncedAt    DateTime?
+  createdAt       DateTime  @default(now())
+
+  company         Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
 }
 
 model KioskToken {

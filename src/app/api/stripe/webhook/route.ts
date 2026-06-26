@@ -1,5 +1,6 @@
 import { getStripe } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
+import { isOdooConfigured, syncInvoiceToOdoo } from '@/lib/odoo'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
@@ -104,6 +105,74 @@ export async function POST(req: NextRequest) {
           planExpiresAt: null,
         },
       })
+      break
+    }
+
+    case 'invoice.payment_succeeded': {
+      const invoice = event.data.object as any
+      if (!invoice.customer || !invoice.amount_paid || invoice.amount_paid <= 0) break
+
+      const company = await resolveCompany(invoice.customer)
+      if (!company) break
+
+      // Idempotency: skip if already recorded
+      const existing = await prisma.stripeInvoice.findUnique({
+        where: { stripeInvoiceId: invoice.id },
+      })
+      if (existing) break
+
+      // Resolve plan name and billing cycle from our DB
+      const companyFull = await prisma.company.findUnique({
+        where: { id: company.id },
+        select: {
+          name: true,
+          vatNumber: true,
+          stripeSubscriptionBillingCycle: true,
+          plan: { select: { name: true } },
+        },
+      })
+      const planName = companyFull?.plan?.name ?? null
+      const billingCycle = companyFull?.stripeSubscriptionBillingCycle ?? 'monthly'
+
+      // Record in DB
+      const record = await prisma.stripeInvoice.create({
+        data: {
+          stripeInvoiceId: invoice.id,
+          companyId: company.id,
+          amountPaid: invoice.amount_paid,
+          currency: invoice.currency ?? 'eur',
+          plan: planName,
+        },
+      })
+
+      // Sync to Odoo if configured (non-blocking: Stripe must always get 200)
+      if (isOdooConfigured()) {
+        try {
+          const stripeVat = invoice.customer_tax_ids?.[0]?.value ?? null
+          const vatNumber = stripeVat ?? companyFull?.vatNumber ?? null
+          const invoiceDate = new Date(invoice.created * 1000).toISOString().split('T')[0]
+          // subtotal = HTVA (before tax, before credits)
+          const amountHtva = invoice.subtotal ?? invoice.amount_paid
+
+          const odooId = await syncInvoiceToOdoo({
+            stripeInvoiceId: invoice.id,
+            customerEmail: invoice.customer_email ?? `company-${company.id}@pointon.be`,
+            customerName: invoice.customer_name ?? companyFull?.name ?? 'Client Pointon',
+            vatNumber,
+            amountHtva,
+            plan: planName ?? 'UNKNOWN',
+            billingCycle,
+            invoiceDate,
+          })
+
+          await prisma.stripeInvoice.update({
+            where: { id: record.id },
+            data: { odooInvoiceId: odooId, odooSyncedAt: new Date() },
+          })
+        } catch (err) {
+          console.error('[webhook] Odoo sync failed for invoice', invoice.id, err)
+        }
+      }
       break
     }
   }
