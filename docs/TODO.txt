@@ -1,4 +1,4 @@
-================================================================================
+﻿================================================================================
                     POINTON - TODO LIST (MISE À JOUR 2026-06-26)
 ================================================================================
 
@@ -362,25 +362,24 @@ Note infra : commandes SQL prod toujours via `pct exec 106 -- docker exec pointo
 sans bash -c intermédiaire (quoting PowerShell plus fiable sans wrapper bash).
 
 ================================================================================
-CE QUI RESTE À FAIRE
+CE QUI RESTE A FAIRE — PLAN LANCEMENT JANVIER 2027
 ================================================================================
 
-PROCHAINE SESSION — FINITION FACTURATION PAR SIÈGE
+PHASE A — LANCEMENT PRODUCTION · Juillet 2026 · ~2 sessions
 ================================================================================
-[ ] ⚠️ Changement de plan (upgrade/downgrade) : le prix/siège diffère par plan
-    ├─ Si plan change et item siège existe avec l'ANCIEN price → supprimer + recréer au bon price
+Objectif : premier vrai client peut s'inscrire et payer
+
+[ ] ⚠️ Changement de plan (upgrade/downgrade) : le prix/siege differe par plan
+    ├─ Si plan change et item siege existe avec l'ANCIEN price → supprimer + recréer au bon price
     └─ Durcir syncSeatQuantity (détecter price mismatch), tester STARTER→TEAM
 [ ] Tester le chemin ANNUEL (always_invoice) — on n'a validé que le mensuel
-    └─ Créer une sub annuelle test, ajouter un siège → vérifier facture prorata immédiate
-[ ] Resync sièges sur customer.subscription.updated (si l'admin change via portail Stripe)
+    └─ Créer une sub annuelle test, ajouter un siege → vérifier facture prorata immédiate
+[ ] Resync sieges sur customer.subscription.updated (si l'admin change via portail Stripe)
 [ ] Validation UI bout-en-bout des triggers : inviter un membre qui dépasse le seuil
-    └─ voir badge "+1 siège" + panneau coût + item siège dans Stripe
-[ ] Décision : l'admin compte-t-il comme un siège ? (getActiveMemberCount inclut tout le monde)
-[ ] (UX) Estimation du coût AVANT d'inviter, dans le modal d'invitation
+    └─ voir badge "+1 siege" + panneau cout + item siege dans Stripe
+✓ Décision : l'admin compte comme un siege — getActiveMemberCount inclut tous les roles (voulu)
+[ ] (UX) Estimation du cout AVANT d'inviter, dans le modal d'invitation
 [ ] (Qualité) Test unitaire syncSeatQuantity (mock Stripe) — add / update / remove / no-op
-
-PRIORITÉ 1 — PROD (BLOCANTS RESTANTS)
-================================================================================
 
 [ ] Bascule Stripe LIVE — catalogue + clés (script semi-auto)
     ├─ 1) node scripts/stripe-go-live.mjs  (STRIPE_SECRET_KEY_LIVE=sk_live_xxx)
@@ -389,98 +388,98 @@ PRIORITÉ 1 — PROD (BLOCANTS RESTANTS)
     │     + STRIPE_WEBHOOK_SECRET (créer endpoint webhook dans Dashboard LIVE) + les 12 STRIPE_PRICE_*
     ├─ 3) Activer Stripe Tax en mode LIVE (TVA 21% BE, services électroniques)
     └─ 4) docker compose up -d --force-recreate app + checkout réel sur pointon.be → vérifier facture Odoo
-       Note : ZÉRO code à changer entre Test et Live (cf. memory project_seat_billing)
 
-[ ] Seed plans prod — 5 plans après mise à jour Stripe
+[ ] Seed plans prod — 5 plans
     └─ ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker compose run --rm app sh -c \"npm install bcryptjs --no-save --quiet && node prisma/seed.js\"'"
-    └─ Nécessaire car structure plans a changé (SOLO→STARTER, +BUSINESS)
 
 [ ] Prisma db push prod — schema a changé depuis dernier deploy
     └─ ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker compose run --rm app sh -c \"npx prisma@5.22.0 db push --accept-data-loss\"'"
-    └─ Vérifier d'abord : git diff HEAD~20 prisma/schema.prisma
 
 [ ] Smoke tests end-to-end sur pointon.be
-    ├─ Login / logout tous les rôles (admin, manager, employé)
+    ├─ Login / logout tous les roles (admin, manager, employé)
     ├─ Clock in / clock out + pause repas
     ├─ Invitation employé + flow set-password
-    ├─ Mode kiosque : générer token, PIN employé, visiteur, thème
+    ├─ Mode kiosque : générer token, PIN employé, visiteur, theme
     ├─ QR code : générer, scanner, PIN
     ├─ Stripe checkout (live) + webhook
     └─ Export CSV + PDF rapports
 
 [ ] Add-ons self-service — bouton "Activer" est un toast factice
-    ├─ État actuel : onClick → showToast('Redirection Stripe en cours...') sans redirect
-    ├─ POST /api/admin/addons réservé SUPER_ADMIN uniquement (pas self-service)
-    ├─ À implémenter :
-    │   ├─ Option A (recommandée) : redirect vers Stripe checkout avec subscription item
-    │   │   → checkout.session.create avec line_items add-on price_id
-    │   │   → webhook invoice.paid → POST /api/admin/addons (SUPER_ADMIN interne)
-    │   └─ Option B (simple) : contact email pour activation manuelle (quick win)
+    ├─ Option A (recommandée) : redirect vers Stripe checkout avec subscription item
+    │   → checkout.session.create avec line_items add-on price_id
+    │   → webhook invoice.paid → POST /api/admin/addons (SUPER_ADMIN interne)
     └─ Concerné : API Access (29€) · Webhooks (19€) · Kiosk avancé (19€) · Export RGPD (15€) · Rapports custom (15€)
 
-[ ] Surveiller publication loi 2027 au Moniteur belge (externe, aucun code)
-    ├─ Texte pas encore publié (National Labour Council → parlement)
-    ├─ Dès publication : niveau CPS exact (2 ou 3) + montants amendes officiels
-    └─ Sources : ejustice.just.fgov.be (Moniteur) · emploi.belgique.be (SPF Emploi)
-
-PRIORITÉ 2 — MARKETING & ACQUISITION (CODE POSSIBLE)
+PHASE B — i18n FR/NL/EN/DE · Aout 2026 · ~3-4 sessions
 ================================================================================
+Objectif : capter les clients néerlandophones (50%+ du marché belge)
 
-[ ] Section "sanctions légales" sur la landing page
-    ├─ Vérifier montant amendes (source : Securex, Liantis, texte de loi)
-    └─ Message type : "En cas d'inspection sans enregistrement conforme : amende X€/travailleur"
+[ ] Setup next-intl + routing /fr /nl /en /de + détection langue navigateur
+[ ] Extraction ~350 strings UI (app employé + admin + super-admin + landing)
+[ ] Traduction auto DeepL (NL/EN/DE) + révision
+[ ] Préférence langue sauvegardée par utilisateur (profil)
+[ ] Emails Brevo multilingues (invitation, bienvenue, rappel fin de journée)
+[ ] Landing page + /pricing traduits dans les 4 langues
 
-[ ] Contenu SEO loi 2027 (page dédiée /blog/pointage-obligatoire-2027 ou article)
-    ├─ Mots-clés : "obligation enregistrement temps travail 2027", "logiciel pointage obligatoire belgique"
-    └─ SEO prend 6-12 mois → commencer maintenant pour être positionné à l'échéance
+PHASE C — CHATBOT AIDE · Aout 2026 · ~1 session
+================================================================================
+Objectif : support niveau 1 automatisé 24/7, différenciateur B2B
 
+[ ] Floating help button (coin bas-droit, toutes les pages connectées)
+[ ] Chatbot Claude API (claude-haiku-4-5 pour le cout)
+    ├─ System prompt : doc Pointon + FAQ conformité 2027 + tarifs + guides par role
+    ├─ Contexte injecté : plan actuel de l'utilisateur, son role
+    └─ Fallback "contacter Cedric" si question hors périmetre
+[ ] Base de connaissance consultable (modal articles markdown, sans IA)
+
+PHASE D — MARKETING & SEO · Septembre 2026 · ~2-3 sessions
+================================================================================
+Objectif : etre visible quand les entreprises cherchent une solution avant 2027
+
+[ ] Article SEO /blog/pointage-obligatoire-belgique-2027
+    ├─ Mots-clés : "obligation enregistrement temps travail 2027", "logiciel pointage PME belge"
+    └─ SEO prend 6-12 mois → commencer maintenant
+[ ] Section sanctions légales sur la landing
+    ├─ Vérifier montants amendes (Securex, Liantis, texte de loi)
+    └─ "En cas d'inspection sans enregistrement conforme : amende X€/travailleur"
 [ ] Landing pages sectorielles
     ├─ /horeca — "La pointeuse pour l'horeca belge"
     ├─ /nettoyage — "Gestion équipes mobiles, conforme 2027"
     └─ /construction — "Pointage chantier, conforme loi belge 2027"
+[ ] Programme beta fondateurs — plan STARTER à vie à 50% pour les 20 premieres entreprises
+[ ] Démarcher 1-2 comptables/secrétariats sociaux — acces Enterprise gratuit contre témoignage signé
+    └─ Cibles : Liantis, Securex, Partena, consultant RH indépendant
 
-PRIORITÉ 3 — MARKETING (ACTIONS HUMAINES)
+[ ] Surveiller publication loi 2027 au Moniteur belge (externe, aucun code)
+    ├─ Des publication : niveau CPS exact + montants amendes officiels
+    └─ Sources : ejustice.just.fgov.be (Moniteur) · emploi.belgique.be (SPF Emploi)
+
+PHASE E — PUBLICITES · Octobre 2026
 ================================================================================
+Objectif : générer du trafic qualifié avant le rush de fin d'année
 
-[ ] Programme bêta "accès anticipé"
-    └─ Offre fondateur : plan STARTER à vie à 50% pour les X premières entreprises
-
-[ ] Citation/endorsement comptable
-    ├─ Offre : accès Enterprise gratuit à vie en échange d'une citation signée
-    └─ Répliquer si succès : Liantis, Securex, Partena, consultant RH
-
-[ ] Google Ads — lancer en octobre/novembre 2026
-    ├─ Budget suggéré : 300-600€/mois
+[ ] Google Ads — 300-600€/mois
     ├─ Mots-clés : "application pointage belgique 2027", "logiciel pointage PME"
     └─ Prérequis : tracking conversion Google Ads sur page post-inscription
+[ ] LinkedIn Ads — décideurs PME belges (RH, gérants, comptables)
+[ ] Retargeting landing page (visiteurs non-inscrits)
 
-PRIORITÉ 4 — NICE TO HAVE
+PHASE F — ITERATIONS CLIENTS · Nov-Dec 2026
+================================================================================
+Objectif : solidifier avant l'afflux janvier 2027
+
+[ ] Feedbacks premiers clients → correctifs rapides
+[ ] Témoignages / case studies pour la landing
+[ ] Peppol/Odoo si clients B2B l'exigent (format UBL BIS 3.0)
+
+NICE TO HAVE (post-lancement)
 ================================================================================
 
-[ ] Pause repas — évolutions
-    ├─ Durée min/max configurable (ex. min 15min, max 60min)
-    ├─ Déduction automatique X min/jour sans action employé
-    └─ Alerte si pause dépasse X minutes
-
-[ ] Admin dashboard — stats supplémentaires
-    └─ Heures totales semaine, taux présence, absences non justifiées
-
+[ ] Pause repas — durée min/max configurable, déduction automatique
+[ ] Admin dashboard — heures totales semaine, taux présence, absences non justifiées
 [ ] Dark mode par défaut — décision (actuellement : choix utilisateur → garder ainsi ?)
-
-ROADMAP LOINTAINE (HORS SCOPE IMMÉDIAT)
-================================================================================
-
-[ ] Peppol + Odoo — facturation B2B belge (obligatoire jan 2026, tolérance expirée)
-    ├─ Format UBL BIS 3.0 (EN 16931) · pénalité non-conformité : 1.500€ min
-    ├─ webhook invoice.payment_succeeded Stripe → facture Odoo API XML-RPC
-    └─ Bloqueur : identifiants Odoo manquants
-
-[ ] Stripe Tax TVA (21% BE, autoliquidation UE B2B, 0% hors UE)
-    └─ automatic_tax, tax_id_collection, billing_address_collection dans checkout
-
-[ ] GPS localisation (Phase 2+ — RGPD-friendly)
-[ ] Multi-langue FR/NL/DE (Phase 2+)
-[ ] White-label pour revendeurs (Phase 2+)
+[ ] GPS localisation (RGPD-friendly)
+[ ] White-label pour revendeurs
 [ ] PayPal (hors scope)
 
 ================================================================================
