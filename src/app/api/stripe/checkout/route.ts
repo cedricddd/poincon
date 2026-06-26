@@ -9,7 +9,8 @@ type CheckoutPlan = typeof VALID_PLANS[number]
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await auth()
+    let session
+    try { session = await auth() } catch { /* stale JWT — treat as unauthenticated */ }
     if (!session?.user?.id) {
       const base = process.env.NEXTAUTH_URL ?? req.nextUrl.origin
       const plan = req.nextUrl.searchParams.get('plan') ?? 'starter'
