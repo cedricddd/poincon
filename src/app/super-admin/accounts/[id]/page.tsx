@@ -58,7 +58,7 @@ export default function AccountDetail() {
     const loadData = async () => {
       try {
         const [accountsRes, flagsRes] = await Promise.all([
-          fetch(`/api/super-admin/accounts`),
+          fetch(`/api/super-admin/accounts?internal=true`),
           fetch(`/api/super-admin/accounts/${id}/feature-flag`),
         ])
         if (accountsRes.ok) {
@@ -87,7 +87,7 @@ export default function AccountDetail() {
   }, [id])
 
   const reloadCompany = async () => {
-    const res = await fetch(`/api/super-admin/accounts`)
+    const res = await fetch(`/api/super-admin/accounts?internal=true`)
     if (res.ok) {
       const accounts = await res.json()
       const found = accounts.find((a: any) => a.id === id)
