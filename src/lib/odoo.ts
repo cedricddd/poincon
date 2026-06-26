@@ -113,13 +113,56 @@ export async function syncInvoiceToOdoo(params: {
   customerName: string
   vatNumber: string | null
   amountHtva: number    // centimes HTVA
+  taxAmount: number     // centimes TVA collectée par Stripe (0 = pas de TVA Stripe)
   plan: string
   billingCycle: string
   invoiceDate: string   // YYYY-MM-DD
+  billingAddress?: {
+    line1?: string | null
+    city?: string | null
+    postal_code?: string | null
+    country?: string | null  // ISO 2-letter code
+  } | null
+  customerPhone?: string | null
 }): Promise<number> {
   const uid = await authenticate()
 
-  // Find or create res.partner
+  // Lookup country ID if billing address has a country
+  let countryId: number | null = null
+  if (params.billingAddress?.country) {
+    const countryXml = await odooExecute(uid, 'res.country', 'search_read',
+      [[['code', '=', params.billingAddress.country.toUpperCase()]]],
+      { fields: ['id'], limit: 1 }
+    )
+    const countries = extractStructArray(countryXml)
+    countryId = countries.length > 0 ? (countries[0].id as number) : null
+  }
+
+  // Lookup TVA 21% sale tax if Stripe collected tax on this invoice
+  let taxId: number | null = null
+  if (params.taxAmount > 0) {
+    const taxXml = await odooExecute(uid, 'account.tax', 'search_read',
+      [[['amount', '=', 21], ['type_tax_use', '=', 'sale'], ['active', '=', true]]],
+      { fields: ['id'], limit: 1 }
+    )
+    const taxes = extractStructArray(taxXml)
+    taxId = taxes.length > 0 ? (taxes[0].id as number) : null
+  }
+
+  // Build partner payload from available Stripe data
+  const partnerData: Record<string, unknown> = {
+    name: params.customerName,
+    email: params.customerEmail,
+    customer_rank: 1,
+    ...(params.vatNumber ? { vat: params.vatNumber } : {}),
+    ...(params.customerPhone ? { phone: params.customerPhone } : {}),
+    ...(params.billingAddress?.line1 ? { street: params.billingAddress.line1 } : {}),
+    ...(params.billingAddress?.city ? { city: params.billingAddress.city } : {}),
+    ...(params.billingAddress?.postal_code ? { zip: params.billingAddress.postal_code } : {}),
+    ...(countryId !== null ? { country_id: countryId } : {}),
+  }
+
+  // Find or create res.partner — always update with latest Stripe billing info
   const searchXml = await odooExecute(
     uid,
     'res.partner',
@@ -132,13 +175,9 @@ export async function syncInvoiceToOdoo(params: {
   let partnerId: number
   if (existing.length > 0) {
     partnerId = existing[0].id as number
+    await odooExecute(uid, 'res.partner', 'write', [[partnerId], partnerData])
   } else {
-    const createXml = await odooExecute(uid, 'res.partner', 'create', [{
-      name: params.customerName,
-      email: params.customerEmail,
-      ...(params.vatNumber ? { vat: params.vatNumber } : {}),
-      customer_rank: 1,
-    }])
+    const createXml = await odooExecute(uid, 'res.partner', 'create', [partnerData])
     partnerId = extractInt(createXml)
   }
 
@@ -146,6 +185,7 @@ export async function syncInvoiceToOdoo(params: {
   const description = `Pointon ${params.plan} — abonnement ${cycle}`
 
   // Create draft invoice
+  // tax_ids: apply TVA 21% when Stripe collected it; otherwise clear (B2B reverse charge or no tax)
   const createInvXml = await odooExecute(uid, 'account.move', 'create', [{
     move_type: 'out_invoice',
     partner_id: partnerId,
@@ -155,7 +195,7 @@ export async function syncInvoiceToOdoo(params: {
       name: description,
       quantity: 1.0,
       price_unit: params.amountHtva / 100,
-      tax_ids: [[5, 0, 0]], // clear taxes — Stripe gère la TVA
+      tax_ids: taxId ? [[6, 0, [taxId]]] : [[5, 0, 0]],
     }]],
   }])
   const invoiceId = extractInt(createInvXml)

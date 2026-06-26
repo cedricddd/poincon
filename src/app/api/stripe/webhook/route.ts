@@ -167,9 +167,12 @@ export async function POST(req: NextRequest) {
             customerName: invoice.customer_name ?? companyFull?.name ?? 'Client Pointon',
             vatNumber,
             amountHtva,
+            taxAmount: invoice.tax ?? 0,
             plan: planName ?? 'UNKNOWN',
             billingCycle,
             invoiceDate,
+            billingAddress: invoice.customer_address ?? null,
+            customerPhone: invoice.customer_phone ?? null,
           })
 
           await prisma.stripeInvoice.update({
