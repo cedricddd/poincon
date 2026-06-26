@@ -191,6 +191,10 @@ export async function POST(req: NextRequest) {
           const invoiceDate = new Date(invoice.created * 1000).toISOString().split('T')[0]
           // subtotal = HTVA (before tax, before credits)
           const amountHtva = invoice.subtotal ?? invoice.amount_paid
+          // Tax: newer Stripe API exposes total_taxes[]; legacy used invoice.tax
+          const taxAmount: number = Array.isArray(invoice.total_taxes)
+            ? invoice.total_taxes.reduce((sum: number, t: any) => sum + (t.amount ?? 0), 0)
+            : (invoice.tax ?? 0)
           const billingAddress = parseBelgianAddress(companyFull?.address) ?? invoice.customer_address ?? null
 
           const odooId = await syncInvoiceToOdoo({
@@ -199,7 +203,7 @@ export async function POST(req: NextRequest) {
             customerName: companyFull?.name ?? invoice.customer_name ?? 'Client Pointon',
             vatNumber,
             amountHtva,
-            taxAmount: invoice.tax ?? 0,
+            taxAmount,
             plan: planName ?? 'UNKNOWN',
             billingCycle,
             invoiceDate,
