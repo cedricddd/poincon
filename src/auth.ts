@@ -31,6 +31,7 @@ export const authConfig: NextAuthConfig = {
             role: user.role,
             rememberMe: credentials?.rememberMe === 'true',
             twoFactorEnabled: user.twoFactorEnabled,
+            twoFactorTrustedUntil: user.twoFactorTrustedUntil,
           }
         } catch (error) {
           console.error('Auth error:', error)
@@ -71,8 +72,8 @@ export const authConfig: NextAuthConfig = {
 
         token.sessionExpiry = Date.now() + sessionDurationMs
         token.twoFactorEnabled = (user as { twoFactorEnabled?: boolean }).twoFactorEnabled ?? false
-        // Fresh login never counts as 2FA verified — user must prove identity each session
-        token.twoFactorVerified = false
+        const trustedUntil = (user as { twoFactorTrustedUntil?: Date | null }).twoFactorTrustedUntil
+        token.twoFactorVerified = trustedUntil != null && new Date(trustedUntil) > new Date()
       }
 
       // Handle session.update({ twoFactorVerified, twoFactorEnabled }) from 2FA pages

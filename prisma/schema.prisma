@@ -44,6 +44,7 @@ model User {
   defaultSite           Site?           @relation("DefaultSite", fields: [defaultSiteId], references: [id])
   twoFactorEnabled      Boolean         @default(false)
   twoFactorSecret       String?
+  twoFactorTrustedUntil DateTime?
   apiKeys               ApiKey[]
   managerId             String?
   manager               User?           @relation("EmployeeManager", fields: [managerId], references: [id], onDelete: SetNull)

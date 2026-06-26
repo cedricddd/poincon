@@ -25,5 +25,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid code' }, { status: 400 })
   }
 
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: { twoFactorTrustedUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) },
+  })
+
   return NextResponse.json({ success: true })
 }
