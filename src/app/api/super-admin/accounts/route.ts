@@ -14,10 +14,15 @@ export async function GET(req: NextRequest) {
     const planFilter = searchParams.get('plan')
     const statusFilter = searchParams.get('status')
 
+    const internalFilter = searchParams.get('internal')
     const where: any = { deletedAt: null }
 
     if (planFilter && planFilter !== 'ALL') {
       where.plan = { name: planFilter }
+    }
+    // By default hide internal accounts; pass ?internal=true to include them
+    if (internalFilter !== 'true') {
+      where.isInternal = false
     }
 
     const companies = await prisma.company.findMany({
@@ -49,6 +54,8 @@ export async function GET(req: NextRequest) {
         domain: company.domain,
         plan: company.plan?.name ?? 'FREE',
         billingCycle: company.stripeSubscriptionBillingCycle,
+        isInternal: company.isInternal,
+        isDemo: company.isDemo,
         activeMembers,
         maxEmployees,
         isOverQuota,

@@ -10,10 +10,11 @@ export async function GET() {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Get all active subscriptions
+    // Get all active subscriptions (exclude internal/test accounts)
     const companies = await prisma.company.findMany({
       where: {
         deletedAt: null,
+        isInternal: false,
         stripeSubscriptionId: { not: null },
         planId: { not: null },
       },

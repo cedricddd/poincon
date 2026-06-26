@@ -17,6 +17,8 @@ interface Account {
   activeMembers: number
   maxEmployees: number
   isOverQuota: boolean
+  isInternal: boolean
+  isDemo: boolean
   lastActivityAt: string | null
   createdAt: string
   planExpiresAt: string | null
@@ -29,12 +31,14 @@ export default function SuperAdminAccounts() {
   const [loading, setLoading] = useState(true)
   const [planFilter, setPlanFilter] = useState(searchParams.get('plan') || 'ALL')
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '')
+  const [showInternal, setShowInternal] = useState(false)
 
   useEffect(() => {
     const loadAccounts = async () => {
       const params = new URLSearchParams()
       if (planFilter !== 'ALL') params.append('plan', planFilter)
       if (statusFilter) params.append('status', statusFilter)
+      if (showInternal) params.append('internal', 'true')
 
       const res = await fetch(`/api/super-admin/accounts?${params}`)
       if (res.ok) {
@@ -45,7 +49,7 @@ export default function SuperAdminAccounts() {
     }
 
     loadAccounts()
-  }, [planFilter, statusFilter])
+  }, [planFilter, statusFilter, showInternal])
 
   const formatDate = (date: string | null) => {
     if (!date) return '—'
@@ -93,6 +97,18 @@ export default function SuperAdminAccounts() {
               <option value="UNPAID">Sans paiement</option>
             </select>
           </div>
+
+          <div className="flex items-end pb-1">
+            <label className="flex items-center gap-2 cursor-pointer text-sm text-[var(--pp-muted)]">
+              <input
+                type="checkbox"
+                checked={showInternal}
+                onChange={(e) => setShowInternal(e.target.checked)}
+                className="rounded"
+              />
+              Afficher les comptes internes
+            </label>
+          </div>
         </div>
       </Card>
 
@@ -117,7 +133,17 @@ export default function SuperAdminAccounts() {
               <tbody className="divide-y divide-[var(--pp-line)]">
                 {accounts.map((acc) => (
                   <tr key={acc.id} className="hover:bg-[var(--pp-bg2)]">
-                    <td className="py-3 px-4 font-medium">{acc.name}</td>
+                    <td className="py-3 px-4 font-medium">
+                      <div className="flex items-center gap-2">
+                        {acc.name}
+                        {acc.isInternal && (
+                          <span className="px-1.5 py-0.5 text-[10px] font-mono bg-[#7c3aed20] text-[#7c3aed] rounded">INT</span>
+                        )}
+                        {acc.isDemo && (
+                          <span className="px-1.5 py-0.5 text-[10px] font-mono bg-[#f59e0b20] text-[#f59e0b] rounded">DEMO</span>
+                        )}
+                      </div>
+                    </td>
                     <td className="py-3 px-4 text-[var(--pp-muted)] text-xs">
                       {acc.adminEmail}
                       {acc.contactEmail && <div className="text-[0.7rem]">{acc.contactEmail}</div>}

@@ -17,6 +17,8 @@ interface CompanyDetail {
   address?: string
   vatNumber?: string
   marketingConsent: boolean
+  isInternal: boolean
+  isDemo: boolean
   plan: string
   billingCycle?: string
   activeMembers: number
@@ -161,7 +163,19 @@ export default function AccountDetail() {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold text-[var(--pp-ink)]">{company.name}</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-[var(--pp-ink)]">{company.name}</h1>
+            {company.isInternal && (
+              <span className="px-2 py-0.5 text-xs font-mono bg-[#7c3aed20] text-[#7c3aed] border border-[#7c3aed40] rounded-full">
+                Interne
+              </span>
+            )}
+            {company.isDemo && (
+              <span className="px-2 py-0.5 text-xs font-mono bg-[#f59e0b20] text-[#f59e0b] border border-[#f59e0b40] rounded-full">
+                Démo
+              </span>
+            )}
+          </div>
           <p className="text-[var(--pp-muted)] mt-1">
             Créé {new Date(company.createdAt).toLocaleDateString('fr-BE')}
           </p>
@@ -209,6 +223,28 @@ export default function AccountDetail() {
                   className="rounded"
                 />
                 <span className="text-[var(--pp-muted)]">Consentement marketing</span>
+              </label>
+            </div>
+            <div>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={company.isInternal}
+                  onChange={(e) => {
+                    fetch(`/api/super-admin/accounts/${id}/contact`, {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ isInternal: e.target.checked }),
+                    }).then(() => {
+                      setCompany({ ...company, isInternal: e.target.checked })
+                    })
+                  }}
+                  className="rounded"
+                />
+                <div>
+                  <span className="text-[var(--pp-muted)]">Compte interne Ced-IT</span>
+                  <p className="text-xs text-[var(--pp-muted)] opacity-70">Exclut ce compte des stats, MRR et ARR</p>
+                </div>
               </label>
             </div>
           </div>

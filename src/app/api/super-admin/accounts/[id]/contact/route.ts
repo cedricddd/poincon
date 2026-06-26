@@ -14,7 +14,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const { contactEmail, marketingConsent } = await req.json()
+    const { contactEmail, marketingConsent, isInternal } = await req.json()
 
     const company = await prisma.company.findUnique({
       where: { id },
@@ -29,6 +29,7 @@ export async function PATCH(
       data: {
         ...(contactEmail && { contactEmail }),
         ...(marketingConsent !== undefined && { marketingConsent }),
+        ...(isInternal !== undefined && { isInternal }),
       },
       include: { admin: { select: { email: true } } },
     })
@@ -41,6 +42,7 @@ export async function PATCH(
       changes: {
         contactEmail: contactEmail || company.contactEmail,
         marketingConsent: marketingConsent ?? company.marketingConsent,
+        isInternal: isInternal ?? company.isInternal,
         companyName: company.name,
       },
     })

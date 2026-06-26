@@ -14,21 +14,23 @@ export async function GET() {
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
     const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000)
 
-    // Companies (non-deleted only)
+    const baseWhere = { deletedAt: null, isInternal: false }
+
+    // Companies (non-deleted, non-internal only)
     const totalCompanies = await prisma.company.count({
-      where: { deletedAt: null },
+      where: baseWhere,
     })
 
     const activeCompanies = await prisma.company.count({
       where: {
-        deletedAt: null,
+        ...baseWhere,
         lastActivityAt: { gte: ninetyDaysAgo },
       },
     })
 
     const newCompaniesThisMonth = await prisma.company.count({
       where: {
-        deletedAt: null,
+        ...baseWhere,
         createdAt: { gte: thirtyDaysAgo },
       },
     })
@@ -38,35 +40,37 @@ export async function GET() {
     // Active subscriptions from Stripe (approximation via DB)
     const companiesWithPlan = await prisma.company.count({
       where: {
-        deletedAt: null,
+        ...baseWhere,
         planId: { not: null },
         stripeSubscriptionId: { not: null },
       },
     })
 
-    // Users
-    const totalUsers = await prisma.user.count({
-      where: { deletedAt: null },
-    })
+    // Users (from non-internal companies only)
+    const internalCompanyIds = (await prisma.company.findMany({
+      where: { isInternal: true },
+      select: { id: true },
+    })).map(c => c.id)
+
+    const userWhere = {
+      deletedAt: null,
+      ...(internalCompanyIds.length > 0 && { companyId: { notIn: internalCompanyIds } }),
+    }
+
+    const totalUsers = await prisma.user.count({ where: userWhere })
 
     const activeUsers7d = await prisma.user.count({
-      where: {
-        deletedAt: null,
-        clockRecords: { some: { clockIn: { gte: sevenDaysAgo } } },
-      },
+      where: { ...userWhere, clockRecords: { some: { clockIn: { gte: sevenDaysAgo } } } },
     })
 
     const activeUsers30d = await prisma.user.count({
-      where: {
-        deletedAt: null,
-        clockRecords: { some: { clockIn: { gte: thirtyDaysAgo } } },
-      },
+      where: { ...userWhere, clockRecords: { some: { clockIn: { gte: thirtyDaysAgo } } } },
     })
 
     // Churn: paying companies with cancel scheduled / total paying companies
     const churningCompanies = await prisma.company.count({
       where: {
-        deletedAt: null,
+        ...baseWhere,
         stripeSubscriptionId: { not: null },
         stripeCancelAtPeriodEnd: true,
       },
