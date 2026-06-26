@@ -3,10 +3,10 @@
 ================================================================================
 
 Dernière mise à jour: 2026-06-26
-Version: 0.7.0
-État: v0.7.0 — Stripe Tax 21% actif, sync factures Stripe→Odoo (TVA + identité société),
-      facturation par siège (modèle souple + triggers + cron reconcile), catalogue 12 prix Stripe (test).
-      Reste : bascule Stripe LIVE (script scripts/stripe-go-live.mjs), smoke tests prod, add-ons self-service.
+Version: 0.7.1
+État: v0.7.1 — SuperAdmin nettoyé (flag isInternal, stats/MRR/ARR propres, 0€ test),
+      Docker LXC 106 nettoyé (27 Go libérés). Base propre pour premiers vrais clients.
+      Reste : bascule Stripe LIVE, smoke tests prod, add-ons self-service.
 
 ================================================================================
 PHASES COMPLÉTÉES (✓)
@@ -347,18 +347,32 @@ PHASE 17: STRIPE TAX + ODOO + FACTURATION PAR SIÈGE (✓ COMPLÉTÉE — 2026-0
     ✓ UI Réglages→Abonnement (membres/inclus/sièges/coût) + page Users (badge/bannière souple)
 ✓ docker-compose : env_file .env (fini le piège des vars oubliées)
 
+PHASE 18: SUPERADMIN NETTOYAGE + MAINTENANCE (✓ COMPLÉTÉE — 2026-06-26)
+================================================================================
+✓ Company.isInternal (Boolean @default(false)) — flag pour exclure comptes Ced-IT des stats
+✓ SuperAdmin dashboard (server component) : toutes les queries Prisma filtrées isInternal:false
+✓ Routes API stats + revenue + accounts : filtre isInternal:false (avec toggle ?internal=true)
+✓ Page account detail : badge "Interne"/"Démo", checkbox toggle, fetch avec ?internal=true
+    └─ Fix bug : detail page utilisait le même endpoint que la liste → disparaissait après cochage
+✓ Liste accounts : checkbox "Afficher les comptes internes" + badge INT/DEMO dans tableau
+✓ Docker LXC 106 nettoyé : docker image prune -af + builder prune -af → 27 Go libérés
+✓ Ced-IT + Dupont & Associés SPRL marqués isInternal=true → dashboard à €0/0 sociétés
+
+Note infra : commandes SQL prod toujours via `pct exec 106 -- docker exec pointon-db psql ...`
+sans bash -c intermédiaire (quoting PowerShell plus fiable sans wrapper bash).
+
 ================================================================================
 CE QUI RESTE À FAIRE
 ================================================================================
 
-PROCHAINE SESSION (DEMAIN) — FINITION FACTURATION PAR SIÈGE
+PROCHAINE SESSION — FINITION FACTURATION PAR SIÈGE
 ================================================================================
+[ ] ⚠️ Changement de plan (upgrade/downgrade) : le prix/siège diffère par plan
+    ├─ Si plan change et item siège existe avec l'ANCIEN price → supprimer + recréer au bon price
+    └─ Durcir syncSeatQuantity (détecter price mismatch), tester STARTER→TEAM
 [ ] Tester le chemin ANNUEL (always_invoice) — on n'a validé que le mensuel
     └─ Créer une sub annuelle test, ajouter un siège → vérifier facture prorata immédiate
-[ ] ⚠️ Changement de plan (upgrade/downgrade) : le prix/siège diffère par plan
-    ├─ Si le plan change et un item siège existe avec l'ANCIEN price → le supprimer + recréer au bon price
-    └─ Durcir syncSeatQuantity (détecter price mismatch sur l'item existant), tester STARTER→TEAM
-[ ] Resync sièges sur customer.subscription.updated (si l'admin change via le portail Stripe)
+[ ] Resync sièges sur customer.subscription.updated (si l'admin change via portail Stripe)
 [ ] Validation UI bout-en-bout des triggers : inviter un membre qui dépasse le seuil
     └─ voir badge "+1 siège" + panneau coût + item siège dans Stripe
 [ ] Décision : l'admin compte-t-il comme un siège ? (getActiveMemberCount inclut tout le monde)
