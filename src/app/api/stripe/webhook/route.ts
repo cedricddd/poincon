@@ -122,11 +122,13 @@ export async function POST(req: NextRequest) {
       }
       if (!company) break
 
-      // Idempotency: skip if already recorded
+      // Idempotency: skip only if already fully processed.
+      // If the record exists but Odoo sync never completed (odooInvoiceId null),
+      // allow a retry so a transient Odoo failure can be recovered on resend.
       const existing = await prisma.stripeInvoice.findUnique({
         where: { stripeInvoiceId: invoice.id },
       })
-      if (existing) break
+      if (existing && (existing.odooInvoiceId || !isOdooConfigured())) break
 
       // Resolve plan name and billing cycle from our DB
       const companyFull = await prisma.company.findUnique({
@@ -141,8 +143,8 @@ export async function POST(req: NextRequest) {
       const planName = companyFull?.plan?.name ?? null
       const billingCycle = companyFull?.stripeSubscriptionBillingCycle ?? 'monthly'
 
-      // Record in DB
-      const record = await prisma.stripeInvoice.create({
+      // Record in DB (reuse existing record on retry)
+      const record = existing ?? await prisma.stripeInvoice.create({
         data: {
           stripeInvoiceId: invoice.id,
           companyId: company.id,
@@ -153,6 +155,7 @@ export async function POST(req: NextRequest) {
       })
 
       // Sync to Odoo if configured (non-blocking: Stripe must always get 200)
+      console.log('[webhook] invoice.payment_succeeded', invoice.id, 'odooConfigured=', isOdooConfigured())
       if (isOdooConfigured()) {
         try {
           const stripeVat = invoice.customer_tax_ids?.[0]?.value ?? null
@@ -179,8 +182,9 @@ export async function POST(req: NextRequest) {
             where: { id: record.id },
             data: { odooInvoiceId: odooId, odooSyncedAt: new Date() },
           })
+          console.log('[webhook] Odoo sync OK for invoice', invoice.id, '-> odooId', odooId)
         } catch (err) {
-          console.error('[webhook] Odoo sync failed for invoice', invoice.id, err)
+          console.error('[webhook] Odoo sync FAILED for invoice', invoice.id, err instanceof Error ? err.message : err)
         }
       }
       break
