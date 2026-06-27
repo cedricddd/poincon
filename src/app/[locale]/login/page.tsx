@@ -8,6 +8,7 @@ import Image from 'next/image'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 import { Logo } from '@/components/Logo'
+import { LocaleSwitcher } from '@/components/LocaleSwitcher'
 
 interface CompanyInfo {
   name: string
@@ -86,6 +87,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-[var(--pp-bg)] flex items-center justify-center px-4" suppressHydrationWarning>
+      <div className="absolute top-4 right-4 w-40">
+        <LocaleSwitcher />
+      </div>
       <div className="w-full max-w-lg" suppressHydrationWarning>
 
         {/* Header: logo société ou branding Pointon */}

@@ -1,10 +1,11 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { Link, usePathname } from '@/i18n/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { useEffect, useState } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { LocaleSwitcher } from '@/components/LocaleSwitcher'
 import { usePlan } from '@/hooks/usePlan'
 import { Logo } from '@/components/Logo'
 
@@ -68,49 +69,51 @@ function IconTablet() {
   return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
 }
 
-/* ── Nav config ──────────────────────────────────────────────────────────── */
-
-const links = [
-  { href: '/app/clock',    label: 'Pointage', Icon: IconClock,    color: '#10b981', bg: 'rgba(16,185,129,0.12)'  },
-  { href: '/app/time-off', label: 'Congés',   Icon: IconCalendar, color: '#0ea5e9', bg: 'rgba(14,165,233,0.12)'  },
-  { href: '/app/rtt',      label: 'Récupération', Icon: IconZap,  color: '#fb923c', bg: 'rgba(251,146,60,0.12)'  },
-  { href: '/app/reports',  label: 'Rapports', Icon: IconBarChart, color: '#6366f1', bg: 'rgba(99,102,241,0.12)'  },
-  { href: '/app/presence', label: 'Présences', Icon: IconUserCheck, color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
-]
-
-const adminSubLinks = [
-  { href: '/admin/dashboard',           label: 'Tableau de bord', Icon: IconHome,   color: '#8b5cf6' },
-  { href: '/admin/dashboard/overtimes', label: 'Heures Sup.',  Icon: IconTimer,     color: '#fb923c' },
-  { href: '/admin/dashboard/timeoffs',  label: 'Congés',       Icon: IconCalendar,  color: '#0ea5e9' },
-  { href: '/admin/dashboard/rtts',      label: 'Récupération', Icon: IconZap,       color: '#fb923c' },
-  { href: '/admin/dashboard/schedules', label: 'Horaires',     Icon: IconActivity,  color: '#10b981' },
-  { href: '/admin/dashboard/teams',     label: 'Équipes',      Icon: IconUsers,     color: '#ec4899' },
-  { href: '/admin/dashboard/planning',  label: 'Planning',     Icon: IconCalendar,  color: '#6366f1' },
-  { href: '/admin/dashboard/presence',  label: 'Présences',    Icon: IconUserCheck, color: '#10b981' },
-  { href: '/admin/dashboard/users',        label: 'Utilisateurs', Icon: IconUsers,    color: '#6366f1' },
-  { href: '/admin/dashboard/invitations', label: 'Invitations',  Icon: IconMail,     color: '#6366f1' },
-  { href: '/admin/dashboard/sites',       label: 'Sites',        Icon: IconBuilding, color: '#8b5cf6' },
-  { href: '/admin/dashboard/audit',                   label: 'Audit Trail',  Icon: IconLog,       color: '#a855f7' },
-  { href: '/admin/dashboard/reports',               label: 'Rapports',     Icon: IconBarChart,  color: '#6366f1' },
-  { href: '/admin/dashboard/kiosk',                  label: 'Kiosque',      Icon: IconTablet,    color: '#06b6d4' },
-  { href: '/admin/dashboard/settings',              label: 'Paramètres',   Icon: IconSettings,  color: '#64748b' },
-  { href: '/admin/dashboard/settings/integrations', label: 'Intégrations', Icon: IconActivity,  color: '#f59e0b' },
-]
-
-const superAdminSubLinks = [
-  { href: '/super-admin/dashboard',  label: 'Overview',    Icon: IconBarChart, color: '#a78bfa' },
-  { href: '/super-admin/workspace',  label: 'Mon espace',  Icon: IconCalendar, color: '#a78bfa' },
-  { href: '/super-admin/accounts',   label: 'Comptes',     Icon: IconUsers,    color: '#a78bfa' },
-  { href: '/super-admin/email',      label: 'Email',       Icon: IconLog,      color: '#a78bfa' },
-  { href: '/super-admin/profile',    label: 'Mon profil',  Icon: IconSettings, color: '#a78bfa' },
-]
+/* ── Nav config (defined inside component to access translations) ─────────── */
 
 /* ── Component ──────────────────────────────────────────────────────────── */
 
 export function Sidebar() {
-  const pathname = usePathname()
+  const pathname = usePathname()  // next-intl: returns path WITHOUT locale prefix
+  const t = useTranslations('sidebar')
+  const locale = useLocale()
   const { data: session } = useSession()
   const { planInfo } = usePlan()
+
+  const links = [
+    { href: '/app/clock',    label: t('pointage'),     Icon: IconClock,     color: '#10b981', bg: 'rgba(16,185,129,0.12)'  },
+    { href: '/app/time-off', label: t('conges'),       Icon: IconCalendar,  color: '#0ea5e9', bg: 'rgba(14,165,233,0.12)'  },
+    { href: '/app/rtt',      label: t('recuperation'), Icon: IconZap,       color: '#fb923c', bg: 'rgba(251,146,60,0.12)'  },
+    { href: '/app/reports',  label: t('rapports'),     Icon: IconBarChart,  color: '#6366f1', bg: 'rgba(99,102,241,0.12)'  },
+    { href: '/app/presence', label: t('presences'),    Icon: IconUserCheck, color: '#10b981', bg: 'rgba(16,185,129,0.12)'  },
+  ]
+
+  const adminSubLinks = [
+    { href: '/admin/dashboard',                       label: t('tableau_de_bord'), Icon: IconHome,      color: '#8b5cf6' },
+    { href: '/admin/dashboard/overtimes',             label: t('heures_sup'),      Icon: IconTimer,     color: '#fb923c' },
+    { href: '/admin/dashboard/timeoffs',              label: t('conges'),          Icon: IconCalendar,  color: '#0ea5e9' },
+    { href: '/admin/dashboard/rtts',                  label: t('recuperation'),    Icon: IconZap,       color: '#fb923c' },
+    { href: '/admin/dashboard/schedules',             label: t('horaires'),        Icon: IconActivity,  color: '#10b981' },
+    { href: '/admin/dashboard/teams',                 label: t('equipes'),         Icon: IconUsers,     color: '#ec4899' },
+    { href: '/admin/dashboard/planning',              label: t('planning'),        Icon: IconCalendar,  color: '#6366f1' },
+    { href: '/admin/dashboard/presence',              label: t('presences'),       Icon: IconUserCheck, color: '#10b981' },
+    { href: '/admin/dashboard/users',                 label: t('utilisateurs'),    Icon: IconUsers,     color: '#6366f1' },
+    { href: '/admin/dashboard/invitations',           label: t('invitations'),     Icon: IconMail,      color: '#6366f1' },
+    { href: '/admin/dashboard/sites',                 label: t('sites'),           Icon: IconBuilding,  color: '#8b5cf6' },
+    { href: '/admin/dashboard/audit',                 label: t('audit'),           Icon: IconLog,       color: '#a855f7' },
+    { href: '/admin/dashboard/reports',               label: t('rapports'),        Icon: IconBarChart,  color: '#6366f1' },
+    { href: '/admin/dashboard/kiosk',                 label: t('kiosque'),         Icon: IconTablet,    color: '#06b6d4' },
+    { href: '/admin/dashboard/settings',              label: t('parametres'),      Icon: IconSettings,  color: '#64748b' },
+    { href: '/admin/dashboard/settings/integrations', label: t('integrations'),   Icon: IconActivity,  color: '#f59e0b' },
+  ]
+
+  const superAdminSubLinks = [
+    { href: '/super-admin/dashboard', label: t('overview'),   Icon: IconBarChart, color: '#a78bfa' },
+    { href: '/super-admin/workspace', label: t('mon_espace'), Icon: IconCalendar, color: '#a78bfa' },
+    { href: '/super-admin/accounts',  label: t('comptes'),    Icon: IconUsers,    color: '#a78bfa' },
+    { href: '/super-admin/email',     label: 'Email',         Icon: IconLog,      color: '#a78bfa' },
+    { href: '/super-admin/profile',   label: t('mon_profil'), Icon: IconSettings, color: '#a78bfa' },
+  ]
   const [collapsed, setCollapsed] = useState(false)
   const [presenceAccess, setPresenceAccess] = useState<{ presenceForEmployees: boolean; presenceForManagers: boolean } | null>(null)
 
@@ -172,7 +175,7 @@ export function Sidebar() {
       <button
         onClick={() => setMobileOpen(true)}
         className="md:hidden fixed top-3 left-3 z-30 p-2 rounded-lg bg-[var(--pp-bg2)] border border-[var(--pp-line)] text-[var(--pp-ink)] shadow-sm"
-        aria-label="Ouvrir le menu"
+        aria-label={t('ouvrir_menu')}
       >
         <IconMenu />
       </button>
@@ -190,7 +193,7 @@ export function Sidebar() {
       <button
         onClick={() => setMobileOpen(false)}
         className="md:hidden absolute top-3 right-3 z-10 p-2 rounded-lg text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)]/40"
-        aria-label="Fermer le menu"
+        aria-label={t('fermer_menu')}
       >
         <IconX />
       </button>
@@ -218,7 +221,7 @@ export function Sidebar() {
           <button
             onClick={() => setCollapsed(true)}
             className="p-1.5 rounded-lg text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)]/40 transition shrink-0"
-            title="Réduire le menu"
+            title={t('reduire_menu')}
           >
             <IconChevronLeft />
           </button>
@@ -234,7 +237,7 @@ export function Sidebar() {
             onClick={() => toggleSection('employee')}
             className="w-full flex items-center justify-between px-2.5 py-1.5 mb-1 rounded-lg text-xs font-semibold uppercase tracking-wider text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)]/30 transition-all"
           >
-            <span>Pointage</span>
+            <span>{t('pointage')}</span>
             <span className={`transition-transform duration-200 ${openSections.employee ? 'rotate-0' : '-rotate-90'}`}>
               <IconChevronLeft />
             </span>
@@ -271,9 +274,9 @@ export function Sidebar() {
             <div className="border-t border-[var(--pp-line)] my-2" />
             <div className="space-y-0.5">
               {[
-                { href: '/manager/dashboard', label: 'Mon Équipe', Icon: IconUsers },
-                { href: '/manager/dashboard/planning', label: 'Planning', Icon: IconCalendar },
-                { href: '/manager/dashboard/presence', label: 'Présences', Icon: IconUserCheck },
+                { href: '/manager/dashboard', label: t('equipes'), Icon: IconUsers },
+                { href: '/manager/dashboard/planning', label: t('planning'), Icon: IconCalendar },
+                { href: '/manager/dashboard/presence', label: t('presences'), Icon: IconUserCheck },
               ].filter(({ href }) => {
                 if (href === '/manager/dashboard/presence' && presenceAccess !== null && !presenceAccess.presenceForManagers) return false
                 return true
@@ -311,7 +314,7 @@ export function Sidebar() {
               >
                 <div className="flex items-center gap-2">
                   <IconSettings />
-                  <span>Admin</span>
+                  <span>{t('admin')}</span>
                 </div>
                 <span className={`transition-transform duration-200 ${openSections.admin ? 'rotate-0' : '-rotate-90'}`}>
                   <IconChevronLeft />
@@ -320,7 +323,7 @@ export function Sidebar() {
             ) : (
               <Link
                 href="/admin/dashboard"
-                title="Admin"
+                title={t('admin')}
                 className="flex items-center justify-center px-2.5 py-2.5 rounded-lg transition-all text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)]/40"
                 style={pathname.startsWith('/admin') ? { color: 'var(--pp-ink)', background: 'var(--pp-line)' } : {}}
               >
@@ -365,7 +368,7 @@ export function Sidebar() {
               >
                 <div className="flex items-center gap-2">
                   <IconBarChart />
-                  <span>Super-Admin</span>
+                  <span>{t('super_admin')}</span>
                 </div>
                 <span className={`transition-transform duration-200 ${openSections.superadmin ? 'rotate-0' : '-rotate-90'}`}>
                   <IconChevronLeft />
@@ -374,7 +377,7 @@ export function Sidebar() {
             ) : (
               <Link
                 href="/super-admin/dashboard"
-                title="Super-Admin"
+                title={t('super_admin')}
                 className="flex items-center justify-center px-2.5 py-2.5 rounded-lg transition-all"
                 style={pathname.startsWith('/super-admin') ? { color: '#a78bfa', background: '#a78bfa18' } : { color: 'var(--pp-muted)' }}
               >
@@ -412,13 +415,15 @@ export function Sidebar() {
           <button
             onClick={() => setCollapsed(false)}
             className="w-full flex items-center justify-center p-2 rounded-lg text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)]/40 transition"
-            title="Ouvrir le menu"
+            title={t('ouvrir_menu')}
           >
             <IconChevronRight />
           </button>
         )}
 
         {!c && <ThemeToggle />}
+        {!c && <LocaleSwitcher collapsed={false} />}
+        {c && <LocaleSwitcher collapsed />}
 
         {session && (
           <div className={`flex items-center gap-3 px-2 py-2 rounded-lg ${c ? 'justify-center' : ''}`}>
@@ -437,22 +442,22 @@ export function Sidebar() {
         {!isSuperAdmin && !isAdmin && (
           <Link
             href="/app/profile"
-            title={c ? 'Mon profil' : undefined}
+            title={c ? t('mon_profil') : undefined}
             className={`w-full flex items-center gap-2 px-2 py-2 text-xs text-[var(--pp-muted)] hover:text-[var(--pp-ink)] transition rounded-lg hover:bg-[var(--pp-line)]/40 ${c ? 'justify-center' : ''}`}
             style={pathname === '/app/profile' ? { color: 'var(--pp-ink)', background: 'var(--pp-line)' } : {}}
           >
             <IconSettings />
-            {!c && 'Mon profil'}
+            {!c && t('mon_profil')}
           </Link>
         )}
 
         <button
-          onClick={() => signOut({ callbackUrl: '/login' })}
-          title={c ? 'Se déconnecter' : undefined}
+          onClick={() => signOut({ callbackUrl: `/${locale}/login` })}
+          title={c ? t('se_deconnecter') : undefined}
           className={`w-full flex items-center gap-2 px-2 py-2 text-xs text-[var(--pp-muted)] hover:text-[var(--pp-neg)] transition rounded-lg hover:bg-[var(--pp-neg)]/8 ${c ? 'justify-center' : ''}`}
         >
           <IconLogOut />
-          {!c && 'Se déconnecter'}
+          {!c && t('se_deconnecter')}
         </button>
       </div>
     </aside>

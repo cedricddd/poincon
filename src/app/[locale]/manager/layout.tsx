@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { getLocale } from 'next-intl/server'
 import { auth } from '@/auth'
 import { Sidebar } from '@/components/Sidebar'
 import { MobileNav } from '@/components/MobileNav'
@@ -9,10 +10,10 @@ import { DemoBanner } from '@/components/DemoBanner'
 export const dynamic = 'force-dynamic'
 
 export default async function ManagerLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth()
-  if (!session?.user) redirect('/login')
+  const [session, locale] = await Promise.all([auth(), getLocale()])
+  if (!session?.user) redirect(`/${locale}/login`)
   const role = session.user.role
-  if (role !== 'MANAGER' && role !== 'ADMIN' && role !== 'SUPER_ADMIN') redirect('/app/clock')
+  if (role !== 'MANAGER' && role !== 'ADMIN' && role !== 'SUPER_ADMIN') redirect(`/${locale}/app/clock`)
 
   return (
     <div className="flex">

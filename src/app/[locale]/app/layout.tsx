@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { getLocale } from 'next-intl/server'
 import { auth } from '@/auth'
 import { Sidebar } from '@/components/Sidebar'
 import { MobileNav } from '@/components/MobileNav'
@@ -13,8 +14,8 @@ export default async function AppLayout({
 }: {
   children: React.ReactNode
 }) {
-  const session = await auth()
-  if (!session?.user) redirect('/login')
+  const [session, locale] = await Promise.all([auth(), getLocale()])
+  if (!session?.user) redirect(`/${locale}/login`)
 
   return (
     <div className="flex">

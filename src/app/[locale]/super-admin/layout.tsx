@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { getLocale } from 'next-intl/server'
 import { auth } from '@/auth'
 import { Sidebar } from '@/components/Sidebar'
 import { MobileNav } from '@/components/MobileNav'
@@ -10,9 +11,9 @@ export default async function SuperAdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  const session = await auth()
-  if (!session?.user) redirect('/login')
-  if (session.user.role !== 'SUPER_ADMIN') redirect('/app')
+  const [session, locale] = await Promise.all([auth(), getLocale()])
+  if (!session?.user) redirect(`/${locale}/login`)
+  if (session.user.role !== 'SUPER_ADMIN') redirect(`/${locale}/app`)
 
   return (
     <div className="flex">

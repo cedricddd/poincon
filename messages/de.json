@@ -1,0 +1,433 @@
+{
+  "common": {
+    "save": "Speichern",
+    "saving": "Speichern...",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "close": "Schließen",
+    "confirm": "Bestätigen",
+    "back": "Zurück",
+    "loading": "Laden...",
+    "error": "Ein Fehler ist aufgetreten",
+    "networkError": "Verbindungsfehler",
+    "success": "Erfolg",
+    "yes": "Ja",
+    "no": "Nein",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "export": "Exportieren",
+    "actions": "Aktionen",
+    "status": "Status",
+    "date": "Datum",
+    "name": "Name",
+    "email": "E-Mail",
+    "role": "Rolle",
+    "site": "Standort",
+    "pending": "Ausstehend",
+    "approved": "Genehmigt",
+    "rejected": "Abgelehnt",
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "all": "Alle",
+    "none": "Keine",
+    "total": "Gesamt"
+  },
+  "auth": {
+    "login": {
+      "title": "Anmelden",
+      "emailLabel": "E-Mail",
+      "emailPlaceholder": "sie@firma.be",
+      "passwordLabel": "Passwort",
+      "passwordPlaceholder": "••••••••",
+      "rememberMe": "Angemeldet bleiben",
+      "submit": "Anmelden",
+      "forgotPassword": "Passwort vergessen?",
+      "signup": "Kostenlos registrieren",
+      "backHome": "Zurück zur Startseite",
+      "via": "Anmelden über Pointon",
+      "errorInvalid": "Ungültige E-Mail-Adresse oder Passwort.",
+      "errorBrute": "Zu viele Versuche. Bitte versuchen Sie es in 15 Minuten erneut.",
+      "errorUnavailable": "Dienst vorübergehend nicht verfügbar."
+    },
+    "signup": {
+      "title": "Konto erstellen",
+      "submit": "Mein Konto erstellen",
+      "alreadyAccount": "Haben Sie bereits ein Konto?",
+      "loginLink": "Anmelden"
+    },
+    "forgotPassword": {
+      "title": "Passwort vergessen",
+      "description": "Geben Sie Ihre E-Mail-Adresse ein, um einen Reset-Link zu erhalten.",
+      "submit": "Link senden",
+      "backToLogin": "Zurück zur Anmeldung"
+    },
+    "resetPassword": {
+      "title": "Neues Passwort",
+      "submit": "Mein Passwort zurücksetzen",
+      "passwordLabel": "Neues Passwort",
+      "confirmLabel": "Passwort bestätigen"
+    },
+    "setPassword": {
+      "title": "Mein Passwort erstellen",
+      "submit": "Mein Passwort erstellen"
+    },
+    "2fa": {
+      "setupTitle": "Zwei-Faktor-Authentifizierung einrichten",
+      "challengeTitle": "Zwei-Schritt-Verifizierung",
+      "codeLabel": "6-stelliger Code",
+      "codePlaceholder": "000000",
+      "submit": "Verifizieren",
+      "trustDevice": "Dieses Gerät 30 Tage merken"
+    }
+  },
+  "sidebar": {
+    "pointage": "Zeiterfassung",
+    "conges": "Urlaub",
+    "recuperation": "Freizeitausgleich",
+    "rapports": "Berichte",
+    "presences": "Anwesenheit",
+    "admin": "Verwaltung",
+    "tableau_de_bord": "Dashboard",
+    "heures_sup": "Überstunden",
+    "horaires": "Schichtpläne",
+    "equipes": "Teams",
+    "planning": "Planung",
+    "utilisateurs": "Benutzer",
+    "invitations": "Einladungen",
+    "sites": "Standorte",
+    "audit": "Audit-Trail",
+    "kiosque": "Kiosk",
+    "parametres": "Einstellungen",
+    "integrations": "Integrationen",
+    "super_admin": "Super-Admin",
+    "overview": "Übersicht",
+    "mon_espace": "Mein Bereich",
+    "comptes": "Konten",
+    "mon_profil": "Mein Profil",
+    "se_deconnecter": "Abmelden",
+    "ouvrir_menu": "Menü öffnen",
+    "fermer_menu": "Menü schließen",
+    "reduire_menu": "Menü einklappen"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "hoursThisWeek": "Erfasste Stunden diese Woche",
+    "overtimes": "Überstunden",
+    "timeoffs": "Urlaub",
+    "rtts": "Freizeitausgleich",
+    "presences": "Anwesenheit",
+    "users": "Benutzer",
+    "noSchedule": "Ohne Schichtplan",
+    "pendingRequests": "{count, plural, one {# ausstehende Anfrage} other {# ausstehende Anfragen}}",
+    "upToDate": "Alles ist aktuell ✓",
+    "clockedNow": "jetzt eingestempelt",
+    "activeEmployees": "aktive Mitarbeiter",
+    "toConfigure": "zu konfigurieren",
+    "livePresences": "Live-Anwesenheit",
+    "recentActivity": "Letzte Aktivitäten",
+    "seeAll": "Alle anzeigen →",
+    "noClockedIn": "Gerade niemand eingestempelt",
+    "noClockThisWeek": "Keine Zeiterfassungen diese Woche"
+  },
+  "clock": {
+    "greetingMorning": "Guten Morgen",
+    "greetingAfternoon": "Guten Tag",
+    "greetingEvening": "Guten Abend",
+    "clockedToday": "Heute eingestempelt",
+    "todaySessions": "Heutige Sitzungen",
+    "currentWeek": "Aktuelle Woche",
+    "month": "Monat",
+    "arrival": "Ankunft",
+    "departure": "Abgang",
+    "mode": "Modus",
+    "site": "Standort",
+    "clockIn": "EINSTEMP. ✓",
+    "clockOut": "AUSSTEMP. ✕",
+    "startBreak": "⏸ Mittagspause",
+    "endBreak": "▶ Pause beenden",
+    "inProgress": "Läuft",
+    "onBreak": "Mittagspause",
+    "breakPaused": "Timer pausiert",
+    "waitingSync": "⏳ ausstehend",
+    "toastClockIn": "Ankunft um {time} erfasst ✓",
+    "toastClockInOffline": "Ankunft um {time} erfasst (⏳ Synchronisierung ausstehend)",
+    "toastBreakStart": "Mittagspause gestartet",
+    "toastBreakEnd": "Pause beendet, Timer fortgesetzt",
+    "toastError": "Verbindungsfehler",
+    "modeOnSite": "Vor Ort",
+    "modeRemote": "Homeoffice",
+    "modeTravel": "Dienstreise"
+  },
+  "kiosk": {
+    "employee": "Ich bin Mitarbeiter",
+    "visitor": "Ich bin Besucher",
+    "clockEmployee": "Meine Ankunft · Abgang erfassen",
+    "registerVisit": "Meinen Besuch erfassen",
+    "visitorLeave": "Ich gehe (Besucher)",
+    "pinTitle": "Ihr PIN-Code",
+    "pinPlaceholder": "4-stelliger Code",
+    "verifying": "Verifizierung…",
+    "visitorFirstName": "Vor- und Nachname",
+    "visitorEmail": "E-Mail-Adresse",
+    "visitorHost": "Ich besuche",
+    "visitorSelect": "Auswählen",
+    "visitorConfirm": "Meinen Besuch bestätigen",
+    "visitorLeaveLabel": "Meinen Abgang erfassen",
+    "visitorLeaveEmail": "Geben Sie die E-Mail-Adresse ein, die Sie bei der Ankunft verwendet haben",
+    "visitorLeaveConfirm": "Meinen Abgang bestätigen",
+    "successClockIn": "Ankunft erfasst",
+    "successClockOut": "Abgang erfasst",
+    "successVisit": "Besuch erfasst",
+    "successVisitEmail": "Eine E-Mail wurde an Ihren Gastgeber gesendet.",
+    "goodbyeVisitor": "Auf Wiedersehen, {name}!",
+    "errorNotFound": "Terminal nicht gefunden",
+    "errorNotFoundDesc": "Dieser Kiosk-Link existiert nicht mehr oder wurde gelöscht.",
+    "errorUnavailable": "Kiosk nicht verfügbar",
+    "errorPlanRequired": "Der Kiosk-Modus erfordert einen SOLO-, TEAM- oder ENTERPRISE-Plan.",
+    "emailPlaceholder": "maria@beispiel.be",
+    "namePlaceholder": "Maria Müller",
+    "iphoneTitle": "🍎 iPhone / iPad (Safari)",
+    "androidTitle": "🤖 Android (Chrome)",
+    "installStep1Safari": "Öffnen Sie {url} in Safari",
+    "installStep2Safari": "Tippen Sie auf das Teilen-Symbol (Quadrat mit Pfeil ↑)",
+    "installStep3Safari": "Wählen Sie 'Zum Home-Bildschirm'",
+    "installStep4Safari": "Bestätigen Sie mit 'Hinzufügen'"
+  },
+  "qr": {
+    "title": "QR-Scanner",
+    "scanning": "Positionieren Sie den QR-Code im Rahmen",
+    "permissionDenied": "Kamerazugriff verweigert",
+    "permissionInstructions": "Erlauben Sie den Kamerazugriff in Ihren Browsereinstellungen.",
+    "iphoneInstructions": "🍎 Auf iPhone: Einstellungen → Safari → Kamera → Erlauben",
+    "androidInstructions": "🤖 Auf Android: Chrome → Website-Einstellungen → Kamera → Erlauben",
+    "pinTitle": "PIN-Code",
+    "pinPlaceholder": "4-stelliger Code",
+    "successClockIn": "Ankunft erfasst ✓",
+    "successClockOut": "Abgang erfasst ✓",
+    "errorInvalidQr": "Ungültiger oder abgelaufener QR-Code",
+    "errorPin": "Falscher PIN"
+  },
+  "reports": {
+    "title": "Berichte",
+    "employee": "Mitarbeiter",
+    "email": "E-Mail",
+    "date": "Datum",
+    "arrival": "Ankunft",
+    "departure": "Abgang",
+    "duration": "Dauer",
+    "location": "Ort",
+    "site": "Standort",
+    "totalHours": "Gesamtstunden",
+    "averagePerSession": "Durchschnitt/Sitzung",
+    "incomplete": "Unvollständig",
+    "overtimes": "Überstunden",
+    "exportCsv": "CSV exportieren",
+    "exportPdf": "PDF exportieren",
+    "noResults": "Keine Zeiterfassungen gefunden",
+    "advancedMode": "Erweiterter Modus",
+    "simpleMode": "Einfacher Modus"
+  },
+  "planning": {
+    "title": "Planung",
+    "day": "Ganztag",
+    "morning": "Morgen",
+    "afternoon": "Nachmittag",
+    "night": "Nacht",
+    "partial": "Teilweise",
+    "variable": "Variabel",
+    "annual": "🌴 Jahresurlaub",
+    "sick": "🤒 Krankenstand",
+    "maternity": "👶 Mutterschaftsurlaub"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "company": "Unternehmenseinstellungen",
+    "subscription": "Abonnement",
+    "integrations": "Integrationen",
+    "addons": "Add-ons",
+    "apikeys": "API-Schlüssel",
+    "webhooks": "Webhooks",
+    "members": "Mitglieder",
+    "included": "inklusive",
+    "seats": "Plätze",
+    "cost": "Kosten",
+    "activateAddon": "Aktivieren"
+  },
+  "legal": {
+    "privacy": "Datenschutz",
+    "terms": "Nutzungsbedingungen",
+    "compliance": "Compliance",
+    "security": "Sicherheit",
+    "backHome": "← Zurück zur Startseite",
+    "copyright": "© {year} Pointon · Ced-IT"
+  },
+  "emails": {
+    "greeting": "Sehr geehrte(r) {name},",
+    "greetingGeneric": "Sehr geehrte Damen und Herren,",
+    "footer": "Pointon · {year}",
+    "approval": {
+      "subjectApproved": "✅ Ihr Antrag auf {type} wurde genehmigt",
+      "subjectRejected": "❌ Ihr Antrag auf {type} wurde abgelehnt",
+      "bodyApproved": "Ihr Antrag auf <strong>{type}</strong> wurde <strong>genehmigt</strong>.",
+      "bodyRejected": "Ihr Antrag auf <strong>{type}</strong> wurde <strong>abgelehnt</strong>.",
+      "reason": "<strong>Begründung:</strong> {reason}",
+      "button": "Meine Berichte anzeigen",
+      "typeOvertime": "Überstunden",
+      "typeTimeoff": "Urlaub",
+      "typeRtt": "Freizeitausgleich"
+    },
+    "endOfDay": {
+      "subject": "⏰ Sie haben vergessen, auszustempeln",
+      "body": "Es scheint, dass Sie noch eingestempelt sind und Ihr Arbeitstag die <strong>gesetzlichen 8 Stunden</strong> überschreitet.",
+      "advice": "Vergessen Sie nicht, <strong>auszustempeln</strong>, damit Ihre Überstunden korrekt erfasst werden.",
+      "button": "Jetzt ausstempeln"
+    },
+    "invitation": {
+      "subject": "Einladung, {company} auf Pointon beizutreten",
+      "body": "Sie wurden eingeladen, <strong>{company}</strong> auf Pointon beizutreten.",
+      "button": "Mein Passwort erstellen →",
+      "validity": "Dieser Link ist <strong>48 Stunden</strong> gültig.",
+      "installTitle": "📱 Die App auf Ihrem Telefon installieren",
+      "installStep1Safari": "Öffnen Sie <strong>{url}</strong> in Safari",
+      "installStep2Safari": "Tippen Sie auf das <strong>Teilen</strong>-Symbol (Quadrat mit Pfeil ↑)",
+      "installStep3Safari": "Wählen Sie <strong>'Zum Home-Bildschirm'</strong>",
+      "installStep4Safari": "Bestätigen Sie mit <strong>'Hinzufügen'</strong>"
+    },
+    "passwordReset": {
+      "subject": "🔑 Ihr Pointon-Passwort zurücksetzen",
+      "body": "Sie haben das Zurücksetzen Ihres Passworts angefordert.",
+      "button": "Mein Passwort zurücksetzen →",
+      "validity": "Dieser Link ist <strong>24 Stunden</strong> gültig.",
+      "warning": "Wenn Sie diese Anfrage nicht gestellt haben, ignorieren Sie bitte diese E-Mail. Ihr Passwort bleibt unverändert."
+    },
+    "welcome": {
+      "subject": "Willkommen bei Pointon, {company}!",
+      "body": "Willkommen bei <strong>Pointon</strong>! Ihr <strong>{company}</strong>-Bereich ist bereit.",
+      "description": "Sie können jetzt Ihr Unternehmen konfigurieren, Ihre Mitarbeiter einladen und mit der Zeiterfassung beginnen.",
+      "button": "Meinen Bereich konfigurieren →",
+      "checklistTitle": "Was Sie jetzt schon tun können:",
+      "checklistItem1": "Ihre Mitarbeiter einladen (Einstellungen → Benutzer)",
+      "checklistItem2": "Ihre Arbeitsstandorte konfigurieren",
+      "checklistItem3": "Schichtpläne und Planungen einrichten",
+      "checklistItem4": "Zeiterfassung auf Mobilgeräten oder Tablets aktivieren",
+      "question": "Haben Sie Fragen? Antworten Sie auf diese E-Mail."
+    },
+    "newCompany": {
+      "subject": "🆕 Neues Unternehmen: {company}",
+      "title": "🆕 <strong>Neu registriertes Unternehmen</strong>",
+      "labelCompany": "Unternehmen",
+      "labelAdmin": "Administrator",
+      "labelEmail": "E-Mail",
+      "labelVat": "MwSt.",
+      "labelDate": "Datum",
+      "labelPlan": "Plan",
+      "button": "Im Super-Admin anzeigen →"
+    },
+    "kioskVisitor": {
+      "subject": "🏷️ Besucher eingetroffen: {visitor}",
+      "body": "Ihr Besucher <strong>{visitor}</strong> ist soeben um <strong>{time}</strong> an der Rezeption eingetroffen.",
+      "sectionVisitor": "<strong>Besucher</strong>"
+    }
+  },
+  "landing": {
+    "hero": {
+      "title": "Einstempeln. Konform. Belgisch.",
+      "subtitle": "Objektive Zeiterfassung für belgische KMU. Konform mit Gesetz 2027 & EuGH. In 2 Minuten.",
+      "ctaPrimary": "Kostenlos starten",
+      "ctaSecondary": "Preise ansehen"
+    },
+    "stats": {
+      "smes": "Belgische KMU",
+      "setup": "Durchschnittliches Setup",
+      "compliant": "EuGH-konform"
+    },
+    "features": {
+      "title": "Alles was Sie brauchen, nichts Überflüssiges",
+      "clockIn": {
+        "title": "Einstempeln mit 1 Tipp",
+        "description": "ANKUNFT / ABGANG mit einer Geste. Funktioniert auf Smartphone, Tablet und PC ohne Schulung."
+      },
+      "compliant": {
+        "title": "100% konform 2027",
+        "description": "Unveränderlicher Audit-Trail, zertifizierter Export, EuGH- & belgische Gesetzeskonformität 2027 integriert."
+      },
+      "reports": {
+        "title": "Echtzeit-Berichte",
+        "description": "Stunden, Urlaub, Freizeitausgleich. Alles in einem Dashboard. CSV-Export mit einem Klick."
+      },
+      "gpsZero": {
+        "title": "0 GPS",
+        "description": "Kein Standort-Tracking. Vollständige Achtung der Privatsphäre Ihrer Mitarbeiter."
+      }
+    },
+    "methods": {
+      "title": "3 Wege zum Einstempeln",
+      "mobile": {
+        "title": "Mobile PWA",
+        "description": "Ankunft und Abgang mit 1 Tipp von jedem Smartphone, ohne App-Installation."
+      },
+      "kiosk": {
+        "title": "PIN-Kiosk",
+        "description": "Tablet am Eingang. Der Mitarbeiter gibt seinen 4-stelligen PIN ein. Sofortige Erfassung."
+      },
+      "qr": {
+        "title": "QR-Code",
+        "description": "QR-Code vor Ort scannen. Ideal für Baustellen oder mehrere Standorte."
+      }
+    },
+    "testimonials": {
+      "title": "Sie vertrauen uns"
+    },
+    "faq": {
+      "title": "Häufig gestellte Fragen",
+      "compliant": {
+        "q": "Entspricht die Lösung dem belgischen Gesetz 2027?",
+        "a": "Ja. Pointon erfüllt alle belgischen und EuGH-rechtlichen Anforderungen an die Zeiterfassung."
+      },
+      "gps": {
+        "q": "Verwenden Sie Geolokalisierung?",
+        "a": "Nein. Pointon verwendet kein GPS. Es werden keine Standortdaten erfasst."
+      },
+      "setup": {
+        "q": "Wie lange dauert es, loszulegen?",
+        "a": "2 Minuten. Erstellen Sie Ihr Konto, laden Sie Ihre Mitarbeiter ein und los geht's."
+      }
+    },
+    "cta": {
+      "title": "Bereit, konform zu sein?",
+      "button": "Kostenlos starten"
+    }
+  },
+  "pricing": {
+    "title": "Preise",
+    "monthly": "Monatlich",
+    "yearly": "Jährlich",
+    "yearlyDiscount": "-17%",
+    "free": {
+      "name": "Free",
+      "buttonText": "Kostenlos starten"
+    },
+    "starter": {
+      "name": "Starter",
+      "buttonText": "Starter wählen"
+    },
+    "team": {
+      "name": "Team",
+      "buttonText": "Team wählen"
+    },
+    "business": {
+      "name": "Business",
+      "buttonText": "Business wählen"
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "buttonText": "Kontakt aufnehmen",
+      "price": "Auf Anfrage"
+    },
+    "perSeat": "/Platz",
+    "perMonth": "/Monat",
+    "includedSeats": "{count} Plätze inklusive",
+    "extraSeat": "+{price}/extra Platz"
+  }
+}

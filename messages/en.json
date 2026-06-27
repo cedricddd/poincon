@@ -1,0 +1,433 @@
+{
+  "common": {
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "confirm": "Confirm",
+    "back": "Back",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "networkError": "Connection error",
+    "success": "Success",
+    "yes": "Yes",
+    "no": "No",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "actions": "Actions",
+    "status": "Status",
+    "date": "Date",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "site": "Site",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "active": "Active",
+    "inactive": "Inactive",
+    "all": "All",
+    "none": "None",
+    "total": "Total"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@company.be",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "rememberMe": "Remember me",
+      "submit": "Sign in",
+      "forgotPassword": "Forgot password?",
+      "signup": "Sign up for free",
+      "backHome": "Back to home",
+      "via": "Sign in via Pointon",
+      "errorInvalid": "Incorrect email or password.",
+      "errorBrute": "Too many attempts. Please try again in 15 minutes.",
+      "errorUnavailable": "Service temporarily unavailable."
+    },
+    "signup": {
+      "title": "Create an account",
+      "submit": "Create my account",
+      "alreadyAccount": "Already have an account?",
+      "loginLink": "Sign in"
+    },
+    "forgotPassword": {
+      "title": "Forgot password",
+      "description": "Enter your email to receive a reset link.",
+      "submit": "Send link",
+      "backToLogin": "Back to sign in"
+    },
+    "resetPassword": {
+      "title": "New password",
+      "submit": "Reset my password",
+      "passwordLabel": "New password",
+      "confirmLabel": "Confirm password"
+    },
+    "setPassword": {
+      "title": "Create my password",
+      "submit": "Create my password"
+    },
+    "2fa": {
+      "setupTitle": "Set up two-factor authentication",
+      "challengeTitle": "Two-step verification",
+      "codeLabel": "6-digit code",
+      "codePlaceholder": "000000",
+      "submit": "Verify",
+      "trustDevice": "Remember this device for 30 days"
+    }
+  },
+  "sidebar": {
+    "pointage": "Clock in/out",
+    "conges": "Leave",
+    "recuperation": "Time off in lieu",
+    "rapports": "Reports",
+    "presences": "Attendance",
+    "admin": "Admin",
+    "tableau_de_bord": "Dashboard",
+    "heures_sup": "Overtime",
+    "horaires": "Schedules",
+    "equipes": "Teams",
+    "planning": "Planning",
+    "utilisateurs": "Users",
+    "invitations": "Invitations",
+    "sites": "Sites",
+    "audit": "Audit Trail",
+    "kiosque": "Kiosk",
+    "parametres": "Settings",
+    "integrations": "Integrations",
+    "super_admin": "Super-admin",
+    "overview": "Overview",
+    "mon_espace": "My workspace",
+    "comptes": "Accounts",
+    "mon_profil": "My profile",
+    "se_deconnecter": "Sign out",
+    "ouvrir_menu": "Open menu",
+    "fermer_menu": "Close menu",
+    "reduire_menu": "Collapse menu"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "hoursThisWeek": "Hours clocked this week",
+    "overtimes": "Overtime",
+    "timeoffs": "Leave",
+    "rtts": "Time off in lieu",
+    "presences": "Attendance",
+    "users": "Users",
+    "noSchedule": "No schedule",
+    "pendingRequests": "{count, plural, one {# pending request} other {# pending requests}}",
+    "upToDate": "Everything is up to date ✓",
+    "clockedNow": "clocked in now",
+    "activeEmployees": "active employees",
+    "toConfigure": "to configure",
+    "livePresences": "Live attendance",
+    "recentActivity": "Recent activity",
+    "seeAll": "See all →",
+    "noClockedIn": "Nobody clocked in right now",
+    "noClockThisWeek": "No time records this week"
+  },
+  "clock": {
+    "greetingMorning": "Good morning",
+    "greetingAfternoon": "Good afternoon",
+    "greetingEvening": "Good evening",
+    "clockedToday": "Clocked today",
+    "todaySessions": "Today's sessions",
+    "currentWeek": "Current week",
+    "month": "Month",
+    "arrival": "Arrival",
+    "departure": "Departure",
+    "mode": "Mode",
+    "site": "Site",
+    "clockIn": "CLOCK IN ✓",
+    "clockOut": "CLOCK OUT ✕",
+    "startBreak": "⏸ Lunch break",
+    "endBreak": "▶ End break",
+    "inProgress": "In progress",
+    "onBreak": "Lunch break",
+    "breakPaused": "timer paused",
+    "waitingSync": "⏳ pending",
+    "toastClockIn": "Arrival recorded at {time} ✓",
+    "toastClockInOffline": "Arrival recorded at {time} (⏳ waiting for sync)",
+    "toastBreakStart": "Lunch break started",
+    "toastBreakEnd": "Break ended, timer resumed",
+    "toastError": "Connection error",
+    "modeOnSite": "On site",
+    "modeRemote": "Remote work",
+    "modeTravel": "Business travel"
+  },
+  "kiosk": {
+    "employee": "I am an employee",
+    "visitor": "I am a visitor",
+    "clockEmployee": "Clock my arrival · departure",
+    "registerVisit": "Register my visit",
+    "visitorLeave": "I'm leaving (visitor)",
+    "pinTitle": "Your PIN code",
+    "pinPlaceholder": "4-digit code",
+    "verifying": "Verifying…",
+    "visitorFirstName": "First and last name",
+    "visitorEmail": "Email address",
+    "visitorHost": "I am visiting",
+    "visitorSelect": "Select",
+    "visitorConfirm": "Confirm my visit",
+    "visitorLeaveLabel": "Register my departure",
+    "visitorLeaveEmail": "Enter the email you used upon arrival",
+    "visitorLeaveConfirm": "Confirm my departure",
+    "successClockIn": "Arrival recorded",
+    "successClockOut": "Departure recorded",
+    "successVisit": "Visit registered",
+    "successVisitEmail": "An email has been sent to your host.",
+    "goodbyeVisitor": "Goodbye, {name}!",
+    "errorNotFound": "Terminal not found",
+    "errorNotFoundDesc": "This kiosk link no longer exists or has been removed.",
+    "errorUnavailable": "Kiosk unavailable",
+    "errorPlanRequired": "Kiosk mode requires a SOLO, TEAM or ENTERPRISE plan.",
+    "emailPlaceholder": "mary@example.be",
+    "namePlaceholder": "Mary Smith",
+    "iphoneTitle": "🍎 iPhone / iPad (Safari)",
+    "androidTitle": "🤖 Android (Chrome)",
+    "installStep1Safari": "Open {url} in Safari",
+    "installStep2Safari": "Tap the Share icon (square with arrow ↑)",
+    "installStep3Safari": "Select 'Add to Home Screen'",
+    "installStep4Safari": "Confirm with 'Add'"
+  },
+  "qr": {
+    "title": "QR Scanner",
+    "scanning": "Position the QR code within the frame",
+    "permissionDenied": "Camera access denied",
+    "permissionInstructions": "Allow camera access in your browser settings.",
+    "iphoneInstructions": "🍎 On iPhone: Settings → Safari → Camera → Allow",
+    "androidInstructions": "🤖 On Android: Chrome → Site settings → Camera → Allow",
+    "pinTitle": "PIN code",
+    "pinPlaceholder": "4-digit code",
+    "successClockIn": "Arrival recorded ✓",
+    "successClockOut": "Departure recorded ✓",
+    "errorInvalidQr": "Invalid or expired QR code",
+    "errorPin": "Incorrect PIN"
+  },
+  "reports": {
+    "title": "Reports",
+    "employee": "Employee",
+    "email": "Email",
+    "date": "Date",
+    "arrival": "Arrival",
+    "departure": "Departure",
+    "duration": "Duration",
+    "location": "Location",
+    "site": "Site",
+    "totalHours": "Total hours",
+    "averagePerSession": "Average/session",
+    "incomplete": "Incomplete",
+    "overtimes": "Overtime",
+    "exportCsv": "Export CSV",
+    "exportPdf": "Export PDF",
+    "noResults": "No time records found",
+    "advancedMode": "Advanced mode",
+    "simpleMode": "Simple mode"
+  },
+  "planning": {
+    "title": "Planning",
+    "day": "Full day",
+    "morning": "Morning",
+    "afternoon": "Afternoon",
+    "night": "Night",
+    "partial": "Partial",
+    "variable": "Variable",
+    "annual": "🌴 Annual leave",
+    "sick": "🤒 Sick leave",
+    "maternity": "👶 Maternity leave"
+  },
+  "settings": {
+    "title": "Settings",
+    "company": "Company settings",
+    "subscription": "Subscription",
+    "integrations": "Integrations",
+    "addons": "Add-ons",
+    "apikeys": "API keys",
+    "webhooks": "Webhooks",
+    "members": "members",
+    "included": "included",
+    "seats": "seats",
+    "cost": "cost",
+    "activateAddon": "Activate"
+  },
+  "legal": {
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "compliance": "Compliance",
+    "security": "Security",
+    "backHome": "← Back to home",
+    "copyright": "© {year} Pointon · Ced-IT"
+  },
+  "emails": {
+    "greeting": "Dear {name},",
+    "greetingGeneric": "Dear,",
+    "footer": "Pointon · {year}",
+    "approval": {
+      "subjectApproved": "✅ Your {type} request has been approved",
+      "subjectRejected": "❌ Your {type} request has been rejected",
+      "bodyApproved": "Your <strong>{type}</strong> request has been <strong>approved</strong>.",
+      "bodyRejected": "Your <strong>{type}</strong> request has been <strong>rejected</strong>.",
+      "reason": "<strong>Reason:</strong> {reason}",
+      "button": "View my reports",
+      "typeOvertime": "overtime",
+      "typeTimeoff": "leave",
+      "typeRtt": "time off in lieu"
+    },
+    "endOfDay": {
+      "subject": "⏰ You forgot to clock out",
+      "body": "It appears you are still clocked in and your day exceeds the <strong>8 legal hours</strong>.",
+      "advice": "Remember to clock out so your overtime is correctly recorded.",
+      "button": "Clock out now"
+    },
+    "invitation": {
+      "subject": "Invitation to join {company} on Pointon",
+      "body": "You have been invited to join <strong>{company}</strong> on Pointon.",
+      "button": "Create my password →",
+      "validity": "This link is valid for <strong>48 hours</strong>.",
+      "installTitle": "📱 Install the app on your phone",
+      "installStep1Safari": "Open <strong>{url}</strong> in Safari",
+      "installStep2Safari": "Tap the <strong>Share</strong> icon (square with arrow ↑)",
+      "installStep3Safari": "Select <strong>'Add to Home Screen'</strong>",
+      "installStep4Safari": "Confirm with <strong>'Add'</strong>"
+    },
+    "passwordReset": {
+      "subject": "🔑 Reset your Pointon password",
+      "body": "You have requested a password reset.",
+      "button": "Reset my password →",
+      "validity": "This link is valid for <strong>24 hours</strong>.",
+      "warning": "If you did not request this reset, please ignore this email. Your password remains unchanged."
+    },
+    "welcome": {
+      "subject": "Welcome to Pointon, {company}!",
+      "body": "Welcome to <strong>Pointon</strong>! Your <strong>{company}</strong> workspace is ready.",
+      "description": "You can now configure your company, invite your employees and start clocking in.",
+      "button": "Configure my workspace →",
+      "checklistTitle": "What you can do right now:",
+      "checklistItem1": "Invite your employees (Settings → Users)",
+      "checklistItem2": "Configure your work sites",
+      "checklistItem3": "Set up schedules and planning",
+      "checklistItem4": "Activate time tracking on mobile or tablet",
+      "question": "Any questions? Reply to this email."
+    },
+    "newCompany": {
+      "subject": "🆕 New company: {company}",
+      "title": "🆕 <strong>New registered company</strong>",
+      "labelCompany": "Company",
+      "labelAdmin": "Administrator",
+      "labelEmail": "Email",
+      "labelVat": "VAT",
+      "labelDate": "Date",
+      "labelPlan": "Plan",
+      "button": "View in super-admin →"
+    },
+    "kioskVisitor": {
+      "subject": "🏷️ Visitor arrived: {visitor}",
+      "body": "Your visitor <strong>{visitor}</strong> has just arrived at reception at <strong>{time}</strong>.",
+      "sectionVisitor": "<strong>Visitor</strong>"
+    }
+  },
+  "landing": {
+    "hero": {
+      "title": "Clock in. Compliant. Belgian.",
+      "subtitle": "Objective time tracking for Belgian SMEs. Compliant with 2027 law & CJEU. In 2 minutes.",
+      "ctaPrimary": "Start for free",
+      "ctaSecondary": "View pricing"
+    },
+    "stats": {
+      "smes": "Belgian SMEs",
+      "setup": "Average setup",
+      "compliant": "CJEU compliant"
+    },
+    "features": {
+      "title": "Everything you need, nothing you don't",
+      "clockIn": {
+        "title": "Clock in with 1 tap",
+        "description": "ARRIVAL / DEPARTURE in one gesture. Works on smartphone, tablet and PC with no training required."
+      },
+      "compliant": {
+        "title": "100% compliant 2027",
+        "description": "Immutable audit trail, certified export, CJEU & Belgian 2027 law compliance built in."
+      },
+      "reports": {
+        "title": "Real-time reports",
+        "description": "Hours, leave, time off. Everything in one dashboard. CSV export in one click."
+      },
+      "gpsZero": {
+        "title": "Zero GPS",
+        "description": "No location tracking. Full respect for your employees' privacy."
+      }
+    },
+    "methods": {
+      "title": "3 ways to clock in",
+      "mobile": {
+        "title": "Mobile PWA",
+        "description": "Arrival and departure in 1 tap from any smartphone, no app install required."
+      },
+      "kiosk": {
+        "title": "PIN Kiosk",
+        "description": "Tablet at the entrance. The employee types their 4-digit PIN. Instant registration."
+      },
+      "qr": {
+        "title": "QR Code",
+        "description": "Scan the QR code on site. Ideal for construction sites or multiple locations."
+      }
+    },
+    "testimonials": {
+      "title": "They trust us"
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "compliant": {
+        "q": "Is the solution compliant with Belgian law 2027?",
+        "a": "Yes. Pointon meets all Belgian and CJEU legal requirements for time tracking."
+      },
+      "gps": {
+        "q": "Do you use geolocation?",
+        "a": "No. Pointon does not use GPS. No location data is collected."
+      },
+      "setup": {
+        "q": "How long does it take to get started?",
+        "a": "2 minutes. Create your account, invite your employees and you're ready to go."
+      }
+    },
+    "cta": {
+      "title": "Ready to be compliant?",
+      "button": "Start for free"
+    }
+  },
+  "pricing": {
+    "title": "Pricing",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "yearlyDiscount": "-17%",
+    "free": {
+      "name": "Free",
+      "buttonText": "Start for free"
+    },
+    "starter": {
+      "name": "Starter",
+      "buttonText": "Choose Starter"
+    },
+    "team": {
+      "name": "Team",
+      "buttonText": "Choose Team"
+    },
+    "business": {
+      "name": "Business",
+      "buttonText": "Choose Business"
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "buttonText": "Contact us",
+      "price": "Custom pricing"
+    },
+    "perSeat": "/seat",
+    "perMonth": "/month",
+    "includedSeats": "{count} seats included",
+    "extraSeat": "+{price}/extra seat"
+  }
+}

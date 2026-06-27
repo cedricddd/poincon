@@ -1,0 +1,433 @@
+{
+  "common": {
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "close": "Fermer",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "loading": "Chargement...",
+    "error": "Une erreur est survenue",
+    "networkError": "Erreur de connexion",
+    "success": "Succès",
+    "yes": "Oui",
+    "no": "Non",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "export": "Exporter",
+    "actions": "Actions",
+    "status": "Statut",
+    "date": "Date",
+    "name": "Nom",
+    "email": "Email",
+    "role": "Rôle",
+    "site": "Site",
+    "pending": "En attente",
+    "approved": "Approuvé",
+    "rejected": "Refusé",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "all": "Tous",
+    "none": "Aucun",
+    "total": "Total"
+  },
+  "auth": {
+    "login": {
+      "title": "Connexion",
+      "emailLabel": "Email",
+      "emailPlaceholder": "vous@entreprise.be",
+      "passwordLabel": "Mot de passe",
+      "passwordPlaceholder": "••••••••",
+      "rememberMe": "Se souvenir de moi",
+      "submit": "Se connecter",
+      "forgotPassword": "Mot de passe oublié ?",
+      "signup": "S'inscrire gratuitement",
+      "backHome": "Retour à l'accueil",
+      "via": "Connexion via Pointon",
+      "errorInvalid": "Email ou mot de passe incorrect.",
+      "errorBrute": "Trop de tentatives. Réessayez dans 15 minutes.",
+      "errorUnavailable": "Service temporairement indisponible."
+    },
+    "signup": {
+      "title": "Créer un compte",
+      "submit": "Créer mon compte",
+      "alreadyAccount": "Déjà un compte ?",
+      "loginLink": "Se connecter"
+    },
+    "forgotPassword": {
+      "title": "Mot de passe oublié",
+      "description": "Saisissez votre email pour recevoir un lien de réinitialisation.",
+      "submit": "Envoyer le lien",
+      "backToLogin": "Retour à la connexion"
+    },
+    "resetPassword": {
+      "title": "Nouveau mot de passe",
+      "submit": "Réinitialiser mon mot de passe",
+      "passwordLabel": "Nouveau mot de passe",
+      "confirmLabel": "Confirmer le mot de passe"
+    },
+    "setPassword": {
+      "title": "Créer mon mot de passe",
+      "submit": "Créer mon mot de passe"
+    },
+    "2fa": {
+      "setupTitle": "Configurer la double authentification",
+      "challengeTitle": "Vérification en deux étapes",
+      "codeLabel": "Code à 6 chiffres",
+      "codePlaceholder": "000000",
+      "submit": "Vérifier",
+      "trustDevice": "Se souvenir de cet appareil 30 jours"
+    }
+  },
+  "sidebar": {
+    "pointage": "Pointage",
+    "conges": "Congés",
+    "recuperation": "Récupération",
+    "rapports": "Rapports",
+    "presences": "Présences",
+    "admin": "Admin",
+    "tableau_de_bord": "Tableau de bord",
+    "heures_sup": "Heures Sup.",
+    "horaires": "Horaires",
+    "equipes": "Équipes",
+    "planning": "Planning",
+    "utilisateurs": "Utilisateurs",
+    "invitations": "Invitations",
+    "sites": "Sites",
+    "audit": "Audit Trail",
+    "kiosque": "Kiosque",
+    "parametres": "Paramètres",
+    "integrations": "Intégrations",
+    "super_admin": "Super-Admin",
+    "overview": "Overview",
+    "mon_espace": "Mon espace",
+    "comptes": "Comptes",
+    "mon_profil": "Mon profil",
+    "se_deconnecter": "Se déconnecter",
+    "ouvrir_menu": "Ouvrir le menu",
+    "fermer_menu": "Fermer le menu",
+    "reduire_menu": "Réduire le menu"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "hoursThisWeek": "Heures pointées cette semaine",
+    "overtimes": "Heures supplémentaires",
+    "timeoffs": "Congés",
+    "rtts": "Récupération",
+    "presences": "Présences",
+    "users": "Utilisateurs",
+    "noSchedule": "Sans horaire",
+    "pendingRequests": "{count, plural, one {# demande en attente} other {# demandes en attente}}",
+    "upToDate": "Tout est à jour ✓",
+    "clockedNow": "pointés maintenant",
+    "activeEmployees": "employés actifs",
+    "toConfigure": "à configurer",
+    "livePresences": "Présences en direct",
+    "recentActivity": "Activité récente",
+    "seeAll": "Voir tout →",
+    "noClockedIn": "Personne de pointé en ce moment",
+    "noClockThisWeek": "Aucun pointage cette semaine"
+  },
+  "clock": {
+    "greetingMorning": "Bonjour",
+    "greetingAfternoon": "Bon après-midi",
+    "greetingEvening": "Bonsoir",
+    "clockedToday": "Pointé aujourd'hui",
+    "todaySessions": "Séances du jour",
+    "currentWeek": "Semaine en cours",
+    "month": "Mois",
+    "arrival": "Arrivée",
+    "departure": "Départ",
+    "mode": "Mode",
+    "site": "Site",
+    "clockIn": "ARRIVÉE ✓",
+    "clockOut": "DÉPART ✕",
+    "startBreak": "⏸ Pause repas",
+    "endBreak": "▶ Terminer la pause",
+    "inProgress": "En cours",
+    "onBreak": "Pause repas",
+    "breakPaused": "compteur en pause",
+    "waitingSync": "⏳ en attente",
+    "toastClockIn": "Arrivée enregistrée à {time} ✓",
+    "toastClockInOffline": "Arrivée enregistrée à {time} (⏳ en attente de sync)",
+    "toastBreakStart": "Pause repas démarrée",
+    "toastBreakEnd": "Pause terminée, compteur repris",
+    "toastError": "Erreur de connexion",
+    "modeOnSite": "Sur site",
+    "modeRemote": "Télétravail",
+    "modeTravel": "Déplacement"
+  },
+  "kiosk": {
+    "employee": "Je suis employé",
+    "visitor": "Je suis visiteur",
+    "clockEmployee": "Pointer mon arrivée · départ",
+    "registerVisit": "Enregistrer ma visite",
+    "visitorLeave": "Je repars (visiteur)",
+    "pinTitle": "Votre code PIN",
+    "pinPlaceholder": "Code à 4 chiffres",
+    "verifying": "Vérification…",
+    "visitorFirstName": "Prénom et Nom",
+    "visitorEmail": "Adresse email",
+    "visitorHost": "Je viens rendre visite à",
+    "visitorSelect": "Sélectionner",
+    "visitorConfirm": "Confirmer ma visite",
+    "visitorLeaveLabel": "Enregistrer mon départ",
+    "visitorLeaveEmail": "Entrez l'email utilisé à votre arrivée",
+    "visitorLeaveConfirm": "Confirmer mon départ",
+    "successClockIn": "Arrivée enregistrée",
+    "successClockOut": "Départ enregistré",
+    "successVisit": "Visite enregistrée",
+    "successVisitEmail": "Un email a été envoyé à votre hôte.",
+    "goodbyeVisitor": "À bientôt, {name} !",
+    "errorNotFound": "Terminal introuvable",
+    "errorNotFoundDesc": "Ce lien de kiosque n'existe plus ou a été supprimé.",
+    "errorUnavailable": "Kiosque non disponible",
+    "errorPlanRequired": "Le mode kiosque requiert un plan SOLO, TEAM ou ENTERPRISE.",
+    "emailPlaceholder": "marie@exemple.be",
+    "namePlaceholder": "Marie Dupont",
+    "iphoneTitle": "🍎 iPhone / iPad (Safari)",
+    "androidTitle": "🤖 Android (Chrome)",
+    "installStep1Safari": "Ouvrez {url} dans Safari",
+    "installStep2Safari": "Appuyez sur l'icône Partager (carré avec flèche ↑)",
+    "installStep3Safari": "Sélectionnez « Sur l'écran d'accueil »",
+    "installStep4Safari": "Confirmez avec « Ajouter »"
+  },
+  "qr": {
+    "title": "Scanner QR",
+    "scanning": "Positionnez le QR code dans le cadre",
+    "permissionDenied": "Accès à la caméra refusé",
+    "permissionInstructions": "Autorisez l'accès à la caméra dans les paramètres de votre navigateur.",
+    "iphoneInstructions": "🍎 Sur iPhone : Réglages → Safari → Caméra → Autoriser",
+    "androidInstructions": "🤖 Sur Android : Chrome → Paramètres du site → Caméra → Autoriser",
+    "pinTitle": "Code PIN",
+    "pinPlaceholder": "Code à 4 chiffres",
+    "successClockIn": "Arrivée enregistrée ✓",
+    "successClockOut": "Départ enregistré ✓",
+    "errorInvalidQr": "QR code invalide ou expiré",
+    "errorPin": "PIN incorrect"
+  },
+  "reports": {
+    "title": "Rapports",
+    "employee": "Employé",
+    "email": "Email",
+    "date": "Date",
+    "arrival": "Arrivée",
+    "departure": "Départ",
+    "duration": "Durée",
+    "location": "Lieu",
+    "site": "Site",
+    "totalHours": "Total heures",
+    "averagePerSession": "Moyenne/pointage",
+    "incomplete": "Incomplets",
+    "overtimes": "Heures sup",
+    "exportCsv": "Exporter CSV",
+    "exportPdf": "Exporter PDF",
+    "noResults": "Aucun pointage trouvé",
+    "advancedMode": "Mode avancé",
+    "simpleMode": "Mode simple"
+  },
+  "planning": {
+    "title": "Planning",
+    "day": "Journée",
+    "morning": "Matin",
+    "afternoon": "Après-midi",
+    "night": "Nuit",
+    "partial": "Partiel",
+    "variable": "Variable",
+    "annual": "🌴 Congé annuel",
+    "sick": "🤒 Maladie",
+    "maternity": "👶 Maternité"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "company": "Paramètres de la société",
+    "subscription": "Abonnement",
+    "integrations": "Intégrations",
+    "addons": "Add-ons",
+    "apikeys": "Clés API",
+    "webhooks": "Webhooks",
+    "members": "membres",
+    "included": "inclus",
+    "seats": "sièges",
+    "cost": "coût",
+    "activateAddon": "Activer"
+  },
+  "legal": {
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "compliance": "Conformité",
+    "security": "Sécurité",
+    "backHome": "← Retour à l'accueil",
+    "copyright": "© {year} Pointon · Ced-IT"
+  },
+  "emails": {
+    "greeting": "Bonjour {name},",
+    "greetingGeneric": "Bonjour,",
+    "footer": "Pointon · {year}",
+    "approval": {
+      "subjectApproved": "✅ Votre demande de {type} a été approuvée",
+      "subjectRejected": "❌ Votre demande de {type} a été refusée",
+      "bodyApproved": "Votre demande de <strong>{type}</strong> a été <strong>approuvée</strong>.",
+      "bodyRejected": "Votre demande de <strong>{type}</strong> a été <strong>refusée</strong>.",
+      "reason": "<strong>Motif :</strong> {reason}",
+      "button": "Voir mes rapports",
+      "typeOvertime": "heures supplémentaires",
+      "typeTimeoff": "congé",
+      "typeRtt": "récupération"
+    },
+    "endOfDay": {
+      "subject": "⏰ Vous avez oublié de pointer votre départ",
+      "body": "Il semble que vous soyez toujours pointé(e) et que votre journée dépasse les <strong>8 heures légales</strong>.",
+      "advice": "Pensez à pointer votre <strong>départ</strong> pour que vos heures supplémentaires soient correctement comptabilisées.",
+      "button": "Pointer mon départ"
+    },
+    "invitation": {
+      "subject": "Invitation à rejoindre {company} sur Pointon",
+      "body": "Vous avez été invité(e) à rejoindre <strong>{company}</strong> sur Pointon.",
+      "button": "Créer mon mot de passe →",
+      "validity": "Ce lien est valable <strong>48 heures</strong>.",
+      "installTitle": "📱 Installer l'application sur votre téléphone",
+      "installStep1Safari": "Ouvrez <strong>{url}</strong> dans Safari",
+      "installStep2Safari": "Appuyez sur l'icône <strong>Partager</strong> (carré avec flèche ↑)",
+      "installStep3Safari": "Sélectionnez <strong>« Sur l'écran d'accueil »</strong>",
+      "installStep4Safari": "Confirmez avec <strong>« Ajouter »</strong>"
+    },
+    "passwordReset": {
+      "subject": "🔑 Réinitialisation de votre mot de passe Pointon",
+      "body": "Vous avez demandé la réinitialisation de votre mot de passe.",
+      "button": "Réinitialiser mon mot de passe →",
+      "validity": "Ce lien est valable <strong>24 heures</strong>.",
+      "warning": "Si vous n'avez pas demandé cette réinitialisation, ignorez cet email. Votre mot de passe reste inchangé."
+    },
+    "welcome": {
+      "subject": "Bienvenue sur Pointon, {company} !",
+      "body": "Bienvenue sur <strong>Pointon</strong> ! Votre espace <strong>{company}</strong> est prêt.",
+      "description": "Vous pouvez maintenant configurer votre entreprise, inviter vos collaborateurs et commencer le pointage.",
+      "button": "Configurer mon espace →",
+      "checklistTitle": "Ce que vous pouvez faire dès maintenant :",
+      "checklistItem1": "Inviter vos employés (Paramètres → Utilisateurs)",
+      "checklistItem2": "Configurer vos sites de travail",
+      "checklistItem3": "Définir les horaires et plannings",
+      "checklistItem4": "Activer le pointage sur mobile ou tablette",
+      "question": "Une question ? Répondez à cet email."
+    },
+    "newCompany": {
+      "subject": "🆕 Nouvelle société : {company}",
+      "title": "🆕 <strong>Nouvelle société inscrite</strong>",
+      "labelCompany": "Société",
+      "labelAdmin": "Administrateur",
+      "labelEmail": "Email",
+      "labelVat": "TVA",
+      "labelDate": "Date",
+      "labelPlan": "Plan",
+      "button": "Voir dans le super-admin →"
+    },
+    "kioskVisitor": {
+      "subject": "🏷️ Visiteur arrivé : {visitor}",
+      "body": "Votre visiteur <strong>{visitor}</strong> vient d'arriver à la réception à <strong>{time}</strong>.",
+      "sectionVisitor": "<strong>Visiteur</strong>"
+    }
+  },
+  "landing": {
+    "hero": {
+      "title": "Pointez. Conforme. Belge.",
+      "subtitle": "Enregistrement objectif du temps de travail pour PME belges. Conforme loi 2027 & CJUE. En 2 minutes.",
+      "ctaPrimary": "Commencer gratuitement",
+      "ctaSecondary": "Voir les tarifs"
+    },
+    "stats": {
+      "smes": "PME belges",
+      "setup": "Setup moyen",
+      "compliant": "Conforme CJUE"
+    },
+    "features": {
+      "title": "Tout ce qu'il faut, rien de superflu",
+      "clockIn": {
+        "title": "Pointage en 1 tap",
+        "description": "ARRIVÉE / DÉPART en un geste. Fonctionne sur smartphone, tablette et PC sans formation."
+      },
+      "compliant": {
+        "title": "100% conforme 2027",
+        "description": "Audit trail immuable, export certifié, conformité CJUE & loi belge 2027 intégrée."
+      },
+      "reports": {
+        "title": "Rapports en temps réel",
+        "description": "Heures, congés, récupérations. Tout en un tableau de bord. Export CSV en un clic."
+      },
+      "gpsZero": {
+        "title": "0 GPS",
+        "description": "Pas de tracking de localisation. Respect total de la vie privée de vos employés."
+      }
+    },
+    "methods": {
+      "title": "3 façons de pointer",
+      "mobile": {
+        "title": "Mobile PWA",
+        "description": "Arrivée et départ en 1 tap depuis n'importe quel smartphone, sans app à installer."
+      },
+      "kiosk": {
+        "title": "Kiosque PIN",
+        "description": "Tablette à l'entrée. L'employé tape son PIN à 4 chiffres. Enregistrement instantané."
+      },
+      "qr": {
+        "title": "QR Code",
+        "description": "Scanner le QR code sur place. Idéal pour les accès chantier ou les sites multiples."
+      }
+    },
+    "testimonials": {
+      "title": "Ils nous font confiance"
+    },
+    "faq": {
+      "title": "Questions fréquentes",
+      "compliant": {
+        "q": "La solution est-elle conforme à la loi belge 2027 ?",
+        "a": "Oui. Pointon respecte toutes les exigences légales belges et CJUE pour l'enregistrement du temps de travail."
+      },
+      "gps": {
+        "q": "Utilisez-vous la géolocalisation ?",
+        "a": "Non. Pointon n'utilise pas le GPS. Aucune donnée de localisation n'est collectée."
+      },
+      "setup": {
+        "q": "Combien de temps pour démarrer ?",
+        "a": "2 minutes. Créez votre compte, invitez vos employés et c'est parti."
+      }
+    },
+    "cta": {
+      "title": "Prêt à être conforme ?",
+      "button": "Commencer gratuitement"
+    }
+  },
+  "pricing": {
+    "title": "Tarifs",
+    "monthly": "Mensuel",
+    "yearly": "Annuel",
+    "yearlyDiscount": "-17%",
+    "free": {
+      "name": "Free",
+      "buttonText": "Commencer gratuitement"
+    },
+    "starter": {
+      "name": "Starter",
+      "buttonText": "Choisir Starter"
+    },
+    "team": {
+      "name": "Team",
+      "buttonText": "Choisir Team"
+    },
+    "business": {
+      "name": "Business",
+      "buttonText": "Choisir Business"
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "buttonText": "Nous contacter",
+      "price": "Sur devis"
+    },
+    "perSeat": "/siège",
+    "perMonth": "/mois",
+    "includedSeats": "{count} sièges inclus",
+    "extraSeat": "+{price}/siège extra"
+  }
+}

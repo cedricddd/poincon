@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { withSentryConfig } = require('@sentry/nextjs')
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const createNextIntlPlugin = require('next-intl/plugin')
 
 const isDev = process.env.NODE_ENV !== 'production'
 
@@ -31,7 +33,9 @@ const nextConfig = {
   },
 }
 
-module.exports = withSentryConfig(nextConfig, {
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
+
+module.exports = withNextIntl(withSentryConfig(nextConfig, {
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
   silent: true,
@@ -39,4 +43,4 @@ module.exports = withSentryConfig(nextConfig, {
   webpack: {
     treeshake: { removeDebugLogging: true },
   },
-})
+}))

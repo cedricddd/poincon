@@ -1,0 +1,433 @@
+{
+  "common": {
+    "save": "Opslaan",
+    "saving": "Opslaan...",
+    "cancel": "Annuleren",
+    "delete": "Verwijderen",
+    "edit": "Bewerken",
+    "close": "Sluiten",
+    "confirm": "Bevestigen",
+    "back": "Terug",
+    "loading": "Laden...",
+    "error": "Er is een fout opgetreden",
+    "networkError": "Verbindingsfout",
+    "success": "Geslaagd",
+    "yes": "Ja",
+    "no": "Nee",
+    "search": "Zoeken",
+    "filter": "Filteren",
+    "export": "Exporteren",
+    "actions": "Acties",
+    "status": "Status",
+    "date": "Datum",
+    "name": "Naam",
+    "email": "E-mail",
+    "role": "Rol",
+    "site": "Locatie",
+    "pending": "In behandeling",
+    "approved": "Goedgekeurd",
+    "rejected": "Geweigerd",
+    "active": "Actief",
+    "inactive": "Inactief",
+    "all": "Alle",
+    "none": "Geen",
+    "total": "Totaal"
+  },
+  "auth": {
+    "login": {
+      "title": "Aanmelden",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "u@bedrijf.be",
+      "passwordLabel": "Wachtwoord",
+      "passwordPlaceholder": "••••••••",
+      "rememberMe": "Mij onthouden",
+      "submit": "Aanmelden",
+      "forgotPassword": "Wachtwoord vergeten?",
+      "signup": "Gratis registreren",
+      "backHome": "Terug naar de startpagina",
+      "via": "Aanmelden via Pointon",
+      "errorInvalid": "Ongeldig e-mailadres of wachtwoord.",
+      "errorBrute": "Te veel pogingen. Probeer het over 15 minuten opnieuw.",
+      "errorUnavailable": "Service tijdelijk niet beschikbaar."
+    },
+    "signup": {
+      "title": "Account aanmaken",
+      "submit": "Mijn account aanmaken",
+      "alreadyAccount": "Al een account?",
+      "loginLink": "Aanmelden"
+    },
+    "forgotPassword": {
+      "title": "Wachtwoord vergeten",
+      "description": "Voer uw e-mailadres in om een herstellink te ontvangen.",
+      "submit": "Link versturen",
+      "backToLogin": "Terug naar aanmelden"
+    },
+    "resetPassword": {
+      "title": "Nieuw wachtwoord",
+      "submit": "Mijn wachtwoord opnieuw instellen",
+      "passwordLabel": "Nieuw wachtwoord",
+      "confirmLabel": "Wachtwoord bevestigen"
+    },
+    "setPassword": {
+      "title": "Mijn wachtwoord instellen",
+      "submit": "Mijn wachtwoord instellen"
+    },
+    "2fa": {
+      "setupTitle": "Tweefactorauthenticatie instellen",
+      "challengeTitle": "Verificatie in twee stappen",
+      "codeLabel": "6-cijferige code",
+      "codePlaceholder": "000000",
+      "submit": "Verifiëren",
+      "trustDevice": "Dit apparaat 30 dagen onthouden"
+    }
+  },
+  "sidebar": {
+    "pointage": "Inklokken",
+    "conges": "Verlof",
+    "recuperation": "Recuperatieverlof",
+    "rapports": "Rapporten",
+    "presences": "Aanwezigheid",
+    "admin": "Beheer",
+    "tableau_de_bord": "Dashboard",
+    "heures_sup": "Overuren",
+    "horaires": "Roosters",
+    "equipes": "Teams",
+    "planning": "Planning",
+    "utilisateurs": "Gebruikers",
+    "invitations": "Uitnodigingen",
+    "sites": "Locaties",
+    "audit": "Auditspoor",
+    "kiosque": "Kiosk",
+    "parametres": "Instellingen",
+    "integrations": "Integraties",
+    "super_admin": "Super-admin",
+    "overview": "Overzicht",
+    "mon_espace": "Mijn ruimte",
+    "comptes": "Accounts",
+    "mon_profil": "Mijn profiel",
+    "se_deconnecter": "Afmelden",
+    "ouvrir_menu": "Menu openen",
+    "fermer_menu": "Menu sluiten",
+    "reduire_menu": "Menu inklappen"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "hoursThisWeek": "Ingeklokte uren deze week",
+    "overtimes": "Overuren",
+    "timeoffs": "Verlof",
+    "rtts": "Recuperatieverlof",
+    "presences": "Aanwezigheid",
+    "users": "Gebruikers",
+    "noSchedule": "Zonder rooster",
+    "pendingRequests": "{count, plural, one {# aanvraag in behandeling} other {# aanvragen in behandeling}}",
+    "upToDate": "Alles is bijgewerkt ✓",
+    "clockedNow": "ingeklokt nu",
+    "activeEmployees": "actieve medewerkers",
+    "toConfigure": "te configureren",
+    "livePresences": "Live aanwezigheid",
+    "recentActivity": "Recente activiteit",
+    "seeAll": "Alles bekijken →",
+    "noClockedIn": "Niemand ingeklokt op dit moment",
+    "noClockThisWeek": "Geen tijdregistratie deze week"
+  },
+  "clock": {
+    "greetingMorning": "Goedemorgen",
+    "greetingAfternoon": "Goedemiddag",
+    "greetingEvening": "Goedenavond",
+    "clockedToday": "Ingeklokt vandaag",
+    "todaySessions": "Sessies van vandaag",
+    "currentWeek": "Huidige week",
+    "month": "Maand",
+    "arrival": "Aankomst",
+    "departure": "Vertrek",
+    "mode": "Modus",
+    "site": "Locatie",
+    "clockIn": "AANKOMST ✓",
+    "clockOut": "VERTREK ✕",
+    "startBreak": "⏸ Middagpauze",
+    "endBreak": "▶ Pauze beëindigen",
+    "inProgress": "Bezig",
+    "onBreak": "Middagpauze",
+    "breakPaused": "teller gepauzeerd",
+    "waitingSync": "⏳ in afwachting",
+    "toastClockIn": "Aankomst geregistreerd om {time} ✓",
+    "toastClockInOffline": "Aankomst geregistreerd om {time} (⏳ wachten op sync)",
+    "toastBreakStart": "Middagpauze gestart",
+    "toastBreakEnd": "Pauze beëindigd, teller hervat",
+    "toastError": "Verbindingsfout",
+    "modeOnSite": "Op locatie",
+    "modeRemote": "Thuiswerk",
+    "modeTravel": "Op reis"
+  },
+  "kiosk": {
+    "employee": "Ik ben medewerker",
+    "visitor": "Ik ben bezoeker",
+    "clockEmployee": "Mijn aankomst · vertrek registreren",
+    "registerVisit": "Mijn bezoek registreren",
+    "visitorLeave": "Ik vertrek (bezoeker)",
+    "pinTitle": "Uw PIN-code",
+    "pinPlaceholder": "4-cijferige code",
+    "verifying": "Verifiëren…",
+    "visitorFirstName": "Voornaam en achternaam",
+    "visitorEmail": "E-mailadres",
+    "visitorHost": "Ik kom op bezoek bij",
+    "visitorSelect": "Selecteren",
+    "visitorConfirm": "Mijn bezoek bevestigen",
+    "visitorLeaveLabel": "Mijn vertrek registreren",
+    "visitorLeaveEmail": "Voer het e-mailadres in dat u bij aankomst hebt gebruikt",
+    "visitorLeaveConfirm": "Mijn vertrek bevestigen",
+    "successClockIn": "Aankomst geregistreerd",
+    "successClockOut": "Vertrek geregistreerd",
+    "successVisit": "Bezoek geregistreerd",
+    "successVisitEmail": "Er is een e-mail gestuurd naar uw gastheer.",
+    "goodbyeVisitor": "Tot ziens, {name}!",
+    "errorNotFound": "Terminal niet gevonden",
+    "errorNotFoundDesc": "Deze kiosklink bestaat niet meer of is verwijderd.",
+    "errorUnavailable": "Kiosk niet beschikbaar",
+    "errorPlanRequired": "De kioskmodus vereist een SOLO-, TEAM- of ENTERPRISE-abonnement.",
+    "emailPlaceholder": "marie@voorbeeld.be",
+    "namePlaceholder": "Marie Dupont",
+    "iphoneTitle": "🍎 iPhone / iPad (Safari)",
+    "androidTitle": "🤖 Android (Chrome)",
+    "installStep1Safari": "Open {url} in Safari",
+    "installStep2Safari": "Tik op het deelpictogram (vierkant met pijl ↑)",
+    "installStep3Safari": "Selecteer 'Zet op beginscherm'",
+    "installStep4Safari": "Bevestig met 'Voeg toe'"
+  },
+  "qr": {
+    "title": "QR-scanner",
+    "scanning": "Positioneer de QR-code in het kader",
+    "permissionDenied": "Toegang tot camera geweigerd",
+    "permissionInstructions": "Sta cameratoegang toe in de instellingen van uw browser.",
+    "iphoneInstructions": "🍎 Op iPhone: Instellingen → Safari → Camera → Toestaan",
+    "androidInstructions": "🤖 Op Android: Chrome → Site-instellingen → Camera → Toestaan",
+    "pinTitle": "PIN-code",
+    "pinPlaceholder": "4-cijferige code",
+    "successClockIn": "Aankomst geregistreerd ✓",
+    "successClockOut": "Vertrek geregistreerd ✓",
+    "errorInvalidQr": "Ongeldige of verlopen QR-code",
+    "errorPin": "Onjuiste PIN"
+  },
+  "reports": {
+    "title": "Rapporten",
+    "employee": "Medewerker",
+    "email": "E-mail",
+    "date": "Datum",
+    "arrival": "Aankomst",
+    "departure": "Vertrek",
+    "duration": "Duur",
+    "location": "Locatie",
+    "site": "Locatie",
+    "totalHours": "Totaal uren",
+    "averagePerSession": "Gemiddeld/registratie",
+    "incomplete": "Onvolledig",
+    "overtimes": "Overuren",
+    "exportCsv": "CSV exporteren",
+    "exportPdf": "PDF exporteren",
+    "noResults": "Geen tijdregistraties gevonden",
+    "advancedMode": "Geavanceerde modus",
+    "simpleMode": "Eenvoudige modus"
+  },
+  "planning": {
+    "title": "Planning",
+    "day": "Dag",
+    "morning": "Ochtend",
+    "afternoon": "Namiddag",
+    "night": "Nacht",
+    "partial": "Gedeeltelijk",
+    "variable": "Variabel",
+    "annual": "🌴 Jaarlijks verlof",
+    "sick": "🤒 Ziekte",
+    "maternity": "👶 Moederschapsverlof"
+  },
+  "settings": {
+    "title": "Instellingen",
+    "company": "Bedrijfsinstellingen",
+    "subscription": "Abonnement",
+    "integrations": "Integraties",
+    "addons": "Add-ons",
+    "apikeys": "API-sleutels",
+    "webhooks": "Webhooks",
+    "members": "leden",
+    "included": "inbegrepen",
+    "seats": "plaatsen",
+    "cost": "kosten",
+    "activateAddon": "Activeren"
+  },
+  "legal": {
+    "privacy": "Privacy",
+    "terms": "Voorwaarden",
+    "compliance": "Conformiteit",
+    "security": "Beveiliging",
+    "backHome": "← Terug naar de startpagina",
+    "copyright": "© {year} Pointon · Ced-IT"
+  },
+  "emails": {
+    "greeting": "Beste {name},",
+    "greetingGeneric": "Beste,",
+    "footer": "Pointon · {year}",
+    "approval": {
+      "subjectApproved": "✅ Uw aanvraag voor {type} is goedgekeurd",
+      "subjectRejected": "❌ Uw aanvraag voor {type} is geweigerd",
+      "bodyApproved": "Uw aanvraag voor <strong>{type}</strong> is <strong>goedgekeurd</strong>.",
+      "bodyRejected": "Uw aanvraag voor <strong>{type}</strong> is <strong>geweigerd</strong>.",
+      "reason": "<strong>Reden:</strong> {reason}",
+      "button": "Mijn rapporten bekijken",
+      "typeOvertime": "overuren",
+      "typeTimeoff": "verlof",
+      "typeRtt": "recuperatieverlof"
+    },
+    "endOfDay": {
+      "subject": "⏰ U bent vergeten uw vertrek te registreren",
+      "body": "Het lijkt erop dat u nog steeds ingeklokt bent en dat uw dag de <strong>8 wettelijke uren</strong> overschrijdt.",
+      "advice": "Vergeet niet uw <strong>vertrek</strong> te registreren zodat uw overuren correct worden berekend.",
+      "button": "Mijn vertrek registreren"
+    },
+    "invitation": {
+      "subject": "Uitnodiging om {company} te vervoegen op Pointon",
+      "body": "U bent uitgenodigd om <strong>{company}</strong> te vervoegen op Pointon.",
+      "button": "Mijn wachtwoord aanmaken →",
+      "validity": "Deze link is <strong>48 uur</strong> geldig.",
+      "installTitle": "📱 De app op uw telefoon installeren",
+      "installStep1Safari": "Open <strong>{url}</strong> in Safari",
+      "installStep2Safari": "Tik op het pictogram <strong>Delen</strong> (vierkant met pijl ↑)",
+      "installStep3Safari": "Selecteer <strong>'Zet op beginscherm'</strong>",
+      "installStep4Safari": "Bevestig met <strong>'Voeg toe'</strong>"
+    },
+    "passwordReset": {
+      "subject": "🔑 Uw Pointon-wachtwoord opnieuw instellen",
+      "body": "U hebt gevraagd om uw wachtwoord opnieuw in te stellen.",
+      "button": "Mijn wachtwoord opnieuw instellen →",
+      "validity": "Deze link is <strong>24 uur</strong> geldig.",
+      "warning": "Als u deze aanvraag niet hebt gedaan, negeer dan deze e-mail. Uw wachtwoord blijft ongewijzigd."
+    },
+    "welcome": {
+      "subject": "Welkom bij Pointon, {company}!",
+      "body": "Welkom bij <strong>Pointon</strong>! Uw <strong>{company}</strong>-ruimte is klaar.",
+      "description": "U kunt nu uw bedrijf configureren, uw medewerkers uitnodigen en beginnen met tijdregistratie.",
+      "button": "Mijn ruimte configureren →",
+      "checklistTitle": "Wat u nu al kunt doen:",
+      "checklistItem1": "Uw medewerkers uitnodigen (Instellingen → Gebruikers)",
+      "checklistItem2": "Uw werklocaties configureren",
+      "checklistItem3": "Roosters en planningen instellen",
+      "checklistItem4": "Tijdregistratie op mobiel of tablet activeren",
+      "question": "Een vraag? Antwoord op deze e-mail."
+    },
+    "newCompany": {
+      "subject": "🆕 Nieuw bedrijf: {company}",
+      "title": "🆕 <strong>Nieuw geregistreerd bedrijf</strong>",
+      "labelCompany": "Bedrijf",
+      "labelAdmin": "Beheerder",
+      "labelEmail": "E-mail",
+      "labelVat": "BTW",
+      "labelDate": "Datum",
+      "labelPlan": "Abonnement",
+      "button": "Bekijken in super-admin →"
+    },
+    "kioskVisitor": {
+      "subject": "🏷️ Bezoeker aangekomen: {visitor}",
+      "body": "Uw bezoeker <strong>{visitor}</strong> is zojuist aangekomen aan de receptie om <strong>{time}</strong>.",
+      "sectionVisitor": "<strong>Bezoeker</strong>"
+    }
+  },
+  "landing": {
+    "hero": {
+      "title": "Inklokken. Conform. Belgisch.",
+      "subtitle": "Objectieve tijdregistratie voor Belgische kmo's. Conform wet 2027 & HVJEU. In 2 minuten.",
+      "ctaPrimary": "Gratis beginnen",
+      "ctaSecondary": "Tarieven bekijken"
+    },
+    "stats": {
+      "smes": "Belgische kmo's",
+      "setup": "Gemiddelde setup",
+      "compliant": "HVJEU-conform"
+    },
+    "features": {
+      "title": "Alles wat nodig is, niets overbodigs",
+      "clockIn": {
+        "title": "Inklokken in 1 tik",
+        "description": "AANKOMST / VERTREK in één gebaar. Werkt op smartphone, tablet en pc zonder opleiding."
+      },
+      "compliant": {
+        "title": "100% conform 2027",
+        "description": "Onveranderlijk auditspoor, gecertificeerde export, HVJEU- en Belgische wetsconformiteit 2027 ingebouwd."
+      },
+      "reports": {
+        "title": "Real-time rapporten",
+        "description": "Uren, verlof, recuperatieverlof. Alles in één dashboard. CSV-export in één klik."
+      },
+      "gpsZero": {
+        "title": "0 GPS",
+        "description": "Geen locatietracking. Volledige eerbiediging van de privacy van uw medewerkers."
+      }
+    },
+    "methods": {
+      "title": "3 manieren om in te klokken",
+      "mobile": {
+        "title": "Mobiele PWA",
+        "description": "Aankomst en vertrek in 1 tik vanaf elke smartphone, zonder app te installeren."
+      },
+      "kiosk": {
+        "title": "PIN-kiosk",
+        "description": "Tablet bij de ingang. De medewerker typt zijn 4-cijferige PIN. Onmiddellijke registratie."
+      },
+      "qr": {
+        "title": "QR-code",
+        "description": "Scan de QR-code ter plaatse. Ideaal voor bouwplaatsen of meerdere locaties."
+      }
+    },
+    "testimonials": {
+      "title": "Ze vertrouwen ons"
+    },
+    "faq": {
+      "title": "Veelgestelde vragen",
+      "compliant": {
+        "q": "Voldoet de oplossing aan de Belgische wet 2027?",
+        "a": "Ja. Pointon voldoet aan alle Belgische en HVJEU-wettelijke vereisten voor tijdregistratie."
+      },
+      "gps": {
+        "q": "Gebruikt u geolocatie?",
+        "a": "Nee. Pointon gebruikt geen GPS. Er worden geen locatiegegevens verzameld."
+      },
+      "setup": {
+        "q": "Hoelang duurt het om te starten?",
+        "a": "2 minuten. Maak uw account aan, nodig uw medewerkers uit en u bent klaar."
+      }
+    },
+    "cta": {
+      "title": "Klaar om conform te zijn?",
+      "button": "Gratis beginnen"
+    }
+  },
+  "pricing": {
+    "title": "Tarieven",
+    "monthly": "Maandelijks",
+    "yearly": "Jaarlijks",
+    "yearlyDiscount": "-17%",
+    "free": {
+      "name": "Free",
+      "buttonText": "Gratis beginnen"
+    },
+    "starter": {
+      "name": "Starter",
+      "buttonText": "Starter kiezen"
+    },
+    "team": {
+      "name": "Team",
+      "buttonText": "Team kiezen"
+    },
+    "business": {
+      "name": "Business",
+      "buttonText": "Business kiezen"
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "buttonText": "Contact opnemen",
+      "price": "Op aanvraag"
+    },
+    "perSeat": "/seat",
+    "perMonth": "/maand",
+    "includedSeats": "{count} seats inbegrepen",
+    "extraSeat": "+{price}/extra seat"
+  }
+}

@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
+import { getLocale } from 'next-intl/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { Sidebar } from '@/components/Sidebar'
@@ -13,15 +14,14 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  const session = await auth()
-  if (!session?.user) redirect('/login')
-  if (session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN') redirect('/app')
+  const [session, locale] = await Promise.all([auth(), getLocale()])
+  if (!session?.user) redirect(`/${locale}/login`)
+  if (session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN') redirect(`/${locale}/app`)
 
-  // Redirect to onboarding wizard if not yet completed (ADMIN only, not SUPER_ADMIN)
   if (session.user.role === 'ADMIN') {
     const headersList = await headers()
     const pathname = headersList.get('x-pathname') ?? ''
-    if (!pathname.startsWith('/admin/onboarding')) {
+    if (!pathname.startsWith(`/${locale}/admin/onboarding`)) {
       const admin = await prisma.user.findUnique({
         where: { id: session.user.id },
         select: { companyId: true },
@@ -32,7 +32,7 @@ export default async function AdminLayout({
           select: { onboardingCompleted: true },
         })
         if (company && !company.onboardingCompleted) {
-          redirect('/admin/onboarding')
+          redirect(`/${locale}/admin/onboarding`)
         }
       }
     }
