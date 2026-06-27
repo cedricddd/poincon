@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Card } from '@/components/Card'
 
 interface Balance {
@@ -16,6 +17,7 @@ interface Balance {
 }
 
 export function BalanceWidget() {
+  const t = useTranslations('balance')
   const [balance, setBalance] = useState<Balance | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -65,51 +67,51 @@ export function BalanceWidget() {
 
   return (
     <Card>
-      <h3 className="text-sm font-bold text-[var(--pp-ink)] mb-4">Solde Heures</h3>
+      <h3 className="text-sm font-bold text-[var(--pp-ink)] mb-4">{t('title')}</h3>
 
       <div className="space-y-3">
         {/* Main balance */}
         <div className="p-3 rounded-lg bg-[var(--pp-info)]/10">
-          <p className="text-xs text-[var(--pp-muted)] mb-1">Solde net</p>
+          <p className="text-xs text-[var(--pp-muted)] mb-1">{t('netBalance')}</p>
           <p className={`text-2xl font-bold ${balanceColor}`}>
             {balance.balance > 0 ? '+' : ''}{balance.balance.toFixed(1)}h
           </p>
           <p className="text-xs text-[var(--pp-muted)] mt-1">
             {balance.balance > 0
-              ? 'Heures en crédit'
+              ? t('credit')
               : balance.balance < 0
-                ? 'Heures à rattraper'
-                : 'Zéro'}
+                ? t('toMakeUp')
+                : t('zero')}
           </p>
         </div>
 
         {/* Breakdown */}
         <div className="grid grid-cols-2 gap-2">
           <div className="p-2 rounded-lg bg-[var(--pp-pos)]/10">
-            <p className="text-xs text-[var(--pp-muted)]">Heures sup</p>
+            <p className="text-xs text-[var(--pp-muted)]">{t('overtime')}</p>
             <p className="text-lg font-bold text-[var(--pp-pos)]">
               {balance.overtimeHours.toFixed(1)}h
             </p>
-            <p className="text-xs text-[var(--pp-muted)]">Approuvées</p>
+            <p className="text-xs text-[var(--pp-muted)]">{t('approvedF')}</p>
           </div>
 
           <div className="p-2 rounded-lg bg-[var(--pp-neg)]/10">
-            <p className="text-xs text-[var(--pp-muted)]">Congés</p>
-            <p className="text-lg font-bold text-[var(--pp-neg)]">{balance.daysOff}j</p>
-            <p className="text-xs text-[var(--pp-muted)]">Approuvés</p>
+            <p className="text-xs text-[var(--pp-muted)]">{t('timeoff')}</p>
+            <p className="text-lg font-bold text-[var(--pp-neg)]">{balance.daysOff}{t('daysSuffix')}</p>
+            <p className="text-xs text-[var(--pp-muted)]">{t('approvedM')}</p>
           </div>
         </div>
 
         {/* Pending requests */}
         {(balance.pendingRequests.overtime > 0 || balance.pendingRequests.timeOff > 0) && (
           <div className="pt-3 border-t border-[var(--pp-line)] text-xs text-[var(--pp-muted)]">
-            <p className="font-medium mb-1">En attente:</p>
+            <p className="font-medium mb-1">{t('pendingTitle')}</p>
             <ul className="space-y-1">
               {balance.pendingRequests.overtime > 0 && (
-                <li>• {balance.pendingRequests.overtime} demande(s) heures sup</li>
+                <li>• {t('pendingOvertime', { count: balance.pendingRequests.overtime })}</li>
               )}
               {balance.pendingRequests.timeOff > 0 && (
-                <li>• {balance.pendingRequests.timeOff} demande(s) congé</li>
+                <li>• {t('pendingTimeoff', { count: balance.pendingRequests.timeOff })}</li>
               )}
             </ul>
           </div>

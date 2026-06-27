@@ -1,4 +1,7 @@
-import Link from 'next/link'
+'use client'
+
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 
 type BannerVariant = 'indigo' | 'mauve'
 
@@ -24,6 +27,7 @@ const styles: Record<BannerVariant, { wrapper: string; badge: string; btn: strin
 }
 
 export function UpgradeBanner({ currentPlan, upgradeTo, feature, description, variant = 'indigo' }: Props) {
+  const t = useTranslations('common')
   const s = styles[variant]
   return (
     <div className={`rounded-xl border bg-gradient-to-r ${s.wrapper} p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4`}>
@@ -32,11 +36,11 @@ export function UpgradeBanner({ currentPlan, upgradeTo, feature, description, va
           <span className="text-base">🔒</span>
           <span className="font-semibold text-[var(--pp-ink)]">{feature}</span>
           <span className={`text-xs px-2 py-0.5 ${s.badge} rounded-full font-medium`}>
-            Plan {upgradeTo}
+            {t('planBadge', { plan: upgradeTo })}
           </span>
         </div>
         <p className="text-sm text-[var(--pp-muted)]">
-          {description ?? `Cette fonctionnalité n'est pas disponible avec le plan ${currentPlan}. Passez au plan ${upgradeTo} pour y accéder.`}
+          {description ?? t('upgradeDefault', { current: currentPlan, to: upgradeTo })}
         </p>
       </div>
       {upgradeTo && (
@@ -44,7 +48,7 @@ export function UpgradeBanner({ currentPlan, upgradeTo, feature, description, va
           href="/pricing"
           className={`shrink-0 px-4 py-2 ${s.btn} text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity whitespace-nowrap`}
         >
-          Upgrader vers {upgradeTo}
+          {t('upgradeCta', { plan: upgradeTo })}
         </Link>
       )}
     </div>
