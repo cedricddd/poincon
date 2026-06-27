@@ -144,7 +144,16 @@
     "recentActivity": "Activité récente",
     "seeAll": "Voir tout →",
     "noClockedIn": "Personne de pointé en ce moment",
-    "noClockThisWeek": "Aucun pointage cette semaine"
+    "noClockThisWeek": "Aucun pointage cette semaine",
+    "loading": "Chargement…",
+    "unitPending": "en attente",
+    "since": "depuis {time}",
+    "othersCount": "+{count} autres",
+    "ongoing": "en cours",
+    "upgradeFreeFeature": "Vous utilisez le plan gratuit",
+    "upgradeFreeDesc": "Limité à {max} employés. Passez au plan SOLO pour plus d'employés, ou TEAM pour les équipes et managers.",
+    "upgradeSoloFeature": "Plan SOLO actif",
+    "upgradeSoloDesc": "Les équipes, managers et exports illimités sont disponibles à partir du plan TEAM."
   },
   "clock": {
     "greetingMorning": "Bonjour",

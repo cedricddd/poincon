@@ -144,7 +144,16 @@
     "recentActivity": "Letzte Aktivitäten",
     "seeAll": "Alle anzeigen →",
     "noClockedIn": "Gerade niemand eingestempelt",
-    "noClockThisWeek": "Keine Zeiterfassungen diese Woche"
+    "noClockThisWeek": "Keine Zeiterfassungen diese Woche",
+    "loading": "Laden…",
+    "unitPending": "ausstehend",
+    "since": "seit {time}",
+    "othersCount": "+{count} weitere",
+    "ongoing": "laufend",
+    "upgradeFreeFeature": "Sie nutzen den kostenlosen Plan",
+    "upgradeFreeDesc": "Begrenzt auf {max} Mitarbeiter. Wechseln Sie zu SOLO für mehr Mitarbeiter oder TEAM für Teams und Manager.",
+    "upgradeSoloFeature": "SOLO-Plan aktiv",
+    "upgradeSoloDesc": "Teams, Manager und unbegrenzte Exporte sind ab dem TEAM-Plan verfügbar."
   },
   "clock": {
     "greetingMorning": "Guten Morgen",

@@ -144,7 +144,16 @@
     "recentActivity": "Recente activiteit",
     "seeAll": "Alles bekijken →",
     "noClockedIn": "Niemand ingeklokt op dit moment",
-    "noClockThisWeek": "Geen tijdregistratie deze week"
+    "noClockThisWeek": "Geen tijdregistratie deze week",
+    "loading": "Laden…",
+    "unitPending": "in afwachting",
+    "since": "sinds {time}",
+    "othersCount": "+{count} andere",
+    "ongoing": "bezig",
+    "upgradeFreeFeature": "U gebruikt het gratis plan",
+    "upgradeFreeDesc": "Beperkt tot {max} medewerkers. Schakel over naar SOLO voor meer medewerkers, of TEAM voor teams en managers.",
+    "upgradeSoloFeature": "SOLO-plan actief",
+    "upgradeSoloDesc": "Teams, managers en onbeperkte exports zijn beschikbaar vanaf het TEAM-plan."
   },
   "clock": {
     "greetingMorning": "Goedemorgen",

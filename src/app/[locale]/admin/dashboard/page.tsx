@@ -2,9 +2,12 @@
 
 export const dynamic = 'force-dynamic'
 import { useEffect, useState, useCallback } from 'react'
-import Link from 'next/link'
+import { useTranslations, useLocale } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import { usePlan } from '@/hooks/usePlan'
 import { UpgradeBanner } from '@/components/UpgradeBanner'
+
+const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
 
 /* ── Types ──────────────────────────────────────────────────────────────── */
 
@@ -36,8 +39,8 @@ type RecentRecord = {
 
 /* ── Helpers ────────────────────────────────────────────────────────────── */
 
-function fmtTime(iso: string) {
-  return new Date(iso).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
+function fmtTime(iso: string, locale = 'fr-BE') {
+  return new Date(iso).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
 }
 
 function fmtHours(minutes: number) {
@@ -93,6 +96,9 @@ function StatCard({
 /* ── Page ───────────────────────────────────────────────────────────────── */
 
 export default function AdminDashboard() {
+  const t = useTranslations('dashboard')
+  const locale = useLocale()
+  const bcp = BCP47[locale] ?? 'fr-BE'
   const { planInfo, upgradeTo } = usePlan()
   const [counts, setCounts] = useState<Counts>({ overtimes: 0, timeoffs: 0, rtts: 0, users: 0, presentNow: 0, noSchedule: 0, weekMinutes: 0 })
   const [present, setPresent] = useState<PresentPerson[]>([])
@@ -164,38 +170,38 @@ export default function AdminDashboard() {
 
   const statCards = [
     {
-      href: '/admin/dashboard/overtimes', label: 'Heures supplémentaires',
-      value: counts.overtimes, unit: 'en attente',
+      href: '/admin/dashboard/overtimes', label: t('overtimes'),
+      value: counts.overtimes, unit: t('unitPending'),
       color: '#fb923c', urgent: counts.overtimes > 0,
       icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3 2 6"/><path d="m22 6-3-3"/></svg>,
     },
     {
-      href: '/admin/dashboard/timeoffs', label: 'Congés',
-      value: counts.timeoffs, unit: 'en attente',
+      href: '/admin/dashboard/timeoffs', label: t('timeoffs'),
+      value: counts.timeoffs, unit: t('unitPending'),
       color: '#0ea5e9', urgent: counts.timeoffs > 0,
       icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
     },
     {
-      href: '/admin/dashboard/rtts', label: 'Récupération',
-      value: counts.rtts, unit: 'en attente',
+      href: '/admin/dashboard/rtts', label: t('rtts'),
+      value: counts.rtts, unit: t('unitPending'),
       color: '#f59e0b', urgent: counts.rtts > 0,
       icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
     },
     {
-      href: '/admin/dashboard/presence', label: 'Présences',
-      value: counts.presentNow, unit: 'pointés maintenant',
+      href: '/admin/dashboard/presence', label: t('presences'),
+      value: counts.presentNow, unit: t('clockedNow'),
       color: '#10b981', urgent: false,
       icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
     },
     {
-      href: '/admin/dashboard/users', label: 'Utilisateurs',
-      value: counts.users, unit: 'employés actifs',
+      href: '/admin/dashboard/users', label: t('users'),
+      value: counts.users, unit: t('activeEmployees'),
       color: '#6366f1', urgent: false,
       icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
     },
     {
-      href: '/admin/dashboard/schedules', label: 'Sans horaire',
-      value: counts.noSchedule, unit: 'à configurer',
+      href: '/admin/dashboard/schedules', label: t('noSchedule'),
+      value: counts.noSchedule, unit: t('toConfigure'),
       color: '#8b5cf6', urgent: counts.noSchedule > 0,
       icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
     },
@@ -207,16 +213,16 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="mb-8 flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--pp-ink)] mb-1">Tableau de bord</h1>
+          <h1 className="text-2xl font-bold text-[var(--pp-ink)] mb-1">{t('title')}</h1>
           <p className="text-sm text-[var(--pp-muted)]">
-            {loading ? 'Chargement…' : totalPending > 0
-              ? `${totalPending} demande${totalPending > 1 ? 's' : ''} en attente`
-              : 'Tout est à jour ✓'}
+            {loading ? t('loading') : totalPending > 0
+              ? t('pendingRequests', { count: totalPending })
+              : t('upToDate')}
           </p>
         </div>
         {!loading && counts.weekMinutes > 0 && (
           <div className="text-right">
-            <p className="text-xs text-[var(--pp-muted)]">Heures pointées cette semaine</p>
+            <p className="text-xs text-[var(--pp-muted)]">{t('hoursThisWeek')}</p>
             <p className="text-2xl font-bold text-[var(--pp-pos)]">{fmtHours(counts.weekMinutes)}</p>
           </div>
         )}
@@ -240,16 +246,16 @@ export default function AdminDashboard() {
             <UpgradeBanner
               currentPlan={planInfo.plan}
               upgradeTo="SOLO"
-              feature="Vous utilisez le plan gratuit"
-              description={`Limité à ${planInfo.maxEmployees} employés. Passez au plan SOLO pour plus d'employés, ou TEAM pour les équipes et managers.`}
+              feature={t('upgradeFreeFeature')}
+              description={t('upgradeFreeDesc', { max: planInfo.maxEmployees })}
             />
           )}
           {planInfo.plan === 'SOLO' && !planInfo.canTeams && (
             <UpgradeBanner
               currentPlan={planInfo.plan}
               upgradeTo={upgradeTo}
-              feature="Plan SOLO actif"
-              description="Les équipes, managers et exports illimités sont disponibles à partir du plan TEAM."
+              feature={t('upgradeSoloFeature')}
+              description={t('upgradeSoloDesc')}
             />
           )}
         </div>
@@ -263,10 +269,10 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[var(--pp-pos)] animate-pulse" />
-              <h2 className="text-sm font-semibold text-[var(--pp-ink)]">Présences en direct</h2>
+              <h2 className="text-sm font-semibold text-[var(--pp-ink)]">{t('livePresences')}</h2>
             </div>
             <Link href="/admin/dashboard/presence" className="text-xs text-[var(--pp-muted)] hover:text-[var(--pp-pos)] transition">
-              Voir tout →
+              {t('seeAll')}
             </Link>
           </div>
 
@@ -274,7 +280,7 @@ export default function AdminDashboard() {
             <div className="space-y-2">{[1,2,3].map(i => <div key={i} className="pp-skel h-10" />)}</div>
           ) : present.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-sm text-[var(--pp-muted)]">Personne de pointé en ce moment</p>
+              <p className="text-sm text-[var(--pp-muted)]">{t('noClockedIn')}</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -294,12 +300,12 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                   <span className="text-xs font-mono text-[var(--pp-pos)] bg-[var(--pp-pos)]/10 px-2 py-0.5 rounded-full">
-                    depuis {fmtTime(p.arrivalTime)}
+                    {t('since', { time: fmtTime(p.arrivalTime, bcp) })}
                   </span>
                 </div>
               ))}
               {present.length > 8 && (
-                <p className="text-xs text-center text-[var(--pp-muted)] pt-1">+{present.length - 8} autres</p>
+                <p className="text-xs text-center text-[var(--pp-muted)] pt-1">{t('othersCount', { count: present.length - 8 })}</p>
               )}
             </div>
           )}
@@ -308,9 +314,9 @@ export default function AdminDashboard() {
         {/* Activité récente */}
         <div className="rounded-xl border border-[var(--pp-line)] bg-[var(--pp-bg)] p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-[var(--pp-ink)]">Activité récente</h2>
+            <h2 className="text-sm font-semibold text-[var(--pp-ink)]">{t('recentActivity')}</h2>
             <Link href="/admin/dashboard/reports" className="text-xs text-[var(--pp-muted)] hover:text-[var(--pp-info)] transition">
-              Voir tout →
+              {t('seeAll')}
             </Link>
           </div>
 
@@ -318,7 +324,7 @@ export default function AdminDashboard() {
             <div className="space-y-2">{[1,2,3,4].map(i => <div key={i} className="pp-skel h-10" />)}</div>
           ) : recent.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-sm text-[var(--pp-muted)]">Aucun pointage cette semaine</p>
+              <p className="text-sm text-[var(--pp-muted)]">{t('noClockThisWeek')}</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -335,7 +341,7 @@ export default function AdminDashboard() {
                         {r.user.name ?? r.user.email.split('@')[0]}
                       </p>
                       <p className="text-xs text-[var(--pp-muted)]">
-                        {fmtTime(r.arrivalTime)} → {r.departureTime ? fmtTime(r.departureTime) : <span className="text-[var(--pp-pos)]">en cours</span>}
+                        {fmtTime(r.arrivalTime, bcp)} → {r.departureTime ? fmtTime(r.departureTime, bcp) : <span className="text-[var(--pp-pos)]">{t('ongoing')}</span>}
                         {r.site ? ` · ${r.site.name}` : ''}
                       </p>
                     </div>

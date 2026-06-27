@@ -144,7 +144,16 @@
     "recentActivity": "Recent activity",
     "seeAll": "See all →",
     "noClockedIn": "Nobody clocked in right now",
-    "noClockThisWeek": "No time records this week"
+    "noClockThisWeek": "No time records this week",
+    "loading": "Loading…",
+    "unitPending": "pending",
+    "since": "since {time}",
+    "othersCount": "+{count} others",
+    "ongoing": "ongoing",
+    "upgradeFreeFeature": "You're on the free plan",
+    "upgradeFreeDesc": "Limited to {max} employees. Upgrade to SOLO for more employees, or TEAM for teams and managers.",
+    "upgradeSoloFeature": "SOLO plan active",
+    "upgradeSoloDesc": "Teams, managers and unlimited exports are available from the TEAM plan."
   },
   "clock": {
     "greetingMorning": "Good morning",
