@@ -85,6 +85,18 @@
       "trustDevice": "Dit apparaat 30 dagen onthouden"
     }
   },
+  "header": {
+    "navFeatures": "Functies",
+    "navHow": "Hoe het werkt",
+    "navPricing": "Tarieven",
+    "navFaq": "FAQ",
+    "login": "Aanmelden",
+    "start": "Starten",
+    "startFree": "Gratis starten",
+    "themeLight": "Lichte modus",
+    "themeDark": "Donkere modus",
+    "menu": "Menu"
+  },
   "sidebar": {
     "pointage": "Inklokken",
     "conges": "Verlof",

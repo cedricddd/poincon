@@ -85,6 +85,18 @@
       "trustDevice": "Dieses Gerät 30 Tage merken"
     }
   },
+  "header": {
+    "navFeatures": "Funktionen",
+    "navHow": "So funktioniert es",
+    "navPricing": "Preise",
+    "navFaq": "FAQ",
+    "login": "Anmelden",
+    "start": "Loslegen",
+    "startFree": "Kostenlos starten",
+    "themeLight": "Heller Modus",
+    "themeDark": "Dunkler Modus",
+    "menu": "Menü"
+  },
   "sidebar": {
     "pointage": "Zeiterfassung",
     "conges": "Urlaub",

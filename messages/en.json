@@ -85,6 +85,18 @@
       "trustDevice": "Remember this device for 30 days"
     }
   },
+  "header": {
+    "navFeatures": "Features",
+    "navHow": "How it works",
+    "navPricing": "Pricing",
+    "navFaq": "FAQ",
+    "login": "Sign in",
+    "start": "Get started",
+    "startFree": "Start for free",
+    "themeLight": "Light mode",
+    "themeDark": "Dark mode",
+    "menu": "Menu"
+  },
   "sidebar": {
     "pointage": "Clock in/out",
     "conges": "Leave",

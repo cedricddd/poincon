@@ -85,6 +85,18 @@
       "trustDevice": "Se souvenir de cet appareil 30 jours"
     }
   },
+  "header": {
+    "navFeatures": "Fonctionnalités",
+    "navHow": "Comment ça marche",
+    "navPricing": "Tarifs",
+    "navFaq": "FAQ",
+    "login": "Connexion",
+    "start": "Commencer",
+    "startFree": "Commencer gratuitement",
+    "themeLight": "Mode clair",
+    "themeDark": "Mode sombre",
+    "menu": "Menu"
+  },
   "sidebar": {
     "pointage": "Pointage",
     "conges": "Congés",

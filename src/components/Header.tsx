@@ -1,9 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import { Button } from './Button'
 import { Logo } from './Logo'
+import { LocaleSwitcher } from './LocaleSwitcher'
 
 function SunIcon() {
   return (
@@ -23,6 +25,7 @@ function MoonIcon() {
 }
 
 export function Header() {
+  const t = useTranslations('header')
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [dark, setDark] = useState(false)
@@ -47,10 +50,10 @@ export function Header() {
   }
 
   const navLinks = [
-    { href: '#features', label: 'Fonctionnalités' },
-    { href: '#how', label: 'Comment ça marche' },
-    { href: '#pricing', label: 'Tarifs' },
-    { href: '#faq', label: 'FAQ' },
+    { href: '#features', label: t('navFeatures') },
+    { href: '#how', label: t('navHow') },
+    { href: '#pricing', label: t('navPricing') },
+    { href: '#faq', label: t('navFaq') },
   ]
 
   return (
@@ -71,26 +74,29 @@ export function Header() {
         {/* Nav desktop */}
         <nav className="hidden md:flex items-center gap-8">
           {navLinks.map(l => (
-            <Link key={l.href} href={l.href} className="text-sm text-[var(--pp-muted)] hover:text-[var(--pp-ink)] transition-colors">
+            <a key={l.href} href={l.href} className="text-sm text-[var(--pp-muted)] hover:text-[var(--pp-ink)] transition-colors">
               {l.label}
-            </Link>
+            </a>
           ))}
         </nav>
 
         {/* CTAs desktop */}
         <div className="hidden md:flex items-center gap-3">
+          <div className="w-36">
+            <LocaleSwitcher />
+          </div>
           <button
             onClick={toggleTheme}
             className="p-2 rounded-lg text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)] transition-colors"
-            aria-label={dark ? 'Mode clair' : 'Mode sombre'}
+            aria-label={dark ? t('themeLight') : t('themeDark')}
           >
             {dark ? <SunIcon /> : <MoonIcon />}
           </button>
           <Link href="/login" className="text-sm text-[var(--pp-muted)] hover:text-[var(--pp-ink)] transition-colors font-medium">
-            Connexion
+            {t('login')}
           </Link>
           <Link href="/login">
-            <Button size="sm">Commencer</Button>
+            <Button size="sm">{t('start')}</Button>
           </Link>
         </div>
 
@@ -99,14 +105,14 @@ export function Header() {
           <button
             onClick={toggleTheme}
             className="p-2 rounded-lg text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)] transition-colors"
-            aria-label={dark ? 'Mode clair' : 'Mode sombre'}
+            aria-label={dark ? t('themeLight') : t('themeDark')}
           >
             {dark ? <SunIcon /> : <MoonIcon />}
           </button>
           <button
             onClick={() => setMenuOpen(v => !v)}
             className="p-2 rounded-lg text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)] transition-colors"
-            aria-label="Menu"
+            aria-label={t('menu')}
           >
             {menuOpen ? (
               <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
@@ -126,22 +132,25 @@ export function Header() {
         <div className="md:hidden bg-[var(--pp-bg)] border-b border-[var(--pp-line)] px-4 pb-4">
           <nav className="flex flex-col gap-1 mb-4">
             {navLinks.map(item => (
-              <Link
+              <a
                 key={item.href}
                 href={item.href}
                 onClick={() => setMenuOpen(false)}
                 className="py-3 text-sm font-medium text-[var(--pp-muted)] hover:text-[var(--pp-ink)] border-b border-[var(--pp-line)] last:border-0 transition-colors"
               >
                 {item.label}
-              </Link>
+              </a>
             ))}
           </nav>
+          <div className="mb-3">
+            <LocaleSwitcher />
+          </div>
           <div className="flex flex-col gap-2">
             <Link href="/login" onClick={() => setMenuOpen(false)}>
-              <Button variant="outline" size="md" className="w-full">Connexion</Button>
+              <Button variant="outline" size="md" className="w-full">{t('login')}</Button>
             </Link>
             <Link href="/login" onClick={() => setMenuOpen(false)}>
-              <Button size="md" className="w-full">Commencer gratuitement</Button>
+              <Button size="md" className="w-full">{t('startFree')}</Button>
             </Link>
           </div>
         </div>
