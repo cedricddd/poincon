@@ -1,11 +1,29 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import Link from 'next/link'
+import { useTranslations, useLocale } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import { Header } from '@/components/Header'
 import { Button } from '@/components/Button'
 import { ThemeVideo } from '@/components/ThemeVideo'
 import { Logo } from '@/components/Logo'
+
+/* ─── Types ─────────────────────────────────────────────────────────────── */
+
+interface FeatureItem { n: string; color: string; title: string; description: string }
+interface MethodItem { color: string; icon: React.ReactNode; hasSub?: boolean; title: string; description: string }
+interface StepItem { n: string; icon: React.ReactNode; title: string; description: string }
+interface TestimonialItem { name: string; company: string; location: string; plan: string; initials: string; color: string; quote: string; role: string }
+interface TierItem {
+  name: string; monthlyPrice: number | null; annualPrice: number | null; annualTotal: number | null; annualSavings: number | null
+  buttonHref: string; buttonHrefAnnual: string; highlight: boolean; extraSeat: number | null
+  limit: string; buttonText: string; includesLabel: string; features: string[]; includes: string[]
+}
+interface FaqEntry { q: string; a: string }
+
+/* ─── Locale → BCP47 for date/time formatting ───────────────────────────── */
+
+const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
 
 /* ─── Animated number hook ──────────────────────────────────────────────── */
 
@@ -51,95 +69,33 @@ function useReveal() {
   return ref
 }
 
-/* ─── Data ─────────────────────────────────────────────────────────────── */
+/* ─── Visual config (text comes from translations) ──────────────────────── */
 
-const stats = [
-  { value: 500, suffix: '+', label: 'PME belges' },
-  { value: 2, suffix: ' min', label: 'Setup moyen' },
-  { value: 100, suffix: '%', label: 'Conforme CJUE' },
-  { value: 0, suffix: '€', label: 'Pour commencer' },
+const statsConfig = [
+  { value: 500, suffix: '+' },
+  { value: 2, suffix: ' min' },
+  { value: 100, suffix: '%' },
+  { value: 0, suffix: '€' },
 ]
 
-const features = [
+const featuresConfig = [
+  { n: '01', color: '#10b981' },
+  { n: '02', color: '#f59e0b' },
+  { n: '03', color: '#0ea5e9' },
+  { n: '04', color: '#fb923c' },
+  { n: '05', color: '#6366f1' },
+  { n: '06', color: '#8b5cf6' },
+]
+
+const testimonialsConfig = [
+  { name: 'Marie Renard', company: 'Boulangerie Renard', location: 'Liège', plan: 'Starter', initials: 'MR', color: '#10b981' },
+  { name: 'Thomas Henrard', company: 'DataBridge SPRL', location: 'Bruxelles', plan: 'Team', initials: 'TH', color: '#6366f1' },
+  { name: 'Sébastien Pirard', company: 'Pirard Installations', location: 'Namur', plan: 'Starter', initials: 'SP', color: '#0ea5e9' },
+]
+
+const stepsConfig = [
   {
     n: '01',
-    color: '#10b981',
-    title: 'Pointage en 1 tap',
-    description: 'ARRIVÉE / DÉPART en un geste. Fonctionne sur smartphone, tablette et PC sans formation.',
-  },
-  {
-    n: '02',
-    color: '#f59e0b',
-    title: 'Conforme loi 2027',
-    description: 'Enregistrement objectif, audit trail immuable et export certifié. Prêt pour inspection légale.',
-  },
-  {
-    n: '03',
-    color: '#0ea5e9',
-    title: 'Kiosque, QR & Mobile',
-    description: '4 méthodes : application mobile (PWA), kiosque tablette, QR code imprimable par site (1 scan = pointage instantané) ou interface web. Zéro installation.',
-  },
-  {
-    n: '04',
-    color: '#fb923c',
-    title: 'Alertes intelligentes',
-    description: "Rappel fin de journée, détection d'heures supplémentaires, notifications temps réel.",
-  },
-  {
-    n: '05',
-    color: '#6366f1',
-    title: 'Zéro GPS · RGPD',
-    description: 'Aucune géolocalisation (CCT 68 · RGPD). Export CSV et PDF signés numériquement pour inspection légale.',
-  },
-  {
-    n: '06',
-    color: '#8b5cf6',
-    title: "Gestion d'équipes",
-    description: 'Managers, sites, congés, récupérations — tout centralisé pour les RH et les administrateurs.',
-  },
-]
-
-const testimonials = [
-  {
-    quote: "Avant on notait les heures sur papier. Maintenant c'est automatique. Mes employés pointent sur la tablette à l'entrée, j'exporte le récap le vendredi. Setup : 10 minutes.",
-    name: 'Marie Renard',
-    role: 'Gérante',
-    company: 'Boulangerie Renard',
-    location: 'Liège',
-    employees: '6 employés',
-    plan: 'Starter',
-    initials: 'MR',
-    color: '#10b981',
-  },
-  {
-    quote: "On cherchait une solution conforme loi 2027 sans GPS ni tracking. Pointon coche toutes les cases. L'audit trail immuable nous rassure pour les contrôles sociaux.",
-    name: 'Thomas Henrard',
-    role: 'Directeur technique',
-    company: 'DataBridge SPRL',
-    location: 'Bruxelles',
-    employees: '12 employés',
-    plan: 'Team',
-    initials: 'TH',
-    color: '#6366f1',
-  },
-  {
-    quote: 'Mes techniciens sont rarement au bureau. Avec le kiosque tablette au dépôt et l\'appli mobile pour les déplacements, tout le monde pointe facilement.',
-    name: 'Sébastien Pirard',
-    role: 'Dirigeant',
-    company: 'Pirard Installations',
-    location: 'Namur',
-    employees: '9 employés',
-    plan: 'Starter',
-    initials: 'SP',
-    color: '#0ea5e9',
-  },
-]
-
-const steps = [
-  {
-    n: '01',
-    title: 'Créez votre compte',
-    description: 'Inscrivez-vous en 2 minutes. Pas de carte bancaire requise pour le plan gratuit.',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
@@ -149,8 +105,6 @@ const steps = [
   },
   {
     n: '02',
-    title: 'Invitez vos employés',
-    description: 'Ajoutez vos équipes et assignez les sites. Chaque membre reçoit accès immédiatement.',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -161,8 +115,6 @@ const steps = [
   },
   {
     n: '03',
-    title: 'Pointez & exportez',
-    description: 'Vos employés pointent sur téléphone, tablette ou ordinateur. Vous exportez les rapports en un clic.',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14.5"/>
@@ -171,123 +123,17 @@ const steps = [
   },
 ]
 
-const pricingTiers = [
-  {
-    name: 'Free',
-    monthlyPrice: 0,
-    annualPrice: 0,
-    annualTotal: 0,
-    annualSavings: 0,
-    limit: '3 utilisateurs inclus',
-    buttonText: 'Commencer gratuitement',
-    buttonHref: '/login',
-    buttonHrefAnnual: '/login',
-    highlight: false,
-    extraSeat: null as number | null,
-    features: ['Pointage mobile (PWA)', 'Export CSV (30 jours)', 'Rapports basiques'],
-    includes: ['Audit trail immuable', 'Multi-appareils', 'Auth sécurisée'],
-    includesLabel: 'Inclus :',
-  },
-  {
-    name: 'Starter',
-    monthlyPrice: 19.90,
-    annualPrice: 16.58,
-    annualTotal: 199,
-    annualSavings: 40,
-    limit: '5 utilisateurs inclus',
-    buttonText: 'Choisir Starter',
-    buttonHref: '/api/stripe/checkout?plan=starter&billing=monthly',
-    buttonHrefAnnual: '/api/stripe/checkout?plan=starter&billing=yearly',
-    highlight: false,
-    extraSeat: 2.90 as number | null,
-    features: ['Mode kiosque tablette', 'QR code par site (1 scan = pointage)', 'Export CSV/PDF illimité'],
-    includes: ['Support email', 'Heures supp automatiques', 'Congés & Récupération'],
-    includesLabel: 'Tout Free inclus :',
-  },
-  {
-    name: 'Team',
-    monthlyPrice: 44.90,
-    annualPrice: 37.42,
-    annualTotal: 449,
-    annualSavings: 90,
-    limit: '15 utilisateurs inclus',
-    buttonText: 'Choisir Team',
-    buttonHref: '/api/stripe/checkout?plan=team&billing=monthly',
-    buttonHrefAnnual: '/api/stripe/checkout?plan=team&billing=yearly',
-    highlight: true,
-    extraSeat: 2.60 as number | null,
-    features: ['Planning & congés avancés', 'Rôle Manager', 'Exports planifiés'],
-    includes: ['Support prioritaire', 'Multi-sites', 'Dashboard manager'],
-    includesLabel: 'Tout Starter inclus :',
-  },
-  {
-    name: 'Business',
-    monthlyPrice: 69.90,
-    annualPrice: 58.25,
-    annualTotal: 699,
-    annualSavings: 140,
-    limit: '30 utilisateurs inclus',
-    buttonText: 'Choisir Business',
-    buttonHref: '/api/stripe/checkout?plan=business&billing=monthly',
-    buttonHrefAnnual: '/api/stripe/checkout?plan=business&billing=yearly',
-    highlight: false,
-    extraSeat: 2.20 as number | null,
-    features: ['API & intégrations', 'Rapports avancés', 'Multi-sociétés'],
-    includes: ['SLA 99.9%', 'Onboarding dédié', 'Facturation personnalisée'],
-    includesLabel: 'Tout Team inclus :',
-  },
-  {
-    name: 'Enterprise',
-    monthlyPrice: null,
-    annualPrice: null,
-    annualTotal: null,
-    annualSavings: null,
-    limit: 'Utilisateurs illimités',
-    buttonText: 'Nous contacter',
-    buttonHref: 'mailto:contact@pointon.be',
-    buttonHrefAnnual: 'mailto:contact@pointon.be',
-    highlight: false,
-    extraSeat: null as number | null,
-    features: ['Managers illimités', 'Export planifié hebdo', 'SLA garanti'],
-    includes: ['Support dédié', 'Onboarding personnalisé', 'Contrat sur mesure'],
-    includesLabel: 'Tout Business inclus :',
-  },
+const pricingConfig = [
+  { name: 'Free', monthlyPrice: 0, annualPrice: 0, annualTotal: 0, annualSavings: 0, buttonHref: '/login', buttonHrefAnnual: '/login', highlight: false, extraSeat: null as number | null },
+  { name: 'Starter', monthlyPrice: 19.90, annualPrice: 16.58, annualTotal: 199, annualSavings: 40, buttonHref: '/api/stripe/checkout?plan=starter&billing=monthly', buttonHrefAnnual: '/api/stripe/checkout?plan=starter&billing=yearly', highlight: false, extraSeat: 2.90 as number | null },
+  { name: 'Team', monthlyPrice: 44.90, annualPrice: 37.42, annualTotal: 449, annualSavings: 90, buttonHref: '/api/stripe/checkout?plan=team&billing=monthly', buttonHrefAnnual: '/api/stripe/checkout?plan=team&billing=yearly', highlight: true, extraSeat: 2.60 as number | null },
+  { name: 'Business', monthlyPrice: 69.90, annualPrice: 58.25, annualTotal: 699, annualSavings: 140, buttonHref: '/api/stripe/checkout?plan=business&billing=monthly', buttonHrefAnnual: '/api/stripe/checkout?plan=business&billing=yearly', highlight: false, extraSeat: 2.20 as number | null },
+  { name: 'Enterprise', monthlyPrice: null, annualPrice: null, annualTotal: null, annualSavings: null, buttonHref: 'mailto:contact@pointon.be', buttonHrefAnnual: 'mailto:contact@pointon.be', highlight: false, extraSeat: null as number | null },
 ]
 
-const faqs = [
-  {
-    q: 'La solution est-elle conforme à la loi belge 2027?',
-    a: 'Oui. Pointon respecte toutes les exigences légales belges et CJUE : enregistrement objectif, audit trail immuable, export certifié.',
-  },
-  {
-    q: 'Comment sont stockées les données?',
-    a: 'Données hébergées en EU (Vercel Postgres ou serveur auto-hébergé). Chiffrement HTTPS. RGPD compliant.',
-  },
-  {
-    q: 'Puis-je exporter les données?',
-    a: 'Oui. Export CSV/PDF signé numériquement pour inspection légale. Disponible sur tous les plans.',
-  },
-  {
-    q: 'Quel est le délai de mise en place?',
-    a: 'Setup en 5 minutes. Intégration : 15 min. Pointage immédiat après création de compte.',
-  },
-  {
-    q: "Y a-t-il une période d'essai?",
-    a: 'Plan Free illimité sans engagement. Essayez gratuitement, aucune carte requise.',
-  },
-  {
-    q: 'Que se passe-t-il si je pointe hors ligne?',
-    a: 'Votre pointage est sauvegardé localement et marqué "⏳ en attente de sync". Dès reconnexion, il synchronise automatiquement au serveur et devient officiel. Le tableau de présence ne compte que les pointages synchronisés.',
-  },
-]
-
-/* ─── Pointing methods data ─────────────────────────────────────────────── */
-
-const pointingMethods = [
+const pointingMethodsConfig = [
   {
     color: '#10b981',
-    title: 'Mobile PWA',
-    description: "Arrivée et départ en 1 tap depuis n'importe quel smartphone. Sans installation.",
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="17" r="1"/>
@@ -296,12 +142,7 @@ const pointingMethods = [
   },
   {
     color: '#0ea5e9',
-    title: 'Kiosque tablette',
-    description: "PIN 4 chiffres à l'entrée du bureau. Idéal pour les équipes fixes sur site.",
-    subFeature: {
-      label: 'Mode visiteur inclus',
-      detail: 'Accueil, badge horodaté et suivi des passages externes — sans compte Pointon.',
-    },
+    hasSub: true,
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="3" width="4" height="4" rx="1"/><rect x="10" y="3" width="4" height="4" rx="1"/>
@@ -314,8 +155,6 @@ const pointingMethods = [
   },
   {
     color: '#f59e0b',
-    title: 'QR Code',
-    description: '1 QR par site. 1 scan = 1 pointage instantané. Imprimable, infalsifiable.',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
@@ -329,8 +168,6 @@ const pointingMethods = [
   },
   {
     color: '#6366f1',
-    title: 'Interface web',
-    description: "Depuis n'importe quel PC et navigateur. Même expérience, même simplicité.",
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 21h8M12 18v3"/>
@@ -342,6 +179,7 @@ const pointingMethods = [
 /* ─── Kiosk tablet mockup ─────────────────────────────────────────────────── */
 
 function KioskTablet({ dark }: { dark: boolean }) {
+  const t = useTranslations('landing.mockup')
   const screen = dark ? '#111827' : '#e8f5f0'
   const ink = dark ? 'rgba(249,250,251,0.9)' : 'rgba(0,0,0,0.8)'
   const muted = dark ? 'rgba(156,163,175,0.7)' : 'rgba(0,0,0,0.35)'
@@ -352,9 +190,9 @@ function KioskTablet({ dark }: { dark: boolean }) {
         <div style={{ background: screen, borderRadius: '1rem', padding: 16 }}>
           <div style={{ textAlign: 'center', marginBottom: 10 }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981', margin: '0 auto 6px' }} />
-            <div style={{ fontSize: 9, fontWeight: 700, color: '#10b981', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>Kiosque</div>
+            <div style={{ fontSize: 9, fontWeight: 700, color: '#10b981', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>{t('kioskTitle')}</div>
           </div>
-          <div style={{ fontSize: 10, color: ink, textAlign: 'center' as const, marginBottom: 10, fontWeight: 600 }}>Siège Bruxelles</div>
+          <div style={{ fontSize: 10, color: ink, textAlign: 'center' as const, marginBottom: 10, fontWeight: 600 }}>{t('kioskSite')}</div>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 7, marginBottom: 12 }}>
             {[0, 1, 2, 3].map(i => (
               <div key={i} style={{ width: 9, height: 9, borderRadius: '50%', background: i < 2 ? '#10b981' : 'transparent', border: `1.5px solid ${i < 2 ? '#10b981' : muted}` }} />
@@ -367,7 +205,7 @@ function KioskTablet({ dark }: { dark: boolean }) {
               </div>
             ))}
           </div>
-          <div style={{ textAlign: 'center' as const, marginTop: 10, fontSize: 8, color: muted, textTransform: 'uppercase' as const, letterSpacing: '0.1em' }}>PIN requis</div>
+          <div style={{ textAlign: 'center' as const, marginTop: 10, fontSize: 8, color: muted, textTransform: 'uppercase' as const, letterSpacing: '0.1em' }}>{t('pinRequired')}</div>
         </div>
       </div>
     </div>
@@ -377,6 +215,9 @@ function KioskTablet({ dark }: { dark: boolean }) {
 /* ─── Hero clock widget (phone mockup) ──────────────────────────────────── */
 
 function HeroClockWidget() {
+  const t = useTranslations('landing.mockup')
+  const locale = useLocale()
+  const bcp = BCP47[locale] ?? 'fr-BE'
   const [time, setTime] = useState('')
   const [date, setDate] = useState('')
   const [dark, setDark] = useState(false)
@@ -401,19 +242,18 @@ function HeroClockWidget() {
   useEffect(() => {
     const tick = () => {
       const now = new Date()
-      setTime(now.toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }))
-      setDate(now.toLocaleDateString('fr-BE', { weekday: 'long', day: 'numeric', month: 'long' }))
+      setTime(now.toLocaleTimeString(bcp, { hour: '2-digit', minute: '2-digit', second: '2-digit' }))
+      setDate(now.toLocaleDateString(bcp, { weekday: 'long', day: 'numeric', month: 'long' }))
       const base = departureTime ?? now
       const diff = Math.max(0, Math.floor((base.getTime() - arrivalTime.getTime()) / 1000))
       const dh = Math.floor(diff / 3600).toString().padStart(2, '0')
       const dm = Math.floor((diff % 3600) / 60).toString().padStart(2, '0')
-      const ds = (diff % 60).toString().padStart(2, '0')
       setDuration(`${dh}h${dm}`)
     }
     tick()
     const id = setInterval(tick, 1000)
     return () => clearInterval(id)
-  }, [arrivalTime, departureTime])
+  }, [arrivalTime, departureTime, bcp])
 
   function handleToggle() {
     if (clockedIn) {
@@ -425,9 +265,9 @@ function HeroClockWidget() {
     }
   }
 
-  const arrStr = arrivalTime.toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
+  const arrStr = arrivalTime.toLocaleTimeString(bcp, { hour: '2-digit', minute: '2-digit' })
   const depStr = departureTime
-    ? departureTime.toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
+    ? departureTime.toLocaleTimeString(bcp, { hour: '2-digit', minute: '2-digit' })
     : null
 
   /* Theme tokens */
@@ -493,7 +333,7 @@ function HeroClockWidget() {
           <div className="px-5 pt-2 pb-1">
             <div className="inline-flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
-              <span className="text-[11px] font-semibold text-[#10b981]">Siège social</span>
+              <span className="text-[11px] font-semibold text-[#10b981]">{t('phoneSite')}</span>
             </div>
           </div>
 
@@ -528,7 +368,7 @@ function HeroClockWidget() {
                 transition: 'all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)',
               }}
             >
-              {clockedIn ? 'POINTER DÉPART ✕' : 'ARRIVÉE ✓'}
+              {clockedIn ? t('clockOut') : t('clockIn')}
             </button>
           </div>
 
@@ -538,14 +378,14 @@ function HeroClockWidget() {
               className="text-[9px] font-bold tracking-[0.18em] uppercase mb-3 flex items-center justify-between"
               style={{ color: muted }}
             >
-              <span>Aujourd&apos;hui</span>
-              <span className="text-[9px] px-2 py-0.5 rounded-full bg-amber-100/20 text-amber-600 font-semibold">⏳ en attente</span>
+              <span>{t('today')}</span>
+              <span className="text-[9px] px-2 py-0.5 rounded-full bg-amber-100/20 text-amber-600 font-semibold">{t('pending')}</span>
             </div>
             <div className="space-y-2.5">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
-                  <span className="text-[12px] font-medium" style={{ color: ink }}>Arrivée</span>
+                  <span className="text-[12px] font-medium" style={{ color: ink }}>{t('arrival')}</span>
                 </div>
                 <span className="font-mono text-[12px] font-semibold" style={{ color: ink }}>{arrStr}</span>
               </div>
@@ -555,7 +395,7 @@ function HeroClockWidget() {
                     className="w-1.5 h-1.5 rounded-full"
                     style={{ background: depStr ? '#ef4444' : 'transparent', border: depStr ? 'none' : `1px solid ${muted}` }}
                   />
-                  <span className="text-[12px] font-medium" style={{ color: muted }}>Départ</span>
+                  <span className="text-[12px] font-medium" style={{ color: muted }}>{t('departure')}</span>
                 </div>
                 <span className="font-mono text-[12px]" style={{ color: muted }}>{depStr ?? '—'}</span>
               </div>
@@ -564,7 +404,7 @@ function HeroClockWidget() {
                   className="flex justify-between items-center pt-2"
                   style={{ borderTop: `1px solid ${divider}` }}
                 >
-                  <span className="text-[12px] font-medium" style={{ color: muted }}>Durée</span>
+                  <span className="text-[12px] font-medium" style={{ color: muted }}>{t('duration')}</span>
                   <span className="font-mono text-[12px] font-semibold text-[#10b981]">{duration}</span>
                 </div>
               )}
@@ -690,7 +530,7 @@ function StatCounter({ value, suffix, label, delay = 0 }: { value: number; suffi
 
 /* ─── Feature card ──────────────────────────────────────────────────────── */
 
-function FeatureCard({ f, delay }: { f: typeof features[0]; delay: number }) {
+function FeatureCard({ f, delay }: { f: FeatureItem; delay: number }) {
   const ref = useReveal()
   const [hovered, setHovered] = useState(false)
   return (
@@ -721,7 +561,8 @@ function FeatureCard({ f, delay }: { f: typeof features[0]; delay: number }) {
 
 /* ─── Step row ───────────────────────────────────────────────────────────── */
 
-function StepCard({ s, delay, isLast }: { s: typeof steps[0]; delay: number; isLast: boolean }) {
+function StepCard({ s, delay, isLast }: { s: StepItem; delay: number; isLast: boolean }) {
+  const t = useTranslations('landing.how')
   const ref = useReveal()
   const [hovered, setHovered] = useState(false)
   return (
@@ -797,7 +638,7 @@ function StepCard({ s, delay, isLast }: { s: typeof steps[0]; delay: number; isL
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M3 7h8M9 5l2 2-2 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              Commencer maintenant
+              {t('stepCta')}
             </div>
           )}
         </div>
@@ -811,25 +652,28 @@ function StepCard({ s, delay, isLast }: { s: typeof steps[0]; delay: number; isL
 function AnimatedPriceBlock({ price, annual, annualTotal, annualSavings }: {
   price: number; annual: boolean; annualTotal?: number | null; annualSavings?: number | null
 }) {
+  const t = useTranslations('landing.pricing')
+  const locale = useLocale()
   const displayed = useAnimatedNumber(price)
   return (
     <div className="mb-1">
       <div className="flex items-end gap-1">
         <span className="font-display font-bold text-[var(--pp-ink)] tabular-nums" style={{ fontSize: '2rem', lineHeight: 1 }}>
-          {displayed.toLocaleString('fr-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€
+          {displayed.toLocaleString(BCP47[locale] ?? 'fr-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€
         </span>
-        <span className="text-xs text-[var(--pp-muted)] mb-1">/mois HTVA</span>
+        <span className="text-xs text-[var(--pp-muted)] mb-1">{t('perMonth')}</span>
       </div>
       {annual && annualTotal && (
         <p className="text-xs text-[var(--pp-muted)] mt-0.5">
-          facturé {annualTotal}€/an · économisez {annualSavings}€
+          {t('billed', { total: annualTotal, savings: annualSavings ?? 0 })}
         </p>
       )}
     </div>
   )
 }
 
-function PricingCard({ tier, annual, delay }: { tier: typeof pricingTiers[0]; annual: boolean; delay: number }) {
+function PricingCard({ tier, annual, delay }: { tier: TierItem; annual: boolean; delay: number }) {
+  const t = useTranslations('landing.pricing')
   const ref = useReveal()
   const [hovered, setHovered] = useState(false)
   const price = annual ? tier.annualPrice : tier.monthlyPrice
@@ -864,23 +708,23 @@ function PricingCard({ tier, annual, delay }: { tier: typeof pricingTiers[0]; an
         <div className="flex items-start justify-between mb-5">
           <h3 className="font-display font-bold text-[var(--pp-ink)] text-xl">{tier.name}</h3>
           {tier.highlight && (
-            <span className="text-[9px] bg-[var(--pp-pos)] text-white font-bold px-2 py-1 rounded-full tracking-widest">POPULAIRE</span>
+            <span className="text-[9px] bg-[var(--pp-pos)] text-white font-bold px-2 py-1 rounded-full tracking-widest">{t('popular')}</span>
           )}
         </div>
         {price === null ? (
           <div className="mb-1">
-            <span className="font-display font-bold text-[var(--pp-pos)]" style={{ fontSize: '2rem' }}>Devis</span>
+            <span className="font-display font-bold text-[var(--pp-pos)]" style={{ fontSize: '2rem' }}>{t('quote')}</span>
           </div>
         ) : price === 0 ? (
           <div className="mb-1">
-            <span className="font-display font-bold text-[var(--pp-pos)]" style={{ fontSize: '2rem' }}>Gratuit</span>
+            <span className="font-display font-bold text-[var(--pp-pos)]" style={{ fontSize: '2rem' }}>{t('free')}</span>
           </div>
         ) : (
           <AnimatedPriceBlock price={price} annual={annual} annualTotal={tier.annualTotal} annualSavings={tier.annualSavings} />
         )}
         <p className="text-xs text-[var(--pp-muted)] mt-1">{tier.limit}</p>
         {tier.extraSeat && (
-          <p className="text-xs text-[var(--pp-muted)]">+{tier.extraSeat}€/siège supplémentaire</p>
+          <p className="text-xs text-[var(--pp-muted)]">{t('seatExtra', { price: tier.extraSeat })}</p>
         )}
       </div>
       <div className="px-6 pb-4">
@@ -939,7 +783,8 @@ function PricingCard({ tier, annual, delay }: { tier: typeof pricingTiers[0]; an
 
 /* ─── Testimonial card ───────────────────────────────────────────────────── */
 
-function TestimonialCard({ t, delay }: { t: typeof testimonials[0]; delay: number }) {
+function TestimonialCard({ item, delay }: { item: TestimonialItem; delay: number }) {
+  const t = useTranslations('landing.testimonials')
   const ref = useReveal()
   return (
     <div
@@ -957,25 +802,25 @@ function TestimonialCard({ t, delay }: { t: typeof testimonials[0]; delay: numbe
       </div>
       {/* Quote */}
       <p className="text-sm text-[var(--pp-muted)] leading-relaxed flex-1">
-        &ldquo;{t.quote}&rdquo;
+        &ldquo;{item.quote}&rdquo;
       </p>
       {/* Footer */}
       <div className="flex items-center gap-3">
         <div
           className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
-          style={{ background: t.color }}
+          style={{ background: item.color }}
         >
-          {t.initials}
+          {item.initials}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-[var(--pp-ink)]">{t.name}</p>
-          <p className="text-xs text-[var(--pp-muted)]">{t.role} · {t.company} · {t.location}</p>
+          <p className="text-sm font-semibold text-[var(--pp-ink)]">{item.name}</p>
+          <p className="text-xs text-[var(--pp-muted)]">{item.role} · {item.company} · {item.location}</p>
         </div>
         <span
           className="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full"
-          style={{ background: `${t.color}18`, color: t.color }}
+          style={{ background: `${item.color}18`, color: item.color }}
         >
-          Plan {t.plan}
+          {t('planLabel', { plan: item.plan })}
         </span>
       </div>
     </div>
@@ -985,6 +830,7 @@ function TestimonialCard({ t, delay }: { t: typeof testimonials[0]; delay: numbe
 /* ─── Placeholder testimonial card ─────────────────────────────────────── */
 
 function PlaceholderTestimonialCard({ delay }: { delay: number }) {
+  const t = useTranslations('landing.testimonials')
   const ref = useReveal()
   return (
     <div
@@ -1004,7 +850,7 @@ function PlaceholderTestimonialCard({ delay }: { delay: number }) {
         ))}
       </div>
       <p className="text-sm text-[var(--pp-muted)] leading-relaxed flex-1 italic opacity-60">
-        &ldquo;Votre témoignage ici — partagez votre expérience avec Pointon.&rdquo;
+        &ldquo;{t('placeholderQuote')}&rdquo;
       </p>
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-full flex items-center justify-center border border-dashed border-[var(--pp-line)]">
@@ -1013,8 +859,8 @@ function PlaceholderTestimonialCard({ delay }: { delay: number }) {
           </svg>
         </div>
         <div className="flex-1">
-          <p className="text-sm font-semibold text-[var(--pp-muted)] opacity-70">Votre entreprise</p>
-          <p className="text-xs text-[var(--pp-muted)] opacity-50">Belgique</p>
+          <p className="text-sm font-semibold text-[var(--pp-muted)] opacity-70">{t('placeholderCompany')}</p>
+          <p className="text-xs text-[var(--pp-muted)] opacity-50">{t('placeholderLocation')}</p>
         </div>
       </div>
       <a
@@ -1024,7 +870,7 @@ function PlaceholderTestimonialCard({ delay }: { delay: number }) {
         onMouseEnter={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = '#10b981'; el.style.color = '#10b981' }}
         onMouseLeave={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = 'var(--pp-line)'; el.style.color = 'var(--pp-muted)' }}
       >
-        Nous contacter
+        {t('placeholderCta')}
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
           <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
@@ -1055,7 +901,7 @@ function useCountdown() {
   return parts
 }
 
-function CountUnit({ value, label }: { value: number; label: string }) {
+function CountUnit({ value, label, pad = 2 }: { value: number; label: string; pad?: number }) {
   const [prev, setPrev] = useState(value)
   const [flip, setFlip] = useState(false)
   useEffect(() => {
@@ -1074,7 +920,7 @@ function CountUnit({ value, label }: { value: number; label: string }) {
           letterSpacing: '-0.03em',
         }}
       >
-        {String(prev).padStart(label === 'jours' ? 3 : 2, '0')}
+        {String(prev).padStart(pad, '0')}
       </div>
       <span
         className="font-bold uppercase tracking-[0.15em] mt-2"
@@ -1087,6 +933,7 @@ function CountUnit({ value, label }: { value: number; label: string }) {
 }
 
 function CtaCountdown() {
+  const t = useTranslations('landing.ctaSection')
   const { d, h, m, s } = useCountdown()
   return (
     <section
@@ -1115,20 +962,20 @@ function CtaCountdown() {
             className="font-bold tracking-[0.22em] uppercase"
             style={{ fontSize: '0.65rem', color: '#10b981' }}
           >
-            La loi belge entre en vigueur le 1er janvier 2027
+            {t('lawLabel')}
           </span>
           <span className="w-8 h-px" style={{ background: 'rgba(16,185,129,0.5)' }} />
         </div>
 
         {/* Countdown */}
         <div className="flex items-start justify-center gap-2 sm:gap-6 md:gap-10 mb-4">
-          <CountUnit value={d} label="jours" />
+          <CountUnit value={d} label={t('unitDays')} pad={3} />
           <span className="font-mono font-bold text-[#10b981] self-start mt-2" style={{ fontSize: 'clamp(2rem, 5vw, 4rem)', opacity: 0.4 }}>:</span>
-          <CountUnit value={h} label="heures" />
+          <CountUnit value={h} label={t('unitHours')} />
           <span className="font-mono font-bold text-[#10b981] self-start mt-2" style={{ fontSize: 'clamp(2rem, 5vw, 4rem)', opacity: 0.4 }}>:</span>
-          <CountUnit value={m} label="minutes" />
+          <CountUnit value={m} label={t('unitMinutes')} />
           <span className="font-mono font-bold text-[#10b981] self-start mt-2" style={{ fontSize: 'clamp(2rem, 5vw, 4rem)', opacity: 0.4 }}>:</span>
-          <CountUnit value={s} label="secondes" />
+          <CountUnit value={s} label={t('unitSeconds')} />
         </div>
 
         {/* Progress bar */}
@@ -1155,16 +1002,16 @@ function CtaCountdown() {
           className="font-display font-bold text-white leading-tight mb-4"
           style={{ fontSize: 'clamp(1.8rem, 4.5vw, 3rem)' }}
         >
-          Votre système est-il prêt ?
+          {t('headline')}
         </h2>
         <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '1rem', marginBottom: '2.5rem' }}>
-          Aucune carte requise. Setup en 2 minutes. Conforme dès le premier pointage.
+          {t('subtitle')}
         </p>
 
         {/* Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link href="/login">
-            <Button size="lg">Créer mon compte gratuit</Button>
+            <Button size="lg">{t('ctaPrimary')}</Button>
           </Link>
           <a href="mailto:contact@pointon.be">
             <button
@@ -1173,7 +1020,7 @@ function CtaCountdown() {
               onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = 'rgba(255,255,255,0.35)'; b.style.color = 'rgba(255,255,255,0.95)' }}
               onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = 'rgba(255,255,255,0.15)'; b.style.color = 'rgba(255,255,255,0.7)' }}
             >
-              Parler à un expert
+              {t('ctaSecondary')}
             </button>
           </a>
         </div>
@@ -1251,7 +1098,8 @@ function FaqItem({ q, a, n }: { q: string; a: string; n: string }) {
 
 /* ─── Pointing method card ──────────────────────────────────────────────── */
 
-function PointingMethodCard({ m, delay }: { m: typeof pointingMethods[0]; delay: number }) {
+function PointingMethodCard({ m, delay }: { m: MethodItem; delay: number }) {
+  const t = useTranslations('landing.methods')
   const ref = useReveal()
   const [hovered, setHovered] = useState(false)
   return (
@@ -1284,7 +1132,7 @@ function PointingMethodCard({ m, delay }: { m: typeof pointingMethods[0]; delay:
         <h3 className="font-display font-bold text-[var(--pp-ink)] text-base mb-1.5">{m.title}</h3>
         <p className="text-sm text-[var(--pp-muted)] leading-relaxed">{m.description}</p>
       </div>
-      {'subFeature' in m && m.subFeature && (
+      {m.hasSub && (
         <div
           className="mt-auto pt-4"
           style={{ borderTop: `1px solid ${m.color}25` }}
@@ -1293,9 +1141,9 @@ function PointingMethodCard({ m, delay }: { m: typeof pointingMethods[0]; delay:
             <svg width="10" height="10" viewBox="0 0 10 10" fill={m.color}>
               <path d="M5 0l1.12 3.45H9.51L6.69 5.59l1.07 3.32L5 7l-2.76 1.91 1.07-3.32L.49 3.45H3.88z"/>
             </svg>
-            <span className="text-[11px] font-bold" style={{ color: m.color }}>{m.subFeature.label}</span>
+            <span className="text-[11px] font-bold" style={{ color: m.color }}>{t('kioskSubLabel')}</span>
           </div>
-          <p className="text-xs text-[var(--pp-muted)] leading-relaxed">{m.subFeature.detail}</p>
+          <p className="text-xs text-[var(--pp-muted)] leading-relaxed">{t('kioskSubDetail')}</p>
         </div>
       )}
     </div>
@@ -1315,45 +1163,41 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 /* ─── Page ──────────────────────────────────────────────────────────────── */
 
-const faqJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: [
-    {
-      '@type': 'Question',
-      name: 'La solution est-elle conforme à la loi belge 2027?',
-      acceptedAnswer: { '@type': 'Answer', text: 'Oui. Pointon respecte toutes les exigences légales belges et CJUE : enregistrement objectif, audit trail immuable, export certifié.' },
-    },
-    {
-      '@type': 'Question',
-      name: 'Comment sont stockées les données?',
-      acceptedAnswer: { '@type': 'Answer', text: 'Données hébergées en EU. Chiffrement HTTPS. RGPD compliant.' },
-    },
-    {
-      '@type': 'Question',
-      name: 'Puis-je exporter les données?',
-      acceptedAnswer: { '@type': 'Answer', text: 'Oui. Export CSV/PDF signé numériquement pour inspection légale. Disponible sur tous les plans.' },
-    },
-    {
-      '@type': 'Question',
-      name: 'Quel est le délai de mise en place?',
-      acceptedAnswer: { '@type': 'Answer', text: 'Setup en 5 minutes. Intégration : 15 min. Pointage immédiat après création de compte.' },
-    },
-    {
-      '@type': 'Question',
-      name: "Y a-t-il une période d'essai?",
-      acceptedAnswer: { '@type': 'Answer', text: 'Plan Free illimité sans engagement. Essayez gratuitement, aucune carte requise.' },
-    },
-    {
-      '@type': 'Question',
-      name: 'Que se passe-t-il si je pointe hors ligne?',
-      acceptedAnswer: { '@type': 'Answer', text: 'Votre pointage est sauvegardé localement et synchronisé automatiquement dès reconnexion. Le tableau de présence ne compte que les pointages synchronisés.' },
-    },
-  ],
-}
-
 export default function Home() {
+  const t = useTranslations('landing')
   const [annual, setAnnual] = useState(false)
+
+  /* Merge visual config with translated text */
+  const statLabels = t.raw('stats') as string[]
+  const stats = statsConfig.map((c, i) => ({ ...c, label: statLabels[i] }))
+
+  const fItems = t.raw('features.items') as { title: string; description: string }[]
+  const features: FeatureItem[] = featuresConfig.map((c, i) => ({ ...c, ...fItems[i] }))
+
+  const mItems = t.raw('methods.items') as { title: string; description: string }[]
+  const methods: MethodItem[] = pointingMethodsConfig.map((c, i) => ({ ...c, ...mItems[i] }))
+
+  const sItems = t.raw('how.steps') as { title: string; description: string }[]
+  const steps: StepItem[] = stepsConfig.map((c, i) => ({ ...c, ...sItems[i] }))
+
+  const tItems = t.raw('testimonials.items') as { quote: string; role: string }[]
+  const testimonials: TestimonialItem[] = testimonialsConfig.map((c, i) => ({ ...c, ...tItems[i] }))
+
+  const trTiers = t.raw('pricing.tiers') as { limit: string; buttonText: string; includesLabel: string; features: string[]; includes: string[] }[]
+  const tiers: TierItem[] = pricingConfig.map((c, i) => ({ ...c, ...trTiers[i] }))
+
+  const faqs = t.raw('faq.items') as FaqEntry[]
+
+  /* FAQ structured data (per-locale, SEO) */
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map(f => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  }
 
   return (
     <div className="min-h-screen bg-[var(--pp-bg)]">
@@ -1394,27 +1238,27 @@ export default function Home() {
               <div className="inline-flex items-center gap-2 mb-6">
                 <span className="w-5 h-px bg-[#10b981]" />
                 <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#10b981]">
-                  Conformité Belgique 2027
+                  {t('badge')}
                 </span>
               </div>
 
               <h1
                 className="font-display font-bold text-white leading-[0.95] mb-7"
                 style={{ fontSize: 'clamp(3rem, 7vw, 5.5rem)' }}
-                aria-label="Pointez. Conforme. Belge."
+                aria-label={`${t('hero.line1')} ${t('hero.line2')} ${t('hero.line3')}`}
               >
-                Pointez.<br />
-                <span style={{ color: '#10b981' }}>Conforme.</span><br />
-                Belge.
+                {t('hero.line1')}<br />
+                <span style={{ color: '#10b981' }}>{t('hero.line2')}</span><br />
+                {t('hero.line3')}
               </h1>
 
               <p className="text-white/60 mb-8 leading-relaxed max-w-md" style={{ fontSize: '1.1rem' }}>
-                Enregistrez le temps de travail légalement en Belgique. En&nbsp;1&nbsp;tap. Sans complications. Audit trail immuable.
+                {t('hero.subtitle')}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 mb-10">
                 <Link href="/login">
-                  <Button size="lg" className="w-full sm:w-auto">Commencer gratuitement</Button>
+                  <Button size="lg" className="w-full sm:w-auto">{t('hero.ctaPrimary')}</Button>
                 </Link>
                 <a href="#how">
                   <button
@@ -1427,13 +1271,13 @@ export default function Home() {
                     onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.35)'; (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.95)' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.15)'; (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.7)' }}
                   >
-                    Comment ça marche →
+                    {t('hero.ctaSecondary')}
                   </button>
                 </a>
               </div>
 
               <p className="text-[11px] text-white/30 tracking-wide uppercase" style={{ letterSpacing: '0.1em' }}>
-                Aucune carte · Plan Free illimité · Zéro GPS · RGPD
+                {t('hero.legal')}
               </p>
             </div>
 
@@ -1466,14 +1310,14 @@ export default function Home() {
       <section className="py-20 md:py-28 border-b border-[var(--pp-line)]">
         <div className="mx-auto max-w-5xl px-4">
           <div className="text-center mb-12">
-            <SectionLabel>Démo live</SectionLabel>
+            <SectionLabel>{t('demo.label')}</SectionLabel>
             <h2
               className="font-display font-bold text-[var(--pp-ink)] leading-tight"
               style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)' }}
             >
-              Voir Pointon en action
+              {t('demo.title')}
             </h2>
-            <p className="text-[var(--pp-muted)] mt-3">20 secondes pour comprendre l'essentiel.</p>
+            <p className="text-[var(--pp-muted)] mt-3">{t('demo.subtitle')}</p>
           </div>
           <div
             className="rounded-2xl overflow-hidden border border-[var(--pp-line)]"
@@ -1488,16 +1332,16 @@ export default function Home() {
       <section id="features" className="py-20 md:py-28 border-b border-[var(--pp-line)]">
         <div className="mx-auto max-w-6xl px-4">
           <div className="mb-14">
-            <SectionLabel>Fonctionnalités</SectionLabel>
+            <SectionLabel>{t('features.label')}</SectionLabel>
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
               <h2
                 className="font-display font-bold text-[var(--pp-ink)] leading-tight"
                 style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)' }}
               >
-                Tout ce qu'il faut.<br />Rien de superflu.
+                {t('features.title1')}<br />{t('features.title2')}
               </h2>
               <p className="text-[var(--pp-muted)] max-w-sm md:text-right">
-                Une solution pensée pour les PME belges qui veulent être conformes sans se compliquer la vie.
+                {t('features.intro')}
               </p>
             </div>
           </div>
@@ -1514,17 +1358,17 @@ export default function Home() {
       <section id="methods" className="py-20 md:py-28 border-b border-[var(--pp-line)]" style={{ background: 'var(--pp-bg2)' }}>
         <div className="mx-auto max-w-6xl px-4">
           <div className="text-center mb-12">
-            <SectionLabel>Comment pointer</SectionLabel>
+            <SectionLabel>{t('methods.label')}</SectionLabel>
             <h2
               className="font-display font-bold text-[var(--pp-ink)] leading-tight"
               style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)' }}
             >
-              4 façons de pointer.<br />Zéro friction.
+              {t('methods.title1')}<br />{t('methods.title2')}
             </h2>
-            <p className="text-[var(--pp-muted)] mt-3 max-w-md mx-auto">Chaque équipe est différente. Pointon s'adapte à votre réalité.</p>
+            <p className="text-[var(--pp-muted)] mt-3 max-w-md mx-auto">{t('methods.intro')}</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {pointingMethods.map((m, i) => (
+            {methods.map((m, i) => (
               <PointingMethodCard key={m.title} m={m} delay={i * 80} />
             ))}
           </div>
@@ -1535,25 +1379,25 @@ export default function Home() {
       <section className="py-20 md:py-28 border-b border-[var(--pp-line)]">
         <div className="mx-auto max-w-6xl px-4">
           <div className="text-center mb-12">
-            <SectionLabel>Ils nous font confiance</SectionLabel>
+            <SectionLabel>{t('testimonials.label')}</SectionLabel>
             <h2
               className="font-display font-bold text-[var(--pp-ink)] leading-tight"
               style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)' }}
             >
-              Des PME belges qui pointent<br />au quotidien
+              {t('testimonials.title1')}<br />{t('testimonials.title2')}
             </h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {testimonials.map((t, i) => (
-              <TestimonialCard key={t.name} t={t} delay={i * 80} />
+            {testimonials.map((item, i) => (
+              <TestimonialCard key={item.name} item={item} delay={i * 80} />
             ))}
             <PlaceholderTestimonialCard delay={testimonials.length * 80} />
           </div>
           <p className="text-center text-xs text-[var(--pp-muted)] mt-6">
-            Ces témoignages sont représentatifs de cas d&apos;usage réels.
+            {t('testimonials.disclaimer1')}
           </p>
           <p className="text-center text-xs text-[var(--pp-muted)] mt-1">
-            Zéro GPS · Aucune géolocalisation · RGPD compliant · CCT 68 Belgique
+            {t('testimonials.disclaimer2')}
           </p>
         </div>
       </section>
@@ -1586,26 +1430,26 @@ export default function Home() {
           <div className="grid md:grid-cols-[1fr_1.4fr] gap-12 md:gap-20 items-start">
             {/* Left: sticky heading */}
             <div className="md:sticky md:top-28">
-              <SectionLabel>Comment ça marche</SectionLabel>
+              <SectionLabel>{t('how.label')}</SectionLabel>
               <h2
                 className="font-display font-bold text-[var(--pp-ink)] leading-tight mt-4 mb-5"
                 style={{ fontSize: 'clamp(2.2rem, 5vw, 3.4rem)' }}
               >
-                Opérationnel<br />en 5 minutes
+                {t('how.title1')}<br />{t('how.title2')}
               </h2>
               <p className="text-[var(--pp-muted)] leading-relaxed mb-8" style={{ fontSize: '0.95rem' }}>
-                Pas de formation, pas d'intégration complexe. Votre équipe pointe dès le premier jour.
+                {t('how.intro')}
               </p>
-              <a
+              <Link
                 href="/login"
                 className="inline-flex items-center gap-2 text-sm font-bold text-[#10b981] group"
               >
-                <span>Essayer gratuitement</span>
+                <span>{t('how.cta')}</span>
                 <span
                   className="inline-block transition-transform group-hover:translate-x-1"
                   style={{ transition: 'transform 0.2s ease' }}
                 >→</span>
-              </a>
+              </Link>
             </div>
 
             {/* Right: steps */}
@@ -1626,15 +1470,15 @@ export default function Home() {
         />
         <div className="relative mx-auto max-w-6xl px-4">
           <div className="text-center mb-12">
-            <SectionLabel>Tarifs</SectionLabel>
+            <SectionLabel>{t('pricing.label')}</SectionLabel>
             <h2
               className="font-display font-bold text-[var(--pp-ink)] leading-tight mb-3"
               style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)' }}
             >
-              Tarifs transparents
+              {t('pricing.title')}
             </h2>
-            <p className="text-[var(--pp-muted)] mb-1">Commencez gratuitement. Payez seulement quand vous grandissez.</p>
-            <p className="text-xs text-[var(--pp-muted)] mb-8">Tous les prix sont indiqués hors TVA (21 %).</p>
+            <p className="text-[var(--pp-muted)] mb-1">{t('pricing.subtitle')}</p>
+            <p className="text-xs text-[var(--pp-muted)] mb-8">{t('pricing.vat')}</p>
 
             <div className="flex justify-center">
               <div className="relative flex bg-[var(--pp-line)]/60 border border-[var(--pp-line)] rounded-full p-1">
@@ -1646,36 +1490,36 @@ export default function Home() {
                   onClick={() => setAnnual(false)}
                   className={`relative z-10 px-5 py-2 rounded-full text-sm font-semibold transition-colors duration-200 ${!annual ? 'text-[var(--pp-ink)]' : 'text-[var(--pp-muted)]'}`}
                 >
-                  Mensuel
+                  {t('pricing.monthly')}
                 </button>
                 <button
                   onClick={() => setAnnual(true)}
                   className={`relative z-10 px-5 py-2 rounded-full text-sm font-semibold transition-colors duration-200 flex items-center gap-2 ${annual ? 'text-[var(--pp-ink)]' : 'text-[var(--pp-muted)]'}`}
                 >
-                  Annuel
-                  <span className="text-[10px] bg-[var(--pp-pos)] text-white px-1.5 py-0.5 rounded-full font-bold leading-none">−17%</span>
+                  {t('pricing.annual')}
+                  <span className="text-[10px] bg-[var(--pp-pos)] text-white px-1.5 py-0.5 rounded-full font-bold leading-none">{t('pricing.saveBadge')}</span>
                 </button>
               </div>
             </div>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-            {pricingTiers.map((tier, i) => (
+            {tiers.map((tier, i) => (
               <PricingCard key={tier.name} tier={tier} annual={annual} delay={i * 70} />
             ))}
           </div>
 
           {!annual && (
             <p className="text-center text-sm text-[var(--pp-muted)] mt-8">
-              💡 Passez à la facturation annuelle et{' '}
+              {t('pricing.annualHintPre')}
               <button onClick={() => setAnnual(true)} className="text-[var(--pp-pos)] font-semibold underline underline-offset-2 hover:opacity-80">
-                économisez 17% (2 mois offerts)
+                {t('pricing.annualHintLink')}
               </button>
             </p>
           )}
           {annual && (
             <p className="text-center text-sm text-[var(--pp-pos)] font-medium mt-8">
-              ✓ Vous économisez jusqu&apos;à 140€/an avec la facturation annuelle
+              {t('pricing.annualSavings')}
             </p>
           )}
         </div>
@@ -1687,21 +1531,21 @@ export default function Home() {
           <div className="grid md:grid-cols-[1fr_2fr] gap-12 md:gap-20 items-start">
             {/* Left — sticky heading */}
             <div className="md:sticky md:top-28">
-              <SectionLabel>FAQ</SectionLabel>
+              <SectionLabel>{t('faq.label')}</SectionLabel>
               <h2
                 className="font-display font-bold text-[var(--pp-ink)] leading-tight mb-4"
                 style={{ fontSize: 'clamp(2rem, 4vw, 2.8rem)' }}
               >
-                Questions<br />fréquentes
+                {t('faq.title1')}<br />{t('faq.title2')}
               </h2>
               <p className="text-sm text-[var(--pp-muted)] leading-relaxed mb-6">
-                Vous ne trouvez pas votre réponse ? Contactez-nous directement.
+                {t('faq.intro')}
               </p>
               <a
                 href="mailto:contact@pointon.be"
                 className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--pp-pos)] hover:gap-3 transition-all duration-200"
               >
-                Nous écrire
+                {t('faq.cta')}
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                   <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -1742,41 +1586,41 @@ export default function Home() {
                 <Logo size="md" useThemeVar />
               </div>
               <p className="text-sm text-[var(--pp-muted)] leading-relaxed max-w-xs">
-                La pointeuse légale belge pour les PME. Simple, mobile-first, conforme 2027.
+                {t('footer.tagline')}
               </p>
             </div>
 
             <div>
-              <h4 className="text-[10px] font-bold text-[var(--pp-ink)] uppercase tracking-[0.15em] mb-4">Produit</h4>
+              <h4 className="text-[10px] font-bold text-[var(--pp-ink)] uppercase tracking-[0.15em] mb-4">{t('footer.colProduct')}</h4>
               <ul className="space-y-2.5 text-sm text-[var(--pp-muted)]">
-                <li><a href="#features" className="hover:text-[var(--pp-ink)] transition-colors">Fonctionnalités</a></li>
-                <li><a href="#pricing" className="hover:text-[var(--pp-ink)] transition-colors">Tarifs</a></li>
-                <li><a href="#faq" className="hover:text-[var(--pp-ink)] transition-colors">FAQ</a></li>
+                <li><a href="#features" className="hover:text-[var(--pp-ink)] transition-colors">{t('footer.linkFeatures')}</a></li>
+                <li><a href="#pricing" className="hover:text-[var(--pp-ink)] transition-colors">{t('footer.linkPricing')}</a></li>
+                <li><a href="#faq" className="hover:text-[var(--pp-ink)] transition-colors">{t('footer.linkFaq')}</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="text-[10px] font-bold text-[var(--pp-ink)] uppercase tracking-[0.15em] mb-4">Légal</h4>
+              <h4 className="text-[10px] font-bold text-[var(--pp-ink)] uppercase tracking-[0.15em] mb-4">{t('footer.colLegal')}</h4>
               <ul className="space-y-2.5 text-sm text-[var(--pp-muted)]">
-                <li><a href="/legal/privacy" className="hover:text-[var(--pp-ink)] transition-colors">Confidentialité</a></li>
-                <li><a href="/legal/terms" className="hover:text-[var(--pp-ink)] transition-colors">Conditions</a></li>
-                <li><a href="/legal/compliance" className="hover:text-[var(--pp-ink)] transition-colors">Conformité</a></li>
-                <li><a href="/legal/security" className="hover:text-[var(--pp-ink)] transition-colors">Sécurité</a></li>
+                <li><Link href="/legal/privacy" className="hover:text-[var(--pp-ink)] transition-colors">{t('footer.linkPrivacy')}</Link></li>
+                <li><Link href="/legal/terms" className="hover:text-[var(--pp-ink)] transition-colors">{t('footer.linkTerms')}</Link></li>
+                <li><Link href="/legal/compliance" className="hover:text-[var(--pp-ink)] transition-colors">{t('footer.linkCompliance')}</Link></li>
+                <li><Link href="/legal/security" className="hover:text-[var(--pp-ink)] transition-colors">{t('footer.linkSecurity')}</Link></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="text-[10px] font-bold text-[var(--pp-ink)] uppercase tracking-[0.15em] mb-4">Ressources</h4>
+              <h4 className="text-[10px] font-bold text-[var(--pp-ink)] uppercase tracking-[0.15em] mb-4">{t('footer.colResources')}</h4>
               <ul className="space-y-2.5 text-sm text-[var(--pp-muted)]">
-                <li><a href="mailto:support@pointon.be" className="hover:text-[var(--pp-ink)] transition-colors">Support</a></li>
-                <li><a href="mailto:contact@pointon.be" className="hover:text-[var(--pp-ink)] transition-colors">Contact</a></li>
+                <li><a href="mailto:support@pointon.be" className="hover:text-[var(--pp-ink)] transition-colors">{t('footer.linkSupport')}</a></li>
+                <li><a href="mailto:contact@pointon.be" className="hover:text-[var(--pp-ink)] transition-colors">{t('footer.linkContact')}</a></li>
               </ul>
             </div>
           </div>
 
           <div className="pt-8 border-t border-[var(--pp-line)] flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-[var(--pp-muted)]">
-            <span>© 2026 Pointon · Ced-IT · Belgique</span>
-            <span className="tracking-wide">Conforme Belgique 2027 · RGPD · HTTPS</span>
+            <span>{t('footer.copyright')}</span>
+            <span className="tracking-wide">{t('footer.compliance')}</span>
           </div>
         </div>
       </footer>

@@ -335,72 +335,301 @@
     }
   },
   "landing": {
+    "badge": "Conformiteit België 2027",
     "hero": {
-      "title": "Inklokken. Conform. Belgisch.",
-      "subtitle": "Objectieve tijdregistratie voor Belgische kmo's. Conform wet 2027 & HVJEU. In 2 minuten.",
-      "ctaPrimary": "Gratis beginnen",
-      "ctaSecondary": "Tarieven bekijken"
+      "line1": "Klok in.",
+      "line2": "Conform.",
+      "line3": "Belgisch.",
+      "subtitle": "Registreer arbeidstijd wettelijk in België. In 1 tik. Zonder gedoe. Onveranderbaar audit trail.",
+      "ctaPrimary": "Gratis starten",
+      "ctaSecondary": "Hoe het werkt →",
+      "legal": "Geen kaart · Onbeperkt Free-plan · Geen GPS · GDPR"
     },
-    "stats": {
-      "smes": "Belgische kmo's",
-      "setup": "Gemiddelde setup",
-      "compliant": "HVJEU-conform"
+    "mockup": {
+      "kioskTitle": "Kiosk",
+      "kioskSite": "Hoofdkantoor Brussel",
+      "pinRequired": "PIN vereist",
+      "phoneSite": "Hoofdkantoor",
+      "clockOut": "UITKLOKKEN ✕",
+      "clockIn": "INKLOKKEN ✓",
+      "today": "Vandaag",
+      "pending": "⏳ in afwachting",
+      "arrival": "Aankomst",
+      "departure": "Vertrek",
+      "duration": "Duur"
+    },
+    "stats": [
+      "Belgische kmo’s",
+      "Gemiddelde setup",
+      "HVJEU-conform",
+      "Om te starten"
+    ],
+    "demo": {
+      "label": "Live demo",
+      "title": "Pointon in actie",
+      "subtitle": "20 seconden om het wezenlijke te begrijpen."
     },
     "features": {
-      "title": "Alles wat nodig is, niets overbodigs",
-      "clockIn": {
-        "title": "Inklokken in 1 tik",
-        "description": "AANKOMST / VERTREK in één gebaar. Werkt op smartphone, tablet en pc zonder opleiding."
-      },
-      "compliant": {
-        "title": "100% conform 2027",
-        "description": "Onveranderlijk auditspoor, gecertificeerde export, HVJEU- en Belgische wetsconformiteit 2027 ingebouwd."
-      },
-      "reports": {
-        "title": "Real-time rapporten",
-        "description": "Uren, verlof, recuperatieverlof. Alles in één dashboard. CSV-export in één klik."
-      },
-      "gpsZero": {
-        "title": "0 GPS",
-        "description": "Geen locatietracking. Volledige eerbiediging van de privacy van uw medewerkers."
-      }
+      "label": "Functies",
+      "title1": "Alles wat nodig is.",
+      "title2": "Niets overbodigs.",
+      "intro": "Een oplossing op maat van Belgische kmo’s die conform willen zijn zonder zich het leven moeilijk te maken.",
+      "items": [
+        {
+          "title": "Inklokken in 1 tik",
+          "description": "IN / UIT met één gebaar. Werkt op smartphone, tablet en pc zonder opleiding."
+        },
+        {
+          "title": "Conform wet 2027",
+          "description": "Objectieve registratie, onveranderbaar audit trail en gecertificeerde export. Klaar voor wettelijke inspectie."
+        },
+        {
+          "title": "Kiosk, QR & Mobiel",
+          "description": "4 methoden: mobiele app (PWA), tabletkiosk, afdrukbare QR-code per locatie (1 scan = directe registratie) of webinterface. Geen installatie."
+        },
+        {
+          "title": "Slimme meldingen",
+          "description": "Herinnering einde dag, detectie van overuren, realtime notificaties."
+        },
+        {
+          "title": "Geen GPS · GDPR",
+          "description": "Geen geolocatie (cao 68 · GDPR). CSV- en PDF-export digitaal ondertekend voor wettelijke inspectie."
+        },
+        {
+          "title": "Teambeheer",
+          "description": "Managers, locaties, verlof, recuperatie — alles centraal voor HR en beheerders."
+        }
+      ]
     },
     "methods": {
-      "title": "3 manieren om in te klokken",
-      "mobile": {
-        "title": "Mobiele PWA",
-        "description": "Aankomst en vertrek in 1 tik vanaf elke smartphone, zonder app te installeren."
-      },
-      "kiosk": {
-        "title": "PIN-kiosk",
-        "description": "Tablet bij de ingang. De medewerker typt zijn 4-cijferige PIN. Onmiddellijke registratie."
-      },
-      "qr": {
-        "title": "QR-code",
-        "description": "Scan de QR-code ter plaatse. Ideaal voor bouwplaatsen of meerdere locaties."
-      }
+      "label": "Hoe inklokken",
+      "title1": "4 manieren om in te klokken.",
+      "title2": "Geen wrijving.",
+      "intro": "Elk team is anders. Pointon past zich aan uw realiteit aan.",
+      "items": [
+        {
+          "title": "Mobiele PWA",
+          "description": "Aankomst en vertrek in 1 tik vanaf elke smartphone. Zonder installatie."
+        },
+        {
+          "title": "Tabletkiosk",
+          "description": "Pincode van 4 cijfers aan de ingang. Ideaal voor vaste teams op locatie."
+        },
+        {
+          "title": "QR-code",
+          "description": "1 QR per locatie. 1 scan = 1 directe registratie. Afdrukbaar, onvervalsbaar."
+        },
+        {
+          "title": "Webinterface",
+          "description": "Vanaf elke pc en browser. Zelfde ervaring, zelfde eenvoud."
+        }
+      ],
+      "kioskSubLabel": "Bezoekersmodus inbegrepen",
+      "kioskSubDetail": "Onthaal, tijdgestempelde badge en opvolging van externe bezoeken — zonder Pointon-account."
     },
     "testimonials": {
-      "title": "Ze vertrouwen ons"
+      "label": "Zij vertrouwen ons",
+      "title1": "Belgische kmo’s die dagelijks",
+      "title2": "inklokken",
+      "planLabel": "Plan {plan}",
+      "items": [
+        {
+          "quote": "Vroeger noteerden we de uren op papier. Nu gaat het automatisch. Mijn medewerkers klokken in op de tablet bij de ingang, ik exporteer het overzicht op vrijdag. Setup: 10 minuten.",
+          "role": "Zaakvoerder"
+        },
+        {
+          "quote": "We zochten een oplossing conform de wet 2027 zonder GPS of tracking. Pointon vinkt alle vakjes aan. Het onveranderbare audit trail stelt ons gerust bij sociale controles.",
+          "role": "Technisch directeur"
+        },
+        {
+          "quote": "Mijn technici zijn zelden op kantoor. Met de tabletkiosk in het depot en de mobiele app voor verplaatsingen klokt iedereen vlot in.",
+          "role": "Bedrijfsleider"
+        }
+      ],
+      "placeholderQuote": "Uw getuigenis hier — deel uw ervaring met Pointon.",
+      "placeholderCompany": "Uw onderneming",
+      "placeholderLocation": "België",
+      "placeholderCta": "Contacteer ons",
+      "disclaimer1": "Deze getuigenissen zijn representatief voor reële gebruikssituaties.",
+      "disclaimer2": "Geen GPS · Geen geolocatie · GDPR-conform · cao 68 België"
+    },
+    "how": {
+      "label": "Hoe het werkt",
+      "title1": "Operationeel",
+      "title2": "in 5 minuten",
+      "intro": "Geen opleiding, geen complexe integratie. Uw team klokt in vanaf dag één.",
+      "cta": "Gratis proberen",
+      "stepCta": "Nu beginnen",
+      "steps": [
+        {
+          "title": "Maak uw account",
+          "description": "Schrijf u in 2 minuten in. Geen bankkaart nodig voor het gratis plan."
+        },
+        {
+          "title": "Nodig uw medewerkers uit",
+          "description": "Voeg uw teams toe en wijs locaties toe. Elk lid krijgt onmiddellijk toegang."
+        },
+        {
+          "title": "Klok in & exporteer",
+          "description": "Uw medewerkers klokken in op telefoon, tablet of computer. U exporteert de rapporten met één klik."
+        }
+      ]
+    },
+    "pricing": {
+      "label": "Tarieven",
+      "title": "Transparante tarieven",
+      "subtitle": "Start gratis. Betaal pas wanneer u groeit.",
+      "vat": "Alle prijzen zijn exclusief btw (21 %).",
+      "monthly": "Maandelijks",
+      "annual": "Jaarlijks",
+      "saveBadge": "−17%",
+      "perMonth": "/maand excl. btw",
+      "billed": "gefactureerd {total}€/jaar · bespaar {savings}€",
+      "popular": "POPULAIR",
+      "quote": "Op aanvraag",
+      "free": "Gratis",
+      "seatExtra": "+{price}€/extra zitje",
+      "annualHintPre": "💡 Schakel over naar jaarlijkse facturatie en ",
+      "annualHintLink": "bespaar 17% (2 maanden gratis)",
+      "annualSavings": "✓ U bespaart tot 140€/jaar met jaarlijkse facturatie",
+      "tiers": [
+        {
+          "limit": "3 gebruikers inbegrepen",
+          "buttonText": "Gratis starten",
+          "includesLabel": "Inbegrepen:",
+          "features": [
+            "Mobiel inklokken (PWA)",
+            "CSV-export (30 dagen)",
+            "Basisrapporten"
+          ],
+          "includes": [
+            "Onveranderbaar audit trail",
+            "Multi-toestel",
+            "Beveiligde authenticatie"
+          ]
+        },
+        {
+          "limit": "5 gebruikers inbegrepen",
+          "buttonText": "Kies Starter",
+          "includesLabel": "Alles van Free inbegrepen:",
+          "features": [
+            "Tabletkioskmodus",
+            "QR-code per locatie (1 scan = registratie)",
+            "Onbeperkte CSV/PDF-export"
+          ],
+          "includes": [
+            "E-mailondersteuning",
+            "Automatische overuren",
+            "Verlof & Recuperatie"
+          ]
+        },
+        {
+          "limit": "15 gebruikers inbegrepen",
+          "buttonText": "Kies Team",
+          "includesLabel": "Alles van Starter inbegrepen:",
+          "features": [
+            "Geavanceerd planning & verlof",
+            "Managerrol",
+            "Geplande exports"
+          ],
+          "includes": [
+            "Prioritaire ondersteuning",
+            "Multi-locatie",
+            "Managerdashboard"
+          ]
+        },
+        {
+          "limit": "30 gebruikers inbegrepen",
+          "buttonText": "Kies Business",
+          "includesLabel": "Alles van Team inbegrepen:",
+          "features": [
+            "API & integraties",
+            "Geavanceerde rapporten",
+            "Multi-vennootschap"
+          ],
+          "includes": [
+            "SLA 99.9%",
+            "Toegewijde onboarding",
+            "Gepersonaliseerde facturatie"
+          ]
+        },
+        {
+          "limit": "Onbeperkt gebruikers",
+          "buttonText": "Contacteer ons",
+          "includesLabel": "Alles van Business inbegrepen:",
+          "features": [
+            "Onbeperkt managers",
+            "Wekelijkse geplande export",
+            "Gegarandeerde SLA"
+          ],
+          "includes": [
+            "Toegewijde ondersteuning",
+            "Gepersonaliseerde onboarding",
+            "Contract op maat"
+          ]
+        }
+      ]
     },
     "faq": {
-      "title": "Veelgestelde vragen",
-      "compliant": {
-        "q": "Voldoet de oplossing aan de Belgische wet 2027?",
-        "a": "Ja. Pointon voldoet aan alle Belgische en HVJEU-wettelijke vereisten voor tijdregistratie."
-      },
-      "gps": {
-        "q": "Gebruikt u geolocatie?",
-        "a": "Nee. Pointon gebruikt geen GPS. Er worden geen locatiegegevens verzameld."
-      },
-      "setup": {
-        "q": "Hoelang duurt het om te starten?",
-        "a": "2 minuten. Maak uw account aan, nodig uw medewerkers uit en u bent klaar."
-      }
+      "label": "FAQ",
+      "title1": "Veelgestelde",
+      "title2": "vragen",
+      "intro": "Vindt u uw antwoord niet? Contacteer ons rechtstreeks.",
+      "cta": "Schrijf ons",
+      "items": [
+        {
+          "q": "Is de oplossing conform de Belgische wet 2027?",
+          "a": "Ja. Pointon voldoet aan alle Belgische en HVJEU wettelijke vereisten: objectieve registratie, onveranderbaar audit trail, gecertificeerde export."
+        },
+        {
+          "q": "Hoe worden de gegevens opgeslagen?",
+          "a": "Gegevens gehost in de EU (Vercel Postgres of zelf-gehoste server). HTTPS-versleuteling. GDPR-conform."
+        },
+        {
+          "q": "Kan ik de gegevens exporteren?",
+          "a": "Ja. CSV/PDF-export digitaal ondertekend voor wettelijke inspectie. Beschikbaar op alle plannen."
+        },
+        {
+          "q": "Wat is de opzettijd?",
+          "a": "Setup in 5 minuten. Integratie: 15 min. Onmiddellijk inklokken na aanmaak van het account."
+        },
+        {
+          "q": "Is er een proefperiode?",
+          "a": "Onbeperkt Free-plan zonder verbintenis. Probeer gratis, geen kaart vereist."
+        },
+        {
+          "q": "Wat gebeurt er als ik offline inklok?",
+          "a": "Uw registratie wordt lokaal opgeslagen en gemarkeerd als \"⏳ in afwachting van sync\". Bij herverbinding synchroniseert ze automatisch met de server en wordt ze officieel. Het aanwezigheidsbord telt enkel gesynchroniseerde registraties."
+        }
+      ]
     },
-    "cta": {
-      "title": "Klaar om conform te zijn?",
-      "button": "Gratis beginnen"
+    "ctaSection": {
+      "lawLabel": "De Belgische wet treedt in werking op 1 januari 2027",
+      "unitDays": "dagen",
+      "unitHours": "uren",
+      "unitMinutes": "minuten",
+      "unitSeconds": "seconden",
+      "headline": "Is uw systeem klaar?",
+      "subtitle": "Geen kaart vereist. Setup in 2 minuten. Conform vanaf de eerste registratie.",
+      "ctaPrimary": "Maak mijn gratis account",
+      "ctaSecondary": "Praat met een expert"
+    },
+    "footer": {
+      "tagline": "De Belgische wettelijke prikklok voor kmo’s. Eenvoudig, mobile-first, conform 2027.",
+      "colProduct": "Product",
+      "colLegal": "Juridisch",
+      "colResources": "Bronnen",
+      "linkFeatures": "Functies",
+      "linkPricing": "Tarieven",
+      "linkFaq": "FAQ",
+      "linkPrivacy": "Privacy",
+      "linkTerms": "Voorwaarden",
+      "linkCompliance": "Conformiteit",
+      "linkSecurity": "Beveiliging",
+      "linkSupport": "Ondersteuning",
+      "linkContact": "Contact",
+      "copyright": "© 2026 Pointon · Ced-IT · België",
+      "compliance": "Conform België 2027 · GDPR · HTTPS"
     }
   },
   "pricing": {

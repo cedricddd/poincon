@@ -335,72 +335,301 @@
     }
   },
   "landing": {
+    "badge": "Belgien-Konformität 2027",
     "hero": {
-      "title": "Einstempeln. Konform. Belgisch.",
-      "subtitle": "Objektive Zeiterfassung für belgische KMU. Konform mit Gesetz 2027 & EuGH. In 2 Minuten.",
+      "line1": "Stempeln.",
+      "line2": "Konform.",
+      "line3": "Belgisch.",
+      "subtitle": "Erfassen Sie die Arbeitszeit rechtskonform in Belgien. Mit 1 Tipp. Ohne Komplikationen. Unveränderbarer Audit-Trail.",
       "ctaPrimary": "Kostenlos starten",
-      "ctaSecondary": "Preise ansehen"
+      "ctaSecondary": "So funktioniert es →",
+      "legal": "Keine Karte · Unbegrenzter Free-Plan · Kein GPS · DSGVO"
     },
-    "stats": {
-      "smes": "Belgische KMU",
-      "setup": "Durchschnittliches Setup",
-      "compliant": "EuGH-konform"
+    "mockup": {
+      "kioskTitle": "Kiosk",
+      "kioskSite": "Zentrale Brüssel",
+      "pinRequired": "PIN erforderlich",
+      "phoneSite": "Hauptsitz",
+      "clockOut": "AUSSTEMPELN ✕",
+      "clockIn": "EINSTEMPELN ✓",
+      "today": "Heute",
+      "pending": "⏳ ausstehend",
+      "arrival": "Ankunft",
+      "departure": "Abgang",
+      "duration": "Dauer"
+    },
+    "stats": [
+      "Belgische KMU",
+      "Durchschn. Setup",
+      "EuGH-konform",
+      "Für den Start"
+    ],
+    "demo": {
+      "label": "Live-Demo",
+      "title": "Pointon in Aktion",
+      "subtitle": "20 Sekunden, um das Wesentliche zu verstehen."
     },
     "features": {
-      "title": "Alles was Sie brauchen, nichts Überflüssiges",
-      "clockIn": {
-        "title": "Einstempeln mit 1 Tipp",
-        "description": "ANKUNFT / ABGANG mit einer Geste. Funktioniert auf Smartphone, Tablet und PC ohne Schulung."
-      },
-      "compliant": {
-        "title": "100% konform 2027",
-        "description": "Unveränderlicher Audit-Trail, zertifizierter Export, EuGH- & belgische Gesetzeskonformität 2027 integriert."
-      },
-      "reports": {
-        "title": "Echtzeit-Berichte",
-        "description": "Stunden, Urlaub, Freizeitausgleich. Alles in einem Dashboard. CSV-Export mit einem Klick."
-      },
-      "gpsZero": {
-        "title": "0 GPS",
-        "description": "Kein Standort-Tracking. Vollständige Achtung der Privatsphäre Ihrer Mitarbeiter."
-      }
+      "label": "Funktionen",
+      "title1": "Alles, was nötig ist.",
+      "title2": "Nichts Überflüssiges.",
+      "intro": "Eine Lösung für belgische KMU, die konform sein wollen, ohne sich das Leben schwer zu machen.",
+      "items": [
+        {
+          "title": "Stempeln mit 1 Tipp",
+          "description": "KOMMEN / GEHEN mit einer Geste. Funktioniert auf Smartphone, Tablet und PC ohne Schulung."
+        },
+        {
+          "title": "Konform mit Gesetz 2027",
+          "description": "Objektive Erfassung, unveränderbarer Audit-Trail und zertifizierter Export. Bereit für die behördliche Prüfung."
+        },
+        {
+          "title": "Kiosk, QR & Mobil",
+          "description": "4 Methoden: mobile App (PWA), Tablet-Kiosk, druckbarer QR-Code pro Standort (1 Scan = sofortiges Stempeln) oder Weboberfläche. Keine Installation."
+        },
+        {
+          "title": "Intelligente Hinweise",
+          "description": "Erinnerung am Tagesende, Überstundenerkennung, Echtzeit-Benachrichtigungen."
+        },
+        {
+          "title": "Kein GPS · DSGVO",
+          "description": "Keine Geolokalisierung (Tarifvertrag 68 · DSGVO). CSV- und PDF-Exporte digital signiert für die behördliche Prüfung."
+        },
+        {
+          "title": "Teamverwaltung",
+          "description": "Manager, Standorte, Urlaub, Freizeitausgleich — alles zentral für HR und Administratoren."
+        }
+      ]
     },
     "methods": {
-      "title": "3 Wege zum Einstempeln",
-      "mobile": {
-        "title": "Mobile PWA",
-        "description": "Ankunft und Abgang mit 1 Tipp von jedem Smartphone, ohne App-Installation."
-      },
-      "kiosk": {
-        "title": "PIN-Kiosk",
-        "description": "Tablet am Eingang. Der Mitarbeiter gibt seinen 4-stelligen PIN ein. Sofortige Erfassung."
-      },
-      "qr": {
-        "title": "QR-Code",
-        "description": "QR-Code vor Ort scannen. Ideal für Baustellen oder mehrere Standorte."
-      }
+      "label": "Wie wird gestempelt",
+      "title1": "4 Arten zu stempeln.",
+      "title2": "Null Reibung.",
+      "intro": "Jedes Team ist anders. Pointon passt sich Ihrer Realität an.",
+      "items": [
+        {
+          "title": "Mobile PWA",
+          "description": "Ankunft und Abgang mit 1 Tipp von jedem Smartphone. Ohne Installation."
+        },
+        {
+          "title": "Tablet-Kiosk",
+          "description": "4-stelliger PIN am Büroeingang. Ideal für feste Teams vor Ort."
+        },
+        {
+          "title": "QR-Code",
+          "description": "1 QR pro Standort. 1 Scan = 1 sofortiges Stempeln. Druckbar, fälschungssicher."
+        },
+        {
+          "title": "Weboberfläche",
+          "description": "Von jedem PC und Browser. Gleiche Erfahrung, gleiche Einfachheit."
+        }
+      ],
+      "kioskSubLabel": "Besuchermodus inbegriffen",
+      "kioskSubDetail": "Empfang, zeitgestempelter Ausweis und Nachverfolgung externer Besuche — ohne Pointon-Konto."
     },
     "testimonials": {
-      "title": "Sie vertrauen uns"
+      "label": "Sie vertrauen uns",
+      "title1": "Belgische KMU, die täglich",
+      "title2": "stempeln",
+      "planLabel": "Plan {plan}",
+      "items": [
+        {
+          "quote": "Früher haben wir die Stunden auf Papier notiert. Jetzt geht es automatisch. Meine Mitarbeiter stempeln am Tablet am Eingang, freitags exportiere ich die Übersicht. Setup: 10 Minuten.",
+          "role": "Geschäftsführerin"
+        },
+        {
+          "quote": "Wir suchten eine Lösung konform mit dem Gesetz 2027 ohne GPS oder Tracking. Pointon erfüllt alle Kriterien. Der unveränderbare Audit-Trail gibt uns Sicherheit bei Sozialkontrollen.",
+          "role": "Technischer Direktor"
+        },
+        {
+          "quote": "Meine Techniker sind selten im Büro. Mit dem Tablet-Kiosk im Depot und der mobilen App für unterwegs stempelt jeder problemlos.",
+          "role": "Geschäftsführer"
+        }
+      ],
+      "placeholderQuote": "Ihre Erfahrung hier — teilen Sie Ihre Erfahrung mit Pointon.",
+      "placeholderCompany": "Ihr Unternehmen",
+      "placeholderLocation": "Belgien",
+      "placeholderCta": "Kontaktieren Sie uns",
+      "disclaimer1": "Diese Erfahrungsberichte sind repräsentativ für reale Anwendungsfälle.",
+      "disclaimer2": "Kein GPS · Keine Geolokalisierung · DSGVO-konform · Tarifvertrag 68 Belgien"
+    },
+    "how": {
+      "label": "So funktioniert es",
+      "title1": "Einsatzbereit",
+      "title2": "in 5 Minuten",
+      "intro": "Keine Schulung, keine komplexe Integration. Ihr Team stempelt ab dem ersten Tag.",
+      "cta": "Kostenlos testen",
+      "stepCta": "Jetzt loslegen",
+      "steps": [
+        {
+          "title": "Konto erstellen",
+          "description": "Registrieren Sie sich in 2 Minuten. Keine Kreditkarte für den Free-Plan nötig."
+        },
+        {
+          "title": "Mitarbeiter einladen",
+          "description": "Fügen Sie Ihre Teams hinzu und weisen Sie Standorte zu. Jedes Mitglied erhält sofort Zugang."
+        },
+        {
+          "title": "Stempeln & exportieren",
+          "description": "Ihre Mitarbeiter stempeln per Telefon, Tablet oder Computer. Sie exportieren die Berichte mit einem Klick."
+        }
+      ]
+    },
+    "pricing": {
+      "label": "Preise",
+      "title": "Transparente Preise",
+      "subtitle": "Starten Sie kostenlos. Zahlen Sie erst, wenn Sie wachsen.",
+      "vat": "Alle Preise verstehen sich zzgl. MwSt. (21 %).",
+      "monthly": "Monatlich",
+      "annual": "Jährlich",
+      "saveBadge": "−17%",
+      "perMonth": "/Monat zzgl. MwSt.",
+      "billed": "abgerechnet {total}€/Jahr · sparen Sie {savings}€",
+      "popular": "BELIEBT",
+      "quote": "Angebot",
+      "free": "Kostenlos",
+      "seatExtra": "+{price}€/zusätzlicher Platz",
+      "annualHintPre": "💡 Wechseln Sie zur jährlichen Abrechnung und ",
+      "annualHintLink": "sparen Sie 17% (2 Monate gratis)",
+      "annualSavings": "✓ Sie sparen bis zu 140€/Jahr mit jährlicher Abrechnung",
+      "tiers": [
+        {
+          "limit": "3 Benutzer inbegriffen",
+          "buttonText": "Kostenlos starten",
+          "includesLabel": "Inbegriffen:",
+          "features": [
+            "Mobiles Stempeln (PWA)",
+            "CSV-Export (30 Tage)",
+            "Basisberichte"
+          ],
+          "includes": [
+            "Unveränderbarer Audit-Trail",
+            "Multi-Gerät",
+            "Sichere Authentifizierung"
+          ]
+        },
+        {
+          "limit": "5 Benutzer inbegriffen",
+          "buttonText": "Starter wählen",
+          "includesLabel": "Alles aus Free:",
+          "features": [
+            "Tablet-Kioskmodus",
+            "QR-Code pro Standort (1 Scan = Stempeln)",
+            "Unbegrenzter CSV/PDF-Export"
+          ],
+          "includes": [
+            "E-Mail-Support",
+            "Automatische Überstunden",
+            "Urlaub & Freizeitausgleich"
+          ]
+        },
+        {
+          "limit": "15 Benutzer inbegriffen",
+          "buttonText": "Team wählen",
+          "includesLabel": "Alles aus Starter:",
+          "features": [
+            "Erweiterte Planung & Urlaub",
+            "Managerrolle",
+            "Geplante Exporte"
+          ],
+          "includes": [
+            "Prioritäts-Support",
+            "Multi-Standort",
+            "Manager-Dashboard"
+          ]
+        },
+        {
+          "limit": "30 Benutzer inbegriffen",
+          "buttonText": "Business wählen",
+          "includesLabel": "Alles aus Team:",
+          "features": [
+            "API & Integrationen",
+            "Erweiterte Berichte",
+            "Multi-Gesellschaft"
+          ],
+          "includes": [
+            "SLA 99,9%",
+            "Dediziertes Onboarding",
+            "Individuelle Abrechnung"
+          ]
+        },
+        {
+          "limit": "Unbegrenzte Benutzer",
+          "buttonText": "Kontaktieren Sie uns",
+          "includesLabel": "Alles aus Business:",
+          "features": [
+            "Unbegrenzte Manager",
+            "Wöchentlicher geplanter Export",
+            "Garantierte SLA"
+          ],
+          "includes": [
+            "Dedizierter Support",
+            "Persönliches Onboarding",
+            "Vertrag nach Maß"
+          ]
+        }
+      ]
     },
     "faq": {
-      "title": "Häufig gestellte Fragen",
-      "compliant": {
-        "q": "Entspricht die Lösung dem belgischen Gesetz 2027?",
-        "a": "Ja. Pointon erfüllt alle belgischen und EuGH-rechtlichen Anforderungen an die Zeiterfassung."
-      },
-      "gps": {
-        "q": "Verwenden Sie Geolokalisierung?",
-        "a": "Nein. Pointon verwendet kein GPS. Es werden keine Standortdaten erfasst."
-      },
-      "setup": {
-        "q": "Wie lange dauert es, loszulegen?",
-        "a": "2 Minuten. Erstellen Sie Ihr Konto, laden Sie Ihre Mitarbeiter ein und los geht's."
-      }
+      "label": "FAQ",
+      "title1": "Häufige",
+      "title2": "Fragen",
+      "intro": "Finden Sie Ihre Antwort nicht? Kontaktieren Sie uns direkt.",
+      "cta": "Schreiben Sie uns",
+      "items": [
+        {
+          "q": "Ist die Lösung konform mit dem belgischen Gesetz 2027?",
+          "a": "Ja. Pointon erfüllt alle belgischen und EuGH-rechtlichen Anforderungen: objektive Erfassung, unveränderbarer Audit-Trail, zertifizierter Export."
+        },
+        {
+          "q": "Wie werden die Daten gespeichert?",
+          "a": "Daten in der EU gehostet (Vercel Postgres oder selbst gehosteter Server). HTTPS-Verschlüsselung. DSGVO-konform."
+        },
+        {
+          "q": "Kann ich die Daten exportieren?",
+          "a": "Ja. CSV/PDF-Export digital signiert für die behördliche Prüfung. Auf allen Plänen verfügbar."
+        },
+        {
+          "q": "Wie lange dauert die Einrichtung?",
+          "a": "Setup in 5 Minuten. Integration: 15 Min. Sofortiges Stempeln nach Kontoerstellung."
+        },
+        {
+          "q": "Gibt es eine Testphase?",
+          "a": "Unbegrenzter Free-Plan ohne Verpflichtung. Kostenlos testen, keine Karte erforderlich."
+        },
+        {
+          "q": "Was passiert, wenn ich offline stemple?",
+          "a": "Ihr Stempeln wird lokal gespeichert und als \"⏳ Sync ausstehend\" markiert. Bei erneuter Verbindung synchronisiert es automatisch mit dem Server und wird offiziell. Die Anwesenheitstafel zählt nur synchronisierte Stempelungen."
+        }
+      ]
     },
-    "cta": {
-      "title": "Bereit, konform zu sein?",
-      "button": "Kostenlos starten"
+    "ctaSection": {
+      "lawLabel": "Das belgische Gesetz tritt am 1. Januar 2027 in Kraft",
+      "unitDays": "Tage",
+      "unitHours": "Stunden",
+      "unitMinutes": "Minuten",
+      "unitSeconds": "Sekunden",
+      "headline": "Ist Ihr System bereit?",
+      "subtitle": "Keine Karte erforderlich. Setup in 2 Minuten. Konform ab dem ersten Stempeln.",
+      "ctaPrimary": "Mein kostenloses Konto erstellen",
+      "ctaSecondary": "Mit einem Experten sprechen"
+    },
+    "footer": {
+      "tagline": "Die belgische rechtskonforme Stempeluhr für KMU. Einfach, mobile-first, konform 2027.",
+      "colProduct": "Produkt",
+      "colLegal": "Rechtliches",
+      "colResources": "Ressourcen",
+      "linkFeatures": "Funktionen",
+      "linkPricing": "Preise",
+      "linkFaq": "FAQ",
+      "linkPrivacy": "Datenschutz",
+      "linkTerms": "Bedingungen",
+      "linkCompliance": "Konformität",
+      "linkSecurity": "Sicherheit",
+      "linkSupport": "Support",
+      "linkContact": "Kontakt",
+      "copyright": "© 2026 Pointon · Ced-IT · Belgien",
+      "compliance": "Konform Belgien 2027 · DSGVO · HTTPS"
     }
   },
   "pricing": {

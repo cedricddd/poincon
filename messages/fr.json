@@ -335,72 +335,301 @@
     }
   },
   "landing": {
+    "badge": "Conformité Belgique 2027",
     "hero": {
-      "title": "Pointez. Conforme. Belge.",
-      "subtitle": "Enregistrement objectif du temps de travail pour PME belges. Conforme loi 2027 & CJUE. En 2 minutes.",
+      "line1": "Pointez.",
+      "line2": "Conforme.",
+      "line3": "Belge.",
+      "subtitle": "Enregistrez le temps de travail légalement en Belgique. En 1 tap. Sans complications. Audit trail immuable.",
       "ctaPrimary": "Commencer gratuitement",
-      "ctaSecondary": "Voir les tarifs"
+      "ctaSecondary": "Comment ça marche →",
+      "legal": "Aucune carte · Plan Free illimité · Zéro GPS · RGPD"
     },
-    "stats": {
-      "smes": "PME belges",
-      "setup": "Setup moyen",
-      "compliant": "Conforme CJUE"
+    "mockup": {
+      "kioskTitle": "Kiosque",
+      "kioskSite": "Siège Bruxelles",
+      "pinRequired": "PIN requis",
+      "phoneSite": "Siège social",
+      "clockOut": "POINTER DÉPART ✕",
+      "clockIn": "ARRIVÉE ✓",
+      "today": "Aujourd'hui",
+      "pending": "⏳ en attente",
+      "arrival": "Arrivée",
+      "departure": "Départ",
+      "duration": "Durée"
+    },
+    "stats": [
+      "PME belges",
+      "Setup moyen",
+      "Conforme CJUE",
+      "Pour commencer"
+    ],
+    "demo": {
+      "label": "Démo live",
+      "title": "Voir Pointon en action",
+      "subtitle": "20 secondes pour comprendre l'essentiel."
     },
     "features": {
-      "title": "Tout ce qu'il faut, rien de superflu",
-      "clockIn": {
-        "title": "Pointage en 1 tap",
-        "description": "ARRIVÉE / DÉPART en un geste. Fonctionne sur smartphone, tablette et PC sans formation."
-      },
-      "compliant": {
-        "title": "100% conforme 2027",
-        "description": "Audit trail immuable, export certifié, conformité CJUE & loi belge 2027 intégrée."
-      },
-      "reports": {
-        "title": "Rapports en temps réel",
-        "description": "Heures, congés, récupérations. Tout en un tableau de bord. Export CSV en un clic."
-      },
-      "gpsZero": {
-        "title": "0 GPS",
-        "description": "Pas de tracking de localisation. Respect total de la vie privée de vos employés."
-      }
+      "label": "Fonctionnalités",
+      "title1": "Tout ce qu'il faut.",
+      "title2": "Rien de superflu.",
+      "intro": "Une solution pensée pour les PME belges qui veulent être conformes sans se compliquer la vie.",
+      "items": [
+        {
+          "title": "Pointage en 1 tap",
+          "description": "ARRIVÉE / DÉPART en un geste. Fonctionne sur smartphone, tablette et PC sans formation."
+        },
+        {
+          "title": "Conforme loi 2027",
+          "description": "Enregistrement objectif, audit trail immuable et export certifié. Prêt pour inspection légale."
+        },
+        {
+          "title": "Kiosque, QR & Mobile",
+          "description": "4 méthodes : application mobile (PWA), kiosque tablette, QR code imprimable par site (1 scan = pointage instantané) ou interface web. Zéro installation."
+        },
+        {
+          "title": "Alertes intelligentes",
+          "description": "Rappel fin de journée, détection d'heures supplémentaires, notifications temps réel."
+        },
+        {
+          "title": "Zéro GPS · RGPD",
+          "description": "Aucune géolocalisation (CCT 68 · RGPD). Export CSV et PDF signés numériquement pour inspection légale."
+        },
+        {
+          "title": "Gestion d'équipes",
+          "description": "Managers, sites, congés, récupérations — tout centralisé pour les RH et les administrateurs."
+        }
+      ]
     },
     "methods": {
-      "title": "3 façons de pointer",
-      "mobile": {
-        "title": "Mobile PWA",
-        "description": "Arrivée et départ en 1 tap depuis n'importe quel smartphone, sans app à installer."
-      },
-      "kiosk": {
-        "title": "Kiosque PIN",
-        "description": "Tablette à l'entrée. L'employé tape son PIN à 4 chiffres. Enregistrement instantané."
-      },
-      "qr": {
-        "title": "QR Code",
-        "description": "Scanner le QR code sur place. Idéal pour les accès chantier ou les sites multiples."
-      }
+      "label": "Comment pointer",
+      "title1": "4 façons de pointer.",
+      "title2": "Zéro friction.",
+      "intro": "Chaque équipe est différente. Pointon s'adapte à votre réalité.",
+      "items": [
+        {
+          "title": "Mobile PWA",
+          "description": "Arrivée et départ en 1 tap depuis n'importe quel smartphone. Sans installation."
+        },
+        {
+          "title": "Kiosque tablette",
+          "description": "PIN 4 chiffres à l'entrée du bureau. Idéal pour les équipes fixes sur site."
+        },
+        {
+          "title": "QR Code",
+          "description": "1 QR par site. 1 scan = 1 pointage instantané. Imprimable, infalsifiable."
+        },
+        {
+          "title": "Interface web",
+          "description": "Depuis n'importe quel PC et navigateur. Même expérience, même simplicité."
+        }
+      ],
+      "kioskSubLabel": "Mode visiteur inclus",
+      "kioskSubDetail": "Accueil, badge horodaté et suivi des passages externes — sans compte Pointon."
     },
     "testimonials": {
-      "title": "Ils nous font confiance"
+      "label": "Ils nous font confiance",
+      "title1": "Des PME belges qui pointent",
+      "title2": "au quotidien",
+      "planLabel": "Plan {plan}",
+      "items": [
+        {
+          "quote": "Avant on notait les heures sur papier. Maintenant c'est automatique. Mes employés pointent sur la tablette à l'entrée, j'exporte le récap le vendredi. Setup : 10 minutes.",
+          "role": "Gérante"
+        },
+        {
+          "quote": "On cherchait une solution conforme loi 2027 sans GPS ni tracking. Pointon coche toutes les cases. L'audit trail immuable nous rassure pour les contrôles sociaux.",
+          "role": "Directeur technique"
+        },
+        {
+          "quote": "Mes techniciens sont rarement au bureau. Avec le kiosque tablette au dépôt et l'appli mobile pour les déplacements, tout le monde pointe facilement.",
+          "role": "Dirigeant"
+        }
+      ],
+      "placeholderQuote": "Votre témoignage ici — partagez votre expérience avec Pointon.",
+      "placeholderCompany": "Votre entreprise",
+      "placeholderLocation": "Belgique",
+      "placeholderCta": "Nous contacter",
+      "disclaimer1": "Ces témoignages sont représentatifs de cas d'usage réels.",
+      "disclaimer2": "Zéro GPS · Aucune géolocalisation · RGPD compliant · CCT 68 Belgique"
+    },
+    "how": {
+      "label": "Comment ça marche",
+      "title1": "Opérationnel",
+      "title2": "en 5 minutes",
+      "intro": "Pas de formation, pas d'intégration complexe. Votre équipe pointe dès le premier jour.",
+      "cta": "Essayer gratuitement",
+      "stepCta": "Commencer maintenant",
+      "steps": [
+        {
+          "title": "Créez votre compte",
+          "description": "Inscrivez-vous en 2 minutes. Pas de carte bancaire requise pour le plan gratuit."
+        },
+        {
+          "title": "Invitez vos employés",
+          "description": "Ajoutez vos équipes et assignez les sites. Chaque membre reçoit accès immédiatement."
+        },
+        {
+          "title": "Pointez & exportez",
+          "description": "Vos employés pointent sur téléphone, tablette ou ordinateur. Vous exportez les rapports en un clic."
+        }
+      ]
+    },
+    "pricing": {
+      "label": "Tarifs",
+      "title": "Tarifs transparents",
+      "subtitle": "Commencez gratuitement. Payez seulement quand vous grandissez.",
+      "vat": "Tous les prix sont indiqués hors TVA (21 %).",
+      "monthly": "Mensuel",
+      "annual": "Annuel",
+      "saveBadge": "−17%",
+      "perMonth": "/mois HTVA",
+      "billed": "facturé {total}€/an · économisez {savings}€",
+      "popular": "POPULAIRE",
+      "quote": "Devis",
+      "free": "Gratuit",
+      "seatExtra": "+{price}€/siège supplémentaire",
+      "annualHintPre": "💡 Passez à la facturation annuelle et ",
+      "annualHintLink": "économisez 17% (2 mois offerts)",
+      "annualSavings": "✓ Vous économisez jusqu'à 140€/an avec la facturation annuelle",
+      "tiers": [
+        {
+          "limit": "3 utilisateurs inclus",
+          "buttonText": "Commencer gratuitement",
+          "includesLabel": "Inclus :",
+          "features": [
+            "Pointage mobile (PWA)",
+            "Export CSV (30 jours)",
+            "Rapports basiques"
+          ],
+          "includes": [
+            "Audit trail immuable",
+            "Multi-appareils",
+            "Auth sécurisée"
+          ]
+        },
+        {
+          "limit": "5 utilisateurs inclus",
+          "buttonText": "Choisir Starter",
+          "includesLabel": "Tout Free inclus :",
+          "features": [
+            "Mode kiosque tablette",
+            "QR code par site (1 scan = pointage)",
+            "Export CSV/PDF illimité"
+          ],
+          "includes": [
+            "Support email",
+            "Heures supp automatiques",
+            "Congés & Récupération"
+          ]
+        },
+        {
+          "limit": "15 utilisateurs inclus",
+          "buttonText": "Choisir Team",
+          "includesLabel": "Tout Starter inclus :",
+          "features": [
+            "Planning & congés avancés",
+            "Rôle Manager",
+            "Exports planifiés"
+          ],
+          "includes": [
+            "Support prioritaire",
+            "Multi-sites",
+            "Dashboard manager"
+          ]
+        },
+        {
+          "limit": "30 utilisateurs inclus",
+          "buttonText": "Choisir Business",
+          "includesLabel": "Tout Team inclus :",
+          "features": [
+            "API & intégrations",
+            "Rapports avancés",
+            "Multi-sociétés"
+          ],
+          "includes": [
+            "SLA 99.9%",
+            "Onboarding dédié",
+            "Facturation personnalisée"
+          ]
+        },
+        {
+          "limit": "Utilisateurs illimités",
+          "buttonText": "Nous contacter",
+          "includesLabel": "Tout Business inclus :",
+          "features": [
+            "Managers illimités",
+            "Export planifié hebdo",
+            "SLA garanti"
+          ],
+          "includes": [
+            "Support dédié",
+            "Onboarding personnalisé",
+            "Contrat sur mesure"
+          ]
+        }
+      ]
     },
     "faq": {
-      "title": "Questions fréquentes",
-      "compliant": {
-        "q": "La solution est-elle conforme à la loi belge 2027 ?",
-        "a": "Oui. Pointon respecte toutes les exigences légales belges et CJUE pour l'enregistrement du temps de travail."
-      },
-      "gps": {
-        "q": "Utilisez-vous la géolocalisation ?",
-        "a": "Non. Pointon n'utilise pas le GPS. Aucune donnée de localisation n'est collectée."
-      },
-      "setup": {
-        "q": "Combien de temps pour démarrer ?",
-        "a": "2 minutes. Créez votre compte, invitez vos employés et c'est parti."
-      }
+      "label": "FAQ",
+      "title1": "Questions",
+      "title2": "fréquentes",
+      "intro": "Vous ne trouvez pas votre réponse ? Contactez-nous directement.",
+      "cta": "Nous écrire",
+      "items": [
+        {
+          "q": "La solution est-elle conforme à la loi belge 2027?",
+          "a": "Oui. Pointon respecte toutes les exigences légales belges et CJUE : enregistrement objectif, audit trail immuable, export certifié."
+        },
+        {
+          "q": "Comment sont stockées les données?",
+          "a": "Données hébergées en EU (Vercel Postgres ou serveur auto-hébergé). Chiffrement HTTPS. RGPD compliant."
+        },
+        {
+          "q": "Puis-je exporter les données?",
+          "a": "Oui. Export CSV/PDF signé numériquement pour inspection légale. Disponible sur tous les plans."
+        },
+        {
+          "q": "Quel est le délai de mise en place?",
+          "a": "Setup en 5 minutes. Intégration : 15 min. Pointage immédiat après création de compte."
+        },
+        {
+          "q": "Y a-t-il une période d'essai?",
+          "a": "Plan Free illimité sans engagement. Essayez gratuitement, aucune carte requise."
+        },
+        {
+          "q": "Que se passe-t-il si je pointe hors ligne?",
+          "a": "Votre pointage est sauvegardé localement et marqué \"⏳ en attente de sync\". Dès reconnexion, il synchronise automatiquement au serveur et devient officiel. Le tableau de présence ne compte que les pointages synchronisés."
+        }
+      ]
     },
-    "cta": {
-      "title": "Prêt à être conforme ?",
-      "button": "Commencer gratuitement"
+    "ctaSection": {
+      "lawLabel": "La loi belge entre en vigueur le 1er janvier 2027",
+      "unitDays": "jours",
+      "unitHours": "heures",
+      "unitMinutes": "minutes",
+      "unitSeconds": "secondes",
+      "headline": "Votre système est-il prêt ?",
+      "subtitle": "Aucune carte requise. Setup en 2 minutes. Conforme dès le premier pointage.",
+      "ctaPrimary": "Créer mon compte gratuit",
+      "ctaSecondary": "Parler à un expert"
+    },
+    "footer": {
+      "tagline": "La pointeuse légale belge pour les PME. Simple, mobile-first, conforme 2027.",
+      "colProduct": "Produit",
+      "colLegal": "Légal",
+      "colResources": "Ressources",
+      "linkFeatures": "Fonctionnalités",
+      "linkPricing": "Tarifs",
+      "linkFaq": "FAQ",
+      "linkPrivacy": "Confidentialité",
+      "linkTerms": "Conditions",
+      "linkCompliance": "Conformité",
+      "linkSecurity": "Sécurité",
+      "linkSupport": "Support",
+      "linkContact": "Contact",
+      "copyright": "© 2026 Pointon · Ced-IT · Belgique",
+      "compliance": "Conforme Belgique 2027 · RGPD · HTTPS"
     }
   },
   "pricing": {

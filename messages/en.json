@@ -335,72 +335,301 @@
     }
   },
   "landing": {
+    "badge": "Belgium Compliance 2027",
     "hero": {
-      "title": "Clock in. Compliant. Belgian.",
-      "subtitle": "Objective time tracking for Belgian SMEs. Compliant with 2027 law & CJEU. In 2 minutes.",
+      "line1": "Clock in.",
+      "line2": "Compliant.",
+      "line3": "Belgian.",
+      "subtitle": "Record working time legally in Belgium. In 1 tap. No hassle. Immutable audit trail.",
       "ctaPrimary": "Start for free",
-      "ctaSecondary": "View pricing"
+      "ctaSecondary": "How it works →",
+      "legal": "No card · Unlimited Free plan · Zero GPS · GDPR"
     },
-    "stats": {
-      "smes": "Belgian SMEs",
-      "setup": "Average setup",
-      "compliant": "CJEU compliant"
+    "mockup": {
+      "kioskTitle": "Kiosk",
+      "kioskSite": "Brussels HQ",
+      "pinRequired": "PIN required",
+      "phoneSite": "Head office",
+      "clockOut": "CLOCK OUT ✕",
+      "clockIn": "CLOCK IN ✓",
+      "today": "Today",
+      "pending": "⏳ pending",
+      "arrival": "Arrival",
+      "departure": "Departure",
+      "duration": "Duration"
+    },
+    "stats": [
+      "Belgian SMEs",
+      "Average setup",
+      "CJEU compliant",
+      "To get started"
+    ],
+    "demo": {
+      "label": "Live demo",
+      "title": "See Pointon in action",
+      "subtitle": "20 seconds to grasp the essentials."
     },
     "features": {
-      "title": "Everything you need, nothing you don't",
-      "clockIn": {
-        "title": "Clock in with 1 tap",
-        "description": "ARRIVAL / DEPARTURE in one gesture. Works on smartphone, tablet and PC with no training required."
-      },
-      "compliant": {
-        "title": "100% compliant 2027",
-        "description": "Immutable audit trail, certified export, CJEU & Belgian 2027 law compliance built in."
-      },
-      "reports": {
-        "title": "Real-time reports",
-        "description": "Hours, leave, time off. Everything in one dashboard. CSV export in one click."
-      },
-      "gpsZero": {
-        "title": "Zero GPS",
-        "description": "No location tracking. Full respect for your employees' privacy."
-      }
+      "label": "Features",
+      "title1": "Everything you need.",
+      "title2": "Nothing superfluous.",
+      "intro": "A solution designed for Belgian SMEs that want to be compliant without complicating their lives.",
+      "items": [
+        {
+          "title": "Clock in with 1 tap",
+          "description": "IN / OUT in a single gesture. Works on smartphone, tablet and PC with no training."
+        },
+        {
+          "title": "Compliant with 2027 law",
+          "description": "Objective recording, immutable audit trail and certified export. Ready for legal inspection."
+        },
+        {
+          "title": "Kiosk, QR & Mobile",
+          "description": "4 methods: mobile app (PWA), tablet kiosk, printable QR code per site (1 scan = instant clock-in) or web interface. Zero installation."
+        },
+        {
+          "title": "Smart alerts",
+          "description": "End-of-day reminder, overtime detection, real-time notifications."
+        },
+        {
+          "title": "Zero GPS · GDPR",
+          "description": "No geolocation (CBA 68 · GDPR). CSV and PDF exports digitally signed for legal inspection."
+        },
+        {
+          "title": "Team management",
+          "description": "Managers, sites, leave, time-off recovery — all centralised for HR and administrators."
+        }
+      ]
     },
     "methods": {
-      "title": "3 ways to clock in",
-      "mobile": {
-        "title": "Mobile PWA",
-        "description": "Arrival and departure in 1 tap from any smartphone, no app install required."
-      },
-      "kiosk": {
-        "title": "PIN Kiosk",
-        "description": "Tablet at the entrance. The employee types their 4-digit PIN. Instant registration."
-      },
-      "qr": {
-        "title": "QR Code",
-        "description": "Scan the QR code on site. Ideal for construction sites or multiple locations."
-      }
+      "label": "How to clock in",
+      "title1": "4 ways to clock in.",
+      "title2": "Zero friction.",
+      "intro": "Every team is different. Pointon adapts to your reality.",
+      "items": [
+        {
+          "title": "Mobile PWA",
+          "description": "Arrival and departure in 1 tap from any smartphone. No installation."
+        },
+        {
+          "title": "Tablet kiosk",
+          "description": "4-digit PIN at the office entrance. Ideal for fixed on-site teams."
+        },
+        {
+          "title": "QR Code",
+          "description": "1 QR per site. 1 scan = 1 instant clock-in. Printable, tamper-proof."
+        },
+        {
+          "title": "Web interface",
+          "description": "From any PC and browser. Same experience, same simplicity."
+        }
+      ],
+      "kioskSubLabel": "Visitor mode included",
+      "kioskSubDetail": "Reception, time-stamped badge and tracking of external visits — without a Pointon account."
     },
     "testimonials": {
-      "title": "They trust us"
+      "label": "They trust us",
+      "title1": "Belgian SMEs clocking in",
+      "title2": "every day",
+      "planLabel": "{plan} plan",
+      "items": [
+        {
+          "quote": "We used to write hours on paper. Now it’s automatic. My employees clock in on the tablet at the entrance, I export the summary on Friday. Setup: 10 minutes.",
+          "role": "Manager"
+        },
+        {
+          "quote": "We were looking for a solution compliant with the 2027 law without GPS or tracking. Pointon ticks every box. The immutable audit trail reassures us for social inspections.",
+          "role": "Technical Director"
+        },
+        {
+          "quote": "My technicians are rarely in the office. With the tablet kiosk at the depot and the mobile app for travel, everyone clocks in easily.",
+          "role": "Director"
+        }
+      ],
+      "placeholderQuote": "Your testimonial here — share your experience with Pointon.",
+      "placeholderCompany": "Your company",
+      "placeholderLocation": "Belgium",
+      "placeholderCta": "Contact us",
+      "disclaimer1": "These testimonials are representative of real use cases.",
+      "disclaimer2": "Zero GPS · No geolocation · GDPR compliant · CBA 68 Belgium"
+    },
+    "how": {
+      "label": "How it works",
+      "title1": "Up and running",
+      "title2": "in 5 minutes",
+      "intro": "No training, no complex integration. Your team clocks in from day one.",
+      "cta": "Try for free",
+      "stepCta": "Start now",
+      "steps": [
+        {
+          "title": "Create your account",
+          "description": "Sign up in 2 minutes. No credit card required for the free plan."
+        },
+        {
+          "title": "Invite your employees",
+          "description": "Add your teams and assign sites. Each member gets access immediately."
+        },
+        {
+          "title": "Clock in & export",
+          "description": "Your employees clock in on phone, tablet or computer. You export reports in one click."
+        }
+      ]
+    },
+    "pricing": {
+      "label": "Pricing",
+      "title": "Transparent pricing",
+      "subtitle": "Start for free. Pay only when you grow.",
+      "vat": "All prices are shown excluding VAT (21%).",
+      "monthly": "Monthly",
+      "annual": "Annual",
+      "saveBadge": "−17%",
+      "perMonth": "/month excl. VAT",
+      "billed": "billed {total}€/year · save {savings}€",
+      "popular": "POPULAR",
+      "quote": "Quote",
+      "free": "Free",
+      "seatExtra": "+{price}€/additional seat",
+      "annualHintPre": "💡 Switch to annual billing and ",
+      "annualHintLink": "save 17% (2 months free)",
+      "annualSavings": "✓ You save up to 140€/year with annual billing",
+      "tiers": [
+        {
+          "limit": "3 users included",
+          "buttonText": "Start for free",
+          "includesLabel": "Included:",
+          "features": [
+            "Mobile clock-in (PWA)",
+            "CSV export (30 days)",
+            "Basic reports"
+          ],
+          "includes": [
+            "Immutable audit trail",
+            "Multi-device",
+            "Secure authentication"
+          ]
+        },
+        {
+          "limit": "5 users included",
+          "buttonText": "Choose Starter",
+          "includesLabel": "Everything in Free:",
+          "features": [
+            "Tablet kiosk mode",
+            "QR code per site (1 scan = clock-in)",
+            "Unlimited CSV/PDF export"
+          ],
+          "includes": [
+            "Email support",
+            "Automatic overtime",
+            "Leave & Time-off recovery"
+          ]
+        },
+        {
+          "limit": "15 users included",
+          "buttonText": "Choose Team",
+          "includesLabel": "Everything in Starter:",
+          "features": [
+            "Advanced planning & leave",
+            "Manager role",
+            "Scheduled exports"
+          ],
+          "includes": [
+            "Priority support",
+            "Multi-site",
+            "Manager dashboard"
+          ]
+        },
+        {
+          "limit": "30 users included",
+          "buttonText": "Choose Business",
+          "includesLabel": "Everything in Team:",
+          "features": [
+            "API & integrations",
+            "Advanced reports",
+            "Multi-company"
+          ],
+          "includes": [
+            "SLA 99.9%",
+            "Dedicated onboarding",
+            "Custom billing"
+          ]
+        },
+        {
+          "limit": "Unlimited users",
+          "buttonText": "Contact us",
+          "includesLabel": "Everything in Business:",
+          "features": [
+            "Unlimited managers",
+            "Weekly scheduled export",
+            "Guaranteed SLA"
+          ],
+          "includes": [
+            "Dedicated support",
+            "Personalised onboarding",
+            "Custom contract"
+          ]
+        }
+      ]
     },
     "faq": {
-      "title": "Frequently asked questions",
-      "compliant": {
-        "q": "Is the solution compliant with Belgian law 2027?",
-        "a": "Yes. Pointon meets all Belgian and CJEU legal requirements for time tracking."
-      },
-      "gps": {
-        "q": "Do you use geolocation?",
-        "a": "No. Pointon does not use GPS. No location data is collected."
-      },
-      "setup": {
-        "q": "How long does it take to get started?",
-        "a": "2 minutes. Create your account, invite your employees and you're ready to go."
-      }
+      "label": "FAQ",
+      "title1": "Frequently asked",
+      "title2": "questions",
+      "intro": "Can’t find your answer? Contact us directly.",
+      "cta": "Write to us",
+      "items": [
+        {
+          "q": "Is the solution compliant with the Belgian 2027 law?",
+          "a": "Yes. Pointon meets all Belgian and CJEU legal requirements: objective recording, immutable audit trail, certified export."
+        },
+        {
+          "q": "How is the data stored?",
+          "a": "Data hosted in the EU (Vercel Postgres or self-hosted server). HTTPS encryption. GDPR compliant."
+        },
+        {
+          "q": "Can I export the data?",
+          "a": "Yes. CSV/PDF export digitally signed for legal inspection. Available on all plans."
+        },
+        {
+          "q": "What is the setup time?",
+          "a": "Setup in 5 minutes. Integration: 15 min. Immediate clock-in after account creation."
+        },
+        {
+          "q": "Is there a trial period?",
+          "a": "Unlimited Free plan with no commitment. Try for free, no card required."
+        },
+        {
+          "q": "What happens if I clock in offline?",
+          "a": "Your clock-in is saved locally and marked \"⏳ pending sync\". On reconnection, it automatically syncs to the server and becomes official. The presence board only counts synced clock-ins."
+        }
+      ]
     },
-    "cta": {
-      "title": "Ready to be compliant?",
-      "button": "Start for free"
+    "ctaSection": {
+      "lawLabel": "The Belgian law comes into force on 1 January 2027",
+      "unitDays": "days",
+      "unitHours": "hours",
+      "unitMinutes": "minutes",
+      "unitSeconds": "seconds",
+      "headline": "Is your system ready?",
+      "subtitle": "No card required. Setup in 2 minutes. Compliant from the first clock-in.",
+      "ctaPrimary": "Create my free account",
+      "ctaSecondary": "Talk to an expert"
+    },
+    "footer": {
+      "tagline": "The Belgian legal time clock for SMEs. Simple, mobile-first, 2027 compliant.",
+      "colProduct": "Product",
+      "colLegal": "Legal",
+      "colResources": "Resources",
+      "linkFeatures": "Features",
+      "linkPricing": "Pricing",
+      "linkFaq": "FAQ",
+      "linkPrivacy": "Privacy",
+      "linkTerms": "Terms",
+      "linkCompliance": "Compliance",
+      "linkSecurity": "Security",
+      "linkSupport": "Support",
+      "linkContact": "Contact",
+      "copyright": "© 2026 Pointon · Ced-IT · Belgium",
+      "compliance": "Belgium 2027 compliant · GDPR · HTTPS"
     }
   },
   "pricing": {
