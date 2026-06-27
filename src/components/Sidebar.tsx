@@ -422,7 +422,7 @@ export function Sidebar() {
         )}
 
         {!c && <ThemeToggle />}
-        {!c && <LocaleSwitcher collapsed={false} />}
+        {!c && <LocaleSwitcher collapsed={false} openUp />}
         {c && <LocaleSwitcher collapsed />}
 
         {session && (

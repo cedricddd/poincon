@@ -21,7 +21,7 @@ function IconGlobe() {
   )
 }
 
-export function LocaleSwitcher({ collapsed = false, onDark = false }: { collapsed?: boolean; onDark?: boolean }) {
+export function LocaleSwitcher({ collapsed = false, onDark = false, openUp = false }: { collapsed?: boolean; onDark?: boolean; openUp?: boolean }) {
   const locale = useLocale()
   const router = useRouter()
   const pathname = usePathname()
@@ -93,7 +93,7 @@ export function LocaleSwitcher({ collapsed = false, onDark = false }: { collapse
         </svg>
       </button>
       {open && (
-        <div style={{ top: '100%', marginTop: '4px' }} className="absolute left-0 right-0 bg-[var(--pp-surface)] border border-[var(--pp-line)] rounded-lg shadow-lg overflow-hidden z-50">
+        <div style={openUp ? { bottom: '100%', marginBottom: '4px' } : { top: '100%', marginTop: '4px' }} className="absolute left-0 right-0 bg-[var(--pp-surface)] border border-[var(--pp-line)] rounded-lg shadow-lg overflow-hidden z-50">
           {LOCALES.map(l => (
             <button
               key={l.code}
