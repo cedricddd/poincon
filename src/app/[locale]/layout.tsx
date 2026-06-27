@@ -124,7 +124,7 @@ export default async function LocaleLayout({
     notFound()
   }
 
-  const [session, hdrs, messages] = await Promise.all([auth(), headers(), getMessages()])
+  const [session, hdrs, messages] = await Promise.all([auth(), headers(), getMessages({ locale })])
   const nonce = hdrs.get('x-nonce') ?? undefined
 
   return (

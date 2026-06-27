@@ -48,7 +48,11 @@
       "via": "Aanmelden via Pointon",
       "errorInvalid": "Ongeldig e-mailadres of wachtwoord.",
       "errorBrute": "Te veel pogingen. Probeer het over 15 minuten opnieuw.",
-      "errorUnavailable": "Service tijdelijk niet beschikbaar."
+      "errorUnavailable": "Service tijdelijk niet beschikbaar.",
+      "subtitle": "Aanmelden bij uw account",
+      "submitting": "Bezig met aanmelden...",
+      "noAccount": "Nog geen account?",
+      "errorNetwork": "Verbindingsfout. Controleer uw gegevens."
     },
     "signup": {
       "title": "Account aanmaken",

@@ -48,7 +48,11 @@
       "via": "Anmelden über Pointon",
       "errorInvalid": "Ungültige E-Mail-Adresse oder Passwort.",
       "errorBrute": "Zu viele Versuche. Bitte versuchen Sie es in 15 Minuten erneut.",
-      "errorUnavailable": "Dienst vorübergehend nicht verfügbar."
+      "errorUnavailable": "Dienst vorübergehend nicht verfügbar.",
+      "subtitle": "Bei Ihrem Konto anmelden",
+      "submitting": "Anmeldung läuft...",
+      "noAccount": "Noch kein Konto?",
+      "errorNetwork": "Verbindungsfehler. Bitte überprüfen Sie Ihre Anmeldedaten."
     },
     "signup": {
       "title": "Konto erstellen",

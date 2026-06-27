@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { signIn } from 'next-auth/react'
-import Link from 'next/link'
 import Image from 'next/image'
+import { Link, useRouter } from '@/i18n/navigation'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 import { Logo } from '@/components/Logo'
@@ -16,6 +16,7 @@ interface CompanyInfo {
 }
 
 export default function LoginPage() {
+  const t = useTranslations('auth.login')
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -65,10 +66,10 @@ export default function LoginPage() {
       if (result?.error) {
         setError(
           result.error === 'CredentialsSignin'
-            ? 'Email ou mot de passe incorrect.'
+            ? t('errorInvalid')
             : result.error === 'TooManyAttempts'
-              ? 'Trop de tentatives. Réessayez dans 15 minutes.'
-              : 'Service temporairement indisponible. Réessayez dans quelques secondes.'
+              ? t('errorBrute')
+              : t('errorUnavailable')
         )
       } else if (result?.ok) {
         if (rememberMe) {
@@ -79,7 +80,7 @@ export default function LoginPage() {
         router.push('/app/clock')
       }
     } catch {
-      setError('Erreur de connexion. Vérifiez vos identifiants.')
+      setError(t('errorNetwork'))
     } finally {
       setLoading(false)
     }
@@ -113,7 +114,7 @@ export default function LoginPage() {
               )}
               <div>
                 <p className="text-xl font-semibold text-[var(--pp-ink)]">{company.name}</p>
-                <p className="text-sm text-[var(--pp-muted)]">Connexion via Pointon</p>
+                <p className="text-sm text-[var(--pp-muted)]">{t('via')}</p>
               </div>
             </div>
           ) : (
@@ -121,7 +122,7 @@ export default function LoginPage() {
               <Link href="/" aria-label="Pointon — accueil">
                 <Logo size="lg" useThemeVar />
               </Link>
-              <p className="text-[var(--pp-muted)] mt-2">Connexion à votre compte</p>
+              <p className="text-[var(--pp-muted)] mt-2">{t('subtitle')}</p>
             </>
           )}
         </div>
@@ -136,7 +137,7 @@ export default function LoginPage() {
 
             <div suppressHydrationWarning>
               <label htmlFor="email" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                Email
+                {t('emailLabel')}
               </label>
               <input
                 id="email"
@@ -144,7 +145,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={e => { setEmail(e.target.value); if (!e.target.value) setCompany(null) }}
                 onBlur={handleEmailBlur}
-                placeholder="vous@entreprise.be"
+                placeholder={t('emailPlaceholder')}
                 required
                 className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
               />
@@ -152,14 +153,14 @@ export default function LoginPage() {
 
             <div suppressHydrationWarning>
               <label htmlFor="password" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                Mot de passe
+                {t('passwordLabel')}
               </label>
               <input
                 id="password"
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder={t('passwordPlaceholder')}
                 required
                 className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
               />
@@ -174,32 +175,32 @@ export default function LoginPage() {
                 className="w-4 h-4 border border-[var(--pp-line)] rounded"
               />
               <label htmlFor="remember" className="ml-2 text-sm text-[var(--pp-muted)]">
-                Se souvenir de moi
+                {t('rememberMe')}
               </label>
             </div>
 
             <Button type="submit" disabled={loading} className="w-full" size="md">
-              {loading ? 'Connexion...' : 'Se connecter'}
+              {loading ? t('submitting') : t('submit')}
             </Button>
 
             <div className="text-center">
               <Link href="/forgot-password" className="text-sm text-[var(--pp-muted)] hover:text-[var(--pp-info)] hover:underline">
-                Mot de passe oublié ?
+                {t('forgotPassword')}
               </Link>
             </div>
           </form>
 
           <div className="mt-6 pt-6 border-t border-[var(--pp-line)] text-center text-sm text-[var(--pp-muted)]">
-            Pas de compte?{' '}
+            {t('noAccount')}{' '}
             <Link href="/signup" className="text-[var(--pp-info)] font-medium hover:underline">
-              S'inscrire gratuitement
+              {t('signup')}
             </Link>
           </div>
         </Card>
 
         <div className="text-center mt-4">
           <Link href="/" className="text-sm text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:underline transition-colors">
-            ← Retour à l'accueil
+            ← {t('backHome')}
           </Link>
         </div>
       </div>

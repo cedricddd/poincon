@@ -48,7 +48,11 @@
       "via": "Connexion via Pointon",
       "errorInvalid": "Email ou mot de passe incorrect.",
       "errorBrute": "Trop de tentatives. Réessayez dans 15 minutes.",
-      "errorUnavailable": "Service temporairement indisponible."
+      "errorUnavailable": "Service temporairement indisponible.",
+      "subtitle": "Connexion à votre compte",
+      "submitting": "Connexion...",
+      "noAccount": "Pas de compte ?",
+      "errorNetwork": "Erreur de connexion. Vérifiez vos identifiants."
     },
     "signup": {
       "title": "Créer un compte",

@@ -48,7 +48,11 @@
       "via": "Sign in via Pointon",
       "errorInvalid": "Incorrect email or password.",
       "errorBrute": "Too many attempts. Please try again in 15 minutes.",
-      "errorUnavailable": "Service temporarily unavailable."
+      "errorUnavailable": "Service temporarily unavailable.",
+      "subtitle": "Sign in to your account",
+      "submitting": "Signing in...",
+      "noAccount": "No account?",
+      "errorNetwork": "Connection error. Please check your credentials."
     },
     "signup": {
       "title": "Create an account",

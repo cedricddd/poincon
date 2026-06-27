@@ -56,6 +56,11 @@ export default auth((req) => {
     ? pathname.slice(locale.length + 1) || '/'
     : pathname
 
+  // next-intl reads the active locale from this request header (server components,
+  // getMessages/getTranslations). Our pass-through response below replaces next-intl's
+  // own response, so we must set it ourselves or messages fall back to defaultLocale.
+  requestHeaders.set('x-next-intl-locale', locale)
+
   // 2FA UI pages: allow through without full auth enforcement
   if (TWO_FA_UI_PATHS.some(p => pathWithoutLocale.startsWith(p))) {
     return withHeaders()
