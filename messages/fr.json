@@ -173,7 +173,26 @@
     "toastError": "Erreur de connexion",
     "modeOnSite": "Sur site",
     "modeRemote": "Télétravail",
-    "modeTravel": "Déplacement"
+    "modeTravel": "Déplacement",
+    "since": "depuis {time}",
+    "viaQr": "Via QR",
+    "noSite": "— Aucun —",
+    "pendingCount": "⏳ {count} en attente",
+    "sessionN": "Séance {n}",
+    "tabWeek": "Semaine",
+    "tabMonth": "Mois",
+    "toastClockOut": "Départ enregistré à {time} ✓",
+    "toastClockOutOffline": "Départ enregistré à {time} (⏳ en attente de sync)",
+    "errorValidation": "Erreur de validation",
+    "errorBreakStart": "Erreur lors du démarrage de la pause",
+    "errorBreakEnd": "Erreur lors de la fin de pause",
+    "weekdays": [
+      "Lun",
+      "Mar",
+      "Mer",
+      "Jeu",
+      "Ven"
+    ]
   },
   "kiosk": {
     "employee": "Je suis employé",

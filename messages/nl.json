@@ -173,7 +173,26 @@
     "toastError": "Verbindingsfout",
     "modeOnSite": "Op locatie",
     "modeRemote": "Thuiswerk",
-    "modeTravel": "Op reis"
+    "modeTravel": "Op reis",
+    "since": "sinds {time}",
+    "viaQr": "Via QR",
+    "noSite": "— Geen —",
+    "pendingCount": "⏳ {count} in afwachting",
+    "sessionN": "Sessie {n}",
+    "tabWeek": "Week",
+    "tabMonth": "Maand",
+    "toastClockOut": "Vertrek geregistreerd om {time} ✓",
+    "toastClockOutOffline": "Vertrek geregistreerd om {time} (⏳ wacht op sync)",
+    "errorValidation": "Validatiefout",
+    "errorBreakStart": "Fout bij het starten van de pauze",
+    "errorBreakEnd": "Fout bij het beëindigen van de pauze",
+    "weekdays": [
+      "Ma",
+      "Di",
+      "Wo",
+      "Do",
+      "Vr"
+    ]
   },
   "kiosk": {
     "employee": "Ik ben medewerker",

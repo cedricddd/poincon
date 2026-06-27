@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic'
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
+import { useTranslations, useLocale } from 'next-intl'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 import { MonthlyCalendar } from '@/components/MonthlyCalendar'
@@ -32,8 +33,20 @@ interface Site {
   name: string
 }
 
+const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
+
+// Canonical mode values are stored as-is; only labels are translated.
+const MODES = [
+  { value: 'Sur site', key: 'modeOnSite' },
+  { value: 'Télétravail', key: 'modeRemote' },
+  { value: 'Déplacement', key: 'modeTravel' },
+] as const
+
 export default function ClockPage() {
   const { data: session } = useSession()
+  const t = useTranslations('clock')
+  const locale = useLocale()
+  const bcp = BCP47[locale] ?? 'fr-BE'
   const { savePendingAction, getPendingActions } = useOfflineSync()
   const [isClockedIn, setIsClockedIn] = useState(false)
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set())
@@ -125,11 +138,11 @@ export default function ClockPage() {
             currentlyClocked = true
             lastRecordId = record.id
             lastArrivalDate = new Date(record.arrivalTime)
-            lastArrival = lastArrivalDate.toLocaleTimeString('fr-BE', {
+            lastArrival = lastArrivalDate.toLocaleTimeString(bcp, {
               hour: '2-digit', minute: '2-digit', second: '2-digit',
             })
           } else {
-            lastDeparture = new Date(record.departureTime).toLocaleTimeString('fr-BE', {
+            lastDeparture = new Date(record.departureTime).toLocaleTimeString(bcp, {
               hour: '2-digit', minute: '2-digit', second: '2-digit',
             })
           }
@@ -204,20 +217,25 @@ export default function ClockPage() {
 
   const formatTime = (date: Date | null) => {
     if (!date) return '--:--:--'
-    return date.toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    return date.toLocaleTimeString(bcp, { hour: '2-digit', minute: '2-digit', second: '2-digit' })
   }
 
   const formatDate = (date: Date | null) => {
     if (!date) return ''
-    return date.toLocaleDateString('fr-BE', { weekday: 'long', day: 'numeric', month: 'long' })
+    return date.toLocaleDateString(bcp, { weekday: 'long', day: 'numeric', month: 'long' })
       .replace(/^\w/, c => c.toUpperCase())
   }
 
   const greeting = () => {
     const h = currentTime?.getHours() ?? 12
-    if (h < 12) return 'Bonjour'
-    if (h < 18) return 'Bon après-midi'
-    return 'Bonsoir'
+    if (h < 12) return t('greetingMorning')
+    if (h < 18) return t('greetingAfternoon')
+    return t('greetingEvening')
+  }
+
+  const modeLabel = (value: string) => {
+    const m = MODES.find(x => x.value === value)
+    return m ? t(m.key) : value
   }
 
   const firstName = session?.user?.name?.split(' ')[0] ?? session?.user?.email?.split('@')[0] ?? ''
@@ -255,7 +273,7 @@ export default function ClockPage() {
             setIsClockedIn(true)
             setClockedInAt(currentTime)
             setTotalBreakSeconds(0)
-            showToast(`Arrivée enregistrée à ${timeStr} ✓`, 'success')
+            showToast(t('toastClockIn', { time: timeStr }), 'success')
             setSessions(prev => [...prev, record])
             return
           }
@@ -263,7 +281,7 @@ export default function ClockPage() {
           // 4xx = server validation error → show message, do NOT queue for offline retry
           if ((res as Response).status < 500) {
             const errorData = await (res as Response).json().catch(() => ({}))
-            showToast((errorData as any).error || 'Erreur de validation', 'error')
+            showToast((errorData as any).error || t('errorValidation'), 'error')
             return
           }
 
@@ -279,7 +297,7 @@ export default function ClockPage() {
         setIsClockedIn(true)
         setClockedInAt(currentTime)
         setTotalBreakSeconds(0)
-        showToast(`Arrivée enregistrée à ${timeStr} (⏳ en attente de sync)`, 'info')
+        showToast(t('toastClockInOffline', { time: timeStr }), 'info')
       } else {
         if (!currentRecordId || !arrivalTime) return
 
@@ -316,7 +334,7 @@ export default function ClockPage() {
             setActiveBreakId(null)
             setBreakStartedAt(null)
             setDailyHours(prev => prev + duration / 60)
-            showToast(`Départ enregistré à ${timeStr} ✓`, 'success')
+            showToast(t('toastClockOut', { time: timeStr }), 'success')
             setCurrentRecordId(null)
             setSessions(prev => prev.map(s => s.id === record.id ? record : s))
             return
@@ -325,7 +343,7 @@ export default function ClockPage() {
           // 4xx = server validation error → show message, do NOT queue for offline retry
           if ((res as Response).status < 500) {
             const errorData = await (res as Response).json().catch(() => ({}))
-            showToast((errorData as any).error || 'Erreur de validation', 'error')
+            showToast((errorData as any).error || t('errorValidation'), 'error')
             return
           }
 
@@ -344,11 +362,11 @@ export default function ClockPage() {
         setActiveBreakId(null)
         setBreakStartedAt(null)
         setDailyHours(prev => prev + duration / 60)
-        showToast(`Départ enregistré à ${timeStr} (⏳ en attente de sync)`, 'info')
+        showToast(t('toastClockOutOffline', { time: timeStr }), 'info')
         setCurrentRecordId(null)
       }
     } catch {
-      showToast('Erreur de connexion', 'error')
+      showToast(t('toastError'), 'error')
     } finally {
       setLoading(false)
     }
@@ -369,9 +387,9 @@ export default function ClockPage() {
           setIsOnBreak(true)
           setActiveBreakId(data.id)
           setBreakStartedAt(new Date(data.startedAt))
-          showToast('Pause repas démarrée', 'info')
+          showToast(t('toastBreakStart'), 'info')
         } else {
-          showToast('Erreur lors du démarrage de la pause', 'error')
+          showToast(t('errorBreakStart'), 'error')
         }
       } else {
         if (!activeBreakId) return
@@ -386,13 +404,13 @@ export default function ClockPage() {
           setActiveBreakId(null)
           setBreakStartedAt(null)
           setTotalBreakSeconds(prev => prev + (data.durationMinutes ?? 0) * 60)
-          showToast('Pause terminée, compteur repris', 'success')
+          showToast(t('toastBreakEnd'), 'success')
         } else {
-          showToast('Erreur lors de la fin de pause', 'error')
+          showToast(t('errorBreakEnd'), 'error')
         }
       }
     } catch {
-      showToast('Erreur de connexion', 'error')
+      showToast(t('toastError'), 'error')
     } finally {
       setBreakLoading(false)
     }
@@ -429,29 +447,29 @@ export default function ClockPage() {
               <div className="text-center p-4 rounded-2xl bg-amber-50 border border-amber-200">
                 <div className="flex items-center justify-center gap-2 mb-1">
                   <span className="w-2 h-2 rounded-full bg-amber-400" />
-                  <p className="text-xs font-semibold text-amber-600 uppercase tracking-widest">Pause repas</p>
+                  <p className="text-xs font-semibold text-amber-600 uppercase tracking-widest">{t('onBreak')}</p>
                 </div>
                 <p className="text-3xl font-mono font-bold text-amber-600 tabular-nums">{elapsed}</p>
-                <p className="text-xs text-amber-500 mt-1">compteur en pause</p>
+                <p className="text-xs text-amber-500 mt-1">{t('breakPaused')}</p>
               </div>
             ) : isClockedIn && elapsed ? (
               <div className="text-center p-4 rounded-2xl bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)]/20">
                 <div className="flex items-center justify-center gap-2 mb-1">
                   <span className="w-2 h-2 rounded-full bg-[var(--pp-pos)] animate-pulse" />
-                  <p className="text-xs font-semibold text-[var(--pp-pos)] uppercase tracking-widest">En cours</p>
+                  <p className="text-xs font-semibold text-[var(--pp-pos)] uppercase tracking-widest">{t('inProgress')}</p>
                 </div>
                 <p className="text-3xl font-mono font-bold text-[var(--pp-pos)] tabular-nums">{elapsed}</p>
-                <p className="text-xs text-[var(--pp-muted)] mt-1">depuis {arrivalTime}</p>
+                <p className="text-xs text-[var(--pp-muted)] mt-1">{t('since', { time: arrivalTime ?? '' })}</p>
               </div>
             ) : departureTime ? (
               <Card>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-xs text-[var(--pp-muted)] mb-1">Arrivée</p>
+                    <p className="text-xs text-[var(--pp-muted)] mb-1">{t('arrival')}</p>
                     <p className="text-xl font-bold text-[var(--pp-pos)]">{arrivalTime}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-[var(--pp-muted)] mb-1">Départ</p>
+                    <p className="text-xs text-[var(--pp-muted)] mb-1">{t('departure')}</p>
                     <p className="text-xl font-bold text-[var(--pp-neg)]">{departureTime}</p>
                   </div>
                 </div>
@@ -463,10 +481,10 @@ export default function ClockPage() {
               {sites.length > 0 && (
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
-                    <label className="text-[10px] font-semibold text-[var(--pp-muted)] uppercase tracking-wider">Site</label>
+                    <label className="text-[10px] font-semibold text-[var(--pp-muted)] uppercase tracking-wider">{t('site')}</label>
                     {isViaQr && (
                       <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[var(--pp-pos)]/15 text-[var(--pp-pos)] uppercase tracking-wide">
-                        Via QR
+                        {t('viaQr')}
                       </span>
                     )}
                   </div>
@@ -476,21 +494,19 @@ export default function ClockPage() {
                     disabled={isClockedIn}
                     className="w-full px-3 py-3 border border-[var(--pp-line)] rounded-xl bg-[var(--pp-bg)] text-[var(--pp-ink)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)] disabled:opacity-50 touch-manipulation"
                   >
-                    <option value="">— Aucun —</option>
+                    <option value="">{t('noSite')}</option>
                     {sites.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                   </select>
                 </div>
               )}
               <div>
-                <label className="block text-[10px] font-semibold text-[var(--pp-muted)] mb-1.5 uppercase tracking-wider">Mode</label>
+                <label className="block text-[10px] font-semibold text-[var(--pp-muted)] mb-1.5 uppercase tracking-wider">{t('mode')}</label>
                 <select
                   value={location}
                   onChange={e => setLocation(e.target.value)}
                   className="w-full px-3 py-3 border border-[var(--pp-line)] rounded-xl bg-[var(--pp-bg)] text-[var(--pp-ink)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)] touch-manipulation"
                 >
-                  <option>Sur site</option>
-                  <option>Télétravail</option>
-                  <option>Déplacement</option>
+                  {MODES.map(m => <option key={m.value} value={m.value}>{t(m.key)}</option>)}
                 </select>
               </div>
             </div>
@@ -509,7 +525,7 @@ export default function ClockPage() {
                   fontSize: 'clamp(1.25rem, 5vw, 1.875rem)',
                 }}
               >
-                {loading ? '…' : isClockedIn ? 'DÉPART ✕' : 'ARRIVÉE ✓'}
+                {loading ? '…' : isClockedIn ? t('clockOut') : t('clockIn')}
               </Button>
             </div>
 
@@ -524,7 +540,7 @@ export default function ClockPage() {
                     : 'bg-[var(--pp-bg2)] border-[var(--pp-line)] text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)]/50'
                 } disabled:opacity-50`}
               >
-                {breakLoading ? '…' : isOnBreak ? '▶ Terminer la pause' : '⏸ Pause repas'}
+                {breakLoading ? '…' : isOnBreak ? t('endBreak') : t('startBreak')}
               </button>
             )}
           </div>
@@ -536,40 +552,40 @@ export default function ClockPage() {
             <Card>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1">Pointé aujourd'hui</p>
+                  <p className="text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1">{t('clockedToday')}</p>
                   <div className="flex items-baseline gap-2">
                     <div className="text-3xl font-bold text-[var(--pp-ink)]">
                       {Math.floor(dailyHours)}h{String(Math.round((dailyHours % 1) * 60)).padStart(2, '0')}
                     </div>
                     {pendingIds.size > 0 && (
                       <span className="text-xs px-2 py-1 rounded-full font-semibold bg-amber-100 text-amber-700">
-                        ⏳ {pendingIds.size} en attente
+                        {t('pendingCount', { count: pendingIds.size })}
                       </span>
                     )}
                   </div>
                 </div>
                 <span className="text-xs px-2.5 py-1 rounded-full font-medium" style={{ background: 'var(--pp-pos)18', color: 'var(--pp-pos)' }}>
-                  {location}
+                  {modeLabel(location)}
                 </span>
               </div>
             </Card>
 
             {sessions.length > 0 && (
               <Card>
-                <h3 className="text-sm font-semibold text-[var(--pp-ink)] mb-3">Séances du jour</h3>
+                <h3 className="text-sm font-semibold text-[var(--pp-ink)] mb-3">{t('todaySessions')}</h3>
                 <div className="space-y-3">
                   {sessions.map((session, idx) => {
-                    const arr = new Date(session.arrivalTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
+                    const arr = new Date(session.arrivalTime).toLocaleTimeString(bcp, { hour: '2-digit', minute: '2-digit' })
                     const dep = session.departureTime
-                      ? new Date(session.departureTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
+                      ? new Date(session.departureTime).toLocaleTimeString(bcp, { hour: '2-digit', minute: '2-digit' })
                       : null
                     const durH = (session.duration ?? 0) / 60
                     return (
                       <div key={session.id} className="flex justify-between items-center pb-3 border-b border-[var(--pp-line)] last:border-b-0 last:pb-0">
                         <div>
-                          <p className="text-xs text-[var(--pp-muted)]">Séance {idx + 1}</p>
+                          <p className="text-xs text-[var(--pp-muted)]">{t('sessionN', { n: idx + 1 })}</p>
                           <p className="text-sm font-medium text-[var(--pp-ink)]">
-                            {arr} → {dep ?? <span className="text-[var(--pp-pos)] animate-pulse">En cours</span>}
+                            {arr} → {dep ?? <span className="text-[var(--pp-pos)] animate-pulse">{t('inProgress')}</span>}
                           </p>
                         </div>
                         {dep && (
@@ -598,16 +614,17 @@ export default function ClockPage() {
                       : 'bg-[var(--pp-bg2)] text-[var(--pp-muted)] hover:bg-[var(--pp-line)]'
                   }`}
                 >
-                  {mode === 'week' ? 'Semaine' : 'Mois'}
+                  {mode === 'week' ? t('tabWeek') : t('tabMonth')}
                 </button>
               ))}
             </div>
 
             {viewMode === 'week' && (
               <Card>
-                <h3 className="text-sm font-semibold text-[var(--pp-ink)] mb-4">Semaine en cours</h3>
+                <h3 className="text-sm font-semibold text-[var(--pp-ink)] mb-4">{t('currentWeek')}</h3>
                 <div className="flex items-end gap-2 h-24">
                   {weeklyRecords.map((record, idx) => {
+                    const weekdayLabels = t.raw('weekdays') as string[]
                     const pct = record.hours > 0 ? (record.hours / maxHours) * 100 : 0
                     const isToday = idx === new Date().getDay() - 1
                     return (
@@ -630,7 +647,7 @@ export default function ClockPage() {
                           />
                         </div>
                         <span className={`text-[10px] font-medium ${isToday ? 'text-[var(--pp-pos)]' : 'text-[var(--pp-muted)]'}`}>
-                          {record.day}
+                          {weekdayLabels[idx] ?? record.day}
                         </span>
                       </div>
                     )

@@ -173,7 +173,26 @@
     "toastError": "Verbindungsfehler",
     "modeOnSite": "Vor Ort",
     "modeRemote": "Homeoffice",
-    "modeTravel": "Dienstreise"
+    "modeTravel": "Dienstreise",
+    "since": "seit {time}",
+    "viaQr": "Via QR",
+    "noSite": "— Keine —",
+    "pendingCount": "⏳ {count} ausstehend",
+    "sessionN": "Sitzung {n}",
+    "tabWeek": "Woche",
+    "tabMonth": "Monat",
+    "toastClockOut": "Abgang um {time} erfasst ✓",
+    "toastClockOutOffline": "Abgang um {time} erfasst (⏳ Sync ausstehend)",
+    "errorValidation": "Validierungsfehler",
+    "errorBreakStart": "Fehler beim Starten der Pause",
+    "errorBreakEnd": "Fehler beim Beenden der Pause",
+    "weekdays": [
+      "Mo",
+      "Di",
+      "Mi",
+      "Do",
+      "Fr"
+    ]
   },
   "kiosk": {
     "employee": "Ich bin Mitarbeiter",
