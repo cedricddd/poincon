@@ -34,9 +34,9 @@ export function Header() {
     const onScroll = () => setScrolled(window.scrollY > 8)
     window.addEventListener('scroll', onScroll, { passive: true })
 
+    // Dark is the default theme — light only when the user explicitly chose it.
     const stored = localStorage.getItem('pp-theme')
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    setDark(stored === 'dark' || (!stored && prefersDark))
+    setDark(stored !== 'light')
 
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
@@ -56,6 +56,20 @@ export function Header() {
     { href: '#faq', label: t('navFaq') },
   ]
 
+  // The header overlays the always-dark hero until scrolled → force light text there,
+  // otherwise the muted/ink theme colors are unreadable (esp. in light mode).
+  const overHero = !scrolled
+  const linkCls = overHero
+    ? 'text-white/70 hover:text-white'
+    : 'text-[var(--pp-muted)] hover:text-[var(--pp-ink)]'
+  const iconBtnCls = overHero
+    ? 'text-white/80 hover:text-white hover:bg-white/10'
+    : 'text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)]'
+  // Mobile top-bar icons: light over the hero, but theme colors once the menu panel (solid) is open.
+  const mobileIconCls = (overHero && !menuOpen)
+    ? 'text-white/80 hover:text-white hover:bg-white/10'
+    : 'text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)]'
+
   return (
     <header
       className={[
@@ -74,7 +88,7 @@ export function Header() {
         {/* Nav desktop */}
         <nav className="hidden md:flex items-center gap-8">
           {navLinks.map(l => (
-            <a key={l.href} href={l.href} className="text-sm text-[var(--pp-muted)] hover:text-[var(--pp-ink)] transition-colors">
+            <a key={l.href} href={l.href} className={`text-sm transition-colors ${linkCls}`}>
               {l.label}
             </a>
           ))}
@@ -83,16 +97,16 @@ export function Header() {
         {/* CTAs desktop */}
         <div className="hidden md:flex items-center gap-3">
           <div className="w-36">
-            <LocaleSwitcher />
+            <LocaleSwitcher onDark={overHero} />
           </div>
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-lg text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)] transition-colors"
+            className={`p-2 rounded-lg transition-colors ${iconBtnCls}`}
             aria-label={dark ? t('themeLight') : t('themeDark')}
           >
             {dark ? <SunIcon /> : <MoonIcon />}
           </button>
-          <Link href="/login" className="text-sm text-[var(--pp-muted)] hover:text-[var(--pp-ink)] transition-colors font-medium">
+          <Link href="/login" className={`text-sm font-medium transition-colors ${linkCls}`}>
             {t('login')}
           </Link>
           <Link href="/login">
@@ -104,14 +118,14 @@ export function Header() {
         <div className="md:hidden flex items-center gap-1">
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-lg text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)] transition-colors"
+            className={`p-2 rounded-lg transition-colors ${mobileIconCls}`}
             aria-label={dark ? t('themeLight') : t('themeDark')}
           >
             {dark ? <SunIcon /> : <MoonIcon />}
           </button>
           <button
             onClick={() => setMenuOpen(v => !v)}
-            className="p-2 rounded-lg text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)] transition-colors"
+            className={`p-2 rounded-lg transition-colors ${mobileIconCls}`}
             aria-label={t('menu')}
           >
             {menuOpen ? (

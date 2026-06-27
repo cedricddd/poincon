@@ -21,7 +21,7 @@ function IconGlobe() {
   )
 }
 
-export function LocaleSwitcher({ collapsed = false }: { collapsed?: boolean }) {
+export function LocaleSwitcher({ collapsed = false, onDark = false }: { collapsed?: boolean; onDark?: boolean }) {
   const locale = useLocale()
   const router = useRouter()
   const pathname = usePathname()
@@ -80,7 +80,11 @@ export function LocaleSwitcher({ collapsed = false }: { collapsed?: boolean }) {
       <button
         onClick={() => setOpen(v => !v)}
         disabled={isPending}
-        className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)]/40 transition text-xs disabled:opacity-50"
+        className={`w-full flex items-center gap-2 px-2 py-2 rounded-lg transition text-xs disabled:opacity-50 ${
+          onDark
+            ? 'text-white/80 hover:text-white hover:bg-white/10'
+            : 'text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)]/40'
+        }`}
       >
         <IconGlobe />
         <span className="flex-1 text-left">{current.flag} {current.label}</span>

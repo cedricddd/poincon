@@ -5,6 +5,7 @@
 :root {
   --pp-bg: #ffffff;
   --pp-bg2: #f9fafb;
+  --pp-surface: #ffffff;
   --pp-ink: #1a1a1a;
   --pp-muted: #6b7280;
   --pp-line: #e5e7eb;
@@ -20,6 +21,7 @@
   :root:not(.light) {
     --pp-bg: #111827;
     --pp-bg2: #1f2937;
+    --pp-surface: #1f2937;
     --pp-ink: #f9fafb;
     --pp-muted: #9ca3af;
     --pp-line: #374151;
@@ -29,6 +31,7 @@
 .dark {
   --pp-bg: #111827;
   --pp-bg2: #1f2937;
+  --pp-surface: #1f2937;
   --pp-ink: #f9fafb;
   --pp-muted: #9ca3af;
   --pp-line: #374151;
