@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Syne, DM_Sans } from 'next/font/google'
-import { headers } from 'next/headers'
+import { headers, cookies } from 'next/headers'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
@@ -124,21 +124,24 @@ export default async function LocaleLayout({
     notFound()
   }
 
-  const [session, hdrs, messages] = await Promise.all([auth(), headers(), getMessages({ locale })])
+  const [session, hdrs, messages, cookieStore] = await Promise.all([
+    auth(), headers(), getMessages({ locale }), cookies(),
+  ])
   const nonce = hdrs.get('x-nonce') ?? undefined
+  // Theme is applied server-side from a cookie (default: dark) so the <html>
+  // class survives locale navigation — it is no longer clobbered by re-renders.
+  const themeClass = cookieStore.get('pp-theme')?.value === 'light' ? 'light' : 'dark'
 
   return (
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`${syne.variable} ${dmSans.variable}`}
+      className={`${syne.variable} ${dmSans.variable} ${themeClass}`}
     >
       <head>
         <meta charSet="utf-8" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/icon-192.svg" />
-        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
-        <script src="/theme-init.js" nonce={nonce} suppressHydrationWarning />
         <script
           nonce={nonce}
           suppressHydrationWarning

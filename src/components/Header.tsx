@@ -34,9 +34,9 @@ export function Header() {
     const onScroll = () => setScrolled(window.scrollY > 8)
     window.addEventListener('scroll', onScroll, { passive: true })
 
-    // Dark is the default theme — light only when the user explicitly chose it.
-    const stored = localStorage.getItem('pp-theme')
-    setDark(stored !== 'light')
+    // The theme class is applied server-side from a cookie (default dark);
+    // mirror whatever is actually on <html>.
+    setDark(document.documentElement.classList.contains('dark'))
 
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
@@ -46,6 +46,8 @@ export function Header() {
     setDark(next)
     document.documentElement.classList.toggle('dark', next)
     document.documentElement.classList.toggle('light', !next)
+    // Persist via cookie so the server renders the right theme on every navigation.
+    document.cookie = `pp-theme=${next ? 'dark' : 'light'}; path=/; max-age=31536000; samesite=lax`
     localStorage.setItem('pp-theme', next ? 'dark' : 'light')
   }
 
