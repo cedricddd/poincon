@@ -3,11 +3,14 @@
 export const dynamic = 'force-dynamic'
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
+import { useTranslations } from 'next-intl'
 import { Card } from '@/components/Card'
 import { Button } from '@/components/Button'
 
 export default function ProfilePage() {
   const { data: session } = useSession()
+  const t = useTranslations('profile')
+  const tc = useTranslations('common')
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -16,9 +19,10 @@ export default function ProfilePage() {
   const [success, setSuccess] = useState('')
 
   const roleLabel: Record<string, string> = {
-    EMPLOYEE: 'Employé',
-    MANAGER: 'Manager',
-    ADMIN: 'Administrateur',
+    EMPLOYEE: tc('roleEmployee'),
+    MANAGER: tc('roleManager'),
+    ADMIN: tc('roleAdmin'),
+    SUPER_ADMIN: tc('roleSuperAdmin'),
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,7 +30,7 @@ export default function ProfilePage() {
     setError('')
     setSuccess('')
     if (newPassword !== confirmPassword) {
-      setError('Les nouveaux mots de passe ne correspondent pas')
+      setError(t('errMismatch'))
       return
     }
     setLoading(true)
@@ -38,15 +42,15 @@ export default function ProfilePage() {
       })
       const data = await res.json()
       if (!res.ok) {
-        setError(data.error || 'Erreur lors de la mise à jour')
+        setError(data.error || t('errUpdate'))
       } else {
-        setSuccess('Mot de passe mis à jour avec succès')
+        setSuccess(t('success'))
         setCurrentPassword('')
         setNewPassword('')
         setConfirmPassword('')
       }
     } catch {
-      setError('Erreur réseau. Veuillez réessayer.')
+      setError(t('errNetwork'))
     } finally {
       setLoading(false)
     }
@@ -56,11 +60,11 @@ export default function ProfilePage() {
 
   return (
     <div className="p-6 max-w-xl">
-      <h1 className="text-2xl font-bold text-[var(--pp-ink)] mb-6">Mon profil</h1>
+      <h1 className="text-2xl font-bold text-[var(--pp-ink)] mb-6">{t('title')}</h1>
 
       <Card>
         <div className="mb-6 pb-6 border-b border-[var(--pp-line)]">
-          <p className="text-sm text-[var(--pp-muted)] mb-1">Compte connecté</p>
+          <p className="text-sm text-[var(--pp-muted)] mb-1">{t('account')}</p>
           <p className="font-medium text-[var(--pp-ink)]">{session?.user?.name}</p>
           <p className="text-sm text-[var(--pp-muted)]">{session?.user?.email}</p>
           {role && (
@@ -71,7 +75,7 @@ export default function ProfilePage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <h2 className="text-sm font-semibold text-[var(--pp-ink)]">Changer le mot de passe</h2>
+          <h2 className="text-sm font-semibold text-[var(--pp-ink)]">{t('changePassword')}</h2>
 
           {error && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">{error}</div>
@@ -81,7 +85,7 @@ export default function ProfilePage() {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-2">Mot de passe actuel</label>
+            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-2">{t('currentPassword')}</label>
             <input
               type="password"
               value={currentPassword}
@@ -93,7 +97,7 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-2">Nouveau mot de passe</label>
+            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-2">{t('newPassword')}</label>
             <input
               type="password"
               value={newPassword}
@@ -102,11 +106,11 @@ export default function ProfilePage() {
               required
               className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
             />
-            <p className="text-xs text-[var(--pp-muted)] mt-1">Minimum 8 caractères</p>
+            <p className="text-xs text-[var(--pp-muted)] mt-1">{t('minChars')}</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-2">Confirmer le nouveau mot de passe</label>
+            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-2">{t('confirmPassword')}</label>
             <input
               type="password"
               value={confirmPassword}
@@ -118,7 +122,7 @@ export default function ProfilePage() {
           </div>
 
           <Button type="submit" disabled={loading} size="md">
-            {loading ? 'Mise à jour…' : 'Mettre à jour le mot de passe'}
+            {loading ? t('submitting') : t('submit')}
           </Button>
         </form>
       </Card>

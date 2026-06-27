@@ -2,7 +2,10 @@
 
 export const dynamic = 'force-dynamic'
 import { useEffect, useState, useCallback } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import { Card } from '@/components/Card'
+
+const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
 
 type ClockRecord = {
   id: string
@@ -33,12 +36,12 @@ function fmt(minutes: number) {
   return m > 0 ? `${h}h${String(m).padStart(2, '0')}` : `${h}h`
 }
 
-function fmtTime(iso: string) {
-  return new Date(iso).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
+function fmtTime(iso: string, locale: string) {
+  return new Date(iso).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
 }
 
-function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString('fr-BE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+function fmtDate(iso: string, locale: string) {
+  return new Date(iso).toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
 // Default filter: current month
@@ -53,6 +56,9 @@ function defaultTo() {
 }
 
 export default function ReportsPage() {
+  const t = useTranslations('myReports')
+  const locale = useLocale()
+  const bcp = BCP47[locale] ?? 'fr-BE'
   const [records, setRecords] = useState<ClockRecord[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
   const [balance, setBalance] = useState<Balance | null>(null)
@@ -101,15 +107,15 @@ export default function ReportsPage() {
   const monthLabel = (offset: number) => {
     const d = new Date()
     d.setMonth(d.getMonth() + offset)
-    return d.toLocaleDateString('fr-BE', { month: 'long', year: 'numeric' })
+    return d.toLocaleDateString(bcp, { month: 'long', year: 'numeric' })
   }
 
   return (
     <div className="min-h-screen bg-[var(--pp-bg)] pb-20">
       <header className="sticky top-0 border-b border-[var(--pp-line)] bg-[var(--pp-bg)]/95 backdrop-blur py-4 z-10">
         <div className="max-w-3xl mx-auto px-4">
-          <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Mes rapports</h1>
-          <p className="text-sm text-[var(--pp-muted)] mt-0.5">Historique de pointage et solde</p>
+          <h1 className="text-2xl font-bold text-[var(--pp-ink)]">{t('title')}</h1>
+          <p className="text-sm text-[var(--pp-muted)] mt-0.5">{t('subtitle')}</p>
         </div>
       </header>
 
@@ -119,11 +125,11 @@ export default function ReportsPage() {
         {balance && (
           <div className="grid grid-cols-2 gap-3">
             {[
-              { label: 'Heures sup accumulées', value: `${balance.overtimeHours.toFixed(1)}h`, color: 'text-[var(--pp-pos)]' },
-              { label: 'Récupération consommée', value: `${balance.rttHours.toFixed(1)}h`, color: 'text-[var(--pp-neg)]' },
-              { label: 'Jours de congé', value: `${balance.daysOff}j`, color: 'text-[var(--pp-muted)]' },
+              { label: t('overtimeAccrued'), value: `${balance.overtimeHours.toFixed(1)}h`, color: 'text-[var(--pp-pos)]' },
+              { label: t('rttConsumed'), value: `${balance.rttHours.toFixed(1)}h`, color: 'text-[var(--pp-neg)]' },
+              { label: t('daysOff'), value: `${balance.daysOff}${t('daysSuffix')}`, color: 'text-[var(--pp-muted)]' },
               {
-                label: 'Solde net',
+                label: t('netBalance'),
                 value: `${balance.balance >= 0 ? '+' : ''}${balance.balance.toFixed(1)}h`,
                 color: balance.balance >= 0 ? 'text-[var(--pp-pos)]' : 'text-[var(--pp-neg)]',
               },
@@ -151,7 +157,7 @@ export default function ReportsPage() {
           </div>
           <div className="flex flex-wrap gap-3 items-end">
             <div>
-              <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Du</label>
+              <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">{t('from')}</label>
               <input
                 type="date"
                 value={from}
@@ -160,7 +166,7 @@ export default function ReportsPage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Au</label>
+              <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">{t('to')}</label>
               <input
                 type="date"
                 value={to}
@@ -172,7 +178,7 @@ export default function ReportsPage() {
               onClick={apply}
               className="px-4 py-2 bg-[var(--pp-info)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition"
             >
-              Filtrer
+              {t('filter')}
             </button>
           </div>
         </Card>
@@ -181,9 +187,9 @@ export default function ReportsPage() {
         {stats && !loading && (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {[
-              { label: 'Total heures', value: fmt(stats.totalMinutes) },
-              { label: 'Moyenne / jour', value: fmt(stats.avgMinutes) },
-              { label: 'Sans départ', value: String(stats.incompleteCount) },
+              { label: t('totalHours'), value: fmt(stats.totalMinutes) },
+              { label: t('avgPerDay'), value: fmt(stats.avgMinutes) },
+              { label: t('noDeparture'), value: String(stats.incompleteCount) },
             ].map(s => (
               <Card key={s.label}>
                 <p className="text-xs text-[var(--pp-muted)] mb-1">{s.label}</p>
@@ -196,19 +202,19 @@ export default function ReportsPage() {
         {/* Table */}
         <Card>
           {loading ? (
-            <p className="text-center text-[var(--pp-muted)] text-sm py-10">Chargement…</p>
+            <p className="text-center text-[var(--pp-muted)] text-sm py-10">{t('loading')}</p>
           ) : records.length === 0 ? (
-            <p className="text-center text-[var(--pp-muted)] text-sm py-10 italic">Aucun pointage sur cette période.</p>
+            <p className="text-center text-[var(--pp-muted)] text-sm py-10 italic">{t('empty')}</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[var(--pp-line)] text-left text-[var(--pp-muted)]">
-                    <th className="pb-3 pr-4 font-medium">Date</th>
-                    <th className="pb-3 pr-4 font-medium">Arrivée</th>
-                    <th className="pb-3 pr-4 font-medium">Départ</th>
-                    <th className="pb-3 pr-4 font-medium">Durée</th>
-                    <th className="pb-3 font-medium hidden sm:table-cell">Lieu</th>
+                    <th className="pb-3 pr-4 font-medium">{t('date')}</th>
+                    <th className="pb-3 pr-4 font-medium">{t('arrival')}</th>
+                    <th className="pb-3 pr-4 font-medium">{t('departure')}</th>
+                    <th className="pb-3 pr-4 font-medium">{t('duration')}</th>
+                    <th className="pb-3 font-medium hidden sm:table-cell">{t('location')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--pp-line)]">
@@ -216,12 +222,12 @@ export default function ReportsPage() {
                     const incomplete = !r.departureTime
                     return (
                       <tr key={r.id} className={incomplete ? 'opacity-60' : ''}>
-                        <td className="py-3 pr-4 text-[var(--pp-ink)] font-medium">{fmtDate(r.date)}</td>
-                        <td className="py-3 pr-4 text-[var(--pp-ink)]">{fmtTime(r.arrivalTime)}</td>
+                        <td className="py-3 pr-4 text-[var(--pp-ink)] font-medium">{fmtDate(r.date, bcp)}</td>
+                        <td className="py-3 pr-4 text-[var(--pp-ink)]">{fmtTime(r.arrivalTime, bcp)}</td>
                         <td className="py-3 pr-4">
                           {r.departureTime
-                            ? <span className="text-[var(--pp-ink)]">{fmtTime(r.departureTime)}</span>
-                            : <span className="text-xs italic text-[var(--pp-neg)]">Non pointé</span>
+                            ? <span className="text-[var(--pp-ink)]">{fmtTime(r.departureTime, bcp)}</span>
+                            : <span className="text-xs italic text-[var(--pp-neg)]">{t('notClocked')}</span>
                           }
                         </td>
                         <td className="py-3 pr-4">
@@ -241,21 +247,21 @@ export default function ReportsPage() {
 
           {pages > 1 && (
             <div className="flex items-center justify-between mt-4 pt-4 border-t border-[var(--pp-line)]">
-              <p className="text-xs text-[var(--pp-muted)]">Page {page} / {pages} — {total} pointages</p>
+              <p className="text-xs text-[var(--pp-muted)]">{t('pageInfo', { page, pages, total })}</p>
               <div className="flex gap-2">
                 <button
                   disabled={page <= 1}
                   onClick={() => setPage(p => p - 1)}
                   className="px-3 py-1.5 text-xs border border-[var(--pp-line)] rounded-lg disabled:opacity-40 hover:bg-[var(--pp-line)]/30 transition"
                 >
-                  ← Précédent
+                  {t('prev')}
                 </button>
                 <button
                   disabled={page >= pages}
                   onClick={() => setPage(p => p + 1)}
                   className="px-3 py-1.5 text-xs border border-[var(--pp-line)] rounded-lg disabled:opacity-40 hover:bg-[var(--pp-line)]/30 transition"
                 >
-                  Suivant →
+                  {t('next')}
                 </button>
               </div>
             </div>

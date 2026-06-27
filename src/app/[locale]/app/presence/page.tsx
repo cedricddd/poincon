@@ -2,7 +2,10 @@
 
 export const dynamic = 'force-dynamic'
 import { useEffect, useState, useCallback } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import { Card } from '@/components/Card'
+
+const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
 
 type Group = {
   site: { id: string; name: string } | null
@@ -15,11 +18,14 @@ type Data = {
   asOf: string
 }
 
-function fmtAsOf(iso: string) {
-  return new Date(iso).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+function fmtAsOf(iso: string, locale: string) {
+  return new Date(iso).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit' })
 }
 
 export default function EmployeePresencePage() {
+  const t = useTranslations('presence')
+  const locale = useLocale()
+  const bcp = BCP47[locale] ?? 'fr-BE'
   const [data, setData] = useState<Data | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -33,7 +39,7 @@ export default function EmployeePresencePage() {
       setData(await res.json())
     } else {
       const body = await res.json().catch(() => ({}))
-      setError(body.error ?? 'Erreur de chargement')
+      setError(body.error ?? t('loadError'))
     }
     setLoading(false)
   }, [])
@@ -50,7 +56,7 @@ export default function EmployeePresencePage() {
         <Card>
           <div className="py-12 text-center">
             <div className="text-4xl mb-3">🔒</div>
-            <p className="text-[var(--pp-ink)] font-medium">Accès non disponible</p>
+            <p className="text-[var(--pp-ink)] font-medium">{t('accessDenied')}</p>
             <p className="text-[var(--pp-muted)] text-sm mt-1">{error}</p>
           </div>
         </Card>
@@ -62,26 +68,24 @@ export default function EmployeePresencePage() {
     <div className="p-6 md:p-8">
       <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Qui est là aujourd'hui ?</h1>
-          <p className="text-[var(--pp-muted)] text-sm mt-1">
-            Présences par site — mise à jour toutes les 60 s
-          </p>
+          <h1 className="text-2xl font-bold text-[var(--pp-ink)]">{t('title')}</h1>
+          <p className="text-[var(--pp-muted)] text-sm mt-1">{t('subtitle')}</p>
         </div>
         {data && (
           <span className="text-xs text-[var(--pp-muted)]">
-            Actualisé à {fmtAsOf(data.asOf)}
+            {t('refreshedAt', { time: fmtAsOf(data.asOf, bcp) })}
           </span>
         )}
       </div>
 
       {loading ? (
-        <p className="text-[var(--pp-muted)] text-sm">Chargement…</p>
+        <p className="text-[var(--pp-muted)] text-sm">{t('loading')}</p>
       ) : !data || data.total === 0 ? (
         <Card>
           <div className="py-12 text-center">
             <div className="text-4xl mb-3">✅</div>
-            <p className="text-[var(--pp-ink)] font-medium">Aucune présence en cours</p>
-            <p className="text-[var(--pp-muted)] text-sm mt-1">Personne n'est actuellement pointé.</p>
+            <p className="text-[var(--pp-ink)] font-medium">{t('noPresence')}</p>
+            <p className="text-[var(--pp-muted)] text-sm mt-1">{t('noPresenceHint')}</p>
           </div>
         </Card>
       ) : (
@@ -89,7 +93,7 @@ export default function EmployeePresencePage() {
           <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)]/30">
             <span className="w-2.5 h-2.5 rounded-full bg-[var(--pp-pos)] animate-pulse" />
             <span className="text-sm font-semibold text-[var(--pp-pos)]">
-              {data.total} personne{data.total > 1 ? 's' : ''} présente{data.total > 1 ? 's' : ''}
+              {t('present', { count: data.total })}
             </span>
           </div>
 
@@ -104,7 +108,7 @@ export default function EmployeePresencePage() {
                     : 'border-[var(--pp-line)] text-[var(--pp-muted)] hover:text-[var(--pp-ink)]'
                 }`}
               >
-                Tous ({data.total})
+                {t('allLabel')} ({data.total})
               </button>
               {data.groups.map((g, idx) => {
                 const key = g.site?.id ?? '__none__'
@@ -118,7 +122,7 @@ export default function EmployeePresencePage() {
                         : 'border-[var(--pp-line)] text-[var(--pp-muted)] hover:text-[var(--pp-ink)]'
                     }`}
                   >
-                    {g.site?.name ?? 'Sans site'} ({g.people.length})
+                    {g.site?.name ?? t('noSite')} ({g.people.length})
                   </button>
                 )
               })}
@@ -136,7 +140,7 @@ export default function EmployeePresencePage() {
                         🏢
                       </div>
                       <h2 className="font-semibold text-[var(--pp-ink)]">
-                        {group.site?.name ?? 'Site non renseigné'}
+                        {group.site?.name ?? t('siteNotSet')}
                       </h2>
                     </div>
                     <span className="px-3 py-1 rounded-full bg-[var(--pp-pos)]/10 text-[var(--pp-pos)] text-sm font-bold">
@@ -152,7 +156,7 @@ export default function EmployeePresencePage() {
                       >
                         <span className={`w-2 h-2 rounded-full shrink-0 ${p.onBreak ? 'bg-amber-400' : 'bg-[var(--pp-pos)]'}`} />
                         <span className="text-sm font-medium text-[var(--pp-ink)]">{p.name}</span>
-                        {p.onBreak && <span className="text-xs text-amber-500">En pause</span>}
+                        {p.onBreak && <span className="text-xs text-amber-500">{t('onBreak')}</span>}
                       </div>
                     ))}
                   </div>
