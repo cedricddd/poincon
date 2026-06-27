@@ -2,7 +2,10 @@
 
 export const dynamic = 'force-dynamic'
 import { useEffect, useState } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import { AdminRequestRow } from '@/components/AdminRequestRow'
+
+const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
 
 interface DetectedOvertime {
   id: string
@@ -17,6 +20,9 @@ interface DetectedOvertime {
 }
 
 export default function OvertimesPage() {
+  const t = useTranslations('adminRequests')
+  const locale = useLocale()
+  const bcp = BCP47[locale] ?? 'fr-BE'
   const [overtimes, setOvertimes] = useState<DetectedOvertime[]>([])
   const [loading, setLoading] = useState(true)
   const [actionInProgress, setActionInProgress] = useState<string | null>(null)
@@ -62,18 +68,18 @@ export default function OvertimesPage() {
         await fetchRequests()
       } else {
         const error = await res.json()
-        alert(`Erreur: ${error.error}`)
+        alert(t('errorPrefix', { msg: error.error }))
       }
     } catch (error) {
       console.error('Action failed:', error)
-      alert('Action échouée')
+      alert(t('actionFailed'))
     } finally {
       setActionInProgress(null)
     }
   }
 
   if (loading) {
-    return <div className="p-8 text-center">Chargement...</div>
+    return <div className="p-8 text-center">{t('loading')}</div>
   }
 
   const pending = overtimes.filter(o => o.status === 'PENDING')
@@ -81,24 +87,24 @@ export default function OvertimesPage() {
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold mb-8">
-        Heures Supplémentaires ({pending.length} en attente)
+        {t('overtimesTitle')} ({t('pending', { count: pending.length })})
       </h1>
       <div className="overflow-x-auto bg-[var(--pp-bg2)] rounded-lg border border-[var(--pp-line)]">
         <table className="w-full text-left">
           <thead className="bg-[var(--pp-bg)] border-b border-[var(--pp-line)]">
             <tr>
-              <th className="px-4 py-3 text-[var(--pp-muted)] text-sm font-medium">Type</th>
-              <th className="px-4 py-3 text-[var(--pp-muted)] text-sm font-medium">Employé</th>
-              <th className="px-4 py-3 text-[var(--pp-muted)] text-sm font-medium">Détails</th>
-              <th className="px-4 py-3 text-[var(--pp-muted)] text-sm font-medium">Statut</th>
-              <th className="px-4 py-3 text-[var(--pp-muted)] text-sm font-medium">Actions</th>
+              <th className="px-4 py-3 text-[var(--pp-muted)] text-sm font-medium">{t('colType')}</th>
+              <th className="px-4 py-3 text-[var(--pp-muted)] text-sm font-medium">{t('colEmployee')}</th>
+              <th className="px-4 py-3 text-[var(--pp-muted)] text-sm font-medium">{t('colDetails')}</th>
+              <th className="px-4 py-3 text-[var(--pp-muted)] text-sm font-medium">{t('colStatus')}</th>
+              <th className="px-4 py-3 text-[var(--pp-muted)] text-sm font-medium">{t('colActions')}</th>
             </tr>
           </thead>
           <tbody>
             {overtimes.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-4 py-4 text-center text-[var(--pp-muted)]">
-                  Aucune demande d&apos;heures supplémentaires
+                  {t('emptyOvertimes')}
                 </td>
               </tr>
             ) : (
@@ -106,15 +112,15 @@ export default function OvertimesPage() {
                 <AdminRequestRow
                   key={ot.id}
                   id={ot.id}
-                  type="Heures Sup"
-                  employee={ot.userName || 'Inconnu'}
+                  type={t('typeOvertime')}
+                  employee={ot.userName || t('unknown')}
                   email={ot.userEmail || ''}
                   status={ot.status}
-                  details={`${new Date(ot.date).toLocaleDateString('fr-BE')} — ${ot.overtimeHours}h (${ot.hoursWorked}h travaillées, ${ot.hoursStandard}h standard)`}
+                  details={t('overtimeDetails', { date: new Date(ot.date).toLocaleDateString(bcp), hours: ot.overtimeHours, worked: ot.hoursWorked, std: ot.hoursStandard })}
                   disabled={actionInProgress === ot.id}
                   onApprove={() => handleAction(ot.id, 'approve')}
                   onReject={() => {
-                    const reason = prompt('Raison du rejet:')
+                    const reason = prompt(t('rejectPrompt'))
                     if (reason) handleAction(ot.id, 'reject', reason)
                   }}
                 />
