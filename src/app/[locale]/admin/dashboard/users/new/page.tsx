@@ -30,7 +30,7 @@ export default function NewUserPage() {
       .catch(() => {})
     fetch('/api/admin/users')
       .then(r => r.ok ? r.json() : {})
-      .then(d => setCanUseManagers(d.canUseManagers ?? false))
+      .then((d: { canUseManagers?: boolean }) => setCanUseManagers(d.canUseManagers ?? false))
       .catch(() => {})
   }, [])
   const [loading, setLoading] = useState(false)
