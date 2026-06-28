@@ -1,14 +1,16 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { useRouter, Link } from '@/i18n/navigation'
 import { signIn } from 'next-auth/react'
-import Link from 'next/link'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 import { Logo } from '@/components/Logo'
 
 function ResetPasswordForm() {
+  const t = useTranslations('auth.resetPassword')
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get('token') ?? ''
@@ -22,21 +24,21 @@ function ResetPasswordForm() {
   const [tokenError, setTokenError] = useState('')
 
   useEffect(() => {
-    if (!token) { setTokenError('Lien invalide.'); setStatus('error'); return }
+    if (!token) { setTokenError(t('invalidLink')); setStatus('error'); return }
     fetch(`/api/auth/reset-password?token=${encodeURIComponent(token)}`)
       .then(async r => {
         const data = await r.json()
-        if (!r.ok) { setTokenError(data.error ?? 'Lien invalide.'); setStatus('error'); return }
+        if (!r.ok) { setTokenError(data.error ?? t('invalidLink')); setStatus('error'); return }
         setEmail(data.email)
         setStatus('valid')
       })
-      .catch(() => { setTokenError('Erreur réseau.'); setStatus('error') })
-  }, [token])
+      .catch(() => { setTokenError(t('networkError')); setStatus('error') })
+  }, [token, t])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (password !== confirm) { setError('Les mots de passe ne correspondent pas.'); return }
-    if (password.length < 8) { setError('Le mot de passe doit faire au moins 8 caractères.'); return }
+    if (password !== confirm) { setError(t('passwordMismatch')); return }
+    if (password.length < 8) { setError(t('passwordTooShort')); return }
 
     setSubmitting(true)
     setError('')
@@ -48,13 +50,13 @@ function ResetPasswordForm() {
         body: JSON.stringify({ token, password }),
       })
       const data = await res.json()
-      if (!res.ok) { setError(data.error ?? 'Erreur.'); return }
+      if (!res.ok) { setError(data.error ?? t('error')); return }
 
       setStatus('done')
       const result = await signIn('credentials', { email: data.email, password, redirect: false })
       if (result?.ok) router.push('/app/clock')
     } catch {
-      setError('Erreur lors de la réinitialisation.')
+      setError(t('resetError'))
     } finally {
       setSubmitting(false)
     }
@@ -65,11 +67,11 @@ function ResetPasswordForm() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" aria-label="Pointon — accueil"><Logo size="lg" useThemeVar /></Link>
-          <p className="text-[var(--pp-muted)] mt-2">Nouveau mot de passe</p>
+          <p className="text-[var(--pp-muted)] mt-2">{t('title')}</p>
         </div>
 
         {status === 'loading' && (
-          <Card><p className="text-center text-[var(--pp-muted)] py-6">Vérification du lien…</p></Card>
+          <Card><p className="text-center text-[var(--pp-muted)] py-6">{t('verifying')}</p></Card>
         )}
 
         {status === 'error' && (
@@ -77,12 +79,12 @@ function ResetPasswordForm() {
             <div className="text-center py-4 space-y-4">
               <p className="text-4xl">⚠️</p>
               <p className="text-[var(--pp-neg)] font-medium">{tokenError}</p>
-              <p className="text-sm text-[var(--pp-muted)]">Ce lien est peut-être expiré ou déjà utilisé.</p>
+              <p className="text-sm text-[var(--pp-muted)]">{t('linkExpired')}</p>
               <Link href="/forgot-password" className="text-[var(--pp-info)] text-sm hover:underline block">
-                Demander un nouveau lien
+                {t('requestNewLink')}
               </Link>
               <Link href="/login" className="text-[var(--pp-muted)] text-sm hover:underline block">
-                Retour à la connexion
+                {t('backToLogin')}
               </Link>
             </div>
           </Card>
@@ -92,8 +94,8 @@ function ResetPasswordForm() {
           <Card>
             <div className="text-center py-4 space-y-3">
               <p className="text-4xl">✅</p>
-              <p className="font-semibold text-[var(--pp-ink)]">Mot de passe mis à jour !</p>
-              <p className="text-sm text-[var(--pp-muted)]">Connexion en cours…</p>
+              <p className="font-semibold text-[var(--pp-ink)]">{t('updated')}</p>
+              <p className="text-sm text-[var(--pp-muted)]">{t('signingIn')}</p>
             </div>
           </Card>
         )}
@@ -102,7 +104,7 @@ function ResetPasswordForm() {
           <Card>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="pb-2 border-b border-[var(--pp-line)]">
-                <p className="text-sm text-[var(--pp-muted)]">Réinitialisation pour</p>
+                <p className="text-sm text-[var(--pp-muted)]">{t('resetFor')}</p>
                 <p className="font-semibold text-[var(--pp-ink)]">{email}</p>
               </div>
 
@@ -111,12 +113,12 @@ function ResetPasswordForm() {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">Nouveau mot de passe</label>
+                <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">{t('passwordLabel')}</label>
                 <input
                   type="password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  placeholder="8 caractères minimum"
+                  placeholder={t('passwordPlaceholder')}
                   required
                   minLength={8}
                   autoFocus
@@ -125,19 +127,19 @@ function ResetPasswordForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">Confirmer le mot de passe</label>
+                <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">{t('confirmLabel')}</label>
                 <input
                   type="password"
                   value={confirm}
                   onChange={e => setConfirm(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder={t('confirmPlaceholder')}
                   required
                   className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
                 />
               </div>
 
               <Button type="submit" disabled={submitting} className="w-full" size="md">
-                {submitting ? 'Mise à jour…' : 'Enregistrer le mot de passe'}
+                {submitting ? t('updating') : t('saveBtn')}
               </Button>
             </form>
           </Card>
@@ -148,10 +150,11 @@ function ResetPasswordForm() {
 }
 
 export default function ResetPasswordPage() {
+  const t = useTranslations('auth.resetPassword')
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-[var(--pp-bg)] flex items-center justify-center">
-        <p className="text-[var(--pp-muted)]">Chargement…</p>
+        <p className="text-[var(--pp-muted)]">{t('loading')}</p>
       </div>
     }>
       <ResetPasswordForm />

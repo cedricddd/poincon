@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { useRouter } from '@/i18n/navigation'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 import { Logo } from '@/components/Logo'
 
 export default function TwoFactorChallengePage() {
+  const t = useTranslations('auth.2fa')
   const { data: session, update } = useSession()
   const router = useRouter()
   const [code, setCode] = useState('')
@@ -35,7 +37,7 @@ export default function TwoFactorChallengePage() {
       const data = await res.json() as { success?: boolean; error?: string }
 
       if (!res.ok) {
-        setError(data.error ?? 'Code invalide.')
+        setError(data.error ?? t('invalidCode'))
         setCode('')
         return
       }
@@ -43,7 +45,7 @@ export default function TwoFactorChallengePage() {
       await update({ twoFactorVerified: true })
       router.replace('/admin/dashboard')
     } catch {
-      setError('Erreur réseau. Réessayez.')
+      setError(t('networkError'))
     } finally {
       setLoading(false)
     }
@@ -54,17 +56,17 @@ export default function TwoFactorChallengePage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <Logo size="lg" useThemeVar />
-          <p className="text-[var(--pp-muted)] mt-2">Vérification en deux étapes</p>
+          <p className="text-[var(--pp-muted)] mt-2">{t('challengeHeader')}</p>
         </div>
 
         <Card>
           <div className="space-y-5">
             <div>
               <h1 className="text-lg font-semibold text-[var(--pp-ink)]">
-                Code d&rsquo;authentification
+                {t('codeHeading')}
               </h1>
               <p className="text-sm text-[var(--pp-muted)] mt-1">
-                Entrez le code à 6 chiffres affiché dans votre application d&rsquo;authentification.
+                {t('codeInstr')}
               </p>
             </div>
 
@@ -82,7 +84,7 @@ export default function TwoFactorChallengePage() {
                 maxLength={7}
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                placeholder="123 456"
+                placeholder={t('codePlaceholderSpaced')}
                 required
                 autoFocus
                 autoComplete="one-time-code"
@@ -90,7 +92,7 @@ export default function TwoFactorChallengePage() {
               />
 
               <Button type="submit" disabled={loading} className="w-full" size="md">
-                {loading ? 'Vérification...' : 'Vérifier'}
+                {loading ? t('verifying') : t('verify')}
               </Button>
             </form>
 
@@ -100,7 +102,7 @@ export default function TwoFactorChallengePage() {
                 onClick={() => signOut({ callbackUrl: '/login' })}
                 className="text-sm text-[var(--pp-muted)] hover:text-[var(--pp-ink)] underline"
               >
-                Se déconnecter
+                {t('signOut')}
               </button>
             </div>
           </div>

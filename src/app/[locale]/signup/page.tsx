@@ -1,14 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { useRouter, Link } from '@/i18n/navigation'
 import { signIn } from 'next-auth/react'
-import Link from 'next/link'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 import { Logo } from '@/components/Logo'
 
 export default function SignupPage() {
+  const t = useTranslations('auth.signup')
   const router = useRouter()
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -30,13 +31,13 @@ export default function SignupPage() {
     setLoading(true)
 
     if (password !== confirmPassword) {
-      setError('Les mots de passe ne correspondent pas')
+      setError(t('passwordMismatch'))
       setLoading(false)
       return
     }
 
     if (!companyVAT.match(/^BE\d{10}$/)) {
-      setError('Numéro de TVA invalide (format: BE + 10 chiffres)')
+      setError(t('invalidVat'))
       setLoading(false)
       return
     }
@@ -60,12 +61,12 @@ export default function SignupPage() {
       const data = await res.json()
 
       if (!res.ok) {
-        setError(data.error || "Erreur lors de l'inscription")
+        setError(data.error || t('signupError'))
         setLoading(false)
         return
       }
 
-      setSuccess('Inscription réussie ! Connexion en cours...')
+      setSuccess(t('success'))
 
       const signInResult = await signIn('credentials', {
         email,
@@ -79,7 +80,7 @@ export default function SignupPage() {
         router.push('/login')
       }
     } catch {
-      setError("Erreur lors de l'inscription. Veuillez réessayer.")
+      setError(t('signupRetryError'))
     } finally {
       setLoading(false)
     }
@@ -92,7 +93,7 @@ export default function SignupPage() {
           <Link href="/" aria-label="Pointon — accueil">
             <Logo size="lg" useThemeVar />
           </Link>
-          <p className="text-[var(--pp-muted)] mt-2">Créez votre compte administrateur — c'est gratuit</p>
+          <p className="text-[var(--pp-muted)] mt-2">{t('header')}</p>
         </div>
 
         <Card>
@@ -111,19 +112,19 @@ export default function SignupPage() {
 
             {/* Section administrateur */}
             <div className="border-b border-[var(--pp-line)] pb-6">
-              <h3 className="text-sm font-semibold text-[var(--pp-ink)] mb-4">Informations personnelles</h3>
+              <h3 className="text-sm font-semibold text-[var(--pp-ink)] mb-4">{t('personalInfo')}</h3>
 
               <div className="grid grid-cols-2 gap-4">
                 <div suppressHydrationWarning>
                   <label htmlFor="firstName" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    Prénom *
+                    {t('firstName')}
                   </label>
                   <input
                     id="firstName"
                     type="text"
                     value={firstName}
                     onChange={e => setFirstName(e.target.value)}
-                    placeholder="Jean"
+                    placeholder={t('phFirstName')}
                     required
                     className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
                   />
@@ -131,14 +132,14 @@ export default function SignupPage() {
 
                 <div suppressHydrationWarning>
                   <label htmlFor="lastName" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    Nom *
+                    {t('lastName')}
                   </label>
                   <input
                     id="lastName"
                     type="text"
                     value={lastName}
                     onChange={e => setLastName(e.target.value)}
-                    placeholder="Dupont"
+                    placeholder={t('phLastName')}
                     required
                     className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
                   />
@@ -148,14 +149,14 @@ export default function SignupPage() {
               <div className="mt-4 grid grid-cols-2 gap-4">
                 <div suppressHydrationWarning>
                   <label htmlFor="email" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    Email *
+                    {t('email')}
                   </label>
                   <input
                     id="email"
                     type="email"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
-                    placeholder="vous@entreprise.be"
+                    placeholder={t('phEmail')}
                     required
                     className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
                   />
@@ -163,7 +164,7 @@ export default function SignupPage() {
 
                 <div suppressHydrationWarning>
                   <label htmlFor="phone" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    Téléphone <span className="text-red-500">*</span>
+                    {t('phone')}
                   </label>
                   <input
                     id="phone"
@@ -171,7 +172,7 @@ export default function SignupPage() {
                     required
                     value={phone}
                     onChange={e => setPhone(e.target.value)}
-                    placeholder="+32 470 00 00 00"
+                    placeholder={t('phPhone')}
                     className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
                   />
                 </div>
@@ -180,7 +181,7 @@ export default function SignupPage() {
               <div className="mt-4 grid grid-cols-2 gap-4">
                 <div suppressHydrationWarning>
                   <label htmlFor="password" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    Mot de passe *
+                    {t('password')}
                   </label>
                   <input
                     id="password"
@@ -191,12 +192,12 @@ export default function SignupPage() {
                     required
                     className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
                   />
-                  <p className="text-xs text-[var(--pp-muted)] mt-1">Minimum 8 caractères</p>
+                  <p className="text-xs text-[var(--pp-muted)] mt-1">{t('minChars')}</p>
                 </div>
 
                 <div suppressHydrationWarning>
                   <label htmlFor="confirmPassword" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    Confirmer le mot de passe *
+                    {t('confirmPassword')}
                   </label>
                   <input
                     id="confirmPassword"
@@ -213,19 +214,19 @@ export default function SignupPage() {
 
             {/* Section société */}
             <div>
-              <h3 className="text-sm font-semibold text-[var(--pp-ink)] mb-4">Informations société</h3>
+              <h3 className="text-sm font-semibold text-[var(--pp-ink)] mb-4">{t('companyInfo')}</h3>
 
               <div className="space-y-4">
                 <div suppressHydrationWarning>
                   <label htmlFor="companyName" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    Nom de la société *
+                    {t('companyName')}
                   </label>
                   <input
                     id="companyName"
                     type="text"
                     value={companyName}
                     onChange={e => setCompanyName(e.target.value)}
-                    placeholder="Acme SA"
+                    placeholder={t('phCompany')}
                     required
                     className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
                   />
@@ -233,7 +234,7 @@ export default function SignupPage() {
 
                 <div suppressHydrationWarning>
                   <label htmlFor="companyVAT" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    Numéro de TVA *
+                    {t('vatNumber')}
                   </label>
                   <input
                     id="companyVAT"
@@ -244,12 +245,12 @@ export default function SignupPage() {
                     required
                     className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
                   />
-                  <p className="text-xs text-[var(--pp-muted)] mt-1">Format : BE + 10 chiffres</p>
+                  <p className="text-xs text-[var(--pp-muted)] mt-1">{t('vatFormat')}</p>
                 </div>
 
                 <div suppressHydrationWarning>
                   <label htmlFor="companyAddress" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    Adresse <span className="text-red-500">*</span>
+                    {t('address')}
                   </label>
                   <input
                     id="companyAddress"
@@ -257,7 +258,7 @@ export default function SignupPage() {
                     required
                     value={companyAddress}
                     onChange={e => setCompanyAddress(e.target.value)}
-                    placeholder="Rue Example 123, 1000 Bruxelles"
+                    placeholder={t('phAddress')}
                     className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
                   />
                 </div>
@@ -265,21 +266,21 @@ export default function SignupPage() {
             </div>
 
             <Button type="submit" disabled={loading} className="w-full" size="md">
-              {loading ? 'Inscription en cours...' : 'Créer mon compte gratuitement'}
+              {loading ? t('submitting') : t('createFreeBtn')}
             </Button>
 
             <p className="text-xs text-center text-[var(--pp-muted)]">
-              En vous inscrivant, vous acceptez nos{' '}
-              <Link href="/legal/terms" className="underline hover:text-[var(--pp-info)]">conditions d'utilisation</Link>
-              {' '}et notre{' '}
-              <Link href="/legal/privacy" className="underline hover:text-[var(--pp-info)]">politique de confidentialité</Link>.
+              {t.rich('terms', {
+                terms: (c) => <Link href="/legal/terms" className="underline hover:text-[var(--pp-info)]">{c}</Link>,
+                privacy: (c) => <Link href="/legal/privacy" className="underline hover:text-[var(--pp-info)]">{c}</Link>,
+              })}
             </p>
           </form>
 
           <div className="mt-6 pt-6 border-t border-[var(--pp-line)] text-center text-sm text-[var(--pp-muted)]">
-            Vous avez déjà un compte ?{' '}
+            {t('alreadyAccountQ')}{' '}
             <Link href="/login" className="text-[var(--pp-info)] font-medium hover:underline">
-              Se connecter
+              {t('loginLink')}
             </Link>
           </div>
         </Card>

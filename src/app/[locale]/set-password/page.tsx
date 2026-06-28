@@ -1,14 +1,16 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { useRouter, Link } from '@/i18n/navigation'
 import { signIn } from 'next-auth/react'
-import Link from 'next/link'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 import { Logo } from '@/components/Logo'
 
 function SetPasswordForm() {
+  const t = useTranslations('auth.setPassword')
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get('token') ?? ''
@@ -23,22 +25,22 @@ function SetPasswordForm() {
   const [tokenError, setTokenError] = useState('')
 
   useEffect(() => {
-    if (!token) { setTokenError('Lien invalide.'); setStatus('error'); return }
+    if (!token) { setTokenError(t('invalidLink')); setStatus('error'); return }
     fetch(`/api/auth/set-password?token=${encodeURIComponent(token)}`)
       .then(async r => {
         const data = await r.json()
-        if (!r.ok) { setTokenError(data.error ?? 'Lien invalide.'); setStatus('error'); return }
+        if (!r.ok) { setTokenError(data.error ?? t('invalidLink')); setStatus('error'); return }
         setInvitation(data)
         setName(data.name ?? '')
         setStatus('valid')
       })
-      .catch(() => { setTokenError('Erreur réseau.'); setStatus('error') })
-  }, [token])
+      .catch(() => { setTokenError(t('networkError')); setStatus('error') })
+  }, [token, t])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (password !== confirm) { setError('Les mots de passe ne correspondent pas.'); return }
-    if (password.length < 8) { setError('Le mot de passe doit faire au moins 8 caractères.'); return }
+    if (password !== confirm) { setError(t('passwordMismatch')); return }
+    if (password.length < 8) { setError(t('passwordTooShort')); return }
 
     setSubmitting(true)
     setError('')
@@ -50,13 +52,13 @@ function SetPasswordForm() {
         body: JSON.stringify({ token, name, password }),
       })
       const data = await res.json()
-      if (!res.ok) { setError(data.error ?? 'Erreur.'); return }
+      if (!res.ok) { setError(data.error ?? t('error')); return }
 
       setStatus('done')
       const result = await signIn('credentials', { email: data.email, password, redirect: false })
       if (result?.ok) router.push('/app/clock')
     } catch {
-      setError('Erreur lors de la création du compte.')
+      setError(t('createError'))
     } finally {
       setSubmitting(false)
     }
@@ -67,11 +69,11 @@ function SetPasswordForm() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" aria-label="Pointon — accueil"><Logo size="lg" useThemeVar /></Link>
-          <p className="text-[var(--pp-muted)] mt-2">Créer votre compte</p>
+          <p className="text-[var(--pp-muted)] mt-2">{t('header')}</p>
         </div>
 
         {status === 'loading' && (
-          <Card><p className="text-center text-[var(--pp-muted)] py-6">Vérification du lien…</p></Card>
+          <Card><p className="text-center text-[var(--pp-muted)] py-6">{t('verifying')}</p></Card>
         )}
 
         {status === 'error' && (
@@ -79,8 +81,8 @@ function SetPasswordForm() {
             <div className="text-center py-4 space-y-4">
               <p className="text-4xl">⚠️</p>
               <p className="text-[var(--pp-neg)] font-medium">{tokenError}</p>
-              <p className="text-sm text-[var(--pp-muted)]">Ce lien est peut-être expiré ou déjà utilisé. Contactez votre administrateur.</p>
-              <Link href="/login" className="text-[var(--pp-info)] text-sm hover:underline">Retour à la connexion</Link>
+              <p className="text-sm text-[var(--pp-muted)]">{t('linkExpiredContact')}</p>
+              <Link href="/login" className="text-[var(--pp-info)] text-sm hover:underline">{t('backToLogin')}</Link>
             </div>
           </Card>
         )}
@@ -89,8 +91,8 @@ function SetPasswordForm() {
           <Card>
             <div className="text-center py-4 space-y-3">
               <p className="text-4xl">✅</p>
-              <p className="font-semibold text-[var(--pp-ink)]">Compte créé !</p>
-              <p className="text-sm text-[var(--pp-muted)]">Connexion en cours…</p>
+              <p className="font-semibold text-[var(--pp-ink)]">{t('accountCreated')}</p>
+              <p className="text-sm text-[var(--pp-muted)]">{t('signingIn')}</p>
             </div>
           </Card>
         )}
@@ -99,7 +101,7 @@ function SetPasswordForm() {
           <Card>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="pb-2 border-b border-[var(--pp-line)]">
-                <p className="text-sm text-[var(--pp-muted)]">Invitation pour</p>
+                <p className="text-sm text-[var(--pp-muted)]">{t('invitationFor')}</p>
                 <p className="font-semibold text-[var(--pp-ink)]">{invitation.email}</p>
               </div>
 
@@ -108,23 +110,23 @@ function SetPasswordForm() {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">Votre nom</label>
+                <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">{t('nameLabel')}</label>
                 <input
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  placeholder="Prénom Nom"
+                  placeholder={t('namePlaceholder')}
                   required
                   className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">Mot de passe</label>
+                <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">{t('passwordLabel')}</label>
                 <input
                   type="password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  placeholder="8 caractères minimum"
+                  placeholder={t('passwordPlaceholder')}
                   required
                   minLength={8}
                   className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
@@ -132,19 +134,19 @@ function SetPasswordForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">Confirmer le mot de passe</label>
+                <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">{t('confirmLabel')}</label>
                 <input
                   type="password"
                   value={confirm}
                   onChange={e => setConfirm(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder={t('confirmPlaceholder')}
                   required
                   className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
                 />
               </div>
 
               <Button type="submit" disabled={submitting} className="w-full" size="md">
-                {submitting ? 'Création…' : 'Créer mon compte'}
+                {submitting ? t('creating') : t('createBtn')}
               </Button>
             </form>
           </Card>
@@ -155,10 +157,11 @@ function SetPasswordForm() {
 }
 
 export default function SetPasswordPage() {
+  const t = useTranslations('auth.setPassword')
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-[var(--pp-bg)] flex items-center justify-center">
-        <p className="text-[var(--pp-muted)]">Chargement…</p>
+        <p className="text-[var(--pp-muted)]">{t('loading')}</p>
       </div>
     }>
       <SetPasswordForm />
