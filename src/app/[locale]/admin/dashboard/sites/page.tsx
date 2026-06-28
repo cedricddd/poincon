@@ -2,8 +2,11 @@
 export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
-import Link from "next/link"
+import { useTranslations, useLocale } from "next-intl"
+import { Link } from "@/i18n/navigation"
 import { usePlan } from "@/hooks/usePlan"
+
+const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
 
 interface Site {
   id: string
@@ -24,6 +27,9 @@ interface QrData {
 }
 
 function QrModal({ site, onClose }: { site: Site; onClose: () => void }) {
+  const t = useTranslations('sites')
+  const locale = useLocale()
+  const bcp = BCP47[locale] ?? 'fr-BE'
   const [qr, setQr] = useState<QrData | null>(null)
   const [loading, setLoading] = useState(true)
   const [rotating, setRotating] = useState(false)
@@ -58,7 +64,7 @@ function QrModal({ site, onClose }: { site: Site; onClose: () => void }) {
       <!DOCTYPE html>
       <html>
       <head>
-        <title>QR Code — ${qr.siteName}</title>
+        <title>${t('qrTitle', { name: qr.siteName })}</title>
         <style>
           body { font-family: sans-serif; text-align: center; padding: 40px; }
           img { width: 280px; height: 280px; display: block; margin: 0 auto 20px; }
@@ -67,9 +73,9 @@ function QrModal({ site, onClose }: { site: Site; onClose: () => void }) {
         </style>
       </head>
       <body>
-        <h1>Pointage — ${qr.siteName}</h1>
+        <h1>${t('printTitle', { name: qr.siteName })}</h1>
         <img src="${qr.qrDataUrl}" alt="QR Code" />
-        <p>Scannez ce code pour pointer votre arrivée ou départ.</p>
+        <p>${t('printInstructions')}</p>
         <p style="font-size:12px; color:#999; margin-top:16px;">Pointon · pointon.be</p>
       </body>
       </html>
@@ -82,7 +88,7 @@ function QrModal({ site, onClose }: { site: Site; onClose: () => void }) {
 
   const expiresAt = qr?.expiresAt ? new Date(qr.expiresAt) : null
   const expiresLabel = expiresAt
-    ? expiresAt.toLocaleString('fr-BE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+    ? expiresAt.toLocaleString(bcp, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
     : null
 
   return (
@@ -94,8 +100,8 @@ function QrModal({ site, onClose }: { site: Site; onClose: () => void }) {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--pp-line)]">
           <div>
-            <h2 className="font-semibold text-[var(--pp-ink)]">QR Code — {site.name}</h2>
-            <p className="text-xs text-[var(--pp-muted)] mt-0.5">Scan → pointage instantané</p>
+            <h2 className="font-semibold text-[var(--pp-ink)]">{t('qrTitle', { name: site.name })}</h2>
+            <p className="text-xs text-[var(--pp-muted)] mt-0.5">{t('qrSubtitle')}</p>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-[var(--pp-bg2)] transition-colors text-[var(--pp-muted)]">
             <svg viewBox="0 0 16 16" fill="none" width="14" height="14">
@@ -108,7 +114,7 @@ function QrModal({ site, onClose }: { site: Site; onClose: () => void }) {
         <div className="flex flex-col items-center py-8 px-6 gap-4">
           {loading ? (
             <div className="w-[280px] h-[280px] rounded-xl border border-[var(--pp-line)] bg-[var(--pp-bg2)] flex items-center justify-center">
-              <span className="text-sm text-[var(--pp-muted)]">Génération...</span>
+              <span className="text-sm text-[var(--pp-muted)]">{t('generating')}</span>
             </div>
           ) : qr ? (
             <>
@@ -117,12 +123,12 @@ function QrModal({ site, onClose }: { site: Site; onClose: () => void }) {
               </div>
               {expiresLabel && (
                 <p className="text-xs text-[var(--pp-muted)] text-center">
-                  Expire le {expiresLabel} · Rotation automatique à minuit
+                  {t('qrExpires', { date: expiresLabel })}
                 </p>
               )}
             </>
           ) : (
-            <p className="text-sm text-red-500">Erreur lors de la génération</p>
+            <p className="text-sm text-red-500">{t('qrError')}</p>
           )}
         </div>
 
@@ -134,13 +140,13 @@ function QrModal({ site, onClose }: { site: Site; onClose: () => void }) {
                 onClick={copy}
                 className="flex-1 py-2.5 rounded-xl border border-[var(--pp-line)] text-sm font-medium text-[var(--pp-ink)] hover:bg-[var(--pp-bg2)] transition-colors"
               >
-                {copied ? '✓ Copié !' : 'Copier le lien'}
+                {copied ? t('copied') : t('copyLink')}
               </button>
               <button
                 onClick={print}
                 className="flex-1 py-2.5 rounded-xl bg-[var(--pp-pos)] text-white text-sm font-medium hover:opacity-90 transition-opacity"
               >
-                Imprimer
+                {t('print')}
               </button>
             </div>
             <button
@@ -148,7 +154,7 @@ function QrModal({ site, onClose }: { site: Site; onClose: () => void }) {
               disabled={rotating}
               className="w-full py-2.5 rounded-xl border border-[var(--pp-line)] text-xs font-medium text-[var(--pp-muted)] hover:text-red-500 hover:border-red-300 transition-colors disabled:opacity-50"
             >
-              {rotating ? 'Renouvellement...' : "↺ Renouveler maintenant (invalide l'ancien)"}
+              {rotating ? t('rotating') : t('rotate')}
             </button>
           </div>
         )}
@@ -158,7 +164,8 @@ function QrModal({ site, onClose }: { site: Site; onClose: () => void }) {
 }
 
 export default function SitesPage() {
-  const { planInfo, upgradeTo } = usePlan()
+  const t = useTranslations('sites')
+  const { planInfo } = usePlan()
   const [sites, setSites] = useState<Site[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -213,7 +220,7 @@ export default function SitesPage() {
 
     if (!res.ok) {
       const data = await res.json()
-      setError(data.error || "Une erreur est survenue")
+      setError(data.error || t('errorGeneric'))
       setSubmitting(false)
       return
     }
@@ -233,7 +240,7 @@ export default function SitesPage() {
   }
 
   async function handleDelete(site: Site) {
-    if (!confirm(`Supprimer le site "${site.name}" ?`)) return
+    if (!confirm(t('confirmDelete', { name: site.name }))) return
     const res = await fetch(`/api/admin/sites/${site.id}`, { method: "DELETE" })
     if (!res.ok) {
       const data = await res.json()
@@ -245,21 +252,21 @@ export default function SitesPage() {
 
   const atSiteLimit = planInfo !== null && planInfo.maxSites !== -1 && sites.length >= planInfo.maxSites
 
-  if (loading) return <div className="p-8 text-gray-500">Chargement...</div>
+  if (loading) return <div className="p-8 text-gray-500">{t('loading')}</div>
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
       {qrSite && <QrModal site={qrSite} onClose={() => setQrSite(null)} />}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Sites</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
           <div className="flex items-center gap-2 mt-1">
-            <p className="text-sm text-gray-500">Gérez les sites de votre entreprise</p>
+            <p className="text-sm text-gray-500">{t('subtitle')}</p>
             {planInfo && planInfo.maxSites !== -1 && (
               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                 atSiteLimit ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-500'
               }`}>
-                {sites.length}/{planInfo.maxSites} site{planInfo.maxSites > 1 ? 's' : ''} ({planInfo.plan})
+                {t('usage', { count: sites.length, max: planInfo.maxSites, plan: planInfo.plan })}
               </span>
             )}
           </div>
@@ -273,7 +280,7 @@ export default function SitesPage() {
               : 'bg-blue-600 text-white hover:bg-blue-700'
           }`}
         >
-          + Nouveau site
+          {t('newSite')}
         </button>
       </div>
 
@@ -282,15 +289,15 @@ export default function SitesPage() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-base">🔒</span>
-              <span className="font-semibold text-gray-900">Limite de sites atteinte ({sites.length}/{planInfo.maxSites})</span>
-              <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium">Plan TEAM</span>
+              <span className="font-semibold text-gray-900">{t('limitTitle', { count: sites.length, max: planInfo.maxSites })}</span>
+              <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium">{t('planBadgeTeam')}</span>
             </div>
             <p className="text-sm text-gray-600">
-              Le plan {planInfo.plan} est limité à {planInfo.maxSites} site{planInfo.maxSites > 1 ? 's' : ''}. Passez au plan TEAM pour gérer plusieurs sites.
+              {t('limitDesc', { plan: planInfo.plan, max: planInfo.maxSites })}
             </p>
           </div>
           <Link href="/pricing" className="shrink-0 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:opacity-90 whitespace-nowrap">
-            Upgrader vers TEAM
+            {t('upgradeTeam')}
           </Link>
         </div>
       )}
@@ -298,31 +305,31 @@ export default function SitesPage() {
       {showForm && (
         <div className="bg-[var(--pp-bg2)] rounded-xl border border-[var(--pp-line)] p-6 mb-6">
           <h2 className="text-lg font-semibold mb-4 text-[var(--pp-ink)]">
-            {editingSite ? "Modifier le site" : "Nouveau site"}
+            {editingSite ? t('editSite') : t('createSite')}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">
-                Nom du site <span className="text-red-500">*</span>
+                {t('nameLabel')} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="ex : Pepinster, Loncin..."
+                placeholder={t('namePlaceholder')}
                 className="w-full border border-[var(--pp-line)] rounded-lg px-3 py-2 text-sm bg-[var(--pp-bg)] text-[var(--pp-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
                 required
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">
-                Adresse <span className="text-[var(--pp-muted)]">(optionnel)</span>
+                {t('addressLabel')} <span className="text-[var(--pp-muted)]">{t('optional')}</span>
               </label>
               <input
                 type="text"
                 value={form.address}
                 onChange={(e) => setForm({ ...form, address: e.target.value })}
-                placeholder="ex : Rue de la Gare 1, 4860 Pepinster"
+                placeholder={t('addressPlaceholder')}
                 className="w-full border border-[var(--pp-line)] rounded-lg px-3 py-2 text-sm bg-[var(--pp-bg)] text-[var(--pp-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
               />
             </div>
@@ -333,14 +340,14 @@ export default function SitesPage() {
                 disabled={submitting}
                 className="bg-[var(--pp-info)] text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-opacity"
               >
-                {submitting ? "Enregistrement..." : editingSite ? "Enregistrer" : "Créer"}
+                {submitting ? t('saving') : editingSite ? t('save') : t('create')}
               </button>
               <button
                 type="button"
                 onClick={cancel}
                 className="border border-[var(--pp-line)] text-[var(--pp-ink)] px-4 py-2 rounded-lg text-sm font-medium hover:bg-[var(--pp-bg)] transition-colors"
               >
-                Annuler
+                {t('cancel')}
               </button>
             </div>
           </form>
@@ -350,8 +357,8 @@ export default function SitesPage() {
       {sites.length === 0 ? (
         <div className="text-center py-16 text-[var(--pp-muted)]">
           <div className="text-4xl mb-3">🏢</div>
-          <p className="font-medium">Aucun site configuré</p>
-          <p className="text-sm mt-1">Créez votre premier site pour commencer</p>
+          <p className="font-medium">{t('empty')}</p>
+          <p className="text-sm mt-1">{t('emptyHint')}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -371,7 +378,7 @@ export default function SitesPage() {
                     <span className="font-semibold text-[var(--pp-ink)]">{site.name}</span>
                     {!site.active && (
                       <span className="text-xs bg-[var(--pp-bg)] text-[var(--pp-muted)] px-2 py-0.5 rounded-full">
-                        Inactif
+                        {t('inactive')}
                       </span>
                     )}
                   </div>
@@ -379,7 +386,7 @@ export default function SitesPage() {
                     <p className="text-sm text-[var(--pp-muted)] mt-0.5">{site.address}</p>
                   )}
                   <p className="text-xs text-[var(--pp-muted)] mt-1">
-                    {site._count.users} employé{site._count.users !== 1 ? "s" : ""} assigné{site._count.users !== 1 ? "s" : ""}
+                    {t('employeesAssigned', { count: site._count.users })}
                   </p>
                 </div>
               </div>
@@ -403,19 +410,19 @@ export default function SitesPage() {
                   onClick={() => toggleActive(site)}
                   className="text-xs border border-[var(--pp-line)] text-[var(--pp-muted)] px-3 py-1.5 rounded-lg hover:bg-[var(--pp-bg)] transition-colors"
                 >
-                  {site.active ? "Désactiver" : "Activer"}
+                  {site.active ? t('deactivate') : t('activate')}
                 </button>
                 <button
                   onClick={() => openEdit(site)}
                   className="text-xs border border-[var(--pp-line)] text-[var(--pp-ink)] px-3 py-1.5 rounded-lg hover:bg-[var(--pp-bg)] transition-colors"
                 >
-                  Modifier
+                  {t('edit')}
                 </button>
                 <button
                   onClick={() => handleDelete(site)}
                   className="text-xs border border-red-200 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors"
                 >
-                  Supprimer
+                  {t('delete')}
                 </button>
               </div>
             </div>
