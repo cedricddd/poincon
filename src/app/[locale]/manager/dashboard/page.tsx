@@ -2,10 +2,13 @@
 
 export const dynamic = 'force-dynamic'
 import { useEffect, useState } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import { showToast } from '@/hooks/useToast'
 
+const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
+
 type LeaveType = 'ANNUAL' | 'SICK' | 'MATERNITY'
-const LEAVE_TYPE_LABELS: Record<LeaveType, string> = { ANNUAL: 'Congé annuel', SICK: 'Congé maladie', MATERNITY: 'Congé maternité' }
+const LEAVE_TYPE_KEY: Record<LeaveType, string> = { ANNUAL: 'leaveAnnual', SICK: 'leaveSick', MATERNITY: 'leaveMaternity' }
 const LEAVE_TYPE_COLORS: Record<LeaveType, string> = {
   ANNUAL: 'bg-[var(--pp-pos)]/12 text-[var(--pp-pos)]',
   SICK: 'bg-orange-500/12 text-orange-600 dark:text-orange-400',
@@ -45,8 +48,12 @@ const STATUS_COLORS: Record<string, string> = {
   APPROVED: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   REJECTED: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
 }
+const STATUS_KEY: Record<string, string> = { PENDING: 'statusPending', APPROVED: 'statusApproved', REJECTED: 'statusRejected' }
 
 export default function ManagerDashboard() {
+  const t = useTranslations('manager')
+  const locale = useLocale()
+  const bcp = BCP47[locale] ?? 'fr-BE'
   const [overtimes, setOvertimes] = useState<Overtime[]>([])
   const [timeOffs, setTimeOffs] = useState<TimeOff[]>([])
   const [rtts, setRtts] = useState<RTT[]>([])
@@ -87,20 +94,20 @@ export default function ManagerDashboard() {
       body: JSON.stringify({ type, requestId, action }),
     })
     if (res.ok) {
-      showToast(action === 'approve' ? 'Approuvé' : 'Refusé', action === 'approve' ? 'success' : 'error')
+      showToast(action === 'approve' ? t('approved') : t('rejected'), action === 'approve' ? 'success' : 'error')
       fetchData()
     } else {
-      showToast('Erreur', 'error')
+      showToast(t('error'), 'error')
     }
     setActing(null)
   }
 
-  const fmtDate = (d: string) => new Date(d).toLocaleDateString('fr-BE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  const fmtDate = (d: string) => new Date(d).toLocaleDateString(bcp, { day: '2-digit', month: '2-digit', year: 'numeric' })
 
   const handleLeaveCreate = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!leaveForm.userId || !leaveForm.startDate || !leaveForm.endDate) {
-      showToast('Veuillez remplir tous les champs obligatoires', 'warning')
+      showToast(t('fillRequired'), 'warning')
       return
     }
     setSubmittingLeave(true)
@@ -111,12 +118,12 @@ export default function ManagerDashboard() {
         body: JSON.stringify(leaveForm),
       })
       if (!res.ok) throw new Error()
-      showToast('Congé enregistré', 'success')
+      showToast(t('leaveSaved'), 'success')
       setShowLeaveModal(false)
       setLeaveForm(EMPTY_LEAVE_FORM)
       await fetchData()
     } catch {
-      showToast('Erreur lors de l\'enregistrement', 'error')
+      showToast(t('saveError'), 'error')
     } finally {
       setSubmittingLeave(false)
     }
@@ -124,35 +131,35 @@ export default function ManagerDashboard() {
 
   const pendingCount = [...overtimes, ...timeOffs, ...rtts].filter(r => r.status === 'PENDING').length
 
-  if (loading) return <div className="p-8 text-center">Chargement...</div>
+  if (loading) return <div className="p-8 text-center">{t('loading')}</div>
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Dashboard Manager</h1>
+        <h1 className="text-2xl font-bold text-[var(--pp-ink)]">{t('title')}</h1>
         <p className="text-sm text-[var(--pp-muted)] mt-1">
-          {pendingCount > 0 ? `${pendingCount} demande${pendingCount > 1 ? 's' : ''} en attente` : 'Aucune demande en attente'}
+          {t('pendingSummary', { count: pendingCount })}
         </p>
       </div>
 
       {/* Prochains congés de l'équipe */}
       <div className="bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-xl overflow-hidden">
         <div className="px-5 py-4 border-b border-[var(--pp-line)] flex items-center justify-between bg-[var(--pp-info)]/5">
-          <h2 className="font-semibold text-[var(--pp-ink)]">Prochains congés — 30 jours</h2>
-          <span className="text-xs text-[var(--pp-muted)]">{upcomingLeaves.length} absence{upcomingLeaves.length !== 1 ? 's' : ''}</span>
+          <h2 className="font-semibold text-[var(--pp-ink)]">{t('upcomingTitle')}</h2>
+          <span className="text-xs text-[var(--pp-muted)]">{t('absencesCount', { count: upcomingLeaves.length })}</span>
         </div>
         {upcomingLeaves.length === 0 ? (
-          <p className="px-5 py-4 text-sm text-[var(--pp-muted)]">Aucun congé prévu dans les 30 prochains jours.</p>
+          <p className="px-5 py-4 text-sm text-[var(--pp-muted)]">{t('noUpcoming')}</p>
         ) : (
           <div className="divide-y divide-[var(--pp-line)]">
-            {upcomingLeaves.map(t => (
-              <div key={t.id} className="flex items-center justify-between px-5 py-3">
+            {upcomingLeaves.map(lv => (
+              <div key={lv.id} className="flex items-center justify-between px-5 py-3">
                 <div>
-                  <span className="text-sm font-medium text-[var(--pp-ink)]">{t.user.name ?? t.user.email}</span>
-                  {t.reason && <span className="text-xs text-[var(--pp-muted)] ml-2">— {t.reason}</span>}
+                  <span className="text-sm font-medium text-[var(--pp-ink)]">{lv.user.name ?? lv.user.email}</span>
+                  {lv.reason && <span className="text-xs text-[var(--pp-muted)] ml-2">— {lv.reason}</span>}
                 </div>
                 <span className="text-xs text-[var(--pp-muted)] shrink-0">
-                  {fmtDate(t.startDate)} → {fmtDate(t.endDate)}
+                  {fmtDate(lv.startDate)} → {fmtDate(lv.endDate)}
                 </span>
               </div>
             ))}
@@ -161,10 +168,10 @@ export default function ManagerDashboard() {
       </div>
 
       {/* Heures supplémentaires */}
-      <Section title="Heures Supplémentaires" count={overtimes.filter(o => o.status === 'PENDING').length}>
+      <Section title={t('sectionOvertimes')} count={overtimes.filter(o => o.status === 'PENDING').length}>
         {overtimes.map(o => (
           <Row key={o.id} user={o.user} status={o.status}
-            detail={`${fmtDate(o.date)} — ${o.overtimeHours.toFixed(1)}h sup`}
+            detail={t('overtimeDetail', { date: fmtDate(o.date), hours: o.overtimeHours.toFixed(1) })}
             onApprove={() => act('overtime', o.id, 'approve')}
             onReject={() => act('overtime', o.id, 'reject')}
             loading={acting === o.id}
@@ -174,33 +181,33 @@ export default function ManagerDashboard() {
 
       {/* Congés */}
       <Section
-        title="Demandes de Congé"
-        count={timeOffs.filter(t => t.status === 'PENDING').length}
-        action={<button onClick={() => setShowLeaveModal(true)} className="text-xs px-3 py-1 bg-[var(--pp-pos)] text-white rounded-lg hover:opacity-90 transition font-medium">+ Ajouter</button>}
+        title={t('sectionTimeOffs')}
+        count={timeOffs.filter(to => to.status === 'PENDING').length}
+        action={<button onClick={() => setShowLeaveModal(true)} className="text-xs px-3 py-1 bg-[var(--pp-pos)] text-white rounded-lg hover:opacity-90 transition font-medium">{t('add')}</button>}
       >
-        {timeOffs.map(t => {
-          const lt = (t.leaveType ?? 'ANNUAL') as LeaveType
+        {timeOffs.map(to => {
+          const lt = (to.leaveType ?? 'ANNUAL') as LeaveType
           return (
-            <Row key={t.id} user={t.user} status={t.status}
+            <Row key={to.id} user={to.user} status={to.status}
               badge={
                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${LEAVE_TYPE_COLORS[lt]}`}>
-                  {LEAVE_TYPE_ICONS[lt]}{LEAVE_TYPE_LABELS[lt]}
+                  {LEAVE_TYPE_ICONS[lt]}{t(LEAVE_TYPE_KEY[lt])}
                 </span>
               }
-              detail={`${fmtDate(t.startDate)} → ${fmtDate(t.endDate)}${t.reason ? ` — ${t.reason}` : ''}`}
-              onApprove={() => act('timeoff', t.id, 'approve')}
-              onReject={() => act('timeoff', t.id, 'reject')}
-              loading={acting === t.id}
+              detail={`${fmtDate(to.startDate)} → ${fmtDate(to.endDate)}${to.reason ? ` — ${to.reason}` : ''}`}
+              onApprove={() => act('timeoff', to.id, 'approve')}
+              onReject={() => act('timeoff', to.id, 'reject')}
+              loading={acting === to.id}
             />
           )
         })}
       </Section>
 
       {/* RTT */}
-      <Section title="Demandes de récupération" count={rtts.filter(r => r.status === 'PENDING').length}>
+      <Section title={t('sectionRtt')} count={rtts.filter(r => r.status === 'PENDING').length}>
         {rtts.map(r => (
           <Row key={r.id} user={r.user} status={r.status}
-            detail={`${fmtDate(r.date)} — ${r.hoursToRecover}h${r.reason ? ` — ${r.reason}` : ''}`}
+            detail={`${t('rttDetail', { date: fmtDate(r.date), hours: r.hoursToRecover })}${r.reason ? ` — ${r.reason}` : ''}`}
             onApprove={() => act('rtt', r.id, 'approve')}
             onReject={() => act('rtt', r.id, 'reject')}
             loading={acting === r.id}
@@ -212,44 +219,44 @@ export default function ManagerDashboard() {
       {showLeaveModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-[var(--pp-bg)] rounded-2xl shadow-2xl w-full max-w-md p-6">
-            <h2 className="text-lg font-bold text-[var(--pp-ink)] mb-5">Enregistrer un congé</h2>
+            <h2 className="text-lg font-bold text-[var(--pp-ink)] mb-5">{t('modalTitle')}</h2>
             <form onSubmit={handleLeaveCreate} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1.5">Employé *</label>
+                <label className="block text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1.5">{t('employeeLabel')}</label>
                 <select
                   value={leaveForm.userId}
                   onChange={e => setLeaveForm({ ...leaveForm, userId: e.target.value })}
                   className="w-full px-3 py-2.5 border border-[var(--pp-line)] rounded-lg bg-[var(--pp-bg)] text-[var(--pp-ink)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)]"
                   required
                 >
-                  <option value="">Sélectionner un employé…</option>
+                  <option value="">{t('selectEmployee')}</option>
                   {members.map(m => (
                     <option key={m.id} value={m.id}>{m.name ?? m.email}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1.5">Type de congé *</label>
+                <label className="block text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1.5">{t('leaveTypeLabel')}</label>
                 <select
                   value={leaveForm.leaveType}
                   onChange={e => setLeaveForm({ ...leaveForm, leaveType: e.target.value as LeaveType })}
                   className="w-full px-3 py-2.5 border border-[var(--pp-line)] rounded-lg bg-[var(--pp-bg)] text-[var(--pp-ink)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)]"
                 >
-                  {(Object.keys(LEAVE_TYPE_LABELS) as LeaveType[]).map(k => (
-                    <option key={k} value={k}>{LEAVE_TYPE_LABELS[k]}</option>
+                  {(Object.keys(LEAVE_TYPE_KEY) as LeaveType[]).map(k => (
+                    <option key={k} value={k}>{t(LEAVE_TYPE_KEY[k])}</option>
                   ))}
                 </select>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1.5">Du *</label>
+                  <label className="block text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1.5">{t('fromLabel')}</label>
                   <input type="date" value={leaveForm.startDate}
                     onChange={e => setLeaveForm({ ...leaveForm, startDate: e.target.value })}
                     className="w-full px-3 py-2.5 border border-[var(--pp-line)] rounded-lg bg-[var(--pp-bg)] text-[var(--pp-ink)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)]"
                     required />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1.5">Au *</label>
+                  <label className="block text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1.5">{t('toLabel')}</label>
                   <input type="date" value={leaveForm.endDate}
                     onChange={e => setLeaveForm({ ...leaveForm, endDate: e.target.value })}
                     className="w-full px-3 py-2.5 border border-[var(--pp-line)] rounded-lg bg-[var(--pp-bg)] text-[var(--pp-ink)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)]"
@@ -257,22 +264,22 @@ export default function ManagerDashboard() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1.5">Note (optionnel)</label>
+                <label className="block text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide mb-1.5">{t('noteLabel')}</label>
                 <input type="text" value={leaveForm.reason}
                   onChange={e => setLeaveForm({ ...leaveForm, reason: e.target.value })}
-                  placeholder="ex: certificat médical reçu"
+                  placeholder={t('notePlaceholder')}
                   className="w-full px-3 py-2.5 border border-[var(--pp-line)] rounded-lg bg-[var(--pp-bg)] text-[var(--pp-ink)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)]" />
               </div>
-              <p className="text-xs text-[var(--pp-muted)]">Le congé sera directement enregistré comme <strong>approuvé</strong>.</p>
+              <p className="text-xs text-[var(--pp-muted)]">{t.rich('autoApproved', { b: (c) => <strong>{c}</strong> })}</p>
               <div className="flex gap-3 pt-1">
                 <button type="button"
                   onClick={() => { setShowLeaveModal(false); setLeaveForm(EMPTY_LEAVE_FORM) }}
                   className="flex-1 px-4 py-2.5 border border-[var(--pp-line)] rounded-lg text-sm text-[var(--pp-ink)] hover:bg-[var(--pp-bg2)] transition">
-                  Annuler
+                  {t('cancel')}
                 </button>
                 <button type="submit" disabled={submittingLeave}
                   className="flex-1 px-4 py-2.5 bg-[var(--pp-pos)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition disabled:opacity-60">
-                  {submittingLeave ? 'Enregistrement…' : 'Enregistrer'}
+                  {submittingLeave ? t('saving') : t('save')}
                 </button>
               </div>
             </form>
@@ -284,13 +291,14 @@ export default function ManagerDashboard() {
 }
 
 function Section({ title, count, action, children }: { title: string; count: number; action?: React.ReactNode; children: React.ReactNode }) {
+  const t = useTranslations('manager')
   return (
     <div className="bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-xl overflow-hidden">
       <div className="px-5 py-4 border-b border-[var(--pp-line)] flex items-center justify-between bg-[var(--pp-info)]/5">
         <div className="flex items-center gap-3">
           <h2 className="font-semibold text-[var(--pp-ink)]">{title}</h2>
           {count > 0 && (
-            <span className="text-xs font-medium px-2 py-0.5 bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 rounded-full">{count} en attente</span>
+            <span className="text-xs font-medium px-2 py-0.5 bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 rounded-full">{t('pendingBadge', { count })}</span>
           )}
         </div>
         {action}
@@ -304,12 +312,13 @@ function Row({ user, status, detail, badge, onApprove, onReject, loading }: {
   user: RequestUser; status: string; detail: string; badge?: React.ReactNode
   onApprove: () => void; onReject: () => void; loading: boolean
 }) {
+  const t = useTranslations('manager')
   return (
     <div className="flex items-center justify-between px-5 py-3 gap-4">
       <div className="min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-sm font-medium text-[var(--pp-ink)] truncate">{user.name ?? user.email}</span>
-          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[status] ?? ''}`}>{status}</span>
+          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[status] ?? ''}`}>{STATUS_KEY[status] ? t(STATUS_KEY[status]) : status}</span>
           {badge}
         </div>
         <p className="text-xs text-[var(--pp-muted)] mt-0.5 truncate">{detail}</p>
