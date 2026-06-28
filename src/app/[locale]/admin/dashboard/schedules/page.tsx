@@ -2,8 +2,15 @@
 
 export const dynamic = 'force-dynamic'
 import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
+
+const TYPE_ORDER = ['JOURNEE', '2X8', '3X8', '4X8', '5X8', '2X12', 'NUIT', 'PARTIEL', 'VARIABLE']
+const NUMERIC_LABELS: Record<string, string> = { '2X8': '2×8', '3X8': '3×8', '4X8': '4×8', '5X8': '5×8', '2X12': '2×12' }
+type ScheduleT = (key: string, values?: Record<string, string | number>) => string
+const typeLabel = (t: ScheduleT, type: string) => NUMERIC_LABELS[type] ?? t(`type${type}`)
+const typeDesc = (t: ScheduleT, type: string) => t(`desc${type}`)
 
 type WorkSchedule = {
   id: string
@@ -27,32 +34,6 @@ type UserRow = {
   workSchedule: WorkSchedule | null
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  JOURNEE: 'Journée',
-  '2X8': '2×8',
-  '3X8': '3×8',
-  '4X8': '4×8',
-  '5X8': '5×8',
-  '2X12': '2×12',
-  NUIT: 'Nuit fixe',
-  PARTIEL: 'Temps partiel',
-  VARIABLE: 'Variable',
-}
-
-const TYPE_DESCRIPTIONS: Record<string, string> = {
-  JOURNEE: 'Horaire de bureau classique, sans rotation. Ex : 9h-17h, lun-ven.',
-  '2X8': 'Discontinu — 2 équipes alternent matin/après-midi. Pas de nuit. Ex : 6h-14h / 14h-22h.',
-  '3X8': 'Semi-continu — 3 équipes couvrent 24h en semaine. Week-ends libres. Commun en industrie belge.',
-  '4X8': 'Continu — 4 équipes en rotation 24h/7j, week-ends inclus. Moy. 42h/sem. Ex : raffinage, chimie.',
-  '5X8': 'Continu 24/7 — 5 équipes, moy. 38h/sem. Secteurs énergie, sidérurgie, pétrochimie.',
-  '2X12': 'Quarts de 12h — 2 équipes jour/nuit. Courant en hôpitaux, sécurité, urgences.',
-  NUIT: 'Poste de nuit fixe (22h-6h). Compensation légale belge requise (CCT n°49).',
-  PARTIEL: 'Temps partiel — heures et jours à définir selon le contrat.',
-  VARIABLE: 'Plages fixes avec arrivée flexible. Ex : plage fixe 9h-15h, flexible 7h-9h / 15h-19h.',
-}
-
-const DAYS_SHORT = ['', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di']
-
 type DayType = 'off' | 'office' | 'remote' | 'half'
 type DayConfigEntry = { type: Exclude<DayType, 'off'>; startTime: string; endTime: string }
 
@@ -62,10 +43,10 @@ function calcDayHours(startTime: string, endTime: string): number {
   return Math.max(0, Math.round(((eh * 60 + em) - (sh * 60 + sm)) / 60 * 2) / 2)
 }
 
-const DAY_CONFIG_STYLES: Record<Exclude<DayType, 'off'>, { bg: string; title: string }> = {
-  office: { bg: 'bg-[var(--pp-info)] text-white',  title: 'Bureau' },
-  remote: { bg: 'bg-cyan-500 text-white',           title: 'Télétravail' },
-  half:   { bg: 'bg-orange-500 text-white',         title: 'Demi-journée' },
+const DAY_CONFIG_STYLES: Record<Exclude<DayType, 'off'>, { bg: string; titleKey: string }> = {
+  office: { bg: 'bg-[var(--pp-info)] text-white',  titleKey: 'dayOffice' },
+  remote: { bg: 'bg-cyan-500 text-white',           titleKey: 'dayRemote' },
+  half:   { bg: 'bg-orange-500 text-white',         titleKey: 'dayHalf' },
 }
 
 function parseDayType(entry: unknown): Exclude<DayType, 'off'> {
@@ -75,6 +56,8 @@ function parseDayType(entry: unknown): Exclude<DayType, 'off'> {
 }
 
 function DayBadges({ daysJson, dayConfigJson }: { daysJson: string; dayConfigJson?: string | null }) {
+  const t = useTranslations('schedules')
+  const DAYS = t.raw('weekdaysShort') as string[]
   let days: number[] = []
   let cfg: Record<string, unknown> = {}
   try { days = JSON.parse(daysJson) } catch { }
@@ -89,12 +72,12 @@ function DayBadges({ daysJson, dayConfigJson }: { daysJson: string; dayConfigJso
         return (
           <span
             key={d}
-            title={style?.title}
+            title={style ? t(style.titleKey) : undefined}
             className={`text-[10px] px-1 py-0.5 rounded font-medium ${
               style ? style.bg : 'bg-[var(--pp-line)] text-[var(--pp-muted)]'
             }`}
           >
-            {DAYS_SHORT[d]}
+            {DAYS[d - 1]}
           </span>
         )
       })}
@@ -107,6 +90,7 @@ function DayBadges({ daysJson, dayConfigJson }: { daysJson: string; dayConfigJso
 interface TeamRotationInfo { teamName: string; cycleName: string }
 
 function AssignmentsTab({ allSchedules }: { allSchedules: WorkSchedule[] }) {
+  const t = useTranslations('schedules')
   const [rows, setRows] = useState<UserRow[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState<string | null>(null)
@@ -150,13 +134,13 @@ function AssignmentsTab({ allSchedules }: { allSchedules: WorkSchedule[] }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, scheduleId }),
     })
-    if (!res.ok) setError((await res.json()).error ?? 'Erreur')
+    if (!res.ok) setError((await res.json()).error ?? t('errorGeneric'))
     setSaving(null)
     setPending(p => { const n = { ...p }; delete n[userId]; return n })
     fetchRows()
   }
 
-  if (loading) return <p className="text-[var(--pp-muted)] text-sm py-8 text-center">Chargement…</p>
+  if (loading) return <p className="text-[var(--pp-muted)] text-sm py-8 text-center">{t('loading')}</p>
 
   const filteredRows = rows.filter(row => {
     const q = search.toLowerCase()
@@ -174,7 +158,7 @@ function AssignmentsTab({ allSchedules }: { allSchedules: WorkSchedule[] }) {
           type="search"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder="Rechercher un employé…"
+          placeholder={t('searchPlaceholder')}
           className="w-full max-w-sm px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
         />
       </div>
@@ -183,15 +167,15 @@ function AssignmentsTab({ allSchedules }: { allSchedules: WorkSchedule[] }) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--pp-line)] text-left text-[var(--pp-muted)]">
-                <th className="pb-3 pr-4 font-medium w-48">Employé</th>
-                <th className="pb-3 pr-4 font-medium">Régime de travail</th>
-                <th className="pb-3 pr-4 font-medium hidden lg:table-cell">Seuil heures sup.</th>
-                <th className="pb-3 font-medium w-20">Action</th>
+                <th className="pb-3 pr-4 font-medium w-48">{t('colEmployee')}</th>
+                <th className="pb-3 pr-4 font-medium">{t('colSchedule')}</th>
+                <th className="pb-3 pr-4 font-medium hidden lg:table-cell">{t('colThreshold')}</th>
+                <th className="pb-3 font-medium w-20">{t('colAction')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--pp-line)]">
               {filteredRows.length === 0 && (
-                <tr><td colSpan={4} className="py-6 text-center text-[var(--pp-muted)] text-sm italic">Aucun utilisateur.</td></tr>
+                <tr><td colSpan={4} className="py-6 text-center text-[var(--pp-muted)] text-sm italic">{t('noUsers')}</td></tr>
               )}
               {filteredRows.map(row => {
                 const selId = currentScheduleId(row)
@@ -204,7 +188,7 @@ function AssignmentsTab({ allSchedules }: { allSchedules: WorkSchedule[] }) {
                       <p className="font-medium text-[var(--pp-ink)]">{row.user.name ?? '—'}</p>
                       <p className="text-xs text-[var(--pp-muted)]">{row.user.email}</p>
                       {rotationMap[row.userId] && (
-                        <span className="inline-flex items-center gap-1 mt-1 text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium" title="Le cycle de rotation de l'équipe prend le dessus sur cet horaire pour le planning automatique">
+                        <span className="inline-flex items-center gap-1 mt-1 text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium" title={t('rotationBadgeTitle')}>
                           ↻ {rotationMap[row.userId].teamName} · {rotationMap[row.userId].cycleName}
                         </span>
                       )}
@@ -212,7 +196,7 @@ function AssignmentsTab({ allSchedules }: { allSchedules: WorkSchedule[] }) {
                     <td className="py-3 pr-4">
                       {rotationMap[row.userId] ? (
                         <div className="flex items-center gap-2 text-sm text-[var(--pp-muted)] italic">
-                          <span>↻ Géré par le cycle de rotation</span>
+                          <span>{t('managedByRotation')}</span>
                         </div>
                       ) : (
                         <>
@@ -221,15 +205,15 @@ function AssignmentsTab({ allSchedules }: { allSchedules: WorkSchedule[] }) {
                             onChange={e => setPending(p => ({ ...p, [row.userId]: e.target.value }))}
                             className="px-2 py-1.5 border border-[var(--pp-line)] rounded-lg text-sm bg-[var(--pp-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] w-52"
                           >
-                            <option value="">— Non configuré —</option>
+                            <option value="">{t('notConfigured')}</option>
                             {customSchedules.length > 0 && (
-                              <optgroup label="Mes gabarits">
+                              <optgroup label={t('myTemplates')}>
                                 {customSchedules.map(s => (
                                   <option key={s.id} value={s.id}>{s.name}</option>
                                 ))}
                               </optgroup>
                             )}
-                            <optgroup label="Gabarits prédéfinis">
+                            <optgroup label={t('presetTemplates')}>
                               {presetSchedules.map(s => (
                                 <option key={s.id} value={s.id}>{s.name}</option>
                               ))}
@@ -247,18 +231,18 @@ function AssignmentsTab({ allSchedules }: { allSchedules: WorkSchedule[] }) {
                     <td className="py-3 pr-4 hidden lg:table-cell">
                       {rotationMap[row.userId] ? null : selectedSchedule ? (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--pp-info)]/10 text-[var(--pp-info)]">
-                          &gt; {selectedSchedule.hoursPerDay}h/jour = heure sup.
+                          {t('overtimeThreshold', { hours: selectedSchedule.hoursPerDay })}
                         </span>
                       ) : (
                         <span className="text-xs italic text-[var(--pp-muted)]">
-                          Défaut : &gt; {row.hoursPerDay}h/jour
+                          {t('defaultThreshold', { hours: row.hoursPerDay })}
                         </span>
                       )}
                     </td>
                     <td className="py-3">
                       {!rotationMap[row.userId] && dirty && (
                         <Button size="sm" onClick={() => save(row.userId)} disabled={saving === row.userId}>
-                          {saving === row.userId ? '…' : 'Sauver'}
+                          {saving === row.userId ? '…' : t('save')}
                         </Button>
                       )}
                     </td>
@@ -284,11 +268,11 @@ const DAY_BUTTON_STYLES: Record<DayType, string> = {
   half:   'bg-orange-500 text-white border-orange-500',
 }
 
-const DAY_BUTTON_TITLES: Record<DayType, string> = {
-  off:    'Inactif — cliquer pour activer (bureau)',
-  office: 'Bureau — cliquer : télétravail',
-  remote: 'Télétravail — cliquer : demi-journée',
-  half:   'Demi-journée — cliquer : désactiver',
+const DAY_BUTTON_TITLE_KEYS: Record<DayType, string> = {
+  off:    'dayTitleOff',
+  office: 'dayTitleOffice',
+  remote: 'dayTitleRemote',
+  half:   'dayTitleHalf',
 }
 
 function makeDefaultDayConfig(days: number[], startTime: string, endTime: string): Record<number, DayConfigEntry> {
@@ -303,6 +287,8 @@ const EMPTY_FORM = {
 }
 
 function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onRefresh: () => void }) {
+  const t = useTranslations('schedules')
+  const DAYS = t.raw('weekdaysShort') as string[]
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState(EMPTY_FORM)
   const [editId, setEditId] = useState<string | null>(null)
@@ -351,8 +337,8 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!form.name.trim()) { setError('Le nom est requis.'); return }
-    if (!form.startTime || !form.endTime) { setError('Les heures de début et fin sont requises.'); return }
+    if (!form.name.trim()) { setError(t('errNameRequired')); return }
+    if (!form.startTime || !form.endTime) { setError(t('errTimesRequired')); return }
     setSaving(true)
     setError('')
     const method = editId ? 'PATCH' : 'POST'
@@ -374,7 +360,7 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
       body: JSON.stringify(payload),
     })
     if (!res.ok) {
-      setError((await res.json()).error ?? 'Erreur serveur')
+      setError((await res.json()).error ?? t('errorServer'))
       setSaving(false)
       return
     }
@@ -386,7 +372,7 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
   }
 
   const del = async (id: string) => {
-    if (!confirm('Supprimer ce gabarit ?')) return
+    if (!confirm(t('confirmDelete'))) return
     const res = await fetch(`/api/admin/work-schedules?id=${id}`, { method: 'DELETE' })
     if (!res.ok) { alert((await res.json()).error); return }
     onRefresh()
@@ -432,10 +418,10 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-[var(--pp-ink)]">Gabarits personnalisés</h2>
+        <h2 className="text-lg font-semibold text-[var(--pp-ink)]">{t('customTemplates')}</h2>
         {!showForm && (
           <Button size="sm" onClick={() => { setShowForm(true); setEditId(null); setForm(EMPTY_FORM) }}>
-            + Nouveau gabarit
+            {t('newTemplate')}
           </Button>
         )}
       </div>
@@ -443,7 +429,7 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
       {showForm && (
         <Card>
           <h3 className="font-semibold text-[var(--pp-ink)] mb-4">
-            {editId ? 'Modifier le gabarit' : 'Nouveau gabarit'}
+            {editId ? t('editTemplateTitle') : t('newTemplateTitle')}
           </h3>
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">{error}</div>
@@ -451,34 +437,34 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
           <form onSubmit={submit} className="space-y-4 max-w-lg">
 
             <div>
-              <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Nom du gabarit *</label>
+              <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">{t('fName')}</label>
               <input
                 value={form.name}
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                placeholder="Ex: 3×8 Équipe A, Matin usine, Nuit week-end…"
+                placeholder={t('fNamePlaceholder')}
                 className="w-full px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Type de régime *</label>
+              <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">{t('fType')}</label>
               <select
                 value={form.type}
                 onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
                 className="w-full px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm bg-[var(--pp-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
               >
-                {Object.entries(TYPE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                {TYPE_ORDER.map(k => <option key={k} value={k}>{typeLabel(t, k)}</option>)}
               </select>
               {form.type && (
                 <p className="text-xs text-[var(--pp-muted)] mt-1.5 leading-relaxed">
-                  {TYPE_DESCRIPTIONS[form.type]}
+                  {typeDesc(t, form.type)}
                 </p>
               )}
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Début du quart *</label>
+                <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">{t('fStart')}</label>
                 <input
                   type="time"
                   value={form.startTime}
@@ -487,7 +473,7 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Fin du quart *</label>
+                <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">{t('fEnd')}</label>
                 <input
                   type="time"
                   value={form.endTime}
@@ -499,8 +485,8 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
 
             <div>
               <label className="block text-xs font-medium text-[var(--pp-muted)] mb-2">
-                Jours travaillés
-                <span className="ml-2 font-normal opacity-60">(clic = bureau → télétravail → demi-journée → inactif)</span>
+                {t('fDays')}
+                <span className="ml-2 font-normal opacity-60">{t('fDaysHint')}</span>
               </label>
               <div className="flex gap-1.5">
                 {[1, 2, 3, 4, 5, 6, 7].map(d => {
@@ -509,16 +495,16 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
                     <button
                       key={d} type="button"
                       onClick={() => cycleDay(d)}
-                      title={DAY_BUTTON_TITLES[state]}
+                      title={t(DAY_BUTTON_TITLE_KEYS[state])}
                       className={`w-9 py-1.5 rounded text-xs font-medium border transition ${DAY_BUTTON_STYLES[state]}`}
                     >
-                      {DAYS_SHORT[d]}
+                      {DAYS[d - 1]}
                     </button>
                   )
                 })}
               </div>
               <div className="flex gap-4 mt-2">
-                {([['office', 'var(--pp-info)', 'Bureau'], ['remote', '#06b6d4', 'Télétravail'], ['half', '#f97316', 'Demi-journée']] as const).map(([, color, label]) => (
+                {([['var(--pp-info)', t('dayOffice')], ['#06b6d4', t('dayRemote')], ['#f97316', t('dayHalf')]] as const).map(([color, label]) => (
                   <span key={label} className="flex items-center gap-1 text-[10px] text-[var(--pp-muted)]">
                     <span className="w-2.5 h-2.5 rounded-sm inline-block shrink-0" style={{ backgroundColor: color }} />
                     {label}
@@ -532,10 +518,10 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="bg-[var(--pp-bg2)]">
-                        <th className="text-left px-3 py-2 text-[var(--pp-muted)] font-medium w-10">Jour</th>
-                        <th className="px-2 py-2 text-[var(--pp-muted)] font-medium text-center">Début</th>
-                        <th className="px-2 py-2 text-[var(--pp-muted)] font-medium text-center">Fin</th>
-                        <th className="px-3 py-2 text-[var(--pp-muted)] font-medium text-right">Durée</th>
+                        <th className="text-left px-3 py-2 text-[var(--pp-muted)] font-medium w-10">{t('colDay')}</th>
+                        <th className="px-2 py-2 text-[var(--pp-muted)] font-medium text-center">{t('colStart')}</th>
+                        <th className="px-2 py-2 text-[var(--pp-muted)] font-medium text-center">{t('colEnd')}</th>
+                        <th className="px-3 py-2 text-[var(--pp-muted)] font-medium text-right">{t('colDuration')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[var(--pp-line)]">
@@ -548,7 +534,7 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
                         const color = dtype === 'remote' ? 'text-cyan-400' : dtype === 'half' ? 'text-orange-400' : 'text-[var(--pp-info)]'
                         return (
                           <tr key={d} className="hover:bg-[var(--pp-bg2)]/40">
-                            <td className={`px-3 py-1.5 font-semibold ${color}`}>{DAYS_SHORT[d]}</td>
+                            <td className={`px-3 py-1.5 font-semibold ${color}`}>{DAYS[d - 1]}</td>
                             <td className="px-2 py-1 text-center">
                               <input
                                 type="time" value={st}
@@ -576,9 +562,9 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
                     </tbody>
                     <tfoot>
                       <tr className="bg-[var(--pp-bg2)] border-t border-[var(--pp-line)]">
-                        <td colSpan={2} className="px-3 py-1.5 text-[var(--pp-muted)] text-xs font-medium">Total</td>
+                        <td colSpan={2} className="px-3 py-1.5 text-[var(--pp-muted)] text-xs font-medium">{t('total')}</td>
                         <td className="px-3 py-1.5 text-right text-xs font-bold text-[var(--pp-ink)]" colSpan={2}>
-                          {weeklyHoursCalc}h/sem · {hoursPerDayCalc}h/j moy.
+                          {t('totalSummary', { weekly: weeklyHoursCalc, perDay: hoursPerDayCalc })}
                         </td>
                       </tr>
                     </tfoot>
@@ -588,21 +574,21 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Description (optionnel)</label>
+              <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">{t('fDescription')}</label>
               <input
                 value={form.description}
                 onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                placeholder="Contexte ou particularités de cet horaire"
+                placeholder={t('fDescriptionPlaceholder')}
                 className="w-full px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
               />
             </div>
 
             <div className="flex gap-2 pt-1">
               <Button type="submit" size="sm" disabled={saving}>
-                {saving ? 'Enregistrement…' : editId ? 'Modifier' : 'Créer le gabarit'}
+                {saving ? t('saving') : editId ? t('edit') : t('createTemplate')}
               </Button>
               <Button type="button" variant="outline" size="sm" onClick={cancelForm}>
-                Annuler
+                {t('cancel')}
               </Button>
             </div>
           </form>
@@ -611,16 +597,16 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
 
       {customs.length === 0 ? (
         <p className="text-sm text-[var(--pp-muted)] italic">
-          Aucun gabarit personnalisé. Créez le vôtre ou assignez directement un preset.
+          {t('noCustom')}
         </p>
       ) : (
         <ScheduleGrid templates={customs} onEdit={startEdit} onDelete={del} editable />
       )}
 
       <div>
-        <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-1">Gabarits prédéfinis</h2>
+        <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-1">{t('presetTitle')}</h2>
         <p className="text-xs text-[var(--pp-muted)] mb-4">
-          Basés sur les régimes de travail posté belges.
+          {t('presetSubtitle')}
         </p>
         <ScheduleGrid templates={presets} onEdit={startEdit} onDelete={del} editable />
       </div>
@@ -634,8 +620,9 @@ function ScheduleGrid({ templates, onEdit, onDelete, editable }: {
   onDelete?: (id: string) => void
   editable?: boolean
 }) {
-  const grouped = templates.reduce<Record<string, WorkSchedule[]>>((acc, t) => {
-    acc[t.type] = [...(acc[t.type] ?? []), t]
+  const t = useTranslations('schedules')
+  const grouped = templates.reduce<Record<string, WorkSchedule[]>>((acc, tpl) => {
+    acc[tpl.type] = [...(acc[tpl.type] ?? []), tpl]
     return acc
   }, {})
 
@@ -645,28 +632,28 @@ function ScheduleGrid({ templates, onEdit, onDelete, editable }: {
         <div key={type}>
           <div className="flex items-baseline gap-2 mb-2">
             <p className="text-xs font-semibold text-[var(--pp-muted)] uppercase tracking-wider">
-              {TYPE_LABELS[type] ?? type}
+              {typeLabel(t, type)}
             </p>
-            <p className="text-xs text-[var(--pp-muted)]">— {TYPE_DESCRIPTIONS[type]}</p>
+            <p className="text-xs text-[var(--pp-muted)]">— {typeDesc(t, type)}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-            {list.map(t => (
-              <div key={t.id} className="border border-[var(--pp-line)] rounded-lg p-4 bg-[var(--pp-bg)] hover:border-[var(--pp-info)]/40 transition">
+            {list.map(tpl => (
+              <div key={tpl.id} className="border border-[var(--pp-line)] rounded-lg p-4 bg-[var(--pp-bg)] hover:border-[var(--pp-info)]/40 transition">
                 <div className="flex items-start justify-between mb-1.5">
-                  <p className="font-semibold text-[var(--pp-ink)] text-sm">{t.name}</p>
+                  <p className="font-semibold text-[var(--pp-ink)] text-sm">{tpl.name}</p>
                   {editable && (
                     <div className="flex gap-2 ml-2 shrink-0">
-                      <button onClick={() => onEdit?.(t)} className="text-xs text-[var(--pp-info)] hover:underline">Modifier</button>
-                      <button onClick={() => onDelete?.(t.id)} className="text-xs text-[var(--pp-neg)] hover:underline">Suppr.</button>
+                      <button onClick={() => onEdit?.(tpl)} className="text-xs text-[var(--pp-info)] hover:underline">{t('editAction')}</button>
+                      <button onClick={() => onDelete?.(tpl.id)} className="text-xs text-[var(--pp-neg)] hover:underline">{t('deleteAction')}</button>
                     </div>
                   )}
                 </div>
                 <p className="text-xs text-[var(--pp-muted)] mb-2">
-                  {t.startTime}–{t.endTime} &nbsp;·&nbsp; {t.hoursPerDay}h/j &nbsp;·&nbsp; {t.weeklyHours}h/sem
+                  {tpl.startTime}–{tpl.endTime} &nbsp;·&nbsp; {tpl.hoursPerDay}h/j &nbsp;·&nbsp; {tpl.weeklyHours}h/sem
                 </p>
-                <DayBadges daysJson={t.daysOfWeek} dayConfigJson={t.dayConfig} />
-                {t.description && (
-                  <p className="text-xs text-[var(--pp-muted)] mt-2 leading-relaxed">{t.description}</p>
+                <DayBadges daysJson={tpl.daysOfWeek} dayConfigJson={tpl.dayConfig} />
+                {tpl.description && (
+                  <p className="text-xs text-[var(--pp-muted)] mt-2 leading-relaxed">{tpl.description}</p>
                 )}
               </div>
             ))}
@@ -680,6 +667,7 @@ function ScheduleGrid({ templates, onEdit, onDelete, editable }: {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function SchedulesPage() {
+  const t = useTranslations('schedules')
   const [tab, setTab] = useState<'assignments' | 'templates'>('assignments')
   const [templates, setTemplates] = useState<WorkSchedule[]>([])
 
@@ -694,26 +682,26 @@ export default function SchedulesPage() {
   return (
     <div className="p-6 md:p-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Horaires de travail</h1>
+        <h1 className="text-2xl font-bold text-[var(--pp-ink)]">{t('title')}</h1>
         <p className="text-[var(--pp-muted)] text-sm mt-1">
-          Assignez un gabarit d'horaire à chaque employé. Créez vos propres modèles ou utilisez les presets belges.
+          {t('subtitle')}
         </p>
         <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
-          ↻ Les employés membres d&apos;une équipe avec cycle de rotation n&apos;ont pas besoin d&apos;horaire fixe — la rotation détermine automatiquement leurs shifts dans le planning.
+          {t('rotationNote')}
         </p>
       </div>
 
       <div className="flex gap-1 mb-6 border-b border-[var(--pp-line)]">
-        {(['assignments', 'templates'] as const).map(t => (
+        {(['assignments', 'templates'] as const).map(tb => (
           <button
-            key={t} onClick={() => setTab(t)}
+            key={tb} onClick={() => setTab(tb)}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition -mb-px ${
-              tab === t
+              tab === tb
                 ? 'border-[var(--pp-info)] text-[var(--pp-info)]'
                 : 'border-transparent text-[var(--pp-muted)] hover:text-[var(--pp-ink)]'
             }`}
           >
-            {t === 'assignments' ? 'Affectations' : 'Gabarits'}
+            {tb === 'assignments' ? t('tabAssignments') : t('tabTemplates')}
           </button>
         ))}
       </div>
