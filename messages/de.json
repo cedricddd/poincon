@@ -646,11 +646,18 @@
       "body": "Sie wurden eingeladen, <strong>{company}</strong> auf Pointon beizutreten.",
       "button": "Mein Passwort erstellen →",
       "validity": "Dieser Link ist <strong>48 Stunden</strong> gültig.",
+      "bodyDescription": "Klicken Sie auf die Schaltfläche unten, um Ihr Passwort zu erstellen und auf die Anwendung zuzugreifen.",
       "installTitle": "📱 Die App auf Ihrem Telefon installieren",
+      "iphoneTitle": "🍎 iPhone / iPad (Safari)",
       "installStep1Safari": "Öffnen Sie <strong>{url}</strong> in Safari",
       "installStep2Safari": "Tippen Sie auf das <strong>Teilen</strong>-Symbol (Quadrat mit Pfeil ↑)",
       "installStep3Safari": "Wählen Sie <strong>'Zum Home-Bildschirm'</strong>",
-      "installStep4Safari": "Bestätigen Sie mit <strong>'Hinzufügen'</strong>"
+      "installStep4Safari": "Bestätigen Sie mit <strong>'Hinzufügen'</strong>",
+      "androidTitle": "🤖 Android (Chrome)",
+      "installStep1Chrome": "Öffnen Sie <strong>{url}</strong> in Chrome",
+      "installStep2Chrome": "Tippen Sie auf das Menü <strong>⋮</strong> (3 Punkte)",
+      "installStep3Chrome": "Wählen Sie <strong>'Zum Startbildschirm hinzufügen'</strong>",
+      "installStep4Chrome": "Bestätigen Sie mit <strong>'Hinzufügen'</strong>"
     },
     "passwordReset": {
       "subject": "🔑 Ihr Pointon-Passwort zurücksetzen",
@@ -1188,7 +1195,12 @@
     "errMismatch": "Die neuen Passwörter stimmen nicht überein",
     "errUpdate": "Fehler bei der Aktualisierung",
     "errNetwork": "Netzwerkfehler. Bitte versuchen Sie es erneut.",
-    "success": "Passwort erfolgreich aktualisiert"
+    "success": "Passwort erfolgreich aktualisiert",
+    "emailLocale": "E-Mail-Sprache",
+    "emailLocaleLabel": "Sprache für den E-Mail-Empfang",
+    "emailLocaleSave": "Speichern",
+    "emailLocaleSuccess": "Sprachpräferenz aktualisiert",
+    "emailLocaleError": "Fehler bei der Aktualisierung"
   },
   "myReports": {
     "title": "Meine Berichte",

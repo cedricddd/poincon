@@ -646,11 +646,18 @@
       "body": "You have been invited to join <strong>{company}</strong> on Pointon.",
       "button": "Create my password →",
       "validity": "This link is valid for <strong>48 hours</strong>.",
+      "bodyDescription": "Click the button below to create your password and access the application.",
       "installTitle": "📱 Install the app on your phone",
+      "iphoneTitle": "🍎 iPhone / iPad (Safari)",
       "installStep1Safari": "Open <strong>{url}</strong> in Safari",
       "installStep2Safari": "Tap the <strong>Share</strong> icon (square with arrow ↑)",
       "installStep3Safari": "Select <strong>'Add to Home Screen'</strong>",
-      "installStep4Safari": "Confirm with <strong>'Add'</strong>"
+      "installStep4Safari": "Confirm with <strong>'Add'</strong>",
+      "androidTitle": "🤖 Android (Chrome)",
+      "installStep1Chrome": "Open <strong>{url}</strong> in Chrome",
+      "installStep2Chrome": "Tap the <strong>⋮</strong> menu (3 dots)",
+      "installStep3Chrome": "Select <strong>'Add to Home screen'</strong>",
+      "installStep4Chrome": "Confirm with <strong>'Add'</strong>"
     },
     "passwordReset": {
       "subject": "🔑 Reset your Pointon password",
@@ -1188,7 +1195,12 @@
     "errMismatch": "The new passwords do not match",
     "errUpdate": "Error during update",
     "errNetwork": "Network error. Please try again.",
-    "success": "Password updated successfully"
+    "success": "Password updated successfully",
+    "emailLocale": "Email language",
+    "emailLocaleLabel": "Language for receiving emails",
+    "emailLocaleSave": "Save",
+    "emailLocaleSuccess": "Language preference updated",
+    "emailLocaleError": "Error updating preference"
   },
   "myReports": {
     "title": "My reports",

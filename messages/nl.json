@@ -646,11 +646,18 @@
       "body": "U bent uitgenodigd om <strong>{company}</strong> te vervoegen op Pointon.",
       "button": "Mijn wachtwoord aanmaken →",
       "validity": "Deze link is <strong>48 uur</strong> geldig.",
+      "bodyDescription": "Klik op de onderstaande knop om uw wachtwoord aan te maken en toegang te krijgen tot de applicatie.",
       "installTitle": "📱 De app op uw telefoon installeren",
+      "iphoneTitle": "🍎 iPhone / iPad (Safari)",
       "installStep1Safari": "Open <strong>{url}</strong> in Safari",
       "installStep2Safari": "Tik op het pictogram <strong>Delen</strong> (vierkant met pijl ↑)",
       "installStep3Safari": "Selecteer <strong>'Zet op beginscherm'</strong>",
-      "installStep4Safari": "Bevestig met <strong>'Voeg toe'</strong>"
+      "installStep4Safari": "Bevestig met <strong>'Voeg toe'</strong>",
+      "androidTitle": "🤖 Android (Chrome)",
+      "installStep1Chrome": "Open <strong>{url}</strong> in Chrome",
+      "installStep2Chrome": "Tik op het menu <strong>⋮</strong> (3 punten)",
+      "installStep3Chrome": "Selecteer <strong>'Toevoegen aan beginscherm'</strong>",
+      "installStep4Chrome": "Bevestig met <strong>'Toevoegen'</strong>"
     },
     "passwordReset": {
       "subject": "🔑 Uw Pointon-wachtwoord opnieuw instellen",
@@ -1188,7 +1195,12 @@
     "errMismatch": "De nieuwe wachtwoorden komen niet overeen",
     "errUpdate": "Fout bij het bijwerken",
     "errNetwork": "Netwerkfout. Probeer het opnieuw.",
-    "success": "Wachtwoord succesvol bijgewerkt"
+    "success": "Wachtwoord succesvol bijgewerkt",
+    "emailLocale": "E-mailtaal",
+    "emailLocaleLabel": "Taal voor ontvangen e-mails",
+    "emailLocaleSave": "Opslaan",
+    "emailLocaleSuccess": "Taalvoorkeur bijgewerkt",
+    "emailLocaleError": "Fout bij het bijwerken"
   },
   "myReports": {
     "title": "Mijn rapporten",

@@ -1,22 +1,44 @@
 'use client'
 
 export const dynamic = 'force-dynamic'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import { Card } from '@/components/Card'
 import { Button } from '@/components/Button'
 
+const LOCALE_OPTIONS = [
+  { value: 'fr', label: 'Français' },
+  { value: 'nl', label: 'Nederlands' },
+  { value: 'en', label: 'English' },
+  { value: 'de', label: 'Deutsch' },
+]
+
 export default function ProfilePage() {
   const { data: session } = useSession()
   const t = useTranslations('profile')
   const tc = useTranslations('common')
+
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+
+  const [emailLocale, setEmailLocale] = useState<string>('fr')
+  const [localeLoading, setLocaleLoading] = useState(false)
+  const [localeError, setLocaleError] = useState('')
+  const [localeSuccess, setLocaleSuccess] = useState('')
+
+  useEffect(() => {
+    fetch('/api/user/locale')
+      .then(r => r.json())
+      .then(data => {
+        if (data.locale) setEmailLocale(data.locale)
+      })
+      .catch(() => {})
+  }, [])
 
   const roleLabel: Record<string, string> = {
     EMPLOYEE: tc('roleEmployee'),
@@ -56,11 +78,33 @@ export default function ProfilePage() {
     }
   }
 
+  const handleLocaleSave = async () => {
+    setLocaleError('')
+    setLocaleSuccess('')
+    setLocaleLoading(true)
+    try {
+      const res = await fetch('/api/user/locale', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ locale: emailLocale }),
+      })
+      if (!res.ok) {
+        setLocaleError(t('emailLocaleError'))
+      } else {
+        setLocaleSuccess(t('emailLocaleSuccess'))
+      }
+    } catch {
+      setLocaleError(t('emailLocaleError'))
+    } finally {
+      setLocaleLoading(false)
+    }
+  }
+
   const role = (session?.user as { role?: string } | undefined)?.role ?? ''
 
   return (
-    <div className="p-6 max-w-xl">
-      <h1 className="text-2xl font-bold text-[var(--pp-ink)] mb-6">{t('title')}</h1>
+    <div className="p-6 max-w-xl space-y-6">
+      <h1 className="text-2xl font-bold text-[var(--pp-ink)]">{t('title')}</h1>
 
       <Card>
         <div className="mb-6 pb-6 border-b border-[var(--pp-line)]">
@@ -125,6 +169,36 @@ export default function ProfilePage() {
             {loading ? t('submitting') : t('submit')}
           </Button>
         </form>
+      </Card>
+
+      <Card>
+        <div className="space-y-4">
+          <h2 className="text-sm font-semibold text-[var(--pp-ink)]">{t('emailLocale')}</h2>
+
+          {localeError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">{localeError}</div>
+          )}
+          {localeSuccess && (
+            <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-600 text-sm">{localeSuccess}</div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-2">{t('emailLocaleLabel')}</label>
+            <select
+              value={emailLocale}
+              onChange={e => { setEmailLocale(e.target.value); setLocaleSuccess('') }}
+              className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] bg-[var(--pp-surface)] text-[var(--pp-ink)]"
+            >
+              {LOCALE_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <Button type="button" onClick={handleLocaleSave} disabled={localeLoading} size="md">
+            {localeLoading ? t('submitting') : t('emailLocaleSave')}
+          </Button>
+        </div>
       </Card>
     </div>
   )

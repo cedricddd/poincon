@@ -646,11 +646,18 @@
       "body": "Vous avez été invité(e) à rejoindre <strong>{company}</strong> sur Pointon.",
       "button": "Créer mon mot de passe →",
       "validity": "Ce lien est valable <strong>48 heures</strong>.",
+      "bodyDescription": "Cliquez sur le bouton ci-dessous pour créer votre mot de passe et accéder à l'application.",
       "installTitle": "📱 Installer l'application sur votre téléphone",
+      "iphoneTitle": "🍎 iPhone / iPad (Safari)",
       "installStep1Safari": "Ouvrez <strong>{url}</strong> dans Safari",
       "installStep2Safari": "Appuyez sur l'icône <strong>Partager</strong> (carré avec flèche ↑)",
       "installStep3Safari": "Sélectionnez <strong>« Sur l'écran d'accueil »</strong>",
-      "installStep4Safari": "Confirmez avec <strong>« Ajouter »</strong>"
+      "installStep4Safari": "Confirmez avec <strong>« Ajouter »</strong>",
+      "androidTitle": "🤖 Android (Chrome)",
+      "installStep1Chrome": "Ouvrez <strong>{url}</strong> dans Chrome",
+      "installStep2Chrome": "Appuyez sur le menu <strong>⋮</strong> (3 points)",
+      "installStep3Chrome": "Sélectionnez <strong>« Ajouter à l'écran d'accueil »</strong>",
+      "installStep4Chrome": "Confirmez avec <strong>« Ajouter »</strong>"
     },
     "passwordReset": {
       "subject": "🔑 Réinitialisation de votre mot de passe Pointon",
@@ -1188,7 +1195,12 @@
     "errMismatch": "Les nouveaux mots de passe ne correspondent pas",
     "errUpdate": "Erreur lors de la mise à jour",
     "errNetwork": "Erreur réseau. Veuillez réessayer.",
-    "success": "Mot de passe mis à jour avec succès"
+    "success": "Mot de passe mis à jour avec succès",
+    "emailLocale": "Langue des emails",
+    "emailLocaleLabel": "Langue de réception des emails",
+    "emailLocaleSave": "Enregistrer",
+    "emailLocaleSuccess": "Préférence de langue mise à jour",
+    "emailLocaleError": "Erreur lors de la mise à jour"
   },
   "myReports": {
     "title": "Mes rapports",
