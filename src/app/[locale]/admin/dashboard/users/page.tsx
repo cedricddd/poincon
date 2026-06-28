@@ -2,7 +2,8 @@
 
 export const dynamic = 'force-dynamic'
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 import { usePlan } from '@/hooks/usePlan'
@@ -15,6 +16,7 @@ type SortField = 'name' | 'email' | 'role' | 'site' | 'createdAt'
 type SortDir = 'asc' | 'desc'
 
 function PinModal({ user, onClose }: { user: User; onClose: () => void }) {
+  const t = useTranslations('users')
   const [pin, setPin] = useState('')
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
@@ -22,7 +24,7 @@ function PinModal({ user, onClose }: { user: User; onClose: () => void }) {
 
   const handleSet = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!/^\d{4}$/.test(pin)) { setError('Le PIN doit contenir exactement 4 chiffres.'); return }
+    if (!/^\d{4}$/.test(pin)) { setError(t('pinInvalid')); return }
     setSaving(true); setError(''); setMsg('')
     const res = await fetch(`/api/admin/users/${user.id}/pin`, {
       method: 'PATCH',
@@ -30,12 +32,12 @@ function PinModal({ user, onClose }: { user: User; onClose: () => void }) {
       body: JSON.stringify({ pin }),
     })
     setSaving(false)
-    if (!res.ok) { setError((await res.json()).error ?? 'Erreur'); return }
-    setMsg('PIN défini.'); setPin('')
+    if (!res.ok) { setError((await res.json()).error ?? t('errorGeneric')); return }
+    setMsg(t('pinSet')); setPin('')
   }
 
   const handleClear = async () => {
-    if (!confirm(`Supprimer le PIN kiosque de ${user.name} ?`)) return
+    if (!confirm(t('pinConfirmClear', { name: user.name }))) return
     setSaving(true); setError(''); setMsg('')
     const res = await fetch(`/api/admin/users/${user.id}/pin`, {
       method: 'PATCH',
@@ -43,14 +45,14 @@ function PinModal({ user, onClose }: { user: User; onClose: () => void }) {
       body: JSON.stringify({ pin: null }),
     })
     setSaving(false)
-    if (!res.ok) { setError((await res.json()).error ?? 'Erreur'); return }
-    setMsg('PIN supprimé.')
+    if (!res.ok) { setError((await res.json()).error ?? t('errorGeneric')); return }
+    setMsg(t('pinCleared'))
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
       <div className="bg-[var(--pp-bg)] rounded-2xl shadow-2xl p-6 w-80 border border-[var(--pp-line)]" onClick={e => e.stopPropagation()}>
-        <h3 className="text-base font-semibold text-[var(--pp-ink)] mb-1">PIN Kiosque</h3>
+        <h3 className="text-base font-semibold text-[var(--pp-ink)] mb-1">{t('pinTitle')}</h3>
         <p className="text-xs text-[var(--pp-muted)] mb-4">{user.name}</p>
 
         {msg && <p className="text-xs text-green-600 mb-3">{msg}</p>}
@@ -64,20 +66,20 @@ function PinModal({ user, onClose }: { user: User; onClose: () => void }) {
             maxLength={4}
             value={pin}
             onChange={e => { setPin(e.target.value.replace(/\D/g, '')); setError('') }}
-            placeholder="1 2 3 4"
+            placeholder={t('pinPlaceholder')}
             className="w-full px-4 py-3 text-center text-xl tracking-[0.5em] border border-[var(--pp-line)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
           />
           <Button type="submit" size="md" disabled={saving} className="w-full">
-            {saving ? '…' : 'Définir le PIN'}
+            {saving ? '…' : t('pinDefine')}
           </Button>
         </form>
 
         <div className="flex justify-between mt-3">
           <button onClick={handleClear} disabled={saving} className="text-xs text-[var(--pp-neg)] hover:underline">
-            Supprimer le PIN
+            {t('pinDelete')}
           </button>
           <button onClick={onClose} className="text-xs text-[var(--pp-muted)] hover:underline">
-            Fermer
+            {t('close')}
           </button>
         </div>
       </div>
@@ -91,6 +93,8 @@ function SortIcon({ field, current, dir }: { field: SortField; current: SortFiel
 }
 
 export default function UsersPage() {
+  const t = useTranslations('users')
+  const tc = useTranslations('common')
   const { planInfo } = usePlan()
   const [users, setUsers] = useState<User[]>([])
   const [sites, setSites] = useState<Site[]>([])
@@ -161,14 +165,14 @@ export default function UsersPage() {
   }
 
   const deleteUser = async (id: string, name: string) => {
-    if (!confirm(`Supprimer le compte de ${name} ? Cette action est irréversible.`)) return
+    if (!confirm(t('confirmDelete', { name }))) return
     const res = await fetch(`/api/admin/users?id=${id}`, { method: 'DELETE' })
     if (!res.ok) { setError((await res.json()).error); return }
     fetchUsers()
   }
 
   const anonymizeUser = async (id: string, name: string) => {
-    if (!confirm(`Anonymiser les logs d'audit de ${name} ?\n\nLeurs actions passées seront conservées mais dissociées de leur identité. Action irréversible.`)) return
+    if (!confirm(t('confirmAnonymize', { name }))) return
     const res = await fetch('/api/admin/users/anonymize', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -176,7 +180,7 @@ export default function UsersPage() {
     })
     if (!res.ok) { setError((await res.json()).error); return }
     const data = await res.json()
-    setError(`✓ ${data.logsAnonymized} log(s) anonymisé(s) pour ${name}`)
+    setError(t('anonymizeResult', { count: data.logsAnonymized, name }))
     setTimeout(() => setError(''), 4000)
   }
 
@@ -204,9 +208,9 @@ export default function UsersPage() {
       {pinUser && <PinModal user={pinUser} onClose={() => setPinUser(null)} />}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Utilisateurs</h1>
+          <h1 className="text-2xl font-bold text-[var(--pp-ink)]">{t('title')}</h1>
           <div className="flex items-center gap-2 mt-1">
-            <p className="text-[var(--pp-muted)] text-sm">{users.length} compte{users.length !== 1 ? 's' : ''}</p>
+            <p className="text-[var(--pp-muted)] text-sm">{t('accounts', { count: users.length })}</p>
             {planInfo && planInfo.maxEmployees !== -1 && (
               planInfo.plan === 'FREE' ? (
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
@@ -216,14 +220,14 @@ export default function UsersPage() {
                     ? 'bg-yellow-100 text-yellow-700'
                     : 'bg-gray-100 text-gray-500'
                 }`}>
-                  {users.length}/{planInfo.maxEmployees} max (FREE)
+                  {t('freeUsage', { count: users.length, max: planInfo.maxEmployees })}
                 </span>
               ) : (
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                   users.length > planInfo.maxEmployees ? 'bg-[#7c3aed]/10 text-[#7c3aed]' : 'bg-gray-100 text-gray-500'
                 }`}>
-                  {users.length} membre{users.length !== 1 ? 's' : ''} · {planInfo.maxEmployees} inclus
-                  {users.length > planInfo.maxEmployees ? ` · +${users.length - planInfo.maxEmployees} siège(s)` : ''}
+                  {t('seatUsage', { count: users.length, max: planInfo.maxEmployees })}
+                  {users.length > planInfo.maxEmployees ? t('extraSeats', { count: users.length - planInfo.maxEmployees }) : ''}
                 </span>
               )
             )}
@@ -231,10 +235,10 @@ export default function UsersPage() {
         </div>
         <div className="flex gap-2">
           <Link href="/admin/dashboard/users/invite">
-            <Button size="md" variant="mauve">Inviter</Button>
+            <Button size="md" variant="mauve">{t('invite')}</Button>
           </Link>
           <Link href="/admin/dashboard/users/new">
-            <Button size="md">Créer</Button>
+            <Button size="md">{t('create')}</Button>
           </Link>
         </div>
       </div>
@@ -242,11 +246,11 @@ export default function UsersPage() {
       {planInfo && planInfo.plan === 'FREE' && planInfo.maxEmployees !== -1 && users.length >= planInfo.maxEmployees && (
         <div className="mb-4 p-4 rounded-xl border border-orange-200 bg-orange-50 flex items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-medium text-orange-800">Limite du plan gratuit atteinte ({users.length}/{planInfo.maxEmployees})</p>
-            <p className="text-xs text-orange-600 mt-0.5">Passez à un plan payant pour ajouter davantage d&apos;employés.</p>
+            <p className="text-sm font-medium text-orange-800">{t('freeLimitTitle', { count: users.length, max: planInfo.maxEmployees })}</p>
+            <p className="text-xs text-orange-600 mt-0.5">{t('freeLimitDesc')}</p>
           </div>
           <Link href="/pricing" className="shrink-0 px-3 py-1.5 bg-orange-600 text-white text-xs font-medium rounded-lg hover:opacity-90">
-            Upgrader
+            {t('upgrade')}
           </Link>
         </div>
       )}
@@ -254,8 +258,8 @@ export default function UsersPage() {
       {planInfo && planInfo.plan !== 'FREE' && planInfo.maxEmployees !== -1 && users.length > planInfo.maxEmployees && (
         <div className="mb-4 p-4 rounded-xl border border-[#7c3aed]/20 bg-[#7c3aed]/5">
           <p className="text-sm text-[#7c3aed]">
-            {users.length - planInfo.maxEmployees} siège(s) supplémentaire(s) facturé(s) au-delà des {planInfo.maxEmployees} inclus.
-            {' '}Détail dans <Link href="/admin/dashboard/settings" className="underline font-medium">Réglages → Abonnement</Link>.
+            {t('seatsBillingPre', { count: users.length - planInfo.maxEmployees, max: planInfo.maxEmployees })}
+            {t('seatsBillingDetail')}<Link href="/admin/dashboard/settings" className="underline font-medium">{t('settingsLink')}</Link>.
           </p>
         </div>
       )}
@@ -265,7 +269,7 @@ export default function UsersPage() {
           type="search"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder="Rechercher par nom ou email…"
+          placeholder={t('searchPlaceholder')}
           className="w-full max-w-sm px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
         />
       </div>
@@ -276,28 +280,28 @@ export default function UsersPage() {
 
       <Card>
         {loading ? (
-          <p className="text-[var(--pp-muted)] text-sm py-4 text-center">Chargement…</p>
+          <p className="text-[var(--pp-muted)] text-sm py-4 text-center">{t('loading')}</p>
         ) : users.length === 0 ? (
-          <p className="text-[var(--pp-muted)] text-sm py-4 text-center">Aucun utilisateur.</p>
+          <p className="text-[var(--pp-muted)] text-sm py-4 text-center">{t('empty')}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[var(--pp-line)] text-left text-[var(--pp-muted)]">
                   <th className={thClass} onClick={() => toggleSort('name')}>
-                    Nom <SortIcon field="name" current={sortField} dir={sortDir} />
+                    {t('colName')} <SortIcon field="name" current={sortField} dir={sortDir} />
                   </th>
                   <th className={thClass} onClick={() => toggleSort('email')}>
-                    Email <SortIcon field="email" current={sortField} dir={sortDir} />
+                    {t('colEmail')} <SortIcon field="email" current={sortField} dir={sortDir} />
                   </th>
                   <th className={thClass} onClick={() => toggleSort('role')}>
-                    Rôle <SortIcon field="role" current={sortField} dir={sortDir} />
+                    {t('colRole')} <SortIcon field="role" current={sortField} dir={sortDir} />
                   </th>
                   <th className={`${thClass} hidden md:table-cell`} onClick={() => toggleSort('site')}>
-                    Site <SortIcon field="site" current={sortField} dir={sortDir} />
+                    {t('colSite')} <SortIcon field="site" current={sortField} dir={sortDir} />
                   </th>
-                  <th className="pb-3 pr-4 font-medium hidden lg:table-cell">Manager</th>
-                  <th className="pb-3 font-medium">Actions</th>
+                  <th className="pb-3 pr-4 font-medium hidden lg:table-cell">{t('colManager')}</th>
+                  <th className="pb-3 font-medium">{t('colActions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--pp-line)]">
@@ -313,20 +317,20 @@ export default function UsersPage() {
                         </td>
                         <td className="py-3 pr-4">
                           <select value={editData.role} onChange={e => setEditData(p => ({ ...p, role: e.target.value }))} className="px-2 py-1 border border-[var(--pp-info)] rounded focus:outline-none text-sm bg-[var(--pp-bg)]">
-                            <option value="EMPLOYEE">Employé</option>
-                            {canUseManagers && <option value="MANAGER">Manager</option>}
-                            <option value="ADMIN">Admin</option>
+                            <option value="EMPLOYEE">{tc('roleEmployee')}</option>
+                            {canUseManagers && <option value="MANAGER">{tc('roleManager')}</option>}
+                            <option value="ADMIN">{tc('roleAdmin')}</option>
                           </select>
                         </td>
                         <td className="py-3 pr-4 hidden md:table-cell">
                           <select value={editData.defaultSiteId} onChange={e => setEditData(p => ({ ...p, defaultSiteId: e.target.value }))} className="px-2 py-1 border border-[var(--pp-info)] rounded focus:outline-none text-sm bg-[var(--pp-bg)]">
-                            <option value="">— Aucun —</option>
+                            <option value="">{t('none')}</option>
                             {sites.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                           </select>
                         </td>
                         <td className="py-3 pr-4 hidden lg:table-cell">
                           <select value={editData.managerId} onChange={e => setEditData(p => ({ ...p, managerId: e.target.value }))} className="px-2 py-1 border border-[var(--pp-info)] rounded focus:outline-none text-sm bg-[var(--pp-bg)]">
-                            <option value="">— Aucun —</option>
+                            <option value="">{t('none')}</option>
                             {users.filter(u => u.role === 'MANAGER' && u.id !== user.id).map(m => (
                               <option key={m.id} value={m.id}>{m.name ?? m.email}</option>
                             ))}
@@ -336,13 +340,13 @@ export default function UsersPage() {
                           <div className="flex items-center gap-2 flex-wrap">
                             <input
                               type="password"
-                              placeholder="Nouveau mdp (optionnel)"
+                              placeholder={t('newPasswordPlaceholder')}
                               value={editData.password}
                               onChange={e => setEditData(p => ({ ...p, password: e.target.value }))}
                               className="px-2 py-1 border border-[var(--pp-line)] rounded focus:outline-none text-sm w-40"
                             />
-                            <Button size="sm" onClick={() => saveEdit(user.id)} disabled={saving}>{saving ? '…' : 'Sauver'}</Button>
-                            <Button size="sm" variant="outline" onClick={cancelEdit}>Annuler</Button>
+                            <Button size="sm" onClick={() => saveEdit(user.id)} disabled={saving}>{saving ? '…' : t('save')}</Button>
+                            <Button size="sm" variant="outline" onClick={cancelEdit}>{t('cancel')}</Button>
                           </div>
                         </td>
                       </>
@@ -358,7 +362,7 @@ export default function UsersPage() {
                               ? 'bg-purple-100 text-purple-600'
                               : 'bg-[var(--pp-line)] text-[var(--pp-muted)]'
                           }`}>
-                            {user.role === 'ADMIN' ? 'Admin' : user.role === 'MANAGER' ? 'Manager' : 'Employé'}
+                            {user.role === 'ADMIN' ? tc('roleAdmin') : user.role === 'MANAGER' ? tc('roleManager') : tc('roleEmployee')}
                           </span>
                         </td>
                         <td className="py-3 pr-4 hidden md:table-cell text-xs text-[var(--pp-muted)]">
@@ -374,15 +378,15 @@ export default function UsersPage() {
                         <td className="py-3">
                           <div className="flex gap-2 flex-wrap">
                             <Link href={`/admin/dashboard/users/${user.id}`}>
-                              <Button size="sm" variant="outline">Voir</Button>
+                              <Button size="sm" variant="outline">{t('view')}</Button>
                             </Link>
-                            <Button size="sm" variant="outline" onClick={() => startEdit(user)}>Modifier</Button>
-                            <Button size="sm" variant="outline" onClick={() => setPinUser(user)} title="PIN kiosque">PIN</Button>
-                            <button onClick={() => anonymizeUser(user.id, user.name)} className="text-xs text-[var(--pp-muted)] hover:underline px-2" title="Anonymiser les logs RGPD">
-                              Anonymiser
+                            <Button size="sm" variant="outline" onClick={() => startEdit(user)}>{t('edit')}</Button>
+                            <Button size="sm" variant="outline" onClick={() => setPinUser(user)} title={t('pinTitle')}>{t('pin')}</Button>
+                            <button onClick={() => anonymizeUser(user.id, user.name)} className="text-xs text-[var(--pp-muted)] hover:underline px-2" title={t('anonymize')}>
+                              {t('anonymize')}
                             </button>
                             <button onClick={() => deleteUser(user.id, user.name)} className="text-xs text-[var(--pp-neg)] hover:underline px-2">
-                              Supprimer
+                              {t('delete')}
                             </button>
                           </div>
                         </td>
