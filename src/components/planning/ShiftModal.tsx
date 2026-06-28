@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 
 export interface ShiftFormData {
   userId: string
@@ -38,15 +39,16 @@ interface ShiftModalProps {
 }
 
 const SHIFT_TYPES = [
-  { value: 'DAY', label: 'Journée', description: 'Horaire de jour standard' },
-  { value: 'MORNING', label: 'Matin (2×8)', description: 'Ex. 06:00 – 14:00' },
-  { value: 'AFTERNOON', label: 'Après-midi (2×8)', description: 'Ex. 14:00 – 22:00' },
-  { value: 'NIGHT', label: 'Nuit (3×8)', description: 'Ex. 22:00 – 06:00' },
-  { value: 'PARTIAL', label: 'Temps partiel', description: 'Contrat réduit — heures à définir' },
-  { value: 'VARIABLE', label: 'Variable', description: 'Horaires flexibles ou irréguliers' },
+  { value: 'DAY', labelKey: 'legDay', descKey: 'descDay' },
+  { value: 'MORNING', labelKey: 'legMorning', descKey: 'descMorning' },
+  { value: 'AFTERNOON', labelKey: 'legAfternoon', descKey: 'descAfternoon' },
+  { value: 'NIGHT', labelKey: 'legNight', descKey: 'descNight' },
+  { value: 'PARTIAL', labelKey: 'legPartial', descKey: 'descPartial' },
+  { value: 'VARIABLE', labelKey: 'legVariable', descKey: 'descVariable' },
 ]
 
 export function ShiftModal({ mode, initialData, users, shift, onSave, onDelete, onClose }: ShiftModalProps) {
+  const t = useTranslations('planning')
   const [userId, setUserId] = useState(initialData.userId ?? '')
   const [date, setDate] = useState(initialData.date ?? '')
   const [startTime, setStartTime] = useState(initialData.startTime ?? '09:00')
@@ -70,7 +72,7 @@ export function ShiftModal({ mode, initialData, users, shift, onSave, onDelete, 
 
   const handleSave = async () => {
     if (!userId || !date || !startTime || !endTime) {
-      setError('Tous les champs obligatoires doivent être remplis.')
+      setError(t('errRequired'))
       return
     }
     setSaving(true)
@@ -79,7 +81,7 @@ export function ShiftModal({ mode, initialData, users, shift, onSave, onDelete, 
       await onSave({ userId, date, startTime, endTime, shiftType, note })
       onClose()
     } catch {
-      setError('Erreur lors de la sauvegarde.')
+      setError(t('errSave'))
     } finally {
       setSaving(false)
     }
@@ -87,13 +89,13 @@ export function ShiftModal({ mode, initialData, users, shift, onSave, onDelete, 
 
   const handleDelete = async () => {
     if (!onDelete) return
-    if (!confirm('Supprimer ce shift ?')) return
+    if (!confirm(t('confirmDelete'))) return
     setDeleting(true)
     try {
       await onDelete()
       onClose()
     } catch {
-      setError('Erreur lors de la suppression.')
+      setError(t('errDeleteModal'))
     } finally {
       setDeleting(false)
     }
@@ -107,7 +109,7 @@ export function ShiftModal({ mode, initialData, users, shift, onSave, onDelete, 
       <div className="bg-[var(--pp-bg)] border border-[var(--pp-line)] rounded-xl shadow-2xl w-full max-w-md mx-4 p-6">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-base font-semibold text-[var(--pp-ink)]">
-            {mode === 'create' ? 'Créer un shift' : 'Modifier le shift'}
+            {mode === 'create' ? t('modalCreate') : t('modalEdit')}
           </h2>
           <button
             onClick={onClose}
@@ -122,13 +124,13 @@ export function ShiftModal({ mode, initialData, users, shift, onSave, onDelete, 
         <div className="space-y-4">
           {mode === 'create' && (
             <div>
-              <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Employé *</label>
+              <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">{t('fEmployee')}</label>
               <select
                 value={userId}
                 onChange={e => setUserId(e.target.value)}
                 className="w-full border border-[var(--pp-line)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] bg-[var(--pp-bg)]"
               >
-                <option value="">Sélectionner un employé...</option>
+                <option value="">{t('selectEmployee')}</option>
                 {users.map(u => (
                   <option key={u.id} value={u.id}>{u.name ?? u.email}</option>
                 ))}
@@ -137,7 +139,7 @@ export function ShiftModal({ mode, initialData, users, shift, onSave, onDelete, 
           )}
 
           <div>
-            <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Date *</label>
+            <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">{t('fDate')}</label>
             <input
               type="date"
               value={date}
@@ -148,7 +150,7 @@ export function ShiftModal({ mode, initialData, users, shift, onSave, onDelete, 
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Début *</label>
+              <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">{t('fStart')}</label>
               <input
                 type="time"
                 value={startTime}
@@ -157,7 +159,7 @@ export function ShiftModal({ mode, initialData, users, shift, onSave, onDelete, 
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Fin *</label>
+              <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">{t('fEnd')}</label>
               <input
                 type="time"
                 value={endTime}
@@ -168,33 +170,33 @@ export function ShiftModal({ mode, initialData, users, shift, onSave, onDelete, 
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1.5">Type d'horaire</label>
+            <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1.5">{t('fShiftType')}</label>
             <div className="grid grid-cols-2 gap-2">
-              {SHIFT_TYPES.map(t => (
+              {SHIFT_TYPES.map(st => (
                 <button
-                  key={t.value}
+                  key={st.value}
                   type="button"
-                  onClick={() => setShiftType(t.value)}
+                  onClick={() => setShiftType(st.value)}
                   className={`text-left px-3 py-2 rounded-lg border text-xs transition-all ${
-                    shiftType === t.value
+                    shiftType === st.value
                       ? 'border-[var(--pp-info)] bg-[var(--pp-info)]/8 text-[var(--pp-info)]'
                       : 'border-[var(--pp-line)] hover:border-[var(--pp-info)]/50 text-[var(--pp-ink)]'
                   }`}
                 >
-                  <div className="font-medium">{t.label}</div>
-                  <div className="text-[10px] text-[var(--pp-muted)] mt-0.5">{t.description}</div>
+                  <div className="font-medium">{t(st.labelKey)}</div>
+                  <div className="text-[10px] text-[var(--pp-muted)] mt-0.5">{t(st.descKey)}</div>
                 </button>
               ))}
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Note (optionnel)</label>
+            <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">{t('fNote')}</label>
             <input
               type="text"
               value={note}
               onChange={e => setNote(e.target.value)}
-              placeholder="Remarque, poste, site..."
+              placeholder={t('fNotePlaceholder')}
               className="w-full border border-[var(--pp-line)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] bg-[var(--pp-bg)]"
             />
           </div>
@@ -210,7 +212,7 @@ export function ShiftModal({ mode, initialData, users, shift, onSave, onDelete, 
                 disabled={deleting}
                 className="px-3 py-2 text-sm text-[var(--pp-neg)] border border-[var(--pp-neg)]/30 rounded-lg hover:bg-[var(--pp-neg)]/8 transition disabled:opacity-50"
               >
-                {deleting ? 'Suppression...' : 'Supprimer'}
+                {deleting ? t('deleting') : t('delete')}
               </button>
             )}
           </div>
@@ -219,14 +221,14 @@ export function ShiftModal({ mode, initialData, users, shift, onSave, onDelete, 
               onClick={onClose}
               className="px-4 py-2 text-sm text-[var(--pp-muted)] border border-[var(--pp-line)] rounded-lg hover:bg-[var(--pp-bg2)] transition"
             >
-              Annuler
+              {t('cancel')}
             </button>
             <button
               onClick={handleSave}
               disabled={saving}
               className="px-4 py-2 text-sm bg-[var(--pp-info)] text-white rounded-lg hover:opacity-90 transition disabled:opacity-50"
             >
-              {saving ? 'Enregistrement...' : mode === 'create' ? 'Créer' : 'Enregistrer'}
+              {saving ? t('saving') : mode === 'create' ? t('create') : t('save')}
             </button>
           </div>
         </div>

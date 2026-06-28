@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 interface Shift {
   id: string
   userId: string
@@ -21,11 +23,11 @@ interface ShiftCellProps {
   onClick: () => void
 }
 
-const LEAVE_CONFIG: Record<string, { bg: string; text: string; label: string; icon: React.ReactNode }> = {
+const LEAVE_CONFIG: Record<string, { bg: string; text: string; labelKey: string; icon: React.ReactNode }> = {
   ANNUAL: {
     bg: 'bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)]/25',
     text: 'text-[var(--pp-pos)]',
-    label: 'Congé annuel',
+    labelKey: 'leaveAnnual',
     icon: (
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="4"/>
@@ -39,7 +41,7 @@ const LEAVE_CONFIG: Record<string, { bg: string; text: string; label: string; ic
   SICK: {
     bg: 'bg-orange-500/10 border border-orange-500/25',
     text: 'text-orange-600 dark:text-orange-400',
-    label: 'Congé maladie',
+    labelKey: 'leaveSick',
     icon: (
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="9"/>
@@ -50,7 +52,7 @@ const LEAVE_CONFIG: Record<string, { bg: string; text: string; label: string; ic
   MATERNITY: {
     bg: 'bg-pink-500/10 border border-pink-500/25',
     text: 'text-pink-600 dark:text-pink-400',
-    label: 'Congé maternité',
+    labelKey: 'leaveMaternity',
     icon: (
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -59,71 +61,31 @@ const LEAVE_CONFIG: Record<string, { bg: string; text: string; label: string; ic
   },
 }
 
-const SHIFT_TYPE_CONFIG: Record<string, { bg: string; hover: string; text: string; label: string; templateBg: string; dashedBorder: string }> = {
-  DAY: {
-    bg: 'bg-sky-500/15 border border-sky-500/35',
-    hover: 'hover:bg-sky-500/25',
-    text: 'text-sky-400',
-    label: 'Journée',
-    templateBg: 'bg-sky-500/8',
-    dashedBorder: 'border-sky-400/60',
-  },
-  MORNING: {
-    bg: 'bg-emerald-500/15 border border-emerald-500/35',
-    hover: 'hover:bg-emerald-500/25',
-    text: 'text-emerald-400',
-    label: 'Matin',
-    templateBg: 'bg-emerald-500/8',
-    dashedBorder: 'border-emerald-400/60',
-  },
-  AFTERNOON: {
-    bg: 'bg-amber-500/15 border border-amber-500/35',
-    hover: 'hover:bg-amber-500/25',
-    text: 'text-amber-400',
-    label: 'Après-midi',
-    templateBg: 'bg-amber-500/8',
-    dashedBorder: 'border-amber-400/60',
-  },
-  NIGHT: {
-    bg: 'bg-indigo-500/15 border border-indigo-500/35',
-    hover: 'hover:bg-indigo-500/25',
-    text: 'text-indigo-400',
-    label: 'Nuit',
-    templateBg: 'bg-indigo-500/8',
-    dashedBorder: 'border-indigo-400/60',
-  },
-  PARTIAL: {
-    bg: 'bg-violet-500/15 border border-violet-500/35',
-    hover: 'hover:bg-violet-500/25',
-    text: 'text-violet-400',
-    label: 'Temps partiel',
-    templateBg: 'bg-violet-500/8',
-    dashedBorder: 'border-violet-400/60',
-  },
-  VARIABLE: {
-    bg: 'bg-teal-500/15 border border-teal-500/35',
-    hover: 'hover:bg-teal-500/25',
-    text: 'text-teal-400',
-    label: 'Variable',
-    templateBg: 'bg-teal-500/8',
-    dashedBorder: 'border-teal-400/60',
-  },
+const SHIFT_TYPE_CONFIG: Record<string, { bg: string; hover: string; text: string; labelKey: string; templateBg: string; dashedBorder: string }> = {
+  DAY:       { bg: 'bg-sky-500/15 border border-sky-500/35',       hover: 'hover:bg-sky-500/25',     text: 'text-sky-400',     labelKey: 'typeDay',       templateBg: 'bg-sky-500/8',     dashedBorder: 'border-sky-400/60' },
+  MORNING:   { bg: 'bg-emerald-500/15 border border-emerald-500/35', hover: 'hover:bg-emerald-500/25', text: 'text-emerald-400', labelKey: 'typeMorning',   templateBg: 'bg-emerald-500/8', dashedBorder: 'border-emerald-400/60' },
+  AFTERNOON: { bg: 'bg-amber-500/15 border border-amber-500/35',   hover: 'hover:bg-amber-500/25',   text: 'text-amber-400',   labelKey: 'typeAfternoon', templateBg: 'bg-amber-500/8',   dashedBorder: 'border-amber-400/60' },
+  NIGHT:     { bg: 'bg-indigo-500/15 border border-indigo-500/35', hover: 'hover:bg-indigo-500/25',  text: 'text-indigo-400',  labelKey: 'typeNight',     templateBg: 'bg-indigo-500/8',  dashedBorder: 'border-indigo-400/60' },
+  PARTIAL:   { bg: 'bg-violet-500/15 border border-violet-500/35', hover: 'hover:bg-violet-500/25',  text: 'text-violet-400',  labelKey: 'typePartial',   templateBg: 'bg-violet-500/8',  dashedBorder: 'border-violet-400/60' },
+  VARIABLE:  { bg: 'bg-teal-500/15 border border-teal-500/35',     hover: 'hover:bg-teal-500/25',    text: 'text-teal-400',    labelKey: 'typeVariable',  templateBg: 'bg-teal-500/8',    dashedBorder: 'border-teal-400/60' },
 }
 
 export function ShiftCell({ shift, leaveType, rttHours, rotationSlot, onClick }: ShiftCellProps) {
+  const t = useTranslations('planning')
+
   if (leaveType) {
     const cfg = LEAVE_CONFIG[leaveType]
     if (cfg) {
       return (
         <div className={`h-full min-h-[56px] rounded-md ${cfg.bg} flex flex-col items-center justify-center cursor-not-allowed select-none gap-0.5`}>
           <span className={cfg.text}>{cfg.icon}</span>
-          <span className={`text-[10px] font-medium leading-tight ${cfg.text}`}>{cfg.label}</span>
+          <span className={`text-[10px] font-medium leading-tight ${cfg.text}`}>{t(cfg.labelKey)}</span>
         </div>
       )
     }
     return (
       <div className="h-full min-h-[56px] rounded-md bg-[var(--pp-line)]/40 flex items-center justify-center cursor-not-allowed select-none">
-        <span className="text-sm text-[var(--pp-muted)]" title="Congé approuvé">🚫</span>
+        <span className="text-sm text-[var(--pp-muted)]" title={t('leaveApproved')}>🚫</span>
       </div>
     )
   }
@@ -132,13 +94,13 @@ export function ShiftCell({ shift, leaveType, rttHours, rotationSlot, onClick }:
     return (
       <button
         onClick={onClick}
-        title={`Récupération ${rttHours}h approuvée — cliquer pour planifier un shift`}
+        title={t('recoveryApprovedTitle', { hours: rttHours })}
         className="h-full min-h-[56px] w-full rounded-md bg-amber-500/10 border border-dashed border-amber-400/50 hover:bg-amber-500/20 transition-all text-left px-2 py-1.5"
       >
         <div className="text-xs font-semibold text-amber-600 dark:text-amber-400 leading-tight">
           ↩ {rttHours}h
         </div>
-        <div className="text-[10px] text-amber-400 mt-0.5 leading-tight">Récupération</div>
+        <div className="text-[10px] text-amber-400 mt-0.5 leading-tight">{t('recovery')}</div>
       </button>
     )
   }
@@ -148,13 +110,13 @@ export function ShiftCell({ shift, leaveType, rttHours, rotationSlot, onClick }:
     return (
       <button
         onClick={onClick}
-        title={`Rotation — ${rotationSlot.startTime}–${rotationSlot.endTime} · Cliquer pour créer le shift`}
+        title={t('rotationTitle', { start: rotationSlot.startTime, end: rotationSlot.endTime })}
         className={`h-full min-h-[56px] w-full rounded-md border border-dashed ${rotCfg.templateBg} ${rotCfg.dashedBorder} ${rotCfg.hover} transition-all text-left px-2 py-1.5`}
       >
         <div className={`text-xs font-semibold ${rotCfg.text} leading-tight opacity-80`}>
           {rotationSlot.startTime}–{rotationSlot.endTime}
         </div>
-        <div className={`text-[10px] ${rotCfg.text} opacity-50 mt-0.5 leading-tight`}>↻ Rotation</div>
+        <div className={`text-[10px] ${rotCfg.text} opacity-50 mt-0.5 leading-tight`}>↻ {t('rotation')}</div>
       </button>
     )
   }
@@ -173,20 +135,20 @@ export function ShiftCell({ shift, leaveType, rttHours, rotationSlot, onClick }:
   if (shift.isTemplate) {
     const dayType = shift.dayConfigType
     const tplCfg =
-      dayType === 'remote' ? { text: 'text-cyan-400',   templateBg: 'bg-cyan-500/8',   dashedBorder: 'border-cyan-400/60',   hover: 'hover:bg-cyan-500/20',   title: 'Télétravail' } :
-      dayType === 'half'   ? { text: 'text-orange-400', templateBg: 'bg-orange-500/8', dashedBorder: 'border-orange-400/60', hover: 'hover:bg-orange-500/20', title: 'Demi-journée' } :
-      { ...SHIFT_TYPE_CONFIG[shift.shiftType ?? 'DAY'] ?? SHIFT_TYPE_CONFIG.DAY, title: 'Bureau' }
+      dayType === 'remote' ? { text: 'text-cyan-400',   templateBg: 'bg-cyan-500/8',   dashedBorder: 'border-cyan-400/60',   hover: 'hover:bg-cyan-500/20',   title: t('tplRemote') } :
+      dayType === 'half'   ? { text: 'text-orange-400', templateBg: 'bg-orange-500/8', dashedBorder: 'border-orange-400/60', hover: 'hover:bg-orange-500/20', title: t('tplHalf') } :
+      { ...(SHIFT_TYPE_CONFIG[shift.shiftType ?? 'DAY'] ?? SHIFT_TYPE_CONFIG.DAY), title: t('tplOffice') }
     return (
       <button
         onClick={onClick}
-        title={`${tplCfg.title} — basé sur l'horaire assigné · cliquer pour confirmer`}
+        title={t('templateTitle', { title: tplCfg.title })}
         className={`h-full min-h-[56px] w-full rounded-md border border-dashed ${tplCfg.templateBg} ${tplCfg.dashedBorder} ${tplCfg.hover} transition-all text-left px-2 py-1.5`}
       >
         <div className={`text-xs font-semibold ${tplCfg.text} leading-tight`}>
           {shift.startTime}–{shift.endTime}
         </div>
         {rttHours ? (
-          <div className="text-[9px] text-amber-500 mt-0.5 leading-tight">↩ {rttHours}h récup.</div>
+          <div className="text-[9px] text-amber-500 mt-0.5 leading-tight">↩ {t('recoverySuffix', { hours: rttHours })}</div>
         ) : (
           <div className={`text-[10px] ${tplCfg.text} opacity-60 mt-0.5 leading-tight truncate`}>{shift.scheduleName ?? tplCfg.title}</div>
         )}
@@ -205,11 +167,11 @@ export function ShiftCell({ shift, leaveType, rttHours, rotationSlot, onClick }:
         {shift.startTime}–{shift.endTime}
       </div>
       {rttHours ? (
-        <div className="text-[9px] text-amber-500 mt-0.5 leading-tight">↩ {rttHours}h récup.</div>
+        <div className="text-[9px] text-amber-500 mt-0.5 leading-tight">↩ {t('recoverySuffix', { hours: rttHours })}</div>
       ) : shift.note ? (
         <div className={`text-[10px] ${typeCfg.text} opacity-70 mt-0.5 truncate leading-tight`}>{shift.note}</div>
       ) : (
-        <div className={`text-[10px] ${typeCfg.text} opacity-60 mt-0.5 leading-tight`}>{typeCfg.label}</div>
+        <div className={`text-[10px] ${typeCfg.text} opacity-60 mt-0.5 leading-tight`}>{t(typeCfg.labelKey)}</div>
       )}
     </button>
   )

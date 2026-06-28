@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import { showToast } from '@/hooks/useToast'
 import { WeekGrid, ShiftData, UserData, TimeOffData, RTTData } from './WeekGrid'
 import { ShiftModal, ShiftFormData } from './ShiftModal'
@@ -25,11 +26,13 @@ function dateKey(d: Date): string {
   return `${y}-${m}-${day}`
 }
 
-function formatWeekLabel(monday: Date): string {
+const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
+
+function formatWeekLabel(monday: Date, locale: string): string {
   const sunday = new Date(monday)
   sunday.setUTCDate(monday.getUTCDate() + 6)
   const opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', timeZone: 'UTC' }
-  return `${monday.toLocaleDateString('fr-BE', opts)} – ${sunday.toLocaleDateString('fr-BE', opts)} ${sunday.getUTCFullYear()}`
+  return `${monday.toLocaleDateString(locale, opts)} – ${sunday.toLocaleDateString(locale, opts)} ${sunday.getUTCFullYear()}`
 }
 
 interface PlanningViewProps {
@@ -42,6 +45,9 @@ type ModalState =
   | { open: true; mode: 'edit'; shift: ShiftData }
 
 export function PlanningView({ apiBase }: PlanningViewProps) {
+  const t = useTranslations('planning')
+  const locale = useLocale()
+  const bcp = BCP47[locale] ?? 'fr-BE'
   const [weekStart, setWeekStart] = useState<Date>(() => getMonday(new Date()))
   const [shifts, setShifts] = useState<ShiftData[]>([])
   const [users, setUsers] = useState<UserData[]>([])
@@ -63,11 +69,11 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
       setTimeOffs(data.timeOffs ?? [])
       setRtts(data.rtts ?? [])
     } catch {
-      showToast('Erreur lors du chargement du planning', 'error')
+      showToast(t('toastLoadError'), 'error')
     } finally {
       setLoading(false)
     }
-  }, [apiBase])
+  }, [apiBase, t])
 
   useEffect(() => { fetchData(weekStart) }, [weekStart, fetchData])
 
@@ -148,9 +154,9 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
     })
     if (!res.ok) {
       const json = await res.json().catch(() => ({}))
-      throw new Error(json.error ?? 'Erreur')
+      throw new Error(json.error ?? t('errorGeneric'))
     }
-    showToast('Shift créé', 'success')
+    showToast(t('toastShiftCreated'), 'success')
     await fetchData(weekStart)
   }
 
@@ -163,9 +169,9 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
       })
       if (!res.ok) {
         const json = await res.json().catch(() => ({}))
-        throw new Error(json.error ?? 'Erreur')
+        throw new Error(json.error ?? t('errorGeneric'))
       }
-      showToast('Shift modifié', 'success')
+      showToast(t('toastShiftUpdated'), 'success')
       await fetchData(weekStart)
     }
   }
@@ -173,8 +179,8 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
   const handleDelete = async () => {
     if (modal.open && modal.mode === 'edit') {
       const res = await fetch(`${apiBase}/shifts/${modal.shift.id}`, { method: 'DELETE' })
-      if (!res.ok) throw new Error('Erreur suppression')
-      showToast('Shift supprimé', 'success')
+      if (!res.ok) throw new Error(t('errorDelete'))
+      showToast(t('toastShiftDeleted'), 'success')
       await fetchData(weekStart)
     }
   }
@@ -184,8 +190,8 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Planning des shifts</h1>
-          <p className="text-sm text-[var(--pp-muted)] mt-0.5">Vue hebdomadaire — cliquez sur une cellule pour créer ou modifier un shift.</p>
+          <h1 className="text-2xl font-bold text-[var(--pp-ink)]">{t('title')}</h1>
+          <p className="text-sm text-[var(--pp-muted)] mt-0.5">{t('subtitle')}</p>
         </div>
       </div>
 
@@ -194,7 +200,7 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
         <button
           onClick={prevWeek}
           className="p-2 rounded-lg border border-[var(--pp-line)] hover:bg-[var(--pp-bg2)] transition text-[var(--pp-ink)]"
-          title="Semaine précédente"
+          title={t('prevWeek')}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="15 18 9 12 15 6"/>
@@ -203,14 +209,14 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
 
         <div className="flex-1 text-center">
           <span className="text-sm font-semibold text-[var(--pp-ink)]">
-            Semaine du {formatWeekLabel(weekStart)}
+            {t('weekOf', { range: formatWeekLabel(weekStart, bcp) })}
           </span>
         </div>
 
         <button
           onClick={nextWeek}
           className="p-2 rounded-lg border border-[var(--pp-line)] hover:bg-[var(--pp-bg2)] transition text-[var(--pp-ink)]"
-          title="Semaine suivante"
+          title={t('nextWeek')}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="9 18 15 12 9 6"/>
@@ -221,14 +227,14 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
           onClick={goToCurrentWeek}
           className="px-3 py-1.5 text-xs border border-[var(--pp-line)] rounded-lg hover:bg-[var(--pp-bg2)] transition text-[var(--pp-muted)]"
         >
-          Aujourd'hui
+          {t('today')}
         </button>
       </div>
 
       {/* Grid */}
       <div className="bg-[var(--pp-bg)] border border-[var(--pp-line)] rounded-xl overflow-hidden">
         {loading ? (
-          <div className="py-20 text-center text-sm text-[var(--pp-muted)]">Chargement...</div>
+          <div className="py-20 text-center text-sm text-[var(--pp-muted)]">{t('loading')}</div>
         ) : (
           <WeekGrid
             weekStart={weekStart}
@@ -252,81 +258,81 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
             <span className="inline-block w-3 h-4 rounded-l bg-sky-500/15 border border-sky-500/35" />
             <span className="inline-block w-3 h-4 rounded-r bg-sky-500/8 border border-dashed border-sky-400/60" />
           </span>
-          Journée
+          {t('legDay')}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-flex gap-0.5">
             <span className="inline-block w-3 h-4 rounded-l bg-emerald-500/15 border border-emerald-500/35" />
             <span className="inline-block w-3 h-4 rounded-r bg-emerald-500/8 border border-dashed border-emerald-400/60" />
           </span>
-          Matin (2×8)
+          {t('legMorning')}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-flex gap-0.5">
             <span className="inline-block w-3 h-4 rounded-l bg-amber-500/15 border border-amber-500/35" />
             <span className="inline-block w-3 h-4 rounded-r bg-amber-500/8 border border-dashed border-amber-400/60" />
           </span>
-          Après-midi (2×8)
+          {t('legAfternoon')}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-flex gap-0.5">
             <span className="inline-block w-3 h-4 rounded-l bg-indigo-500/15 border border-indigo-500/35" />
             <span className="inline-block w-3 h-4 rounded-r bg-indigo-500/8 border border-dashed border-indigo-400/60" />
           </span>
-          Nuit (3×8)
+          {t('legNight')}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-flex gap-0.5">
             <span className="inline-block w-3 h-4 rounded-l bg-violet-500/15 border border-violet-500/35" />
             <span className="inline-block w-3 h-4 rounded-r bg-violet-500/8 border border-dashed border-violet-400/60" />
           </span>
-          Temps partiel
+          {t('legPartial')}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-flex gap-0.5">
             <span className="inline-block w-3 h-4 rounded-l bg-teal-500/15 border border-teal-500/35" />
             <span className="inline-block w-3 h-4 rounded-r bg-teal-500/8 border border-dashed border-teal-400/60" />
           </span>
-          Variable
+          {t('legVariable')}
         </span>
         <span className="text-[var(--pp-muted)]/50 hidden sm:inline">·</span>
         <span className="flex items-center gap-1">
           <span className="inline-block w-2.5 h-4 rounded bg-sky-500/15 border border-sky-500/35" />
-          <span className="text-[var(--pp-muted)]/70">= confirmé</span>
+          <span className="text-[var(--pp-muted)]/70">{t('legConfirmed')}</span>
         </span>
         <span className="flex items-center gap-1">
           <span className="inline-block w-2.5 h-4 rounded bg-sky-500/8 border border-dashed border-sky-400/60" />
-          <span className="text-[var(--pp-muted)]/70">= à confirmer</span>
+          <span className="text-[var(--pp-muted)]/70">{t('legToConfirm')}</span>
         </span>
         <span className="text-[var(--pp-muted)]/50 hidden sm:inline">·</span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-4 h-4 rounded bg-amber-500/10 border border-dashed border-amber-400/50" />
-          Récupération
+          {t('legRecovery')}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-4 h-4 rounded bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)]/25" />
-          Congé annuel
+          {t('legAnnual')}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-4 h-4 rounded bg-orange-500/10 border border-orange-500/25" />
-          Congé maladie
+          {t('legSick')}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-4 h-4 rounded bg-pink-500/10 border border-pink-500/25" />
-          Congé maternité
+          {t('legMaternity')}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-4 h-4 rounded border border-dashed border-[var(--pp-line)]" />
-          Créer
+          {t('legCreate')}
         </span>
         <span className="text-[var(--pp-muted)]/50 hidden sm:inline">·</span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-4 h-4 rounded bg-cyan-500/8 border border-dashed border-cyan-400/60" />
-          Télétravail
+          {t('legRemote')}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-4 h-4 rounded bg-orange-500/8 border border-dashed border-orange-400/60" />
-          Demi-journée
+          {t('legHalf')}
         </span>
       </div>
 

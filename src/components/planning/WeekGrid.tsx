@@ -1,8 +1,7 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { ShiftCell } from './ShiftCell'
-
-const DAY_LABELS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
 
 function dateKey(d: Date): string {
   const y = d.getFullYear()
@@ -66,6 +65,8 @@ interface WeekGridProps {
 }
 
 export function WeekGrid({ weekStart, shifts, users, timeOffs, rtts, userPhaseBadges, userRotationSlots, onCellClick, onShiftClick }: WeekGridProps) {
+  const t = useTranslations('planning')
+  const DAY_LABELS = t.raw('weekdays') as string[]
   const monday = getMondayOf(weekStart)
   const days = Array.from({ length: 7 }, (_, i) => addDays(monday, i))
 
@@ -99,7 +100,7 @@ export function WeekGrid({ weekStart, shifts, users, timeOffs, rtts, userPhaseBa
   if (users.length === 0) {
     return (
       <div className="text-center py-16 text-[var(--pp-muted)] text-sm">
-        Aucun employé dans cette vue.
+        {t('noEmployees')}
       </div>
     )
   }
@@ -110,7 +111,7 @@ export function WeekGrid({ weekStart, shifts, users, timeOffs, rtts, userPhaseBa
         <thead>
           <tr>
             <th className="text-left px-3 py-2.5 text-xs font-semibold text-[var(--pp-muted)] border-b border-[var(--pp-line)] w-36 sticky left-0 bg-[var(--pp-bg2)] z-10">
-              Employé
+              {t('colEmployee')}
             </th>
             {days.map((day, i) => {
               const isWeekend = i >= 5
