@@ -2,7 +2,10 @@
 
 export const dynamic = 'force-dynamic'
 import { useEffect, useState } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import { showToast } from '@/hooks/useToast'
+
+const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
 
 interface Addon {
   flag: string
@@ -46,16 +49,21 @@ const ALL_EVENTS = [
   'clockrecord.created', 'rtt.approved',
 ]
 
-const EVENT_LABELS: Record<string, string> = {
-  'shift.created': 'Shift créé', 'shift.updated': 'Shift modifié', 'shift.deleted': 'Shift supprimé',
-  'timeoff.created': 'Congé soumis', 'timeoff.approved': 'Congé approuvé', 'timeoff.rejected': 'Congé refusé',
-  'employee.created': 'Employé créé', 'employee.updated': 'Employé modifié',
-  'clockrecord.created': 'Pointage enregistré', 'rtt.approved': 'RTT approuvé',
+const EVENT_KEY: Record<string, string> = {
+  'shift.created': 'evShiftCreated', 'shift.updated': 'evShiftUpdated', 'shift.deleted': 'evShiftDeleted',
+  'timeoff.created': 'evTimeoffCreated', 'timeoff.approved': 'evTimeoffApproved', 'timeoff.rejected': 'evTimeoffRejected',
+  'employee.created': 'evEmployeeCreated', 'employee.updated': 'evEmployeeUpdated',
+  'clockrecord.created': 'evClockCreated', 'rtt.approved': 'evRttApproved',
 }
 
 type Tab = 'addons' | 'apikeys' | 'webhooks'
 
 export default function IntegrationsPage() {
+  const t = useTranslations('integrations')
+  const locale = useLocale()
+  const bcp = BCP47[locale] ?? 'fr-BE'
+  const eventLabel = (ev: string) => (EVENT_KEY[ev] ? t(EVENT_KEY[ev]) : ev)
+
   const [tab, setTab] = useState<Tab>('addons')
   const [plan, setPlan] = useState<string>('')
   const [addons, setAddons] = useState<Addon[]>([])
@@ -123,17 +131,17 @@ export default function IntegrationsPage() {
       setNewKeyName('')
       setNewKeyExpiry('')
       fetchAll()
-      showToast('Clé API créée', 'success')
+      showToast(t('keyCreated'), 'success')
     } else {
-      showToast(data.error ?? 'Erreur', 'error')
+      showToast(data.error ?? t('error'), 'error')
     }
     setCreatingKey(false)
   }
 
   const deleteKey = async (id: string) => {
-    if (!confirm('Supprimer cette clé API ? Les intégrations qui l\'utilisent cesseront de fonctionner.')) return
+    if (!confirm(t('confirmDeleteKey'))) return
     const res = await fetch(`/api/admin/api-keys?id=${id}`, { method: 'DELETE' })
-    if (res.ok) { fetchAll(); showToast('Clé supprimée', 'success') }
+    if (res.ok) { fetchAll(); showToast(t('keyDeleted'), 'success') }
   }
 
   // --- Webhooks ---
@@ -151,9 +159,9 @@ export default function IntegrationsPage() {
       setShowWHForm(false)
       setWhUrl(''); setWhDesc(''); setWhEvents([])
       fetchAll()
-      showToast('Webhook créé', 'success')
+      showToast(t('whCreated'), 'success')
     } else {
-      showToast(data.error ?? 'Erreur', 'error')
+      showToast(data.error ?? t('error'), 'error')
     }
     setSavingWH(false)
   }
@@ -168,36 +176,38 @@ export default function IntegrationsPage() {
   }
 
   const deleteWebhook = async (id: string) => {
-    if (!confirm('Supprimer ce webhook ?')) return
+    if (!confirm(t('confirmDeleteWebhook'))) return
     await fetch(`/api/admin/webhooks?id=${id}`, { method: 'DELETE' })
     fetchAll()
-    showToast('Webhook supprimé', 'success')
+    showToast(t('whDeleted'), 'success')
   }
 
-  if (loading) return <div className="p-8 text-center text-[var(--pp-muted)]">Chargement...</div>
+  if (loading) return <div className="p-8 text-center text-[var(--pp-muted)]">{t('loading')}</div>
 
   const isEnterprise = plan === 'ENTERPRISE'
   const isTeam = plan === 'TEAM'
 
+  const tabLabel = (tk: Tab) => tk === 'addons' ? t('tabOptions') : tk === 'apikeys' ? t('tabApiKeys') : t('tabWebhooks')
+
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Intégrations & Add-ons</h1>
+        <h1 className="text-2xl font-bold text-[var(--pp-ink)]">{t('title')}</h1>
         <p className="text-sm text-[var(--pp-muted)] mt-1">
-          Options payantes, clés API et webhooks pour connecter Pointon à vos outils.
-          {isEnterprise && <span className="ml-2 text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium">Enterprise — tout inclus</span>}
+          {t('subtitle')}
+          {isEnterprise && <span className="ml-2 text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium">{t('enterpriseAllIncluded')}</span>}
         </p>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-[var(--pp-line)]">
-        {(['addons', 'apikeys', 'webhooks'] as Tab[]).map(t => (
+        {(['addons', 'apikeys', 'webhooks'] as Tab[]).map(tk => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors capitalize ${tab === t ? 'border-[var(--pp-info)] text-[var(--pp-info)]' : 'border-transparent text-[var(--pp-muted)] hover:text-[var(--pp-ink)]'}`}
+            key={tk}
+            onClick={() => setTab(tk)}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${tab === tk ? 'border-[var(--pp-info)] text-[var(--pp-info)]' : 'border-transparent text-[var(--pp-muted)] hover:text-[var(--pp-ink)]'}`}
           >
-            {t === 'addons' ? 'Options' : t === 'apikeys' ? 'Clés API' : 'Webhooks'}
+            {tabLabel(tk)}
           </button>
         ))}
       </div>
@@ -207,7 +217,7 @@ export default function IntegrationsPage() {
         <div className="space-y-4">
           {!isTeam && !isEnterprise && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
-              Les options sont disponibles à partir du plan <strong>TEAM</strong>. Mettez à niveau pour y accéder.
+              {t.rich('optionsTeamRequired', { b: (c) => <strong>{c}</strong> })}
             </div>
           )}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -223,26 +233,26 @@ export default function IntegrationsPage() {
                   </div>
                   {addon.enabled ? (
                     <span className="shrink-0 text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
-                      {isEnterprise ? 'Inclus' : 'Actif'}
+                      {isEnterprise ? t('included') : t('active')}
                     </span>
                   ) : (
-                    <span className="shrink-0 text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 font-medium">Inactif</span>
+                    <span className="shrink-0 text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 font-medium">{t('inactive')}</span>
                   )}
                 </div>
                 {!isEnterprise && (
                   <div className="flex items-center justify-between mt-auto">
-                    <span className="text-sm font-semibold text-[var(--pp-ink)]">{addon.price}€ / mois</span>
+                    <span className="text-sm font-semibold text-[var(--pp-ink)]">{t('addonPrice', { price: addon.price })}</span>
                     {!addon.enabled && addon.availableForPlan && (
                       <button
                         className="text-xs px-3 py-1.5 bg-[var(--pp-info)] text-white rounded-lg font-medium hover:opacity-90"
-                        onClick={() => showToast('Redirection Stripe en cours...', 'success')}
+                        onClick={() => showToast(t('stripeRedirect'), 'success')}
                       >
-                        Activer
+                        {t('activate')}
                       </button>
                     )}
                     {addon.enabled && !isEnterprise && (
                       <button className="text-xs px-3 py-1.5 border border-red-200 text-red-600 rounded-lg hover:bg-red-50">
-                        Désactiver
+                        {t('deactivate')}
                       </button>
                     )}
                   </div>
@@ -258,42 +268,42 @@ export default function IntegrationsPage() {
         <div className="space-y-5">
           {!hasApiAddon && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
-              L&apos;add-on <strong>Accès API</strong> est requis pour générer des clés API.
-              {isEnterprise ? ' Contactez le support.' : ' Activez-le dans l\'onglet Options.'}
+              {t.rich('apiAddonRequired', { b: (c) => <strong>{c}</strong> })}
+              {isEnterprise ? t('contactSupport') : t('activateInOptions')}
             </div>
           )}
 
           {createdKey && (
             <div className="bg-green-50 border border-green-300 rounded-xl p-4">
-              <p className="text-sm font-semibold text-green-800 mb-2">Clé API créée — copiez-la maintenant, elle ne sera plus affichée :</p>
+              <p className="text-sm font-semibold text-green-800 mb-2">{t('keyCreatedCopy')}</p>
               <div className="flex gap-2">
                 <code className="flex-1 text-xs bg-white border border-green-200 rounded px-3 py-2 font-mono break-all">{createdKey}</code>
                 <button
-                  onClick={() => { navigator.clipboard.writeText(createdKey); showToast('Copié !', 'success') }}
+                  onClick={() => { navigator.clipboard.writeText(createdKey); showToast(t('copied'), 'success') }}
                   className="shrink-0 text-xs px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700"
                 >
-                  Copier
+                  {t('copy')}
                 </button>
               </div>
-              <button onClick={() => setCreatedKey(null)} className="mt-2 text-xs text-green-700 underline">J&apos;ai copié ma clé</button>
+              <button onClick={() => setCreatedKey(null)} className="mt-2 text-xs text-green-700 underline">{t('copiedMyKey')}</button>
             </div>
           )}
 
           {hasApiAddon && (
             <div className="bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-xl p-5 space-y-4">
-              <h2 className="text-sm font-semibold text-[var(--pp-ink)]">Nouvelle clé API</h2>
+              <h2 className="text-sm font-semibold text-[var(--pp-ink)]">{t('newApiKey')}</h2>
               <div className="flex flex-col sm:flex-row gap-3">
                 <input
                   value={newKeyName}
                   onChange={e => setNewKeyName(e.target.value)}
-                  placeholder="Nom de la clé (ex: Intégration RH)"
+                  placeholder={t('keyNamePlaceholder')}
                   className="flex-1 border border-[var(--pp-line)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
                 />
                 <input
                   type="date"
                   value={newKeyExpiry}
                   onChange={e => setNewKeyExpiry(e.target.value)}
-                  placeholder="Expiration (optionnel)"
+                  placeholder={t('expiryPlaceholder')}
                   className="border border-[var(--pp-line)] rounded-lg px-3 py-2 text-sm w-full sm:w-44"
                 />
                 <button
@@ -301,17 +311,20 @@ export default function IntegrationsPage() {
                   disabled={creatingKey || !newKeyName.trim()}
                   className="px-4 py-2 bg-[var(--pp-info)] text-white rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50 shrink-0"
                 >
-                  Générer
+                  {t('generate')}
                 </button>
               </div>
               <p className="text-xs text-[var(--pp-muted)]">
-                Utilisez l&apos;en-tête <code className="bg-gray-100 px-1 rounded">Authorization: Bearer &lt;votre-clé&gt;</code> dans vos requêtes API.
+                {t.rich('apiHeaderHint', {
+                  header: 'Authorization: Bearer <votre-clé>',
+                  code: (c) => <code className="bg-gray-100 px-1 rounded">{c}</code>,
+                })}
               </p>
             </div>
           )}
 
           {apiKeys.length === 0 ? (
-            <div className="text-center py-8 text-[var(--pp-muted)] text-sm">Aucune clé API créée.</div>
+            <div className="text-center py-8 text-[var(--pp-muted)] text-sm">{t('noApiKeys')}</div>
           ) : (
             <div className="space-y-2">
               {apiKeys.map(key => (
@@ -320,12 +333,12 @@ export default function IntegrationsPage() {
                     <span className="text-sm font-medium text-[var(--pp-ink)]">{key.name}</span>
                     <div className="flex gap-3 mt-0.5">
                       <span className="text-xs text-[var(--pp-muted)] font-mono">{key.keyPrefix}••••••••</span>
-                      {key.lastUsedAt && <span className="text-xs text-[var(--pp-muted)]">Dernière utilisation : {new Date(key.lastUsedAt).toLocaleDateString('fr-BE')}</span>}
-                      {key.expiresAt && <span className="text-xs text-orange-500">Expire : {new Date(key.expiresAt).toLocaleDateString('fr-BE')}</span>}
+                      {key.lastUsedAt && <span className="text-xs text-[var(--pp-muted)]">{t('lastUsed', { date: new Date(key.lastUsedAt).toLocaleDateString(bcp) })}</span>}
+                      {key.expiresAt && <span className="text-xs text-orange-500">{t('expiresOn', { date: new Date(key.expiresAt).toLocaleDateString(bcp) })}</span>}
                     </div>
                   </div>
                   <button onClick={() => deleteKey(key.id)} className="text-xs px-3 py-1.5 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 shrink-0">
-                    Révoquer
+                    {t('revoke')}
                   </button>
                 </div>
               ))}
@@ -339,38 +352,38 @@ export default function IntegrationsPage() {
         <div className="space-y-5">
           {!hasWHAddon && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
-              L&apos;add-on <strong>Webhooks sortants</strong> est requis.
-              {!isEnterprise && ' Activez-le dans l\'onglet Options.'}
+              {t.rich('whAddonRequired', { b: (c) => <strong>{c}</strong> })}
+              {!isEnterprise && t('activateInOptions')}
             </div>
           )}
 
           {createdWebhookSecret && (
             <div className="bg-green-50 border border-green-300 rounded-xl p-4">
-              <p className="text-sm font-semibold text-green-800 mb-2">Secret du webhook — copiez-le maintenant :</p>
+              <p className="text-sm font-semibold text-green-800 mb-2">{t('whSecretCopy')}</p>
               <div className="flex gap-2">
                 <code className="flex-1 text-xs bg-white border border-green-200 rounded px-3 py-2 font-mono break-all">{createdWebhookSecret}</code>
-                <button onClick={() => { navigator.clipboard.writeText(createdWebhookSecret!); showToast('Copié !', 'success') }} className="shrink-0 text-xs px-3 py-1.5 bg-green-600 text-white rounded-lg">Copier</button>
+                <button onClick={() => { navigator.clipboard.writeText(createdWebhookSecret!); showToast(t('copied'), 'success') }} className="shrink-0 text-xs px-3 py-1.5 bg-green-600 text-white rounded-lg">{t('copy')}</button>
               </div>
-              <button onClick={() => setCreatedWebhookSecret(null)} className="mt-2 text-xs text-green-700 underline">J&apos;ai noté mon secret</button>
+              <button onClick={() => setCreatedWebhookSecret(null)} className="mt-2 text-xs text-green-700 underline">{t('notedSecret')}</button>
             </div>
           )}
 
           {hasWHAddon && !showWHForm && (
             <div className="flex justify-end">
               <button onClick={() => setShowWHForm(true)} className="px-4 py-2 bg-[var(--pp-info)] text-white rounded-lg text-sm font-medium hover:opacity-90">
-                + Nouveau webhook
+                {t('newWebhookBtn')}
               </button>
             </div>
           )}
 
           {showWHForm && (
             <div className="bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-xl p-5 space-y-4">
-              <h2 className="text-sm font-semibold text-[var(--pp-ink)]">Nouveau webhook</h2>
+              <h2 className="text-sm font-semibold text-[var(--pp-ink)]">{t('newWebhook')}</h2>
               <div className="space-y-3">
-                <input value={whUrl} onChange={e => setWhUrl(e.target.value)} placeholder="https://votre-serveur.com/webhook" className="w-full border border-[var(--pp-line)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]" />
-                <input value={whDesc} onChange={e => setWhDesc(e.target.value)} placeholder="Description (optionnel)" className="w-full border border-[var(--pp-line)] rounded-lg px-3 py-2 text-sm" />
+                <input value={whUrl} onChange={e => setWhUrl(e.target.value)} placeholder={t('whUrlPlaceholder')} className="w-full border border-[var(--pp-line)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]" />
+                <input value={whDesc} onChange={e => setWhDesc(e.target.value)} placeholder={t('whDescPlaceholder')} className="w-full border border-[var(--pp-line)] rounded-lg px-3 py-2 text-sm" />
                 <div>
-                  <label className="text-xs font-medium text-[var(--pp-muted)] block mb-2">Événements (vide = tous)</label>
+                  <label className="text-xs font-medium text-[var(--pp-muted)] block mb-2">{t('eventsLabel')}</label>
                   <div className="flex flex-wrap gap-2">
                     {ALL_EVENTS.map(ev => (
                       <button
@@ -379,23 +392,23 @@ export default function IntegrationsPage() {
                         onClick={() => setWhEvents(prev => prev.includes(ev) ? prev.filter(e => e !== ev) : [...prev, ev])}
                         className={`text-xs px-2.5 py-1 rounded font-medium border transition-colors ${whEvents.includes(ev) ? 'bg-[var(--pp-info)] text-white border-[var(--pp-info)]' : 'border-[var(--pp-line)] text-[var(--pp-muted)] hover:border-[var(--pp-info)]'}`}
                       >
-                        {EVENT_LABELS[ev] ?? ev}
+                        {eventLabel(ev)}
                       </button>
                     ))}
                   </div>
                 </div>
               </div>
               <div className="flex gap-3 justify-end">
-                <button onClick={() => setShowWHForm(false)} className="px-4 py-2 text-sm border border-[var(--pp-line)] rounded-lg hover:bg-gray-50">Annuler</button>
+                <button onClick={() => setShowWHForm(false)} className="px-4 py-2 text-sm border border-[var(--pp-line)] rounded-lg hover:bg-gray-50">{t('cancel')}</button>
                 <button onClick={createWebhook} disabled={savingWH || !whUrl.trim()} className="px-4 py-2 text-sm bg-[var(--pp-info)] text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-50">
-                  {savingWH ? 'Création...' : 'Créer'}
+                  {savingWH ? t('creating') : t('create')}
                 </button>
               </div>
             </div>
           )}
 
           {webhooks.length === 0 ? (
-            <div className="text-center py-8 text-[var(--pp-muted)] text-sm">Aucun webhook configuré.</div>
+            <div className="text-center py-8 text-[var(--pp-muted)] text-sm">{t('noWebhooks')}</div>
           ) : (
             <div className="space-y-3">
               {webhooks.map(wh => {
@@ -412,25 +425,25 @@ export default function IntegrationsPage() {
                         {wh.description && <p className="text-xs text-[var(--pp-muted)] mt-0.5 ml-4">{wh.description}</p>}
                         <div className="flex flex-wrap gap-1 mt-1.5 ml-4">
                           {events.length === 0 ? (
-                            <span className="text-xs px-1.5 py-0.5 bg-[var(--pp-info)]/10 text-[var(--pp-info)] rounded">Tous les événements</span>
+                            <span className="text-xs px-1.5 py-0.5 bg-[var(--pp-info)]/10 text-[var(--pp-info)] rounded">{t('allEvents')}</span>
                           ) : events.slice(0, 5).map(ev => (
-                            <span key={ev} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded">{EVENT_LABELS[ev] ?? ev}</span>
+                            <span key={ev} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded">{eventLabel(ev)}</span>
                           ))}
                           {events.length > 5 && <span className="text-xs text-[var(--pp-muted)]">+{events.length - 5}</span>}
                         </div>
                       </div>
                       <div className="flex gap-2 shrink-0 ml-3">
                         <button onClick={() => toggleWebhook(wh.id, !wh.enabled)} className="text-xs px-2.5 py-1.5 border border-[var(--pp-line)] rounded-lg hover:bg-gray-50">
-                          {wh.enabled ? 'Désactiver' : 'Activer'}
+                          {wh.enabled ? t('deactivate') : t('activate')}
                         </button>
                         <button onClick={() => deleteWebhook(wh.id)} className="text-xs px-2.5 py-1.5 border border-red-200 text-red-600 rounded-lg hover:bg-red-50">
-                          Supprimer
+                          {t('delete')}
                         </button>
                       </div>
                     </div>
                     {lastDelivery && (
                       <div className={`px-5 py-2 text-xs border-t border-[var(--pp-line)] ${lastDelivery.success ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-                        Dernière livraison : {EVENT_LABELS[lastDelivery.event] ?? lastDelivery.event} — {lastDelivery.statusCode ?? '?'} — {new Date(lastDelivery.attemptedAt).toLocaleString('fr-BE')}
+                        {t('lastDelivery', { event: eventLabel(lastDelivery.event), code: lastDelivery.statusCode ?? '?', date: new Date(lastDelivery.attemptedAt).toLocaleString(bcp) })}
                       </div>
                     )}
                   </div>

@@ -3,9 +3,12 @@
 export const dynamic = 'force-dynamic'
 import { useState, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
+import { useTranslations, useLocale } from 'next-intl'
 import { Card } from '@/components/Card'
 import { Button } from '@/components/Button'
 import Image from 'next/image'
+
+const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
 
 interface CompanySettings {
   id: string
@@ -32,6 +35,9 @@ interface CompanySettings {
 }
 
 export default function SettingsPage() {
+  const t = useTranslations('settings')
+  const locale = useLocale()
+  const bcp = BCP47[locale] ?? 'fr-BE'
   const { data: session } = useSession()
   const [settings, setSettings] = useState<CompanySettings | null>(null)
   const [form, setForm] = useState({ name: '', domain: '', address: '', phone: '', vatNumber: '', contactEmail: '' })
@@ -60,7 +66,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/admin/company/settings').then(r => { if (!r.ok) throw new Error(`Erreur serveur (${r.status})`); return r.json() }),
+      fetch('/api/admin/company/settings').then(r => { if (!r.ok) throw new Error(t('serverError', { status: r.status })); return r.json() }),
       fetch('/api/admin/presence/settings').then(r => r.ok ? r.json() : null),
     ])
       .then(([companyData, presenceData]) => {
@@ -90,12 +96,12 @@ export default function SettingsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       })
-      if (!res.ok) throw new Error('Erreur lors de la sauvegarde')
+      if (!res.ok) throw new Error(t('saveError'))
       const data = await res.json()
       setSettings(data)
-      setSuccess('Paramètres sauvegardés.')
+      setSuccess(t('saved'))
     } catch {
-      setError('Erreur lors de la sauvegarde.')
+      setError(t('saveError'))
     } finally {
       setSaving(false)
     }
@@ -112,11 +118,11 @@ export default function SettingsPage() {
       const res = await fetch('/api/admin/company/logo', { method: 'POST', body: fd })
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error ?? 'Erreur upload')
+        throw new Error(data.error ?? t('uploadError'))
       }
       const { logoUrl } = await res.json()
       setSettings(prev => prev ? { ...prev, logoUrl } : prev)
-      setSuccess('Logo mis à jour.')
+      setSuccess(t('logoUpdated'))
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -126,16 +132,16 @@ export default function SettingsPage() {
   }
 
   const handleCancelSubscription = async () => {
-    if (!confirm('Résilier votre abonnement ?\n\nVotre accès sera maintenu jusqu\'à la fin de la période en cours. Aucun remboursement ne sera effectué.')) return
+    if (!confirm(t('confirmCancel'))) return
     setCancelLoading(true)
     setError('')
     try {
       const res = await fetch('/api/stripe/cancel', { method: 'POST' })
       if (!res.ok) { setError((await res.json()).error); return }
       setSettings(prev => prev ? { ...prev, stripeCancelAtPeriodEnd: true } : prev)
-      setSuccess('Résiliation programmée. Votre accès reste actif jusqu\'à la fin de la période.')
+      setSuccess(t('cancelScheduled'))
     } catch {
-      setError('Erreur lors de la résiliation.')
+      setError(t('cancelError'))
     } finally {
       setCancelLoading(false)
     }
@@ -148,9 +154,9 @@ export default function SettingsPage() {
       const res = await fetch('/api/stripe/reactivate', { method: 'POST' })
       if (!res.ok) { setError((await res.json()).error); return }
       setSettings(prev => prev ? { ...prev, stripeCancelAtPeriodEnd: false } : prev)
-      setSuccess('Abonnement réactivé.')
+      setSuccess(t('reactivated'))
     } catch {
-      setError('Erreur lors de la réactivation.')
+      setError(t('reactivateError'))
     } finally {
       setCancelLoading(false)
     }
@@ -172,12 +178,12 @@ export default function SettingsPage() {
   }
 
   const handleLogoDelete = async () => {
-    if (!confirm('Supprimer le logo ?')) return
+    if (!confirm(t('confirmDeleteLogo'))) return
     setUploadingLogo(true)
     try {
       await fetch('/api/admin/company/logo', { method: 'DELETE' })
       setSettings(prev => prev ? { ...prev, logoUrl: null } : prev)
-      setSuccess('Logo supprimé.')
+      setSuccess(t('logoDeleted'))
     } finally {
       setUploadingLogo(false)
     }
@@ -196,13 +202,13 @@ export default function SettingsPage() {
       })
       const data = await res.json()
       if (!res.ok) {
-        setTfaDisableError(data.error ?? 'Code invalide.')
+        setTfaDisableError(data.error ?? t('tfaInvalidCode'))
         return
       }
-      setTfaDisableSuccess('2FA désactivée. Vous en aurez besoin de la reconfigurer à la prochaine connexion.')
+      setTfaDisableSuccess(t('tfaDisabledSuccess'))
       setTfaDisableCode('')
     } catch {
-      setTfaDisableError('Erreur réseau.')
+      setTfaDisableError(t('tfaNetworkError'))
     } finally {
       setTfaDisabling(false)
     }
@@ -213,7 +219,7 @@ export default function SettingsPage() {
     setPwError('')
     setPwSuccess('')
     if (pwForm.newPassword !== pwForm.confirmPassword) {
-      setPwError('Les nouveaux mots de passe ne correspondent pas')
+      setPwError(t('pwMismatch'))
       return
     }
     setPwSaving(true)
@@ -225,27 +231,27 @@ export default function SettingsPage() {
       })
       const data = await res.json()
       if (!res.ok) {
-        setPwError(data.error || 'Erreur lors de la mise à jour')
+        setPwError(data.error || t('pwUpdateError'))
       } else {
-        setPwSuccess('Mot de passe mis à jour avec succès')
+        setPwSuccess(t('pwUpdated'))
         setPwForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
       }
     } catch {
-      setPwError('Erreur réseau. Veuillez réessayer.')
+      setPwError(t('networkError'))
     } finally {
       setPwSaving(false)
     }
   }
 
-  if (loading) return <div className="p-8 text-[var(--pp-muted)]">Chargement...</div>
+  if (loading) return <div className="p-8 text-[var(--pp-muted)]">{t('loading')}</div>
 
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Paramètres de la société</h1>
+      <h1 className="text-2xl font-bold text-[var(--pp-ink)]">{t('company')}</h1>
 
       {/* Logo */}
       <Card>
-        <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-4">Logo</h2>
+        <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-4">{t('logo')}</h2>
         <div className="flex items-center gap-6">
           <div className="w-24 h-24 rounded-xl border border-[var(--pp-line)] bg-[var(--pp-surface)] flex items-center justify-center overflow-hidden">
             {settings?.logoUrl ? (
@@ -267,21 +273,21 @@ export default function SettingsPage() {
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadingLogo}
             >
-              {uploadingLogo ? 'Upload...' : 'Choisir un logo'}
+              {uploadingLogo ? t('logoUploading') : t('chooseLogo')}
             </Button>
             {settings?.logoUrl && (
               <Button size="sm" variant="outline" onClick={handleLogoDelete} disabled={uploadingLogo}>
-                Supprimer
+                {t('delete')}
               </Button>
             )}
-            <p className="text-xs text-[var(--pp-muted)]">PNG, JPG, WebP ou SVG — max 2 Mo</p>
+            <p className="text-xs text-[var(--pp-muted)]">{t('logoHint')}</p>
           </div>
         </div>
       </Card>
 
       {/* Abonnement */}
       <Card>
-        <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-4">Abonnement</h2>
+        <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-4">{t('subscription')}</h2>
         {(() => {
           const planName = settings?.plan?.name ?? 'FREE'
           const isPaid = !!settings?.stripeSubscriptionId
@@ -302,50 +308,50 @@ export default function SettingsPage() {
               <div className="flex items-center gap-3 flex-wrap">
                 <span className={`px-3 py-1 rounded-full text-sm font-semibold ${planColor}`}>{planName}</span>
                 {isPaid && cycle && (
-                  <span className="text-sm text-[var(--pp-muted)]">{cycle === 'monthly' ? 'Mensuel' : 'Annuel'}</span>
+                  <span className="text-sm text-[var(--pp-muted)]">{cycle === 'monthly' ? t('monthly') : t('yearly')}</span>
                 )}
                 {isCancelling && expiresAt && (
                   <span className="text-sm text-[var(--pp-neg)] font-medium">
-                    Résiliation le {expiresAt.toLocaleDateString('fr-BE', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    {t('cancelOn', { date: expiresAt.toLocaleDateString(bcp, { day: 'numeric', month: 'long', year: 'numeric' }) })}
                   </span>
                 )}
                 {!isCancelling && expiresAt && (
                   <span className="text-sm text-[var(--pp-muted)]">
-                    Expire le {expiresAt.toLocaleDateString('fr-BE', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    {t('expiresOn', { date: expiresAt.toLocaleDateString(bcp, { day: 'numeric', month: 'long', year: 'numeric' }) })}
                   </span>
                 )}
               </div>
 
               {settings?.seatUsage && (() => {
                 const su = settings.seatUsage
-                const euros = (cents: number) => (cents / 100).toLocaleString('fr-BE', { minimumFractionDigits: 2 })
-                const per = su.cycle === 'yearly' ? '/an' : '/mois'
+                const euros = (cents: number) => (cents / 100).toLocaleString(bcp, { minimumFractionDigits: 2 })
+                const per = su.cycle === 'yearly' ? t('perYear') : t('perMonth')
                 return (
                   <div className="p-4 bg-[var(--pp-bg)] border border-[var(--pp-line)] rounded-lg space-y-2">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-[var(--pp-muted)]">Membres actifs</span>
+                      <span className="text-[var(--pp-muted)]">{t('activeMembers')}</span>
                       <span className="font-medium text-[var(--pp-ink)]">{su.activeMembers}</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-[var(--pp-muted)]">Inclus dans le plan</span>
+                      <span className="text-[var(--pp-muted)]">{t('includedInPlan')}</span>
                       <span className="font-medium text-[var(--pp-ink)]">{su.includedSeats}</span>
                     </div>
                     {su.extraSeats > 0 ? (
                       <>
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-[var(--pp-muted)]">Sièges supplémentaires</span>
+                          <span className="text-[var(--pp-muted)]">{t('extraSeatsLabel')}</span>
                           <span className="font-medium text-[var(--pp-ink)]">
                             {su.extraSeats} × {euros(su.pricePerSeatCents)}&nbsp;€
                           </span>
                         </div>
                         <div className="flex items-center justify-between text-sm pt-2 border-t border-[var(--pp-line)]">
-                          <span className="font-medium text-[var(--pp-ink)]">Coût sièges supp.</span>
-                          <span className="font-semibold text-[#7c3aed]">+{euros(su.extraCostCents)}&nbsp;€{per} HTVA</span>
+                          <span className="font-medium text-[var(--pp-ink)]">{t('extraCostLabel')}</span>
+                          <span className="font-semibold text-[#7c3aed]">+{euros(su.extraCostCents)}&nbsp;€{per} {t('htva')}</span>
                         </div>
                       </>
                     ) : (
                       <p className="text-sm text-[var(--pp-muted)] pt-1">
-                        {su.includedSeats - su.activeMembers} siège(s) encore disponible(s) avant facturation supplémentaire.
+                        {t('seatsAvailable', { count: su.includedSeats - su.activeMembers })}
                       </p>
                     )}
                   </div>
@@ -354,14 +360,14 @@ export default function SettingsPage() {
 
               {isCancelling && (
                 <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
-                  Votre abonnement sera résilié à la fin de la période en cours. Aucun remboursement ne sera effectué.
+                  {t('cancellingNotice')}
                 </div>
               )}
 
               <div className="flex gap-3 flex-wrap pt-1">
                 {isPaid && (
                   <a href="/api/stripe/portal" className="inline-flex items-center px-4 py-2 border border-[var(--pp-line)] rounded-lg text-sm font-medium text-[var(--pp-ink)] hover:bg-[var(--pp-bg)] transition-colors">
-                    Gérer la facturation →
+                    {t('manageBilling')}
                   </a>
                 )}
                 {isPaid && !isCancelling && (
@@ -370,21 +376,21 @@ export default function SettingsPage() {
                     disabled={cancelLoading}
                     className="px-4 py-2 text-sm font-medium text-[var(--pp-neg)] border border-[var(--pp-neg)]/30 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
                   >
-                    {cancelLoading ? 'Traitement…' : 'Résilier l\'abonnement'}
+                    {cancelLoading ? t('processing') : t('cancelSubscription')}
                   </button>
                 )}
                 {isPaid && isCancelling && (
                   <Button size="sm" onClick={handleReactivate} disabled={cancelLoading}>
-                    {cancelLoading ? 'Traitement…' : 'Réactiver l\'abonnement'}
+                    {cancelLoading ? t('processing') : t('reactivateSubscription')}
                   </Button>
                 )}
                 {!isPaid && planName === 'FREE' && (
                   <a href="/pricing" className="inline-flex items-center px-4 py-2 bg-[#7c3aed] text-white rounded-lg text-sm font-medium hover:bg-[#6d28d9] transition-colors">
-                    Comparer les plans →
+                    {t('comparePlans')}
                   </a>
                 )}
                 {!isPaid && planName !== 'FREE' && (
-                  <p className="text-sm text-[var(--pp-muted)] italic">Plan activé manuellement — contactez le support pour la gestion de la facturation.</p>
+                  <p className="text-sm text-[var(--pp-muted)] italic">{t('manualPlanNotice')}</p>
                 )}
               </div>
             </div>
@@ -394,7 +400,7 @@ export default function SettingsPage() {
 
       {/* Infos société */}
       <Card>
-        <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-4">Informations</h2>
+        <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-4">{t('info')}</h2>
 
         {success && (
           <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
@@ -409,7 +415,7 @@ export default function SettingsPage() {
 
         <form onSubmit={handleSave} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">Nom de la société</label>
+            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">{t('companyName')}</label>
             <input
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
@@ -418,18 +424,18 @@ export default function SettingsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">Domaine email</label>
+            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">{t('emailDomain')}</label>
             <input
               value={form.domain}
               onChange={e => setForm(f => ({ ...f, domain: e.target.value }))}
               placeholder="ced-it.be"
               className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
             />
-            <p className="text-xs text-[var(--pp-muted)] mt-1">Domaine email de votre entreprise (ex : ced-it.be)</p>
+            <p className="text-xs text-[var(--pp-muted)] mt-1">{t('emailDomainHint')}</p>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">Téléphone</label>
+              <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">{t('phone')}</label>
               <input
                 value={form.phone}
                 onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
@@ -437,7 +443,7 @@ export default function SettingsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">Numéro TVA</label>
+              <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">{t('vatNumber')}</label>
               <input
                 value={form.vatNumber}
                 onChange={e => setForm(f => ({ ...f, vatNumber: e.target.value }))}
@@ -447,7 +453,7 @@ export default function SettingsPage() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">Adresse</label>
+            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">{t('address')}</label>
             <input
               value={form.address}
               onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
@@ -455,7 +461,7 @@ export default function SettingsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">Email de contact</label>
+            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">{t('contactEmail')}</label>
             <input
               type="email"
               value={form.contactEmail}
@@ -464,7 +470,7 @@ export default function SettingsPage() {
             />
           </div>
           <Button type="submit" disabled={saving} size="md">
-            {saving ? 'Sauvegarde...' : 'Sauvegarder'}
+            {saving ? t('saving') : t('save')}
           </Button>
         </form>
       </Card>
@@ -472,29 +478,29 @@ export default function SettingsPage() {
       {/* Présences */}
       {presenceSettings !== null && (
         <Card>
-          <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-1">Présences</h2>
+          <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-1">{t('presence')}</h2>
           <p className="text-xs text-[var(--pp-muted)] mb-4">
-            Contrôlez qui peut voir les présences en temps réel dans votre organisation.
+            {t('presenceDesc')}
           </p>
 
           {!presenceSettings.hasAccess ? (
             <div className="p-4 rounded-lg border border-[var(--pp-line)] bg-[var(--pp-bg2)] text-center space-y-2">
-              <p className="text-sm font-medium text-[var(--pp-ink)]">🔒 Fonctionnalité non disponible sur votre plan</p>
+              <p className="text-sm font-medium text-[var(--pp-ink)]">{t('featureUnavailable')}</p>
               <p className="text-xs text-[var(--pp-muted)]">
-                Les Présences sont disponibles à partir du plan <strong>TEAM</strong>. Contactez le support pour débloquer.
+                {t.rich('presenceTeamRequired', { b: (c) => <strong>{c}</strong> })}
               </p>
             </div>
           ) : (
             <div className="space-y-3">
               {presenceSettings.flagOverride && (
                 <div className="px-3 py-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-700 text-xs">
-                  ✨ Fonctionnalité débloquée manuellement par le support
+                  {t('manualUnlock')}
                 </div>
               )}
               <label className="flex items-center justify-between p-3 border border-[var(--pp-line)] rounded-lg cursor-pointer hover:bg-[var(--pp-bg2)] transition">
                 <div>
-                  <p className="text-sm font-medium text-[var(--pp-ink)]">Visible par les managers</p>
-                  <p className="text-xs text-[var(--pp-muted)]">Les managers voient les présences de leur équipe et de la compagnie</p>
+                  <p className="text-sm font-medium text-[var(--pp-ink)]">{t('visibleManagers')}</p>
+                  <p className="text-xs text-[var(--pp-muted)]">{t('visibleManagersDesc')}</p>
                 </div>
                 <button
                   onClick={() => handlePresenceToggle('presenceForManagers')}
@@ -512,8 +518,8 @@ export default function SettingsPage() {
               </label>
               <label className="flex items-center justify-between p-3 border border-[var(--pp-line)] rounded-lg cursor-pointer hover:bg-[var(--pp-bg2)] transition">
                 <div>
-                  <p className="text-sm font-medium text-[var(--pp-ink)]">Visible par les employés</p>
-                  <p className="text-xs text-[var(--pp-muted)]">Les employés voient qui est présent sur chaque site</p>
+                  <p className="text-sm font-medium text-[var(--pp-ink)]">{t('visibleEmployees')}</p>
+                  <p className="text-xs text-[var(--pp-muted)]">{t('visibleEmployeesDesc')}</p>
                 </div>
                 <button
                   onClick={() => handlePresenceToggle('presenceForEmployees')}
@@ -537,15 +543,15 @@ export default function SettingsPage() {
       {/* Pointage */}
       {presenceSettings !== null && (
         <Card>
-          <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-1">Pointage</h2>
+          <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-1">{t('clockingTitle')}</h2>
           <p className="text-xs text-[var(--pp-muted)] mb-4">
-            Options de pointage disponibles pour tous les employés.
+            {t('clockingDesc')}
           </p>
           <label className="flex items-center justify-between p-3 border border-[var(--pp-line)] rounded-lg cursor-pointer hover:bg-[var(--pp-bg2)] transition">
             <div>
-              <p className="text-sm font-medium text-[var(--pp-ink)]">Pause repas</p>
+              <p className="text-sm font-medium text-[var(--pp-ink)]">{t('mealBreak')}</p>
               <p className="text-xs text-[var(--pp-muted)]">
-                Les employés peuvent mettre le compteur en pause pendant leur repas. Ils restent marqués présents.
+                {t('mealBreakDesc')}
               </p>
             </div>
             <button
@@ -567,7 +573,7 @@ export default function SettingsPage() {
 
       {/* Mot de passe */}
       <Card>
-        <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-4">Changer le mot de passe</h2>
+        <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-4">{t('changePassword')}</h2>
 
         {pwError && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">{pwError}</div>
@@ -578,7 +584,7 @@ export default function SettingsPage() {
 
         <form onSubmit={handlePasswordChange} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">Mot de passe actuel</label>
+            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">{t('currentPassword')}</label>
             <input
               type="password"
               value={pwForm.currentPassword}
@@ -589,7 +595,7 @@ export default function SettingsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">Nouveau mot de passe</label>
+            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">{t('newPassword')}</label>
             <input
               type="password"
               value={pwForm.newPassword}
@@ -598,10 +604,10 @@ export default function SettingsPage() {
               required
               className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
             />
-            <p className="text-xs text-[var(--pp-muted)] mt-1">Minimum 8 caractères</p>
+            <p className="text-xs text-[var(--pp-muted)] mt-1">{t('pwMinHint')}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">Confirmer le nouveau mot de passe</label>
+            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">{t('confirmNewPassword')}</label>
             <input
               type="password"
               value={pwForm.confirmPassword}
@@ -612,23 +618,23 @@ export default function SettingsPage() {
             />
           </div>
           <Button type="submit" disabled={pwSaving} size="md">
-            {pwSaving ? 'Mise à jour…' : 'Mettre à jour le mot de passe'}
+            {pwSaving ? t('pwSaving') : t('updatePassword')}
           </Button>
         </form>
       </Card>
 
       {/* 2FA */}
       <Card>
-        <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-1">Authentification à deux facteurs</h2>
+        <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-1">{t('tfaTitle')}</h2>
         <p className="text-sm text-[var(--pp-muted)] mb-4">
-          La 2FA est <strong>obligatoire</strong> pour les administrateurs. Elle est vérifiée à chaque connexion.
+          {t.rich('tfaDesc', { b: (c) => <strong>{c}</strong> })}
         </p>
 
         {session?.user?.twoFactorEnabled ? (
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-sm text-green-700">
               <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
-              2FA activée
+              {t('tfaEnabled')}
             </div>
 
             {tfaDisableSuccess ? (
@@ -636,7 +642,7 @@ export default function SettingsPage() {
             ) : (
               <form onSubmit={handleTfaDisable} className="space-y-3">
                 <p className="text-sm text-[var(--pp-muted)]">
-                  Pour désactiver, entrez votre code TOTP actuel. Vous devrez reconfigurer la 2FA à votre prochaine connexion.
+                  {t('tfaDisableHint')}
                 </p>
                 {tfaDisableError && (
                   <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">{tfaDisableError}</div>
@@ -658,7 +664,7 @@ export default function SettingsPage() {
                     disabled={tfaDisabling}
                     className="px-3 py-2 text-sm font-medium rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
                   >
-                    {tfaDisabling ? 'Désactivation...' : 'Désactiver la 2FA'}
+                    {tfaDisabling ? t('tfaDisabling') : t('tfaDisable')}
                   </button>
                 </div>
               </form>
@@ -668,10 +674,10 @@ export default function SettingsPage() {
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-sm text-amber-700">
               <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />
-              2FA non configurée
+              {t('tfaNotConfigured')}
             </div>
             <p className="text-sm text-[var(--pp-muted)]">
-              La 2FA n&rsquo;est pas encore activée sur ce compte. Elle sera demandée à votre prochaine connexion.
+              {t('tfaNotConfiguredDesc')}
             </p>
           </div>
         )}
