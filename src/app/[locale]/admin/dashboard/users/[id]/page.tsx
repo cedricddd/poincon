@@ -3,7 +3,8 @@
 export const dynamic = 'force-dynamic'
 import { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
-import Link from 'next/link'
+import { useTranslations, useLocale } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import { Card } from '@/components/Card'
 import { Button } from '@/components/Button'
 
@@ -31,24 +32,26 @@ type UserDetail = {
   detectedOvertimes: Overtime[]
 }
 
+const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
+
 const STATUS_STYLE: Record<string, string> = {
   PENDING: 'bg-blue-100 text-blue-700',
   APPROVED: 'bg-green-100 text-green-700',
   REJECTED: 'bg-red-100 text-red-700',
 }
-const STATUS_LABEL: Record<string, string> = {
-  PENDING: 'En attente', APPROVED: 'Approuvé', REJECTED: 'Rejeté',
+const STATUS_KEY: Record<string, string> = {
+  PENDING: 'statusPending', APPROVED: 'statusApproved', REJECTED: 'statusRejected',
 }
 
 function fmt(minutes: number) {
   const h = Math.floor(minutes / 60); const m = minutes % 60
   return m > 0 ? `${h}h${String(m).padStart(2, '0')}` : `${h}h`
 }
-function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString('fr-BE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+function fmtDate(iso: string, locale: string) {
+  return new Date(iso).toLocaleDateString(BCP47[locale] ?? 'fr-BE', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
-function fmtTime(iso: string) {
-  return new Date(iso).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
+function fmtTime(iso: string, locale: string) {
+  return new Date(iso).toLocaleTimeString(BCP47[locale] ?? 'fr-BE', { hour: '2-digit', minute: '2-digit' })
 }
 function toDateInput(iso: string) {
   return new Date(iso).toISOString().slice(0, 10)
@@ -61,9 +64,10 @@ function daysBetween(start: string, end: string) {
 }
 
 function StatusBadge({ status }: { status: string }) {
+  const t = useTranslations('userDetail')
   return (
     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLE[status] ?? 'bg-gray-100 text-gray-600'}`}>
-      {STATUS_LABEL[status] ?? status}
+      {STATUS_KEY[status] ? t(STATUS_KEY[status]) : status}
     </span>
   )
 }
@@ -71,25 +75,33 @@ function StatusBadge({ status }: { status: string }) {
 // ── Shared inline input styles ────────────────────────────────────────────────
 const inp = 'px-2 py-1 border border-[var(--pp-line)] rounded text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] bg-[var(--pp-bg)]'
 
-const LOCATIONS = ['Sur site', 'Déplacement', 'Télétravail']
+// DB-canonical location values (stored verbatim) → translated label key
+const LOCATIONS: { value: string; key: string }[] = [
+  { value: 'Sur site', key: 'locSite' },
+  { value: 'Déplacement', key: 'locTravel' },
+  { value: 'Télétravail', key: 'locRemote' },
+]
 
 function LocationSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const t = useTranslations('userDetail')
   return (
     <select value={value} onChange={e => onChange(e.target.value)} className={inp}>
-      {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
+      {LOCATIONS.map(l => <option key={l.value} value={l.value}>{t(l.key)}</option>)}
     </select>
   )
 }
 
-const EDIT_REASONS = [
-  { value: 'forgot_clockin', label: 'Oublié de pointer (arrivée)' },
-  { value: 'forgot_clockout', label: 'Oublié de dépointer (départ)' },
-  { value: 'correction', label: 'Correction d\'erreur' },
-  { value: 'other', label: 'Autre' },
+const EDIT_REASONS: { value: string; key: string }[] = [
+  { value: 'forgot_clockin', key: 'reasonForgotIn' },
+  { value: 'forgot_clockout', key: 'reasonForgotOut' },
+  { value: 'correction', key: 'reasonCorrection' },
+  { value: 'other', key: 'reasonOther' },
 ]
 
 // ── Clock Records Tab ─────────────────────────────────────────────────────────
 function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; userId: string; onRefresh: () => void }) {
+  const t = useTranslations('userDetail')
+  const locale = useLocale()
   const [editId, setEditId] = useState<string | null>(null)
   const [editData, setEditData] = useState({ date: '', arrival: '', departure: '', location: '' })
   const [showAdd, setShowAdd] = useState(false)
@@ -115,7 +127,7 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
   }
 
   const saveEdit = () => {
-    if (!editData.date || !editData.arrival) { setErr('Date et heure d\'arrivée requises'); return }
+    if (!editData.date || !editData.arrival) { setErr(t('arrivalDepartureRequired')); return }
     setErr('')
     setReasonStep(true)
   }
@@ -149,14 +161,14 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
   }
 
   const del = async (id: string) => {
-    if (!confirm('Supprimer ce pointage ?')) return
+    if (!confirm(t('confirmDeleteClock'))) return
     const res = await fetch(`/api/admin/clock-records?id=${id}`, { method: 'DELETE' })
     if (!res.ok) { setErr((await res.json()).error); return }
     onRefresh()
   }
 
   const add = async () => {
-    if (!addData.date || !addData.arrival) { setErr('Date et heure d\'arrivée requises'); return }
+    if (!addData.date || !addData.arrival) { setErr(t('arrivalDepartureRequired')); return }
     setSaving(true); setErr('')
     const arrivalISO = new Date(`${addData.date}T${addData.arrival}:00`).toISOString()
     const departureISO = addData.departure
@@ -186,31 +198,31 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
       {reasonStep && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setReasonStep(false)}>
           <div className="bg-[var(--pp-bg)] rounded-xl border border-[var(--pp-line)] shadow-2xl p-6 w-80" onClick={e => e.stopPropagation()}>
-            <p className="text-sm font-semibold text-[var(--pp-ink)] mb-1">Motif de la modification</p>
-            <p className="text-xs text-[var(--pp-muted)] mb-4">Requis pour l'audit trail légal.</p>
+            <p className="text-sm font-semibold text-[var(--pp-ink)] mb-1">{t('editReasonTitle')}</p>
+            <p className="text-xs text-[var(--pp-muted)] mb-4">{t('editReasonHint')}</p>
             <select value={reason} onChange={e => setReason(e.target.value)} className={`${inp} w-full mb-3`}>
-              {EDIT_REASONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+              {EDIT_REASONS.map(r => <option key={r.value} value={r.value}>{t(r.key)}</option>)}
             </select>
             {reason === 'other' && (
               <input
                 value={reasonNote}
                 onChange={e => setReasonNote(e.target.value)}
-                placeholder="Précisez la raison…"
+                placeholder={t('specifyReason')}
                 className={`${inp} w-full mb-3`}
                 autoFocus
               />
             )}
             <div className="flex gap-2 mt-1">
-              <Button size="sm" onClick={confirmSave} disabled={saving}>{saving ? '…' : 'Confirmer'}</Button>
-              <Button size="sm" variant="outline" onClick={() => setReasonStep(false)}>Annuler</Button>
+              <Button size="sm" onClick={confirmSave} disabled={saving}>{saving ? '…' : t('confirm')}</Button>
+              <Button size="sm" variant="outline" onClick={() => setReasonStep(false)}>{t('cancel')}</Button>
             </div>
           </div>
         </div>
       )}
 
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-semibold text-[var(--pp-ink)]">{records.length} pointage{records.length !== 1 ? 's' : ''}</h2>
-        <Button size="sm" onClick={() => { setShowAdd(true); setErr('') }}>+ Ajouter</Button>
+        <h2 className="text-sm font-semibold text-[var(--pp-ink)]">{t('clockCount', { count: records.length })}</h2>
+        <Button size="sm" onClick={() => { setShowAdd(true); setErr('') }}>{t('add')}</Button>
       </div>
 
       {err && <p className="text-xs text-[var(--pp-neg)] mb-3">{err}</p>}
@@ -218,23 +230,23 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
       {showAdd && (
         <div className="mb-4 p-3 bg-[var(--pp-line)]/20 rounded-lg border border-[var(--pp-line)] flex flex-wrap gap-2 items-end">
           <div>
-            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">Date</label>
+            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">{t('date')}</label>
             <input type="date" value={addData.date} onChange={e => setAddData(p => ({ ...p, date: e.target.value }))} className={inp} />
           </div>
           <div>
-            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">Arrivée</label>
+            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">{t('arrival')}</label>
             <input type="time" value={addData.arrival} onChange={e => setAddData(p => ({ ...p, arrival: e.target.value }))} className={inp} />
           </div>
           <div>
-            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">Départ (optionnel)</label>
+            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">{t('departureOptional')}</label>
             <input type="time" value={addData.departure} onChange={e => setAddData(p => ({ ...p, departure: e.target.value }))} className={inp} />
           </div>
           <div>
-            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">Lieu</label>
+            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">{t('location')}</label>
             <LocationSelect value={addData.location} onChange={v => setAddData(p => ({ ...p, location: v }))} />
           </div>
-          <Button size="sm" onClick={add} disabled={saving}>{saving ? '…' : 'Créer'}</Button>
-          <Button size="sm" variant="outline" onClick={() => { setShowAdd(false); setErr('') }}>Annuler</Button>
+          <Button size="sm" onClick={add} disabled={saving}>{saving ? '…' : t('create')}</Button>
+          <Button size="sm" variant="outline" onClick={() => { setShowAdd(false); setErr('') }}>{t('cancel')}</Button>
         </div>
       )}
 
@@ -242,17 +254,17 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[var(--pp-line)] text-left text-[var(--pp-muted)]">
-              <th className="pb-3 pr-4 font-medium">Date</th>
-              <th className="pb-3 pr-4 font-medium">Arrivée</th>
-              <th className="pb-3 pr-4 font-medium">Départ</th>
-              <th className="pb-3 pr-4 font-medium">Durée</th>
-              <th className="pb-3 pr-4 font-medium hidden md:table-cell">Lieu</th>
-              <th className="pb-3 font-medium">Actions</th>
+              <th className="pb-3 pr-4 font-medium">{t('date')}</th>
+              <th className="pb-3 pr-4 font-medium">{t('arrival')}</th>
+              <th className="pb-3 pr-4 font-medium">{t('departure')}</th>
+              <th className="pb-3 pr-4 font-medium">{t('duration')}</th>
+              <th className="pb-3 pr-4 font-medium hidden md:table-cell">{t('location')}</th>
+              <th className="pb-3 font-medium">{t('actions')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--pp-line)]">
             {records.length === 0 && (
-              <tr><td colSpan={6} className="py-6 text-center text-[var(--pp-muted)] italic text-sm">Aucun pointage.</td></tr>
+              <tr><td colSpan={6} className="py-6 text-center text-[var(--pp-muted)] italic text-sm">{t('noClockRecords')}</td></tr>
             )}
             {records.map(r => (
               <tr key={r.id} className={!r.departureTime ? 'opacity-70' : ''}>
@@ -265,19 +277,19 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
                     <td className="py-2 pr-2 hidden md:table-cell"><LocationSelect value={editData.location} onChange={v => setEditData(p => ({ ...p, location: v }))} /></td>
                     <td className="py-2">
                       <div className="flex gap-1">
-                        <Button size="sm" onClick={saveEdit} disabled={saving}>{saving ? '…' : 'Sauver'}</Button>
+                        <Button size="sm" onClick={saveEdit} disabled={saving}>{saving ? '…' : t('save')}</Button>
                         <Button size="sm" variant="outline" onClick={() => setEditId(null)}>✕</Button>
                       </div>
                     </td>
                   </>
                 ) : (
                   <>
-                    <td className="py-3 pr-4 text-[var(--pp-ink)]">{fmtDate(r.date)}</td>
-                    <td className="py-3 pr-4 text-[var(--pp-ink)]">{fmtTime(r.arrivalTime)}</td>
+                    <td className="py-3 pr-4 text-[var(--pp-ink)]">{fmtDate(r.date, locale)}</td>
+                    <td className="py-3 pr-4 text-[var(--pp-ink)]">{fmtTime(r.arrivalTime, locale)}</td>
                     <td className="py-3 pr-4">
                       {r.departureTime
-                        ? <span className="text-[var(--pp-ink)]">{fmtTime(r.departureTime)}</span>
-                        : <span className="text-xs italic text-[var(--pp-neg)]">Non pointé</span>}
+                        ? <span className="text-[var(--pp-ink)]">{fmtTime(r.departureTime, locale)}</span>
+                        : <span className="text-xs italic text-[var(--pp-neg)]">{t('notClocked')}</span>}
                     </td>
                     <td className="py-3 pr-4">
                       {r.duration != null
@@ -287,8 +299,8 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
                     <td className="py-3 pr-4 hidden md:table-cell text-xs text-[var(--pp-muted)]">{r.location}</td>
                     <td className="py-3">
                       <div className="flex gap-2">
-                        <button onClick={() => startEdit(r)} className="text-xs text-[var(--pp-info)] hover:underline">Modifier</button>
-                        <button onClick={() => del(r.id)} className="text-xs text-[var(--pp-neg)] hover:underline">Supprimer</button>
+                        <button onClick={() => startEdit(r)} className="text-xs text-[var(--pp-info)] hover:underline">{t('edit')}</button>
+                        <button onClick={() => del(r.id)} className="text-xs text-[var(--pp-neg)] hover:underline">{t('delete')}</button>
                       </div>
                     </td>
                   </>
@@ -299,7 +311,7 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
         </table>
       </div>
       {records.length === 30 && (
-        <p className="text-xs text-[var(--pp-muted)] mt-3 italic">30 derniers pointages affichés.</p>
+        <p className="text-xs text-[var(--pp-muted)] mt-3 italic">{t('last30')}</p>
       )}
     </Card>
   )
@@ -307,6 +319,8 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
 
 // ── Time Off Tab ──────────────────────────────────────────────────────────────
 function TimeOffTab({ timeoffs, userId, onRefresh }: { timeoffs: TimeOff[]; userId: string; onRefresh: () => void }) {
+  const t = useTranslations('userDetail')
+  const locale = useLocale()
   const [editId, setEditId] = useState<string | null>(null)
   const [editData, setEditData] = useState({ startDate: '', endDate: '', reason: '', status: 'APPROVED' })
   const [showAdd, setShowAdd] = useState(false)
@@ -314,14 +328,14 @@ function TimeOffTab({ timeoffs, userId, onRefresh }: { timeoffs: TimeOff[]; user
   const [saving, setSaving] = useState(false)
   const [err, setErr] = useState('')
 
-  const startEdit = (t: TimeOff) => {
-    setEditId(t.id)
-    setEditData({ startDate: toDateInput(t.startDate), endDate: toDateInput(t.endDate), reason: t.reason ?? '', status: t.status })
+  const startEdit = (to: TimeOff) => {
+    setEditId(to.id)
+    setEditData({ startDate: toDateInput(to.startDate), endDate: toDateInput(to.endDate), reason: to.reason ?? '', status: to.status })
     setErr('')
   }
 
   const saveEdit = async () => {
-    if (!editData.startDate || !editData.endDate) { setErr('Dates requises'); return }
+    if (!editData.startDate || !editData.endDate) { setErr(t('datesRequired')); return }
     setSaving(true); setErr('')
     const res = await fetch('/api/admin/time-off', {
       method: 'PATCH',
@@ -335,14 +349,14 @@ function TimeOffTab({ timeoffs, userId, onRefresh }: { timeoffs: TimeOff[]; user
   }
 
   const del = async (id: string) => {
-    if (!confirm('Supprimer ce congé ?')) return
+    if (!confirm(t('confirmDeleteTimeOff'))) return
     const res = await fetch(`/api/admin/time-off?id=${id}`, { method: 'DELETE' })
     if (!res.ok) { setErr((await res.json()).error); return }
     onRefresh()
   }
 
   const add = async () => {
-    if (!addData.startDate || !addData.endDate) { setErr('Dates requises'); return }
+    if (!addData.startDate || !addData.endDate) { setErr(t('datesRequired')); return }
     setSaving(true); setErr('')
     const res = await fetch('/api/admin/time-off', {
       method: 'POST',
@@ -358,17 +372,17 @@ function TimeOffTab({ timeoffs, userId, onRefresh }: { timeoffs: TimeOff[]; user
 
   const StatusSelect = ({ value, onChange }: { value: string; onChange: (v: string) => void }) => (
     <select value={value} onChange={e => onChange(e.target.value)} className={inp}>
-      <option value="APPROVED">Approuvé</option>
-      <option value="PENDING">En attente</option>
-      <option value="REJECTED">Rejeté</option>
+      <option value="APPROVED">{t('statusApproved')}</option>
+      <option value="PENDING">{t('statusPending')}</option>
+      <option value="REJECTED">{t('statusRejected')}</option>
     </select>
   )
 
   return (
     <Card>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-semibold text-[var(--pp-ink)]">{timeoffs.length} congé{timeoffs.length !== 1 ? 's' : ''}</h2>
-        <Button size="sm" onClick={() => { setShowAdd(true); setErr('') }}>+ Ajouter</Button>
+        <h2 className="text-sm font-semibold text-[var(--pp-ink)]">{t('timeOffCount', { count: timeoffs.length })}</h2>
+        <Button size="sm" onClick={() => { setShowAdd(true); setErr('') }}>{t('add')}</Button>
       </div>
 
       {err && <p className="text-xs text-[var(--pp-neg)] mb-3">{err}</p>}
@@ -376,23 +390,23 @@ function TimeOffTab({ timeoffs, userId, onRefresh }: { timeoffs: TimeOff[]; user
       {showAdd && (
         <div className="mb-4 p-3 bg-[var(--pp-line)]/20 rounded-lg border border-[var(--pp-line)] flex flex-wrap gap-2 items-end">
           <div>
-            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">Du</label>
+            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">{t('from')}</label>
             <input type="date" value={addData.startDate} onChange={e => setAddData(p => ({ ...p, startDate: e.target.value }))} className={inp} />
           </div>
           <div>
-            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">Au</label>
+            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">{t('to')}</label>
             <input type="date" value={addData.endDate} onChange={e => setAddData(p => ({ ...p, endDate: e.target.value }))} className={inp} />
           </div>
           <div>
-            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">Motif</label>
-            <input value={addData.reason} onChange={e => setAddData(p => ({ ...p, reason: e.target.value }))} placeholder="Vacances, maladie…" className={`${inp} w-36`} />
+            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">{t('reason')}</label>
+            <input value={addData.reason} onChange={e => setAddData(p => ({ ...p, reason: e.target.value }))} placeholder={t('timeOffReasonPlaceholder')} className={`${inp} w-36`} />
           </div>
           <div>
-            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">Statut</label>
+            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">{t('status')}</label>
             <StatusSelect value={addData.status} onChange={v => setAddData(p => ({ ...p, status: v }))} />
           </div>
-          <Button size="sm" onClick={add} disabled={saving}>{saving ? '…' : 'Créer'}</Button>
-          <Button size="sm" variant="outline" onClick={() => { setShowAdd(false); setErr('') }}>Annuler</Button>
+          <Button size="sm" onClick={add} disabled={saving}>{saving ? '…' : t('create')}</Button>
+          <Button size="sm" variant="outline" onClick={() => { setShowAdd(false); setErr('') }}>{t('cancel')}</Button>
         </div>
       )}
 
@@ -400,20 +414,20 @@ function TimeOffTab({ timeoffs, userId, onRefresh }: { timeoffs: TimeOff[]; user
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[var(--pp-line)] text-left text-[var(--pp-muted)]">
-              <th className="pb-3 pr-4 font-medium">Période</th>
-              <th className="pb-3 pr-4 font-medium">Jours</th>
-              <th className="pb-3 pr-4 font-medium">Motif</th>
-              <th className="pb-3 pr-4 font-medium">Statut</th>
-              <th className="pb-3 font-medium">Actions</th>
+              <th className="pb-3 pr-4 font-medium">{t('period')}</th>
+              <th className="pb-3 pr-4 font-medium">{t('days')}</th>
+              <th className="pb-3 pr-4 font-medium">{t('reason')}</th>
+              <th className="pb-3 pr-4 font-medium">{t('status')}</th>
+              <th className="pb-3 font-medium">{t('actions')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--pp-line)]">
             {timeoffs.length === 0 && (
-              <tr><td colSpan={5} className="py-6 text-center text-[var(--pp-muted)] italic text-sm">Aucune demande de congé.</td></tr>
+              <tr><td colSpan={5} className="py-6 text-center text-[var(--pp-muted)] italic text-sm">{t('noTimeOff')}</td></tr>
             )}
-            {timeoffs.map(t => (
-              <tr key={t.id}>
-                {editId === t.id ? (
+            {timeoffs.map(to => (
+              <tr key={to.id}>
+                {editId === to.id ? (
                   <>
                     <td className="py-2 pr-2">
                       <div className="flex gap-1 items-center">
@@ -423,7 +437,7 @@ function TimeOffTab({ timeoffs, userId, onRefresh }: { timeoffs: TimeOff[]; user
                       </div>
                     </td>
                     <td className="py-2 pr-2 text-xs text-[var(--pp-muted)]">
-                      {editData.startDate && editData.endDate ? daysBetween(editData.startDate, editData.endDate) + 'j' : '—'}
+                      {editData.startDate && editData.endDate ? daysBetween(editData.startDate, editData.endDate) + t('dayShort') : '—'}
                     </td>
                     <td className="py-2 pr-2"><input value={editData.reason} onChange={e => setEditData(p => ({ ...p, reason: e.target.value }))} className={`${inp} w-32`} /></td>
                     <td className="py-2 pr-2">
@@ -431,21 +445,21 @@ function TimeOffTab({ timeoffs, userId, onRefresh }: { timeoffs: TimeOff[]; user
                     </td>
                     <td className="py-2">
                       <div className="flex gap-1">
-                        <Button size="sm" onClick={saveEdit} disabled={saving}>{saving ? '…' : 'Sauver'}</Button>
+                        <Button size="sm" onClick={saveEdit} disabled={saving}>{saving ? '…' : t('save')}</Button>
                         <Button size="sm" variant="outline" onClick={() => setEditId(null)}>✕</Button>
                       </div>
                     </td>
                   </>
                 ) : (
                   <>
-                    <td className="py-3 pr-4 text-[var(--pp-ink)]">{fmtDate(t.startDate)} → {fmtDate(t.endDate)}</td>
-                    <td className="py-3 pr-4 text-[var(--pp-ink)]">{daysBetween(t.startDate, t.endDate)}j</td>
-                    <td className="py-3 pr-4 text-[var(--pp-muted)] max-w-xs truncate">{t.reason ?? '—'}</td>
-                    <td className="py-3 pr-4"><StatusBadge status={t.status} /></td>
+                    <td className="py-3 pr-4 text-[var(--pp-ink)]">{fmtDate(to.startDate, locale)} → {fmtDate(to.endDate, locale)}</td>
+                    <td className="py-3 pr-4 text-[var(--pp-ink)]">{daysBetween(to.startDate, to.endDate)}{t('dayShort')}</td>
+                    <td className="py-3 pr-4 text-[var(--pp-muted)] max-w-xs truncate">{to.reason ?? '—'}</td>
+                    <td className="py-3 pr-4"><StatusBadge status={to.status} /></td>
                     <td className="py-3">
                       <div className="flex gap-2">
-                        <button onClick={() => startEdit(t)} className="text-xs text-[var(--pp-info)] hover:underline">Modifier</button>
-                        <button onClick={() => del(t.id)} className="text-xs text-[var(--pp-neg)] hover:underline">Supprimer</button>
+                        <button onClick={() => startEdit(to)} className="text-xs text-[var(--pp-info)] hover:underline">{t('edit')}</button>
+                        <button onClick={() => del(to.id)} className="text-xs text-[var(--pp-neg)] hover:underline">{t('delete')}</button>
                       </div>
                     </td>
                   </>
@@ -461,6 +475,8 @@ function TimeOffTab({ timeoffs, userId, onRefresh }: { timeoffs: TimeOff[]; user
 
 // ── RTT Tab ───────────────────────────────────────────────────────────────────
 function RTTTab({ rtts, userId, onRefresh }: { rtts: RTT[]; userId: string; onRefresh: () => void }) {
+  const t = useTranslations('userDetail')
+  const locale = useLocale()
   const [editId, setEditId] = useState<string | null>(null)
   const [editData, setEditData] = useState({ date: '', hours: '', reason: '', status: 'APPROVED' })
   const [showAdd, setShowAdd] = useState(false)
@@ -475,7 +491,7 @@ function RTTTab({ rtts, userId, onRefresh }: { rtts: RTT[]; userId: string; onRe
   }
 
   const saveEdit = async () => {
-    if (!editData.date || !editData.hours) { setErr('Date et heures requises'); return }
+    if (!editData.date || !editData.hours) { setErr(t('hoursRequired')); return }
     setSaving(true); setErr('')
     const res = await fetch('/api/admin/rtt', {
       method: 'PATCH',
@@ -489,14 +505,14 @@ function RTTTab({ rtts, userId, onRefresh }: { rtts: RTT[]; userId: string; onRe
   }
 
   const del = async (id: string) => {
-    if (!confirm('Supprimer cette récupération ?')) return
+    if (!confirm(t('confirmDeleteRtt'))) return
     const res = await fetch(`/api/admin/rtt?id=${id}`, { method: 'DELETE' })
     if (!res.ok) { setErr((await res.json()).error); return }
     onRefresh()
   }
 
   const add = async () => {
-    if (!addData.date || !addData.hours) { setErr('Date et heures requises'); return }
+    if (!addData.date || !addData.hours) { setErr(t('hoursRequired')); return }
     setSaving(true); setErr('')
     const res = await fetch('/api/admin/rtt', {
       method: 'POST',
@@ -512,17 +528,17 @@ function RTTTab({ rtts, userId, onRefresh }: { rtts: RTT[]; userId: string; onRe
 
   const StatusSelect = ({ value, onChange }: { value: string; onChange: (v: string) => void }) => (
     <select value={value} onChange={e => onChange(e.target.value)} className={inp}>
-      <option value="APPROVED">Approuvé</option>
-      <option value="PENDING">En attente</option>
-      <option value="REJECTED">Rejeté</option>
+      <option value="APPROVED">{t('statusApproved')}</option>
+      <option value="PENDING">{t('statusPending')}</option>
+      <option value="REJECTED">{t('statusRejected')}</option>
     </select>
   )
 
   return (
     <Card>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-semibold text-[var(--pp-ink)]">{rtts.length} récupération{rtts.length > 1 ? 's' : ''}</h2>
-        <Button size="sm" onClick={() => { setShowAdd(true); setErr('') }}>+ Ajouter</Button>
+        <h2 className="text-sm font-semibold text-[var(--pp-ink)]">{t('rttCount', { count: rtts.length })}</h2>
+        <Button size="sm" onClick={() => { setShowAdd(true); setErr('') }}>{t('add')}</Button>
       </div>
 
       {err && <p className="text-xs text-[var(--pp-neg)] mb-3">{err}</p>}
@@ -530,23 +546,23 @@ function RTTTab({ rtts, userId, onRefresh }: { rtts: RTT[]; userId: string; onRe
       {showAdd && (
         <div className="mb-4 p-3 bg-[var(--pp-line)]/20 rounded-lg border border-[var(--pp-line)] flex flex-wrap gap-2 items-end">
           <div>
-            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">Date</label>
+            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">{t('date')}</label>
             <input type="date" value={addData.date} onChange={e => setAddData(p => ({ ...p, date: e.target.value }))} className={inp} />
           </div>
           <div>
-            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">Heures</label>
+            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">{t('hours')}</label>
             <input type="number" step="0.5" min="0.5" max="8" value={addData.hours} onChange={e => setAddData(p => ({ ...p, hours: e.target.value }))} className={`${inp} w-20`} />
           </div>
           <div>
-            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">Motif</label>
-            <input value={addData.reason} onChange={e => setAddData(p => ({ ...p, reason: e.target.value }))} placeholder="Optionnel" className={`${inp} w-36`} />
+            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">{t('reason')}</label>
+            <input value={addData.reason} onChange={e => setAddData(p => ({ ...p, reason: e.target.value }))} placeholder={t('optional')} className={`${inp} w-36`} />
           </div>
           <div>
-            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">Statut</label>
+            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">{t('status')}</label>
             <StatusSelect value={addData.status} onChange={v => setAddData(p => ({ ...p, status: v }))} />
           </div>
-          <Button size="sm" onClick={add} disabled={saving}>{saving ? '…' : 'Créer'}</Button>
-          <Button size="sm" variant="outline" onClick={() => { setShowAdd(false); setErr('') }}>Annuler</Button>
+          <Button size="sm" onClick={add} disabled={saving}>{saving ? '…' : t('create')}</Button>
+          <Button size="sm" variant="outline" onClick={() => { setShowAdd(false); setErr('') }}>{t('cancel')}</Button>
         </div>
       )}
 
@@ -554,16 +570,16 @@ function RTTTab({ rtts, userId, onRefresh }: { rtts: RTT[]; userId: string; onRe
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[var(--pp-line)] text-left text-[var(--pp-muted)]">
-              <th className="pb-3 pr-4 font-medium">Date</th>
-              <th className="pb-3 pr-4 font-medium">Heures</th>
-              <th className="pb-3 pr-4 font-medium">Motif</th>
-              <th className="pb-3 pr-4 font-medium">Statut</th>
-              <th className="pb-3 font-medium">Actions</th>
+              <th className="pb-3 pr-4 font-medium">{t('date')}</th>
+              <th className="pb-3 pr-4 font-medium">{t('hours')}</th>
+              <th className="pb-3 pr-4 font-medium">{t('reason')}</th>
+              <th className="pb-3 pr-4 font-medium">{t('status')}</th>
+              <th className="pb-3 font-medium">{t('actions')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--pp-line)]">
             {rtts.length === 0 && (
-              <tr><td colSpan={5} className="py-6 text-center text-[var(--pp-muted)] italic text-sm">Aucune demande de récupération.</td></tr>
+              <tr><td colSpan={5} className="py-6 text-center text-[var(--pp-muted)] italic text-sm">{t('noRtt')}</td></tr>
             )}
             {rtts.map(r => (
               <tr key={r.id}>
@@ -577,21 +593,21 @@ function RTTTab({ rtts, userId, onRefresh }: { rtts: RTT[]; userId: string; onRe
                     </td>
                     <td className="py-2">
                       <div className="flex gap-1">
-                        <Button size="sm" onClick={saveEdit} disabled={saving}>{saving ? '…' : 'Sauver'}</Button>
+                        <Button size="sm" onClick={saveEdit} disabled={saving}>{saving ? '…' : t('save')}</Button>
                         <Button size="sm" variant="outline" onClick={() => setEditId(null)}>✕</Button>
                       </div>
                     </td>
                   </>
                 ) : (
                   <>
-                    <td className="py-3 pr-4 text-[var(--pp-ink)]">{fmtDate(r.date)}</td>
+                    <td className="py-3 pr-4 text-[var(--pp-ink)]">{fmtDate(r.date, locale)}</td>
                     <td className="py-3 pr-4 text-[var(--pp-ink)]">{r.hoursToRecover}h</td>
                     <td className="py-3 pr-4 text-[var(--pp-muted)] max-w-xs truncate">{r.reason ?? '—'}</td>
                     <td className="py-3 pr-4"><StatusBadge status={r.status} /></td>
                     <td className="py-3">
                       <div className="flex gap-2">
-                        <button onClick={() => startEdit(r)} className="text-xs text-[var(--pp-info)] hover:underline">Modifier</button>
-                        <button onClick={() => del(r.id)} className="text-xs text-[var(--pp-neg)] hover:underline">Supprimer</button>
+                        <button onClick={() => startEdit(r)} className="text-xs text-[var(--pp-info)] hover:underline">{t('edit')}</button>
+                        <button onClick={() => del(r.id)} className="text-xs text-[var(--pp-neg)] hover:underline">{t('delete')}</button>
                       </div>
                     </td>
                   </>
@@ -609,6 +625,9 @@ function RTTTab({ rtts, userId, onRefresh }: { rtts: RTT[]; userId: string; onRe
 type Tab = 'overview' | 'clock' | 'timeoffs' | 'rtts' | 'overtimes'
 
 export default function UserDetailPage() {
+  const t = useTranslations('userDetail')
+  const tc = useTranslations('common')
+  const locale = useLocale()
   const { id } = useParams<{ id: string }>()
   const [data, setData] = useState<{ user: UserDetail; balance: Balance } | null>(null)
   const [loading, setLoading] = useState(true)
@@ -650,7 +669,7 @@ export default function UserDetailPage() {
 
   const submitAdjustment = async () => {
     const val = parseFloat(adjustment)
-    if (isNaN(val) || val === 0) { setAdjustErr('Valeur invalide (ex: 2.5 ou -1)'); return }
+    if (isNaN(val) || val === 0) { setAdjustErr(t('invalidValue')); return }
     setAdjusting(true); setAdjustErr('')
     const res = await fetch(`/api/admin/users/${id}`, {
       method: 'PATCH',
@@ -663,24 +682,24 @@ export default function UserDetailPage() {
     load()
   }
 
-  if (loading) return <div className="p-8 text-center text-[var(--pp-muted)]">Chargement…</div>
-  if (!data?.user) return <div className="p-8 text-center text-[var(--pp-neg)]">Employé introuvable.</div>
+  if (loading) return <div className="p-8 text-center text-[var(--pp-muted)]">{t('loading')}</div>
+  if (!data?.user) return <div className="p-8 text-center text-[var(--pp-neg)]">{t('notFound')}</div>
 
   const { user, balance } = data
 
   const tabs: { key: Tab; label: string; count?: number }[] = [
-    { key: 'overview', label: 'Vue générale' },
-    { key: 'clock', label: 'Pointages', count: user.clockRecords.length },
-    { key: 'timeoffs', label: 'Congés', count: user.timeOffRequests.length },
-    { key: 'rtts', label: 'Récupération', count: user.rttRequests.length },
-    { key: 'overtimes', label: 'Heures sup', count: user.detectedOvertimes.length },
+    { key: 'overview', label: t('tabOverview') },
+    { key: 'clock', label: t('tabClock'), count: user.clockRecords.length },
+    { key: 'timeoffs', label: t('tabTimeOffs'), count: user.timeOffRequests.length },
+    { key: 'rtts', label: t('tabRtts'), count: user.rttRequests.length },
+    { key: 'overtimes', label: t('tabOvertimes'), count: user.detectedOvertimes.length },
   ]
 
   return (
     <div className="p-6 md:p-8">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-[var(--pp-muted)] mb-6">
-        <Link href="/admin/dashboard/users" className="hover:text-[var(--pp-ink)] transition">Utilisateurs</Link>
+        <Link href="/admin/dashboard/users" className="hover:text-[var(--pp-ink)] transition">{t('breadcrumbUsers')}</Link>
         <span>/</span>
         <span className="text-[var(--pp-ink)] font-medium">{user.name ?? user.email}</span>
       </div>
@@ -694,34 +713,34 @@ export default function UserDetailPage() {
             <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
               user.role === 'ADMIN' ? 'bg-[var(--pp-info)]/10 text-[var(--pp-info)]' : 'bg-[var(--pp-line)] text-[var(--pp-muted)]'
             }`}>
-              {user.role === 'ADMIN' ? 'Admin' : 'Employé'}
+              {user.role === 'ADMIN' ? tc('roleAdmin') : tc('roleEmployee')}
             </span>
-            <span className="text-xs text-[var(--pp-muted)]">Inscrit le {fmtDate(user.createdAt)}</span>
+            <span className="text-xs text-[var(--pp-muted)]">{t('registeredOn', { date: fmtDate(user.createdAt, locale) })}</span>
           </div>
         </div>
         <Link
           href={`/admin/dashboard/reports?userId=${user.id}`}
           className="px-4 py-2 border border-[var(--pp-line)] rounded-lg text-sm font-medium text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)]/30 transition"
         >
-          Rapport complet
+          {t('fullReport')}
         </Link>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 mb-6 border-b border-[var(--pp-line)] overflow-x-auto">
-        {tabs.map(t => (
+        {tabs.map(tb => (
           <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
+            key={tb.key}
+            onClick={() => setTab(tb.key)}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition -mb-px whitespace-nowrap flex items-center gap-1.5 ${
-              tab === t.key
+              tab === tb.key
                 ? 'border-[var(--pp-info)] text-[var(--pp-info)]'
                 : 'border-transparent text-[var(--pp-muted)] hover:text-[var(--pp-ink)]'
             }`}
           >
-            {t.label}
-            {t.count !== undefined && (
-              <span className="text-xs bg-[var(--pp-line)] text-[var(--pp-muted)] px-1.5 py-0.5 rounded-full">{t.count}</span>
+            {tb.label}
+            {tb.count !== undefined && (
+              <span className="text-xs bg-[var(--pp-line)] text-[var(--pp-muted)] px-1.5 py-0.5 rounded-full">{tb.count}</span>
             )}
           </button>
         ))}
@@ -732,11 +751,11 @@ export default function UserDetailPage() {
         <div className="space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: 'Heures sup approuvées', value: `${balance.overtimeHours.toFixed(1)}h`, color: 'text-green-600' },
-              { label: 'Récupération utilisée', value: `${balance.rttHours.toFixed(1)}h`, color: 'text-orange-500' },
-              { label: 'Congés approuvés', value: `${balance.timeOffDays}j`, color: 'text-blue-500' },
+              { label: t('cardOvertimeApproved'), value: `${balance.overtimeHours.toFixed(1)}h`, color: 'text-green-600' },
+              { label: t('cardRttUsed'), value: `${balance.rttHours.toFixed(1)}h`, color: 'text-orange-500' },
+              { label: t('cardTimeOffApproved'), value: `${balance.timeOffDays}${t('dayShort')}`, color: 'text-blue-500' },
               {
-                label: 'Solde net',
+                label: t('cardNetBalance'),
                 value: `${balance.balance >= 0 ? '+' : ''}${balance.balance.toFixed(1)}h`,
                 color: balance.balance >= 0 ? 'text-green-600' : 'text-[var(--pp-neg)]',
               },
@@ -749,11 +768,11 @@ export default function UserDetailPage() {
           </div>
 
           <Card>
-            <h2 className="text-sm font-semibold text-[var(--pp-ink)] mb-3">Site par défaut</h2>
+            <h2 className="text-sm font-semibold text-[var(--pp-ink)] mb-3">{t('defaultSite')}</h2>
             {sites.length === 0 ? (
               <p className="text-sm text-[var(--pp-muted)] italic">
-                Aucun site configuré.{' '}
-                <Link href="/admin/dashboard/sites" className="text-[var(--pp-info)] hover:underline">Créer un site</Link>
+                {t('noSiteConfigured')}{' '}
+                <Link href="/admin/dashboard/sites" className="text-[var(--pp-info)] hover:underline">{t('createSite')}</Link>
               </p>
             ) : (
               <div className="flex gap-2 items-center flex-wrap">
@@ -762,7 +781,7 @@ export default function UserDetailPage() {
                   onChange={e => setSiteId(e.target.value)}
                   className="border border-[var(--pp-line)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] bg-[var(--pp-bg)]"
                 >
-                  <option value="">— Aucun site par défaut —</option>
+                  <option value="">{t('noDefaultSite')}</option>
                   {sites.map((s: Site) => (
                     <option key={s.id} value={s.id}>{s.name}</option>
                   ))}
@@ -772,40 +791,40 @@ export default function UserDetailPage() {
                   disabled={savingSite || siteId === (data?.user.defaultSiteId ?? '')}
                   className="px-4 py-2 bg-[var(--pp-info)] text-white rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-40 transition"
                 >
-                  {savingSite ? 'Enregistrement…' : 'Enregistrer'}
+                  {savingSite ? t('saving') : t('saveBtn')}
                 </button>
               </div>
             )}
           </Card>
 
           <Card>
-            <h2 className="text-sm font-semibold text-[var(--pp-ink)] mb-3">Horaire de travail</h2>
+            <h2 className="text-sm font-semibold text-[var(--pp-ink)] mb-3">{t('workSchedule')}</h2>
             {user.userSchedule ? (
               <div>
                 <p className="font-medium text-[var(--pp-ink)]">
-                  {user.userSchedule.workSchedule?.name ?? 'Horaire personnalisé'}
+                  {user.userSchedule.workSchedule?.name ?? t('customSchedule')}
                 </p>
                 <p className="text-xs text-[var(--pp-muted)] mt-0.5">
-                  {user.userSchedule.workSchedule?.type ?? '—'} · {user.userSchedule.hoursPerDay}h/jour standard
+                  {t('scheduleDetail', { type: user.userSchedule.workSchedule?.type ?? '—', hours: user.userSchedule.hoursPerDay })}
                 </p>
               </div>
             ) : (
               <p className="text-sm text-[var(--pp-muted)] italic">
-                Aucun horaire configuré — défaut 8h/jour.{' '}
-                <Link href="/admin/dashboard/schedules" className="text-[var(--pp-info)] hover:underline">Configurer</Link>
+                {t('noSchedule')}{' '}
+                <Link href="/admin/dashboard/schedules" className="text-[var(--pp-info)] hover:underline">{t('configure')}</Link>
               </p>
             )}
           </Card>
 
           <Card>
-            <h2 className="text-sm font-semibold text-[var(--pp-ink)] mb-3">Ajustement manuel du solde</h2>
+            <h2 className="text-sm font-semibold text-[var(--pp-ink)] mb-3">{t('manualAdjust')}</h2>
             <p className="text-xs text-[var(--pp-muted)] mb-3">
-              Valeur positive = heures créditées, négative = débitées.
+              {t('adjustHint')}
             </p>
             {adjustErr && <p className="text-xs text-[var(--pp-neg)] mb-2">{adjustErr}</p>}
             <div className="flex gap-2 flex-wrap items-end">
               <div>
-                <label className="block text-xs text-[var(--pp-muted)] mb-1">Heures (ex: 2.5 ou -1)</label>
+                <label className="block text-xs text-[var(--pp-muted)] mb-1">{t('adjustHoursLabel')}</label>
                 <input
                   type="number" step="0.5"
                   value={adjustment}
@@ -815,11 +834,11 @@ export default function UserDetailPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs text-[var(--pp-muted)] mb-1">Motif (optionnel)</label>
+                <label className="block text-xs text-[var(--pp-muted)] mb-1">{t('adjustReasonLabel')}</label>
                 <input
                   value={adjustReason}
                   onChange={e => setAdjustReason(e.target.value)}
-                  placeholder="Ex: correction manuelle…"
+                  placeholder={t('adjustReasonPlaceholder')}
                   className="w-64 px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
                 />
               </div>
@@ -828,7 +847,7 @@ export default function UserDetailPage() {
                 disabled={adjusting || !adjustment}
                 className="px-4 py-2 bg-[var(--pp-info)] text-white rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-40 transition"
               >
-                {adjusting ? 'Enregistrement…' : 'Appliquer'}
+                {adjusting ? t('saving') : t('apply')}
               </button>
             </div>
           </Card>
@@ -854,20 +873,20 @@ export default function UserDetailPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[var(--pp-line)] text-left text-[var(--pp-muted)]">
-                  <th className="pb-3 pr-4 font-medium">Date</th>
-                  <th className="pb-3 pr-4 font-medium">Travaillé</th>
-                  <th className="pb-3 pr-4 font-medium">Standard</th>
-                  <th className="pb-3 pr-4 font-medium">Heures sup</th>
-                  <th className="pb-3 font-medium">Statut</th>
+                  <th className="pb-3 pr-4 font-medium">{t('date')}</th>
+                  <th className="pb-3 pr-4 font-medium">{t('thWorked')}</th>
+                  <th className="pb-3 pr-4 font-medium">{t('thStandard')}</th>
+                  <th className="pb-3 pr-4 font-medium">{t('tabOvertimes')}</th>
+                  <th className="pb-3 font-medium">{t('status')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--pp-line)]">
                 {user.detectedOvertimes.length === 0 && (
-                  <tr><td colSpan={5} className="py-6 text-center text-[var(--pp-muted)] italic text-sm">Aucune heure sup détectée.</td></tr>
+                  <tr><td colSpan={5} className="py-6 text-center text-[var(--pp-muted)] italic text-sm">{t('noOvertimes')}</td></tr>
                 )}
                 {user.detectedOvertimes.map(o => (
                   <tr key={o.id}>
-                    <td className="py-3 pr-4 text-[var(--pp-ink)]">{fmtDate(o.date)}</td>
+                    <td className="py-3 pr-4 text-[var(--pp-ink)]">{fmtDate(o.date, locale)}</td>
                     <td className="py-3 pr-4 text-[var(--pp-ink)]">{o.hoursWorked.toFixed(1)}h</td>
                     <td className="py-3 pr-4 text-[var(--pp-muted)]">{o.hoursStandard.toFixed(1)}h</td>
                     <td className="py-3 pr-4">
