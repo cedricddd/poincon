@@ -2,8 +2,12 @@
 
 export const dynamic = 'force-dynamic'
 import { useEffect, useState } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import { Card } from '@/components/Card'
 import { Button } from '@/components/Button'
+
+const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
 
 type Site = { id: string; name: string }
 type KioskToken = {
@@ -18,6 +22,9 @@ type KioskToken = {
 }
 
 export default function KioskPage() {
+  const t = useTranslations('kioskAdmin')
+  const locale = useLocale()
+  const bcp = BCP47[locale] ?? 'fr-BE'
   const [tokens, setTokens] = useState<KioskToken[]>([])
   const [sites, setSites] = useState<Site[]>([])
   const [plan, setPlan] = useState<string>('')
@@ -58,10 +65,10 @@ export default function KioskPage() {
         body: JSON.stringify({ label: label.trim() || null, siteId: siteId || null }),
       })
       const data = await res.json()
-      if (!res.ok) { setError(data.error ?? 'Erreur'); return }
+      if (!res.ok) { setError(data.error ?? t('error')); return }
       setLabel('')
       setSiteId('')
-      setSuccess('Terminal créé avec succès.')
+      setSuccess(t('created'))
       fetchTokens()
     } finally {
       setCreating(false)
@@ -69,10 +76,10 @@ export default function KioskPage() {
   }
 
   const handleDelete = async (id: string, lbl: string | null) => {
-    if (!confirm(`Supprimer le terminal « ${lbl ?? id} » ? Les tablettes qui utilisent ce lien n'auront plus accès.`)) return
+    if (!confirm(t('confirmDelete', { label: lbl ?? id }))) return
     const res = await fetch(`/api/admin/kiosk/tokens/${id}`, { method: 'DELETE' })
-    if (!res.ok) { setError('Erreur lors de la suppression'); return }
-    setTokens(prev => prev.filter(t => t.id !== id))
+    if (!res.ok) { setError(t('deleteError')); return }
+    setTokens(prev => prev.filter(tk => tk.id !== id))
   }
 
   const copyUrl = (token: string) => {
@@ -86,33 +93,33 @@ export default function KioskPage() {
   const kioskUrl = (token: string) =>
     typeof window !== 'undefined' ? `${window.location.origin}/kiosk/${token}` : `/kiosk/${token}`
 
-  const toggleVisitors = async (t: KioskToken) => {
-    setTogglingVisitors(t.id)
+  const toggleVisitors = async (tok: KioskToken) => {
+    setTogglingVisitors(tok.id)
     try {
-      const res = await fetch(`/api/admin/kiosk/tokens/${t.id}`, {
+      const res = await fetch(`/api/admin/kiosk/tokens/${tok.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ visitorsEnabled: !t.visitorsEnabled }),
+        body: JSON.stringify({ visitorsEnabled: !tok.visitorsEnabled }),
       })
       if (res.ok) {
-        setTokens(prev => prev.map(tk => tk.id === t.id ? { ...tk, visitorsEnabled: !t.visitorsEnabled } : tk))
+        setTokens(prev => prev.map(tk => tk.id === tok.id ? { ...tk, visitorsEnabled: !tok.visitorsEnabled } : tk))
       }
     } finally {
       setTogglingVisitors(null)
     }
   }
 
-  const toggleTheme = async (t: KioskToken) => {
-    setTogglingTheme(t.id)
-    const newTheme = t.theme === 'light' ? 'dark' : 'light'
+  const toggleTheme = async (tok: KioskToken) => {
+    setTogglingTheme(tok.id)
+    const newTheme = tok.theme === 'light' ? 'dark' : 'light'
     try {
-      const res = await fetch(`/api/admin/kiosk/tokens/${t.id}`, {
+      const res = await fetch(`/api/admin/kiosk/tokens/${tok.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ theme: newTheme }),
       })
       if (res.ok) {
-        setTokens(prev => prev.map(tk => tk.id === t.id ? { ...tk, theme: newTheme } : tk))
+        setTokens(prev => prev.map(tk => tk.id === tok.id ? { ...tk, theme: newTheme } : tk))
       }
     } finally {
       setTogglingTheme(null)
@@ -124,9 +131,9 @@ export default function KioskPage() {
   return (
     <div className="p-6 md:p-8 max-w-3xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Mode Kiosque</h1>
+        <h1 className="text-2xl font-bold text-[var(--pp-ink)]">{t('title')}</h1>
         <p className="text-[var(--pp-muted)] text-sm mt-1">
-          Créez des terminaux de pointage pour tablettes — accès par PIN ou enregistrement visiteur.
+          {t('subtitle')}
         </p>
       </div>
 
@@ -134,10 +141,10 @@ export default function KioskPage() {
         <div className="mb-6 p-4 rounded-xl border border-orange-200 bg-orange-50 flex items-start gap-3">
           <span className="text-2xl">🔒</span>
           <div>
-            <p className="text-sm font-medium text-orange-800">Fonctionnalité non disponible sur le plan FREE</p>
-            <p className="text-xs text-orange-600 mt-0.5">Le mode kiosque est disponible à partir du plan SOLO.</p>
+            <p className="text-sm font-medium text-orange-800">{t('freeBlockedTitle')}</p>
+            <p className="text-xs text-orange-600 mt-0.5">{t('freeBlockedDesc')}</p>
             <a href="/pricing" className="inline-block mt-2 px-3 py-1.5 bg-orange-600 text-white text-xs font-medium rounded-lg hover:opacity-90">
-              Voir les plans →
+              {t('seePlans')}
             </a>
           </div>
         </div>
@@ -153,32 +160,32 @@ export default function KioskPage() {
       {/* Create form */}
       {!planBlocked && (
         <Card className="mb-6">
-          <h2 className="text-base font-semibold text-[var(--pp-ink)] mb-4">Créer un nouveau terminal</h2>
+          <h2 className="text-base font-semibold text-[var(--pp-ink)] mb-4">{t('createTitle')}</h2>
           <form onSubmit={handleCreate} className="flex flex-wrap gap-3 items-end">
             <div className="flex-1 min-w-40">
-              <label className="block text-xs text-[var(--pp-muted)] mb-1">Libellé (optionnel)</label>
+              <label className="block text-xs text-[var(--pp-muted)] mb-1">{t('labelOptional')}</label>
               <input
                 value={label}
                 onChange={e => setLabel(e.target.value)}
-                placeholder="ex: Accueil RDC"
+                placeholder={t('labelPlaceholder')}
                 className="w-full px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
               />
             </div>
             {sites.length > 0 && (
               <div className="flex-1 min-w-40">
-                <label className="block text-xs text-[var(--pp-muted)] mb-1">Site (optionnel)</label>
+                <label className="block text-xs text-[var(--pp-muted)] mb-1">{t('siteOptional')}</label>
                 <select
                   value={siteId}
                   onChange={e => setSiteId(e.target.value)}
                   className="w-full px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm bg-[var(--pp-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
                 >
-                  <option value="">— Tous les sites —</option>
+                  <option value="">{t('allSites')}</option>
                   {sites.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
               </div>
             )}
             <Button type="submit" size="md" disabled={creating}>
-              {creating ? 'Création…' : '+ Créer'}
+              {creating ? t('creating') : t('createBtn')}
             </Button>
           </form>
         </Card>
@@ -187,80 +194,80 @@ export default function KioskPage() {
       {/* Token list */}
       <Card>
         <h2 className="text-base font-semibold text-[var(--pp-ink)] mb-4">
-          Terminaux actifs
+          {t('activeTerminals')}
           {tokens.length > 0 && (
             <span className="ml-2 text-xs font-normal text-[var(--pp-muted)]">({tokens.length})</span>
           )}
         </h2>
 
         {loading ? (
-          <p className="text-[var(--pp-muted)] text-sm py-4 text-center">Chargement…</p>
+          <p className="text-[var(--pp-muted)] text-sm py-4 text-center">{t('loading')}</p>
         ) : tokens.length === 0 ? (
           <div className="py-8 text-center">
             <p className="text-4xl mb-3">🖥️</p>
             <p className="text-[var(--pp-muted)] text-sm">
-              {planBlocked ? 'Passez au plan SOLO pour créer des terminaux.' : 'Aucun terminal créé. Créez-en un ci-dessus.'}
+              {planBlocked ? t('emptyBlocked') : t('emptyDefault')}
             </p>
           </div>
         ) : (
           <div className="space-y-3">
-            {tokens.map(t => (
-              <div key={t.id} className="p-4 rounded-xl border border-[var(--pp-line)] bg-[var(--pp-bg2)]">
+            {tokens.map(tk => (
+              <div key={tk.id} className="p-4 rounded-xl border border-[var(--pp-line)] bg-[var(--pp-bg2)]">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-medium text-[var(--pp-ink)]">
-                        {t.label ?? 'Terminal kiosque'}
+                        {tk.label ?? t('defaultTerminalName')}
                       </span>
-                      {t.site && (
+                      {tk.site && (
                         <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--pp-info)]/10 text-[var(--pp-info)]">
-                          {t.site.name}
+                          {tk.site.name}
                         </span>
                       )}
                     </div>
                     <p className="text-xs text-[var(--pp-muted)] mt-1 font-mono truncate max-w-xs">
-                      {kioskUrl(t.token)}
+                      {kioskUrl(tk.token)}
                     </p>
                     <p className="text-xs text-[var(--pp-muted)] mt-0.5">
-                      Créé le {new Date(t.createdAt).toLocaleDateString('fr-BE', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      {t('createdOn', { date: new Date(tk.createdAt).toLocaleDateString(bcp, { day: 'numeric', month: 'long', year: 'numeric' }) })}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
                     <button
-                      onClick={() => toggleVisitors(t)}
-                      disabled={togglingVisitors === t.id}
-                      title={t.visitorsEnabled ? 'Désactiver les visiteurs' : 'Activer les visiteurs'}
+                      onClick={() => toggleVisitors(tk)}
+                      disabled={togglingVisitors === tk.id}
+                      title={tk.visitorsEnabled ? t('visitorsDisable') : t('visitorsEnable')}
                       className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-medium transition-colors disabled:opacity-50"
-                      style={t.visitorsEnabled
+                      style={tk.visitorsEnabled
                         ? { borderColor: 'rgba(16,185,129,0.35)', color: '#059669', background: 'rgba(16,185,129,0.07)' }
                         : { borderColor: 'rgba(156,163,175,0.35)', color: '#6b7280', background: 'rgba(156,163,175,0.07)' }
                       }
                     >
-                      {t.visitorsEnabled ? '👤 Visiteurs' : '🚫 Visiteurs'}
+                      {tk.visitorsEnabled ? t('visitorsOn') : t('visitorsOff')}
                     </button>
                     <button
-                      onClick={() => toggleTheme(t)}
-                      disabled={togglingTheme === t.id}
-                      title={t.theme === 'light' ? 'Passer en mode sombre' : 'Passer en mode clair'}
+                      onClick={() => toggleTheme(tk)}
+                      disabled={togglingTheme === tk.id}
+                      title={tk.theme === 'light' ? t('toDark') : t('toLight')}
                       className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-medium transition-colors disabled:opacity-50"
-                      style={t.theme === 'light'
+                      style={tk.theme === 'light'
                         ? { borderColor: 'rgba(212,168,83,0.4)', color: '#92640a', background: 'rgba(212,168,83,0.08)' }
                         : { borderColor: 'rgba(99,102,241,0.35)', color: '#4f46e5', background: 'rgba(99,102,241,0.06)' }
                       }
                     >
-                      {t.theme === 'light' ? '☀️ Clair' : '🌑 Sombre'}
+                      {tk.theme === 'light' ? t('themeLight') : t('themeDark')}
                     </button>
-                    <Button size="sm" variant="outline" onClick={() => copyUrl(t.token)}>
-                      {copied === t.token ? '✓ Copié' : 'Copier URL'}
+                    <Button size="sm" variant="outline" onClick={() => copyUrl(tk.token)}>
+                      {copied === tk.token ? t('copied') : t('copyUrl')}
                     </Button>
-                    <a href={kioskUrl(t.token)} target="_blank" rel="noopener noreferrer">
-                      <Button size="sm" variant="outline">Ouvrir</Button>
+                    <a href={kioskUrl(tk.token)} target="_blank" rel="noopener noreferrer">
+                      <Button size="sm" variant="outline">{t('open')}</Button>
                     </a>
                     <button
-                      onClick={() => handleDelete(t.id, t.label)}
+                      onClick={() => handleDelete(tk.id, tk.label)}
                       className="text-xs text-[var(--pp-neg)] hover:underline px-1"
                     >
-                      Supprimer
+                      {t('delete')}
                     </button>
                   </div>
                 </div>
@@ -272,27 +279,27 @@ export default function KioskPage() {
 
       {/* Instructions */}
       <Card className="mt-6">
-        <h2 className="text-base font-semibold text-[var(--pp-ink)] mb-3">Comment configurer le kiosque</h2>
+        <h2 className="text-base font-semibold text-[var(--pp-ink)] mb-3">{t('howTitle')}</h2>
         <ol className="space-y-2 text-sm text-[var(--pp-muted)]">
           <li className="flex gap-2">
             <span className="shrink-0 w-5 h-5 rounded-full bg-[var(--pp-info)]/15 text-[var(--pp-info)] flex items-center justify-center text-xs font-bold">1</span>
-            Créez un terminal ci-dessus et copiez son URL.
+            {t('step1')}
           </li>
           <li className="flex gap-2">
             <span className="shrink-0 w-5 h-5 rounded-full bg-[var(--pp-info)]/15 text-[var(--pp-info)] flex items-center justify-center text-xs font-bold">2</span>
-            Sur la tablette, ouvrez l'URL en mode plein écran (navigateur kiosque ou PWA).
+            {t('step2')}
           </li>
           <li className="flex gap-2">
             <span className="shrink-0 w-5 h-5 rounded-full bg-[var(--pp-info)]/15 text-[var(--pp-info)] flex items-center justify-center text-xs font-bold">3</span>
-            Assignez un PIN à 4 chiffres à chaque employé dans{' '}
-            <a href="/admin/dashboard/users" className="text-[var(--pp-info)] hover:underline">
-              Utilisateurs
-            </a>{' '}
-            (bouton «&nbsp;PIN Kiosque&nbsp;»).
+            <span>
+              {t.rich('step3', {
+                link: (c) => <Link href="/admin/dashboard/users" className="text-[var(--pp-info)] hover:underline">{c}</Link>,
+              })}
+            </span>
           </li>
           <li className="flex gap-2">
             <span className="shrink-0 w-5 h-5 rounded-full bg-[var(--pp-info)]/15 text-[var(--pp-info)] flex items-center justify-center text-xs font-bold">4</span>
-            Les employés tapent leur PIN pour pointer. Les visiteurs peuvent s'enregistrer et un email est envoyé à leur hôte.
+            {t('step4')}
           </li>
         </ol>
       </Card>

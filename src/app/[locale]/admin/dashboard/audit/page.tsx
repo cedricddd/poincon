@@ -2,6 +2,9 @@
 
 export const dynamic = 'force-dynamic'
 import { useEffect, useState } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
+
+const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
 
 interface AuditLog {
   id: string
@@ -48,37 +51,39 @@ const actionBadgeColor: Record<string, string> = {
   manager_reject: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
 }
 
-const actionLabels: Record<string, string> = {
-  clock_in: 'Arrivée',
-  clock_out: 'Départ',
-  admin_create: 'Création Admin',
-  admin_edit: 'Modification Admin',
-  admin_delete: 'Suppression Admin',
-  admin_update_user: 'Modif. Utilisateur',
-  admin_delete_user: 'Suppr. Utilisateur',
-  admin_invite_user: 'Invitation',
-  admin_cancel_invitation: 'Annul. Invitation',
-  admin_approve: 'Approbation Admin',
-  admin_reject: 'Refus Admin',
-  admin_balance_adjustment: 'Ajust. Solde',
-  employee_request: 'Demande Employé',
-  manager_create: 'Congé par Manager',
-  manager_approve: 'Approbation Manager',
-  manager_reject: 'Refus Manager',
+const ACTION_KEY: Record<string, string> = {
+  clock_in: 'actClockIn',
+  clock_out: 'actClockOut',
+  admin_create: 'actAdminCreate',
+  admin_edit: 'actAdminEdit',
+  admin_delete: 'actAdminDelete',
+  admin_update_user: 'actAdminUpdateUser',
+  admin_delete_user: 'actAdminDeleteUser',
+  admin_invite_user: 'actAdminInvite',
+  admin_cancel_invitation: 'actAdminCancelInvite',
+  admin_approve: 'actAdminApprove',
+  admin_reject: 'actAdminReject',
+  admin_balance_adjustment: 'actAdminBalanceAdj',
+  employee_request: 'actEmployeeRequest',
+  manager_create: 'actManagerCreate',
+  manager_approve: 'actManagerApprove',
+  manager_reject: 'actManagerReject',
 }
 
-function formatDistanceToNow(dateString: string): string {
+type TFn = (key: string, values?: Record<string, string | number>) => string
+
+function formatDistanceToNow(dateString: string, t: TFn): string {
   const date = new Date(dateString)
   const now = new Date()
   const seconds = Math.floor((now.getTime() - date.getTime()) / 1000)
 
-  if (seconds < 60) return 'à l\'instant'
+  if (seconds < 60) return t('justNow')
   const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `il y a ${minutes}m`
+  if (minutes < 60) return t('minutesAgo', { m: minutes })
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `il y a ${hours}h`
+  if (hours < 24) return t('hoursAgo', { h: hours })
   const days = Math.floor(hours / 24)
-  return `il y a ${days}j`
+  return t('daysAgo', { d: days })
 }
 
 function buildFilterParams(params: {
@@ -96,6 +101,9 @@ function buildFilterParams(params: {
 }
 
 export default function AuditPage() {
+  const t = useTranslations('audit')
+  const locale = useLocale()
+  const bcp = BCP47[locale] ?? 'fr-BE'
   const [logs, setLogs] = useState<AuditLog[]>([])
   const [loading, setLoading] = useState(true)
   const [exportingCsv, setExportingCsv] = useState(false)
@@ -180,22 +188,22 @@ export default function AuditPage() {
       const parts: string[] = []
 
       // Time-off / leave events
-      const leaveTypeLabels: Record<string, string> = { ANNUAL: 'Congé annuel', SICK: 'Congé maladie', MATERNITY: 'Congé maternité' }
-      if (c.leaveType) parts.push(`Type: ${leaveTypeLabels[c.leaveType] ?? c.leaveType}`)
-      if (c.startDate) parts.push(`Du: ${new Date(c.startDate).toLocaleDateString('fr-BE')}`)
-      if (c.endDate) parts.push(`Au: ${new Date(c.endDate).toLocaleDateString('fr-BE')}`)
-      if (c.targetUserId) parts.push(`Employé ID: ${c.targetUserId}`)
-      if (c.status) parts.push(`Statut: ${c.status}`)
+      const leaveTypeLabels: Record<string, string> = { ANNUAL: t('leaveAnnual'), SICK: t('leaveSick'), MATERNITY: t('leaveMaternity') }
+      if (c.leaveType) parts.push(`${t('lblType')}: ${leaveTypeLabels[c.leaveType] ?? c.leaveType}`)
+      if (c.startDate) parts.push(`${t('lblFrom')}: ${new Date(c.startDate).toLocaleDateString(bcp)}`)
+      if (c.endDate) parts.push(`${t('lblTo')}: ${new Date(c.endDate).toLocaleDateString(bcp)}`)
+      if (c.targetUserId) parts.push(`${t('lblEmployeeId')}: ${c.targetUserId}`)
+      if (c.status) parts.push(`${t('lblStatus')}: ${c.status}`)
 
       const clockReasonLabels: Record<string, string> = {
-        forgot_clockin: 'Oublié pointer (arrivée)',
-        forgot_clockout: 'Oublié dépointer (départ)',
-        correction: "Correction d'erreur",
-        other: 'Autre',
-        manual_create: 'Création manuelle',
+        forgot_clockin: t('rForgotIn'),
+        forgot_clockout: t('rForgotOut'),
+        correction: t('rCorrection'),
+        other: t('rOther'),
+        manual_create: t('rManualCreate'),
       }
-      if (c.reason && !c.leaveType) parts.push(`Motif: ${clockReasonLabels[c.reason] ?? c.reason}`)
-      if (c.note) parts.push(`Note: ${c.note}`)
+      if (c.reason && !c.leaveType) parts.push(`${t('lblReason')}: ${clockReasonLabels[c.reason] ?? c.reason}`)
+      if (c.note) parts.push(`${t('lblNote')}: ${c.note}`)
 
       if (c.before && c.after) {
         const arrBefore = fmtTimeVal(c.before.arrivalTime)
@@ -203,15 +211,15 @@ export default function AuditPage() {
         const depBefore = fmtTimeVal(c.before.departureTime)
         const depAfter  = fmtTimeVal(c.after.departureTime)
         if (c.before.arrivalTime || c.after.arrivalTime)
-          parts.push(`Arrivee: ${arrBefore} -> ${arrAfter}`)
+          parts.push(`${t('lblArrival')}: ${arrBefore} -> ${arrAfter}`)
         if (c.before.departureTime || c.after.departureTime)
-          parts.push(`Depart: ${depBefore} -> ${depAfter}`)
+          parts.push(`${t('lblDeparture')}: ${depBefore} -> ${depAfter}`)
         if (c.before.location !== c.after.location)
-          parts.push(`Lieu: ${c.before.location} -> ${c.after.location}`)
+          parts.push(`${t('lblLocation')}: ${c.before.location} -> ${c.after.location}`)
       } else {
-        if (c.arrivalTime)   parts.push(`Arrivee: ${fmtTimeVal(c.arrivalTime)}`)
-        if (c.departureTime) parts.push(`Depart: ${fmtTimeVal(c.departureTime)}`)
-        if (c.location)      parts.push(`Lieu: ${c.location}`)
+        if (c.arrivalTime)   parts.push(`${t('lblArrival')}: ${fmtTimeVal(c.arrivalTime)}`)
+        if (c.departureTime) parts.push(`${t('lblDeparture')}: ${fmtTimeVal(c.departureTime)}`)
+        if (c.location)      parts.push(`${t('lblLocation')}: ${c.location}`)
       }
 
       // settings_change
@@ -261,15 +269,15 @@ export default function AuditPage() {
 
       const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
       doc.setFontSize(14)
-      doc.text('Audit Trail — Pointon', 14, 16)
+      doc.text(t('pdfTitle'), 14, 16)
       doc.setFontSize(9)
-      doc.text(`Généré le ${new Date().toLocaleString('fr-BE')}`, 14, 22)
+      doc.text(t('pdfGeneratedOn', { date: new Date().toLocaleString(bcp) }), 14, 22)
 
       // r[0]=date r[1]=user r[2]=email r[3]=action r[4]=resource r[5]=resourceId r[6]=statut r[7]=ip r[8]=changes
       // Email omitted from PDF to free space; full data available in CSV export
       autoTable(doc, {
         startY: 28,
-        head: [['Date/Heure', 'Utilisateur', 'Action', 'Ressource', 'Statut', 'Changements']],
+        head: [[t('pdfColDate'), t('pdfColUser'), t('pdfColAction'), t('pdfColResource'), t('pdfColStatus'), t('pdfColChanges')]],
         body: rows.map(r => [r[0], r[1], r[3], r[4], r[6], summarizeChangesForPdf(r[8])]),
         styles: { fontSize: 7.5, cellPadding: 3 },
         headStyles: { fillColor: [30, 64, 175] },
@@ -293,13 +301,13 @@ export default function AuditPage() {
   }
 
   if (loading && logs.length === 0) {
-    return <div className="p-8 text-center dark:text-gray-300">Chargement...</div>
+    return <div className="p-8 text-center dark:text-gray-300">{t('loading')}</div>
   }
 
   return (
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold dark:text-white">Audit Trail</h1>
+        <h1 className="text-3xl font-bold dark:text-white">{t('title')}</h1>
         <div className="flex gap-2">
           <button
             onClick={exportCsv}
@@ -311,7 +319,7 @@ export default function AuditPage() {
             ) : (
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
             )}
-            Export CSV
+            {t('exportCsv')}
           </button>
           <button
             onClick={exportPdf}
@@ -323,7 +331,7 @@ export default function AuditPage() {
             ) : (
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
             )}
-            Export PDF
+            {t('exportPdf')}
           </button>
         </div>
       </div>
@@ -331,32 +339,32 @@ export default function AuditPage() {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
         <div className="grid grid-cols-4 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Action</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('filterAction')}</label>
             <select
               value={filterAction}
               onChange={e => { setFilterAction(e.target.value); setPage(1) }}
               className="w-full border dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             >
-              <option value="">Toutes les actions</option>
-              <option value="clock_in">Arrivée</option>
-              <option value="clock_out">Départ</option>
-              <option value="employee_request">Demande Employé</option>
-              <option value="manager_create">Congé par Manager</option>
-              <option value="manager_approve">Approbation Manager</option>
-              <option value="manager_reject">Refus Manager</option>
-              <option value="admin_create">Création Admin</option>
-              <option value="admin_approve">Approbation Admin</option>
-              <option value="admin_reject">Refus Admin</option>
-              <option value="admin_update_user">Modif. Utilisateur</option>
-              <option value="admin_delete_user">Suppr. Utilisateur</option>
-              <option value="admin_invite_user">Invitation</option>
-              <option value="admin_cancel_invitation">Annul. Invitation</option>
-              <option value="admin_balance_adjustment">Ajust. Solde</option>
+              <option value="">{t('allActions')}</option>
+              <option value="clock_in">{t('actClockIn')}</option>
+              <option value="clock_out">{t('actClockOut')}</option>
+              <option value="employee_request">{t('actEmployeeRequest')}</option>
+              <option value="manager_create">{t('actManagerCreate')}</option>
+              <option value="manager_approve">{t('actManagerApprove')}</option>
+              <option value="manager_reject">{t('actManagerReject')}</option>
+              <option value="admin_create">{t('actAdminCreate')}</option>
+              <option value="admin_approve">{t('actAdminApprove')}</option>
+              <option value="admin_reject">{t('actAdminReject')}</option>
+              <option value="admin_update_user">{t('actAdminUpdateUser')}</option>
+              <option value="admin_delete_user">{t('actAdminDeleteUser')}</option>
+              <option value="admin_invite_user">{t('actAdminInvite')}</option>
+              <option value="admin_cancel_invitation">{t('actAdminCancelInvite')}</option>
+              <option value="admin_balance_adjustment">{t('actAdminBalanceAdj')}</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date Début</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('dateFrom')}</label>
             <input
               type="date"
               value={fromDate}
@@ -366,7 +374,7 @@ export default function AuditPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date Fin</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('dateTo')}</label>
             <input
               type="date"
               value={toDate}
@@ -380,7 +388,7 @@ export default function AuditPage() {
               onClick={resetFilters}
               className="w-full bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
             >
-              Réinitialiser
+              {t('reset')}
             </button>
           </div>
         </div>
@@ -390,35 +398,35 @@ export default function AuditPage() {
         <table className="w-full text-left text-sm">
           <thead className="bg-gray-100 dark:bg-gray-700 border-b dark:border-gray-600">
             <tr>
-              <th className="px-4 py-3 dark:text-gray-200">Date/Heure</th>
-              <th className="px-4 py-3 dark:text-gray-200">Utilisateur</th>
-              <th className="px-4 py-3 dark:text-gray-200">Action</th>
-              <th className="px-4 py-3 dark:text-gray-200">Ressource</th>
-              <th className="px-4 py-3 dark:text-gray-200">Changements</th>
-              <th className="px-4 py-3 dark:text-gray-200">Adresse IP</th>
+              <th className="px-4 py-3 dark:text-gray-200">{t('thDateTime')}</th>
+              <th className="px-4 py-3 dark:text-gray-200">{t('thUser')}</th>
+              <th className="px-4 py-3 dark:text-gray-200">{t('thAction')}</th>
+              <th className="px-4 py-3 dark:text-gray-200">{t('thResource')}</th>
+              <th className="px-4 py-3 dark:text-gray-200">{t('thChanges')}</th>
+              <th className="px-4 py-3 dark:text-gray-200">{t('thIp')}</th>
             </tr>
           </thead>
           <tbody>
             {logs.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-4 py-4 text-center text-gray-500 dark:text-gray-400">
-                  Aucun log d&apos;audit
+                  {t('noLogs')}
                 </td>
               </tr>
             ) : (
               logs.map(log => (
                 <tr key={log.id} className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-750">
                   <td className="px-4 py-3 whitespace-nowrap text-xs dark:text-gray-300">
-                    {formatDistanceToNow(log.createdAt)}
+                    {formatDistanceToNow(log.createdAt, t)}
                   </td>
                   <td className="px-4 py-3">
                     {log.user ? (
                       <div className="text-sm">
-                        <div className="font-medium dark:text-gray-200">{log.user.name || 'N/A'}</div>
+                        <div className="font-medium dark:text-gray-200">{log.user.name || t('na')}</div>
                         <div className="text-gray-500 dark:text-gray-400 text-xs">{log.user.email}</div>
                       </div>
                     ) : (
-                      <span className="text-gray-400 text-xs">Anonymisé</span>
+                      <span className="text-gray-400 text-xs">{t('anonymized')}</span>
                     )}
                   </td>
                   <td className="px-4 py-3">
@@ -427,7 +435,7 @@ export default function AuditPage() {
                         actionBadgeColor[log.action] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
                       }`}
                     >
-                      {actionLabels[log.action] || log.action}
+                      {ACTION_KEY[log.action] ? t(ACTION_KEY[log.action]) : log.action}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-xs dark:text-gray-300">
@@ -453,7 +461,7 @@ export default function AuditPage() {
 
       <div className="mt-6 flex items-center justify-between">
         <div className="text-sm text-gray-600 dark:text-gray-400">
-          Affichage {logs.length > 0 ? (page - 1) * limit + 1 : 0} à {Math.min(page * limit, total)} sur {total}
+          {t('showing', { from: logs.length > 0 ? (page - 1) * limit + 1 : 0, to: Math.min(page * limit, total), total })}
         </div>
 
         <div className="flex gap-2">
@@ -462,7 +470,7 @@ export default function AuditPage() {
             disabled={page === 1}
             className="px-4 py-2 border dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-300 disabled:opacity-50"
           >
-            Précédent
+            {t('prev')}
           </button>
 
           <div className="flex items-center gap-2">
@@ -488,7 +496,7 @@ export default function AuditPage() {
             disabled={page === totalPages}
             className="px-4 py-2 border dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-300 disabled:opacity-50"
           >
-            Suivant
+            {t('next')}
           </button>
         </div>
       </div>
