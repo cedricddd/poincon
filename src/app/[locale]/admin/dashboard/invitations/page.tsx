@@ -2,8 +2,11 @@
 
 export const dynamic = 'force-dynamic'
 import { useEffect, useState, useCallback } from 'react'
-import Link from 'next/link'
+import { useTranslations, useLocale } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import { showToast } from '@/hooks/useToast'
+
+const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
 
 interface Invitation {
   id: string
@@ -22,19 +25,23 @@ function getStatus(inv: Invitation): 'used' | 'expired' | 'pending' {
   return 'pending'
 }
 
-const STATUS_LABELS = {
-  used: { label: 'Utilisée', cls: 'bg-green-100 text-green-700' },
-  expired: { label: 'Expirée', cls: 'bg-gray-100 text-gray-500' },
-  pending: { label: 'En attente', cls: 'bg-yellow-100 text-yellow-700' },
+const STATUS_CONFIG = {
+  used: { labelKey: 'statusUsed', cls: 'bg-green-100 text-green-700' },
+  expired: { labelKey: 'statusExpired', cls: 'bg-gray-100 text-gray-500' },
+  pending: { labelKey: 'statusPending', cls: 'bg-yellow-100 text-yellow-700' },
 }
 
-const ROLE_LABELS: Record<string, string> = {
-  EMPLOYEE: 'Employé',
-  MANAGER: 'Manager',
-  ADMIN: 'Admin',
+const ROLE_KEYS: Record<string, string> = {
+  EMPLOYEE: 'roleEmployee',
+  MANAGER: 'roleManager',
+  ADMIN: 'roleAdmin',
 }
 
 export default function InvitationsPage() {
+  const t = useTranslations('invitations')
+  const tc = useTranslations('common')
+  const locale = useLocale()
+  const bcp = BCP47[locale] ?? 'fr-BE'
   const [invitations, setInvitations] = useState<Invitation[]>([])
   const [loading, setLoading] = useState(true)
   const [acting, setActing] = useState<string | null>(null)
@@ -48,14 +55,14 @@ export default function InvitationsPage() {
   useEffect(() => { fetchInvitations() }, [fetchInvitations])
 
   const cancel = async (id: string) => {
-    if (!confirm('Annuler cette invitation ?')) return
+    if (!confirm(t('confirmCancel'))) return
     setActing(id)
     const res = await fetch(`/api/admin/invitations?id=${id}`, { method: 'DELETE' })
     if (res.ok) {
-      showToast('Invitation annulée', 'success')
+      showToast(t('toastCancelled'), 'success')
       setInvitations(prev => prev.filter(i => i.id !== id))
     } else {
-      showToast('Erreur', 'error')
+      showToast(t('toastError'), 'error')
     }
     setActing(null)
   }
@@ -64,11 +71,11 @@ export default function InvitationsPage() {
     setActing(id)
     const res = await fetch(`/api/admin/invitations?id=${id}`, { method: 'PATCH' })
     if (res.ok) {
-      showToast('Invitation renvoyée', 'success')
+      showToast(t('toastResent'), 'success')
       fetchInvitations()
     } else {
       const data = await res.json()
-      showToast(data.error ?? 'Erreur', 'error')
+      showToast(data.error ?? t('toastError'), 'error')
     }
     setActing(null)
   }
@@ -76,48 +83,48 @@ export default function InvitationsPage() {
   const copyLink = (token: string) => {
     const url = `${window.location.origin}/set-password?token=${token}`
     navigator.clipboard.writeText(url)
-    showToast('Lien copié', 'success')
+    showToast(t('toastCopied'), 'success')
   }
 
   const fmtDate = (d: string) =>
-    new Date(d).toLocaleDateString('fr-BE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+    new Date(d).toLocaleDateString(bcp, { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 
-  if (loading) return <div className="p-8 text-center text-[var(--pp-muted)]">Chargement…</div>
+  if (loading) return <div className="p-8 text-center text-[var(--pp-muted)]">{t('loading')}</div>
 
   return (
     <div className="p-6 md:p-8 max-w-4xl space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Invitations</h1>
+          <h1 className="text-2xl font-bold text-[var(--pp-ink)]">{t('title')}</h1>
           <p className="text-sm text-[var(--pp-muted)] mt-1">
-            {invitations.filter(i => getStatus(i) === 'pending').length} en attente · {invitations.length} au total
+            {t('subtitle', { pending: invitations.filter(i => getStatus(i) === 'pending').length, total: invitations.length })}
           </p>
         </div>
         <Link
           href="/admin/dashboard/users/invite"
           className="px-4 py-2 bg-[var(--pp-info)] text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
         >
-          + Inviter
+          {t('invite')}
         </Link>
       </div>
 
       {invitations.length === 0 ? (
         <div className="bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-xl p-8 text-center text-[var(--pp-muted)] text-sm">
-          Aucune invitation envoyée.
+          {t('empty')}
         </div>
       ) : (
         <div className="bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-xl overflow-hidden">
           <div className="hidden md:grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-5 py-3 border-b border-[var(--pp-line)] bg-[var(--pp-bg)] text-xs font-medium text-[var(--pp-muted)] uppercase tracking-wide">
-            <span>Destinataire</span>
-            <span>Rôle</span>
-            <span>Statut</span>
-            <span>Expiration</span>
-            <span>Actions</span>
+            <span>{t('recipient')}</span>
+            <span>{t('role')}</span>
+            <span>{t('status')}</span>
+            <span>{t('expiration')}</span>
+            <span>{t('actions')}</span>
           </div>
           <div className="divide-y divide-[var(--pp-line)]">
             {invitations.map(inv => {
               const status = getStatus(inv)
-              const { label, cls } = STATUS_LABELS[status]
+              const { labelKey, cls } = STATUS_CONFIG[status]
               const isActing = acting === inv.id
               return (
                 <div key={inv.id} className="flex flex-col md:grid md:grid-cols-[1fr_auto_auto_auto_auto] md:items-center gap-2 md:gap-4 px-5 py-4">
@@ -125,38 +132,38 @@ export default function InvitationsPage() {
                     <p className="text-sm font-medium text-[var(--pp-ink)] truncate">{inv.email}</p>
                     {inv.name && <p className="text-xs text-[var(--pp-muted)]">{inv.name}</p>}
                   </div>
-                  <span className="text-xs text-[var(--pp-muted)] shrink-0">{ROLE_LABELS[inv.role] ?? inv.role}</span>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${cls}`}>{label}</span>
+                  <span className="text-xs text-[var(--pp-muted)] shrink-0">{ROLE_KEYS[inv.role] ? tc(ROLE_KEYS[inv.role]) : inv.role}</span>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${cls}`}>{t(labelKey)}</span>
                   <span className="text-xs text-[var(--pp-muted)] shrink-0 whitespace-nowrap">
                     {status === 'used'
-                      ? `Utilisée le ${fmtDate(inv.usedAt!)}`
-                      : `Expire le ${fmtDate(inv.expiresAt)}`}
+                      ? t('usedOn', { date: fmtDate(inv.usedAt!) })
+                      : t('expiresOn', { date: fmtDate(inv.expiresAt) })}
                   </span>
                   <div className="flex gap-2 shrink-0">
                     {status !== 'used' && (
                       <>
                         <button
                           onClick={() => copyLink(inv.token)}
-                          title="Copier le lien"
+                          title={t('titleCopy')}
                           className="px-3 py-1.5 text-xs bg-[var(--pp-bg)] border border-[var(--pp-line)] text-[var(--pp-muted)] rounded-lg hover:text-[var(--pp-ink)] transition-colors"
                         >
-                          Copier lien
+                          {t('copyLink')}
                         </button>
                         <button
                           onClick={() => resend(inv.id)}
                           disabled={isActing}
-                          title="Renvoyer l'email"
+                          title={t('titleResend')}
                           className="px-3 py-1.5 text-xs bg-[var(--pp-info)]/10 text-[var(--pp-info)] rounded-lg hover:bg-[var(--pp-info)]/20 disabled:opacity-50 transition-colors"
                         >
-                          Renvoyer
+                          {t('resend')}
                         </button>
                         <button
                           onClick={() => cancel(inv.id)}
                           disabled={isActing}
-                          title="Annuler l'invitation"
+                          title={t('titleCancel')}
                           className="px-3 py-1.5 text-xs bg-red-50 text-red-600 rounded-lg hover:bg-red-100 disabled:opacity-50 transition-colors"
                         >
-                          Annuler
+                          {t('cancel')}
                         </button>
                       </>
                     )}

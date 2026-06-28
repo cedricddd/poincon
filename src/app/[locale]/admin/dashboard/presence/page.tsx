@@ -2,7 +2,10 @@
 
 export const dynamic = 'force-dynamic'
 import { useEffect, useState, useCallback } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import { Card } from '@/components/Card'
+
+const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
 
 type Person = {
   id: string
@@ -34,14 +37,17 @@ type Data = {
   asOf: string
 }
 
-function fmt(iso: string) {
-  return new Date(iso).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
+function fmt(iso: string, locale: string) {
+  return new Date(iso).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
 }
-function fmtAsOf(iso: string) {
-  return new Date(iso).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+function fmtAsOf(iso: string, locale: string) {
+  return new Date(iso).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit' })
 }
 
 export default function PresencePage() {
+  const t = useTranslations('presence')
+  const locale = useLocale()
+  const bcp = BCP47[locale] ?? 'fr-BE'
   const [data, setData] = useState<Data | null>(null)
   const [loading, setLoading] = useState(true)
   const [lastRefresh, setLastRefresh] = useState<string | null>(null)
@@ -59,10 +65,10 @@ export default function PresencePage() {
         setApiError(null)
       } else {
         const body = await res.json().catch(() => ({}))
-        setApiError(`HTTP ${res.status} — ${body?.error ?? 'Erreur inconnue'}${body?.detail ? ': ' + body.detail : ''}`)
+        setApiError(`HTTP ${res.status} — ${body?.error ?? t('unknownError')}${body?.detail ? ': ' + body.detail : ''}`)
       }
     } catch (e) {
-      setApiError(`Erreur réseau: ${e}`)
+      setApiError(t('networkError', { e: String(e) }))
     }
     setLoading(false)
   }, [])
@@ -94,20 +100,20 @@ export default function PresencePage() {
     <div className="p-6 md:p-8">
       <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Présences en cours</h1>
+          <h1 className="text-2xl font-bold text-[var(--pp-ink)]">{t('adminTitle')}</h1>
           <p className="text-[var(--pp-muted)] text-sm mt-1">
-            Employés et visiteurs sur site — mise à jour toutes les 60 s
+            {t('adminSubtitle')}
           </p>
         </div>
         <div className="flex items-center gap-3">
           {lastRefresh && (
-            <span className="text-xs text-[var(--pp-muted)]">Actualisé à {fmtAsOf(lastRefresh)}</span>
+            <span className="text-xs text-[var(--pp-muted)]">{t('refreshedAt', { time: fmtAsOf(lastRefresh, bcp) })}</span>
           )}
           <button
             onClick={load}
             className="px-3 py-1.5 border border-[var(--pp-line)] rounded-lg text-xs font-medium text-[var(--pp-muted)] hover:text-[var(--pp-ink)] hover:bg-[var(--pp-line)]/30 transition"
           >
-            ↻ Actualiser
+            {t('refresh')}
           </button>
         </div>
       </div>
@@ -119,13 +125,13 @@ export default function PresencePage() {
       )}
 
       {loading ? (
-        <p className="text-[var(--pp-muted)] text-sm">Chargement…</p>
+        <p className="text-[var(--pp-muted)] text-sm">{t('loading')}</p>
       ) : !data || totalOnSite === 0 ? (
         <Card>
           <div className="py-12 text-center">
             <div className="text-4xl mb-3">✅</div>
-            <p className="text-[var(--pp-ink)] font-medium">Aucune présence en cours</p>
-            <p className="text-[var(--pp-muted)] text-sm mt-1">Personne n&apos;est actuellement sur site.</p>
+            <p className="text-[var(--pp-ink)] font-medium">{t('noPresence')}</p>
+            <p className="text-[var(--pp-muted)] text-sm mt-1">{t('noPresenceAdminHint')}</p>
           </div>
         </Card>
       ) : (
@@ -136,7 +142,7 @@ export default function PresencePage() {
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)]/30">
                 <span className="w-2.5 h-2.5 rounded-full bg-[var(--pp-pos)] animate-pulse" />
                 <span className="text-sm font-semibold text-[var(--pp-pos)]">
-                  {data.total} employé{data.total > 1 ? 's' : ''} présent{data.total > 1 ? 's' : ''}
+                  {t('employeesPresent', { count: data.total })}
                 </span>
               </div>
             )}
@@ -144,7 +150,7 @@ export default function PresencePage() {
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--pp-info)]/10 border border-[var(--pp-info)]/30">
                 <span className="w-2.5 h-2.5 rounded-full bg-[var(--pp-info)] animate-pulse" />
                 <span className="text-sm font-semibold text-[var(--pp-info)]">
-                  {data.visitors.length} visiteur{data.visitors.length > 1 ? 's' : ''} sur site
+                  {t('visitorsOnSite', { count: data.visitors.length })}
                 </span>
               </div>
             )}
@@ -161,7 +167,7 @@ export default function PresencePage() {
                     : 'border-[var(--pp-line)] text-[var(--pp-muted)] hover:text-[var(--pp-ink)]'
                 }`}
               >
-                Tous ({data.total})
+                {t('allLabel')} ({data.total})
               </button>
               {data.groups.map((g, idx) => {
                 const key = g.site?.id ?? '__none__'
@@ -175,7 +181,7 @@ export default function PresencePage() {
                         : 'border-[var(--pp-line)] text-[var(--pp-muted)] hover:text-[var(--pp-ink)]'
                     }`}
                   >
-                    {g.site?.name ?? 'Sans site'} ({g.people.length})
+                    {g.site?.name ?? t('noSite')} ({g.people.length})
                   </button>
                 )
               })}
@@ -192,7 +198,7 @@ export default function PresencePage() {
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-lg bg-[var(--pp-info)]/10 flex items-center justify-center text-lg">🏢</div>
                     <h2 className="font-semibold text-[var(--pp-ink)]">
-                      {group.site?.name ?? 'Site non renseigné'}
+                      {group.site?.name ?? t('siteNotSet')}
                     </h2>
                   </div>
                   <span className="px-3 py-1 rounded-full bg-[var(--pp-pos)]/10 text-[var(--pp-pos)] text-sm font-bold">
@@ -211,14 +217,14 @@ export default function PresencePage() {
                           <div className="flex items-center gap-2">
                             <p className="text-xs text-[var(--pp-muted)]">{p.location}</p>
                             {p.onBreak && (
-                              <span className="text-xs px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-600 font-medium">En pause</span>
+                              <span className="text-xs px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-600 font-medium">{t('onBreak')}</span>
                             )}
                           </div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs text-[var(--pp-muted)]">Arrivée</p>
-                        <p className={`text-sm font-semibold ${p.onBreak ? 'text-amber-500' : 'text-[var(--pp-pos)]'}`}>{fmt(p.arrivalTime)}</p>
+                        <p className="text-xs text-[var(--pp-muted)]">{t('arrival')}</p>
+                        <p className={`text-sm font-semibold ${p.onBreak ? 'text-amber-500' : 'text-[var(--pp-pos)]'}`}>{fmt(p.arrivalTime, bcp)}</p>
                       </div>
                     </div>
                   ))}
@@ -233,8 +239,8 @@ export default function PresencePage() {
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-lg bg-[var(--pp-info)]/10 flex items-center justify-center text-lg">🏷️</div>
                     <div>
-                      <h2 className="font-semibold text-[var(--pp-ink)]">Visiteurs sur site</h2>
-                      <p className="text-xs text-[var(--pp-muted)]">Arrivées du jour sans départ enregistré</p>
+                      <h2 className="font-semibold text-[var(--pp-ink)]">{t('visitorsTitle')}</h2>
+                      <p className="text-xs text-[var(--pp-muted)]">{t('visitorsSubtitle')}</p>
                     </div>
                   </div>
                   <span className="px-3 py-1 rounded-full bg-[var(--pp-info)]/10 text-[var(--pp-info)] text-sm font-bold">
@@ -253,22 +259,22 @@ export default function PresencePage() {
                           <p className="text-xs text-[var(--pp-muted)] truncate">{v.visitorEmail}</p>
                           {v.host?.name && (
                             <p className="text-xs text-[var(--pp-muted)]">
-                              Hôte : <span className="text-[var(--pp-ink)]">{v.host.name}</span>
+                              {t('host')} <span className="text-[var(--pp-ink)]">{v.host.name}</span>
                             </p>
                           )}
                         </div>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
                         <div className="text-right">
-                          <p className="text-xs text-[var(--pp-muted)]">Arrivée</p>
-                          <p className="text-sm font-semibold text-[var(--pp-info)]">{fmt(v.arrivedAt)}</p>
+                          <p className="text-xs text-[var(--pp-muted)]">{t('arrival')}</p>
+                          <p className="text-sm font-semibold text-[var(--pp-info)]">{fmt(v.arrivedAt, bcp)}</p>
                         </div>
                         <button
                           onClick={() => markDeparture(v.id)}
                           disabled={departingId === v.id}
                           className="px-3 py-1.5 text-xs font-medium rounded-lg border border-[var(--pp-line)] text-[var(--pp-muted)] hover:border-[var(--pp-neg)]/40 hover:text-[var(--pp-neg)] hover:bg-[var(--pp-neg)]/5 transition disabled:opacity-40"
                         >
-                          {departingId === v.id ? '…' : '🚪 Départ'}
+                          {departingId === v.id ? '…' : t('departBtn')}
                         </button>
                       </div>
                     </div>
