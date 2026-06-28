@@ -25,6 +25,7 @@ export async function GET(req: NextRequest) {
         select: {
           email: true,
           name: true,
+          locale: true,
           userSchedule: { select: { hoursPerDay: true } },
         },
       },
@@ -45,7 +46,7 @@ export async function GET(req: NextRequest) {
 
   const results = await Promise.allSettled(
     toRemind.map(record =>
-      sendEndOfDayReminderEmail({ to: record.user.email, name: record.user.name })
+      sendEndOfDayReminderEmail({ to: record.user.email, name: record.user.name, locale: record.user.locale ?? 'fr' })
     )
   )
 

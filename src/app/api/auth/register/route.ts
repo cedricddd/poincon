@@ -5,6 +5,7 @@ import { sendWelcomeEmail, sendNewCompanyNotification } from '@/lib/mail'
 
 export async function POST(req: NextRequest) {
   try {
+    const locale = req.headers.get('x-next-intl-locale') ?? 'fr'
     const body = await req.json()
     const { firstName, lastName, email, password, phone, companyName, companyAddress, companyVAT } = body
 
@@ -76,7 +77,7 @@ export async function POST(req: NextRequest) {
 
     // Fire-and-forget — don't block the response on email delivery
     Promise.all([
-      sendWelcomeEmail({ to: email, name: fullName, companyName }),
+      sendWelcomeEmail({ to: email, name: fullName, companyName, locale }),
       sendNewCompanyNotification({
         companyName,
         adminName: fullName,

@@ -112,7 +112,7 @@ export async function PATCH(req: NextRequest) {
     // Send email notification (fire and forget — ne bloque pas la réponse)
     const employee = await prisma.user.findUnique({
       where: { id: result.userId },
-      select: { email: true, name: true },
+      select: { email: true, name: true, locale: true },
     })
     if (employee) {
       sendApprovalEmail({
@@ -121,6 +121,7 @@ export async function PATCH(req: NextRequest) {
         type: type as 'overtime' | 'timeoff' | 'rtt',
         action: action as 'approve' | 'reject',
         rejectionReason,
+        locale: employee.locale ?? 'fr',
       }).catch(err => console.error('Mail send failed:', err))
     }
 

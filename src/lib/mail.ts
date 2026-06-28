@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer'
+import { getTranslations } from 'next-intl/server'
 
 const transporter = nodemailer.createTransport({
   host: 'smtp-relay.brevo.com',
@@ -19,25 +20,24 @@ type ApprovalEmailParams = {
   action: 'approve' | 'reject'
   rejectionReason?: string
   detail?: string
-}
-
-const TYPE_LABELS: Record<string, string> = {
-  overtime: 'heures supplémentaires',
-  timeoff: 'congé',
-  rtt: 'RTT',
+  locale?: string
 }
 
 export async function sendApprovalEmail(params: ApprovalEmailParams) {
-  if (!process.env.BREVO_SMTP_KEY) return // silently skip if not configured
+  if (!process.env.BREVO_SMTP_KEY) return
 
-  const { to, name, type, action, rejectionReason, detail } = params
-  const label = TYPE_LABELS[type]
+  const { to, name, type, action, rejectionReason, detail, locale = 'fr' } = params
+  const t = await getTranslations({ locale, namespace: 'emails' })
+
+  const typeKey = `approval.type${type.charAt(0).toUpperCase()}${type.slice(1)}` as Parameters<typeof t>[0]
+  const typeLabel = t(typeKey)
   const approved = action === 'approve'
-  const greeting = name ? `Bonjour ${name},` : 'Bonjour,'
+  const greeting = name ? t('greeting', { name }) : t('greetingGeneric')
+  const appUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
 
   const subject = approved
-    ? `✅ Votre demande de ${label} a été approuvée`
-    : `❌ Votre demande de ${label} a été refusée`
+    ? t('approval.subjectApproved', { type: typeLabel })
+    : t('approval.subjectRejected', { type: typeLabel })
 
   const body = `
     <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
@@ -47,20 +47,20 @@ export async function sendApprovalEmail(params: ApprovalEmailParams) {
         <p style="color:#334155;margin:0 0 16px;">${greeting}</p>
         <p style="color:#334155;margin:0 0 24px;">
           ${approved
-            ? `Votre demande de <strong>${label}</strong> a été <strong style="color:#16a34a;">approuvée</strong>.`
-            : `Votre demande de <strong>${label}</strong> a été <strong style="color:#dc2626;">refusée</strong>.`
+            ? t('approval.bodyApproved', { type: typeLabel })
+            : t('approval.bodyRejected', { type: typeLabel })
           }
         </p>
         ${detail ? `<div style="background:#f1f5f9;border-radius:8px;padding:16px;margin-bottom:24px;color:#475569;font-size:14px;">${detail}</div>` : ''}
         ${!approved && rejectionReason ? `
           <div style="background:#fef2f2;border-radius:8px;padding:16px;margin-bottom:24px;border-left:3px solid #dc2626;">
-            <p style="margin:0;color:#991b1b;font-size:14px;"><strong>Motif :</strong> ${rejectionReason}</p>
+            <p style="margin:0;color:#991b1b;font-size:14px;">${t('approval.reason', { reason: rejectionReason })}</p>
           </div>` : ''}
-        <a href="${process.env.NEXTAUTH_URL ?? 'http://localhost:3000'}/app/reports"
+        <a href="${appUrl}/app/reports"
            style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;">
-          Voir mes rapports
+          ${t('approval.button')}
         </a>
-        <p style="color:#94a3b8;font-size:12px;margin-top:32px;">Pointon · ${new Date().getFullYear()}</p>
+        <p style="color:#94a3b8;font-size:12px;margin-top:32px;">${t('footer', { year: String(new Date().getFullYear()) })}</p>
       </div>
     </div>
   `
@@ -68,14 +68,14 @@ export async function sendApprovalEmail(params: ApprovalEmailParams) {
   await transporter.sendMail({ from: FROM, to, subject, html: body })
 }
 
-export async function sendEndOfDayReminderEmail(params: { to: string; name: string | null }) {
+export async function sendEndOfDayReminderEmail(params: { to: string; name: string | null; locale?: string }) {
   if (!process.env.BREVO_SMTP_KEY) return
 
-  const { to, name } = params
-  const greeting = name ? `Bonjour ${name},` : 'Bonjour,'
+  const { to, name, locale = 'fr' } = params
+  const t = await getTranslations({ locale, namespace: 'emails' })
   const appUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
 
-  const subject = '⏰ Vous avez oublié de pointer votre départ'
+  const greeting = name ? t('greeting', { name }) : t('greetingGeneric')
 
   const body = `
     <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
@@ -83,20 +83,18 @@ export async function sendEndOfDayReminderEmail(params: { to: string; name: stri
         <h1 style="margin:0 0 8px;font-size:22px;color:#0f172a;">Pointon</h1>
         <hr style="border:none;border-top:1px solid #e2e8f0;margin:16px 0;">
         <p style="color:#334155;margin:0 0 16px;">${greeting}</p>
-        <p style="color:#334155;margin:0 0 24px;">
-          Il semble que vous soyez toujours pointé(e) et que votre journée dépasse les <strong>8 heures légales</strong>.
-          Pensez à pointer votre <strong>départ</strong> pour que vos heures supplémentaires soient correctement comptabilisées.
-        </p>
+        <p style="color:#334155;margin:0 0 8px;">${t('endOfDay.body')}</p>
+        <p style="color:#334155;margin:0 0 24px;">${t('endOfDay.advice')}</p>
         <a href="${appUrl}/app/clock"
            style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;">
-          Pointer mon départ
+          ${t('endOfDay.button')}
         </a>
-        <p style="color:#94a3b8;font-size:12px;margin-top:32px;">Pointon · ${new Date().getFullYear()}</p>
+        <p style="color:#94a3b8;font-size:12px;margin-top:32px;">${t('footer', { year: String(new Date().getFullYear()) })}</p>
       </div>
     </div>
   `
 
-  await transporter.sendMail({ from: FROM, to, subject, html: body })
+  await transporter.sendMail({ from: FROM, to, subject: t('endOfDay.subject'), html: body })
 }
 
 export async function sendInvitationEmail(params: {
@@ -104,15 +102,15 @@ export async function sendInvitationEmail(params: {
   name: string | null
   companyName: string
   token: string
+  locale?: string
 }) {
   if (!process.env.BREVO_SMTP_KEY) return
 
-  const { to, name, companyName, token } = params
+  const { to, name, companyName, token, locale = 'fr' } = params
+  const t = await getTranslations({ locale, namespace: 'emails' })
   const appUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
   const link = `${appUrl}/set-password?token=${token}`
-  const greeting = name ? `Bonjour ${name},` : 'Bonjour,'
-
-  const subject = `Invitation à rejoindre ${companyName} sur Pointon`
+  const greeting = name ? t('greeting', { name }) : t('greetingGeneric')
 
   const html = `
     <div style="font-family:system-ui,sans-serif;max-width:580px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
@@ -122,18 +120,16 @@ export async function sendInvitationEmail(params: {
         <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 24px;">
 
         <p style="color:#334155;margin:0 0 12px;">${greeting}</p>
-        <p style="color:#334155;margin:0 0 24px;">
-          Vous avez été invité(e) à rejoindre <strong>${companyName}</strong> sur Pointon.<br>
-          Cliquez sur le bouton ci-dessous pour créer votre mot de passe et accéder à l'application.
-        </p>
+        <p style="color:#334155;margin:0 0 4px;">${t('invitation.body', { company: companyName })}</p>
+        <p style="color:#334155;margin:0 0 24px;">${t('invitation.bodyDescription')}</p>
 
         <a href="${link}"
            style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:13px 28px;border-radius:8px;font-weight:600;font-size:15px;margin-bottom:28px;">
-          Créer mon mot de passe →
+          ${t('invitation.button')}
         </a>
 
         <p style="color:#64748b;font-size:13px;margin:0 0 4px;">
-          ⏱ Ce lien est valable <strong>48 heures</strong>.
+          ⏱ ${t('invitation.validity')}
         </p>
         <p style="color:#94a3b8;font-size:12px;margin:0 0 28px;word-break:break-all;">
           ${link}
@@ -141,49 +137,49 @@ export async function sendInvitationEmail(params: {
 
         <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 24px;">
 
-        <h2 style="font-size:15px;color:#0f172a;margin:0 0 16px;">📱 Installer l'application sur votre téléphone</h2>
+        <h2 style="font-size:15px;color:#0f172a;margin:0 0 16px;">${t('invitation.installTitle')}</h2>
 
         <div style="background:#f1f5f9;border-radius:8px;padding:16px;margin-bottom:12px;">
-          <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#334155;">🍎 iPhone / iPad (Safari)</p>
+          <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#334155;">${t('invitation.iphoneTitle')}</p>
           <ol style="margin:0;padding-left:20px;font-size:13px;color:#475569;line-height:1.8;">
-            <li>Ouvrez <strong>${appUrl}</strong> dans Safari</li>
-            <li>Appuyez sur l'icône <strong>Partager</strong> (carré avec flèche ↑)</li>
-            <li>Sélectionnez <strong>« Sur l'écran d'accueil »</strong></li>
-            <li>Confirmez avec <strong>« Ajouter »</strong></li>
+            <li>${t('invitation.installStep1Safari', { url: appUrl })}</li>
+            <li>${t('invitation.installStep2Safari')}</li>
+            <li>${t('invitation.installStep3Safari')}</li>
+            <li>${t('invitation.installStep4Safari')}</li>
           </ol>
         </div>
 
         <div style="background:#f1f5f9;border-radius:8px;padding:16px;margin-bottom:24px;">
-          <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#334155;">🤖 Android (Chrome)</p>
+          <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#334155;">${t('invitation.androidTitle')}</p>
           <ol style="margin:0;padding-left:20px;font-size:13px;color:#475569;line-height:1.8;">
-            <li>Ouvrez <strong>${appUrl}</strong> dans Chrome</li>
-            <li>Appuyez sur le menu <strong>⋮</strong> (3 points)</li>
-            <li>Sélectionnez <strong>« Ajouter à l'écran d'accueil »</strong></li>
-            <li>Confirmez avec <strong>« Ajouter »</strong></li>
+            <li>${t('invitation.installStep1Chrome', { url: appUrl })}</li>
+            <li>${t('invitation.installStep2Chrome')}</li>
+            <li>${t('invitation.installStep3Chrome')}</li>
+            <li>${t('invitation.installStep4Chrome')}</li>
           </ol>
         </div>
 
-        <p style="color:#94a3b8;font-size:12px;margin:0;">Pointon · ${new Date().getFullYear()} · ${companyName}</p>
+        <p style="color:#94a3b8;font-size:12px;margin:0;">${t('footer', { year: String(new Date().getFullYear()) })} · ${companyName}</p>
       </div>
     </div>
   `
 
-  await transporter.sendMail({ from: FROM, to, subject, html })
+  await transporter.sendMail({ from: FROM, to, subject: t('invitation.subject', { company: companyName }), html })
 }
 
 export async function sendPasswordResetEmail(params: {
   to: string
   name: string | null
   token: string
+  locale?: string
 }) {
   if (!process.env.BREVO_SMTP_KEY) return
 
-  const { to, name, token } = params
+  const { to, name, token, locale = 'fr' } = params
+  const t = await getTranslations({ locale, namespace: 'emails' })
   const appUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
   const link = `${appUrl}/reset-password?token=${token}`
-  const greeting = name ? `Bonjour ${name},` : 'Bonjour,'
-
-  const subject = '🔑 Réinitialisation de votre mot de passe Pointon'
+  const greeting = name ? t('greeting', { name }) : t('greetingGeneric')
 
   const html = `
     <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
@@ -193,45 +189,42 @@ export async function sendPasswordResetEmail(params: {
         <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 24px;">
 
         <p style="color:#334155;margin:0 0 12px;">${greeting}</p>
-        <p style="color:#334155;margin:0 0 24px;">
-          Vous avez demandé la réinitialisation de votre mot de passe.<br>
-          Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe.
-        </p>
+        <p style="color:#334155;margin:0 0 24px;">${t('passwordReset.body')}</p>
 
         <a href="${link}"
            style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:13px 28px;border-radius:8px;font-weight:600;font-size:15px;margin-bottom:28px;">
-          Réinitialiser mon mot de passe →
+          ${t('passwordReset.button')}
         </a>
 
         <p style="color:#64748b;font-size:13px;margin:0 0 4px;">
-          ⏱ Ce lien est valable <strong>24 heures</strong>.
+          ⏱ ${t('passwordReset.validity')}
         </p>
         <p style="color:#94a3b8;font-size:12px;margin:0 0 24px;word-break:break-all;">
           ${link}
         </p>
 
         <div style="background:#fef3c7;border-radius:8px;padding:12px 16px;margin-bottom:24px;border-left:3px solid #f59e0b;">
-          <p style="margin:0;color:#92400e;font-size:13px;">
-            Si vous n'avez pas demandé cette réinitialisation, ignorez cet email. Votre mot de passe reste inchangé.
-          </p>
+          <p style="margin:0;color:#92400e;font-size:13px;">${t('passwordReset.warning')}</p>
         </div>
 
-        <p style="color:#94a3b8;font-size:12px;margin:0;">Pointon · ${new Date().getFullYear()}</p>
+        <p style="color:#94a3b8;font-size:12px;margin:0;">${t('footer', { year: String(new Date().getFullYear()) })}</p>
       </div>
     </div>
   `
 
-  await transporter.sendMail({ from: FROM, to, subject, html })
+  await transporter.sendMail({ from: FROM, to, subject: t('passwordReset.subject'), html })
 }
 
 export async function sendWelcomeEmail(params: {
   to: string
   name: string
   companyName: string
+  locale?: string
 }) {
   if (!process.env.BREVO_SMTP_KEY) return
 
-  const { to, name, companyName } = params
+  const { to, name, companyName, locale = 'fr' } = params
+  const t = await getTranslations({ locale, namespace: 'emails' })
   const appUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
 
   const html = `
@@ -241,31 +234,27 @@ export async function sendWelcomeEmail(params: {
         <p style="margin:0 0 20px;font-size:13px;color:#94a3b8;">Pointage légal belge</p>
         <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 24px;">
 
-        <p style="color:#334155;margin:0 0 12px;">Bonjour ${name},</p>
-        <p style="color:#334155;margin:0 0 8px;">
-          Bienvenue sur <strong>Pointon</strong> ! Votre espace <strong>${companyName}</strong> est prêt.
-        </p>
-        <p style="color:#334155;margin:0 0 24px;">
-          Vous pouvez maintenant configurer votre entreprise, inviter vos collaborateurs et commencer le pointage.
-        </p>
+        <p style="color:#334155;margin:0 0 12px;">${t('greeting', { name })}</p>
+        <p style="color:#334155;margin:0 0 8px;">${t('welcome.body', { company: companyName })}</p>
+        <p style="color:#334155;margin:0 0 24px;">${t('welcome.description')}</p>
 
         <a href="${appUrl}/admin/onboarding"
            style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:13px 28px;border-radius:8px;font-weight:600;font-size:15px;margin-bottom:28px;">
-          Configurer mon espace →
+          ${t('welcome.button')}
         </a>
 
         <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 20px;">
 
-        <p style="color:#475569;font-size:13px;margin:0 0 8px;"><strong>Ce que vous pouvez faire dès maintenant :</strong></p>
+        <p style="color:#475569;font-size:13px;margin:0 0 8px;"><strong>${t('welcome.checklistTitle')}</strong></p>
         <ul style="color:#475569;font-size:13px;margin:0 0 24px;padding-left:20px;line-height:1.9;">
-          <li>Inviter vos employés (Paramètres → Utilisateurs)</li>
-          <li>Configurer vos sites de travail</li>
-          <li>Définir les horaires et plannings</li>
-          <li>Activer le pointage sur mobile ou tablette</li>
+          <li>${t('welcome.checklistItem1')}</li>
+          <li>${t('welcome.checklistItem2')}</li>
+          <li>${t('welcome.checklistItem3')}</li>
+          <li>${t('welcome.checklistItem4')}</li>
         </ul>
 
         <p style="color:#94a3b8;font-size:12px;margin:0;">
-          Pointon · ${new Date().getFullYear()} · Une question ? Répondez à cet email.
+          ${t('footer', { year: String(new Date().getFullYear()) })} · ${t('welcome.question')}
         </p>
       </div>
     </div>
@@ -274,7 +263,7 @@ export async function sendWelcomeEmail(params: {
   await transporter.sendMail({
     from: FROM,
     to,
-    subject: `Bienvenue sur Pointon, ${companyName} !`,
+    subject: t('welcome.subject', { company: companyName }),
     html,
   })
 }
@@ -338,12 +327,16 @@ export async function sendKioskVisitorEmail(params: {
   visitorEmail: string
   companyName: string
   arrivedAt: Date
+  locale?: string
 }) {
   if (!process.env.BREVO_SMTP_KEY) return
 
-  const { to, hostName, visitorName, visitorEmail, companyName, arrivedAt } = params
-  const greeting = hostName ? `Bonjour ${hostName},` : 'Bonjour,'
-  const time = arrivedAt.toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
+  const { to, hostName, visitorName, visitorEmail, companyName, arrivedAt, locale = 'fr' } = params
+  const t = await getTranslations({ locale, namespace: 'emails' })
+
+  const bcp47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
+  const greeting = hostName ? t('greeting', { name: hostName }) : t('greetingGeneric')
+  const time = arrivedAt.toLocaleTimeString(bcp47[locale] ?? 'fr-BE', { hour: '2-digit', minute: '2-digit' })
 
   const html = `
     <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
@@ -353,17 +346,15 @@ export async function sendKioskVisitorEmail(params: {
         <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 24px;">
 
         <p style="color:#334155;margin:0 0 16px;">${greeting}</p>
-        <p style="color:#334155;margin:0 0 24px;">
-          Votre visiteur <strong>${visitorName}</strong> vient d'arriver à la réception à <strong>${time}</strong>.
-        </p>
+        <p style="color:#334155;margin:0 0 24px;">${t('kioskVisitor.body', { visitor: visitorName, time })}</p>
 
         <div style="background:#f1f5f9;border-radius:8px;padding:16px;margin-bottom:24px;">
-          <p style="margin:0 0 6px;font-size:14px;color:#475569;"><strong>Visiteur</strong></p>
+          <p style="margin:0 0 6px;font-size:14px;color:#475569;">${t('kioskVisitor.sectionVisitor')}</p>
           <p style="margin:0 0 2px;font-size:15px;color:#0f172a;font-weight:600;">${visitorName}</p>
           <p style="margin:0;font-size:14px;color:#64748b;">${visitorEmail}</p>
         </div>
 
-        <p style="color:#94a3b8;font-size:12px;margin:0;">Pointon · ${companyName} · ${new Date().getFullYear()}</p>
+        <p style="color:#94a3b8;font-size:12px;margin:0;">${t('footer', { year: String(new Date().getFullYear()) })} · ${companyName}</p>
       </div>
     </div>
   `
@@ -371,7 +362,7 @@ export async function sendKioskVisitorEmail(params: {
   await transporter.sendMail({
     from: FROM,
     to,
-    subject: `🏷️ Visiteur arrivé : ${visitorName}`,
+    subject: t('kioskVisitor.subject', { visitor: visitorName }),
     html,
   })
 }

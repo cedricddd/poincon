@@ -90,9 +90,9 @@ export async function PATCH(req: NextRequest) {
       data: { userId: result.userId, message: notifMessage, type: action === 'approve' ? 'success' : 'error' },
     })
 
-    const employee = await prisma.user.findUnique({ where: { id: result.userId }, select: { email: true, name: true } })
+    const employee = await prisma.user.findUnique({ where: { id: result.userId }, select: { email: true, name: true, locale: true } })
     if (employee) {
-      sendApprovalEmail({ to: employee.email, name: employee.name, type: type as 'overtime' | 'timeoff' | 'rtt', action: action as 'approve' | 'reject', rejectionReason })
+      sendApprovalEmail({ to: employee.email, name: employee.name, type: type as 'overtime' | 'timeoff' | 'rtt', action: action as 'approve' | 'reject', rejectionReason, locale: employee.locale ?? 'fr' })
         .catch(err => console.error('Mail send failed:', err))
     }
 

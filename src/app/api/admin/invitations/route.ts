@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
   const auth = await requireAdminWithCompany()
   if (!auth) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
+  const locale = req.headers.get('x-next-intl-locale') ?? 'fr'
   const { email, name, role } = await req.json()
   if (!email) return NextResponse.json({ error: 'Email requis' }, { status: 400 })
 
@@ -68,6 +69,7 @@ export async function POST(req: NextRequest) {
     name: invitation.name,
     companyName: company?.name ?? 'votre entreprise',
     token: invitation.token,
+    locale,
   })
 
   await logAudit({
@@ -85,6 +87,7 @@ export async function PATCH(req: NextRequest) {
   const auth = await requireAdminWithCompany()
   if (!auth) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
+  const locale = req.headers.get('x-next-intl-locale') ?? 'fr'
   const { searchParams } = new URL(req.url)
   const id = searchParams.get('id')
   if (!id) return NextResponse.json({ error: 'ID requis' }, { status: 400 })
@@ -118,6 +121,7 @@ export async function PATCH(req: NextRequest) {
     name: invitation.name,
     companyName: company?.name ?? 'votre entreprise',
     token: invitation.token,
+    locale,
   })
 
   await logAudit({

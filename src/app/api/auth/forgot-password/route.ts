@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
   const user = await prisma.user.findUnique({
     where: { email: email.toLowerCase().trim() },
-    select: { id: true, name: true, email: true, active: true },
+    select: { id: true, name: true, email: true, active: true, locale: true },
   })
 
   // Always return success to prevent user enumeration
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     select: { token: true },
   })
 
-  await sendPasswordResetEmail({ to: user.email, name: user.name, token })
+  await sendPasswordResetEmail({ to: user.email, name: user.name, token, locale: user.locale ?? 'fr' })
 
   return NextResponse.json({ ok: true })
 }

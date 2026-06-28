@@ -40,7 +40,7 @@ export async function POST(
     // Validate host belongs to the same company
     const host = await prisma.user.findFirst({
       where: { id: hostUserId, companyId: kioskToken.companyId, active: true, deletedAt: null },
-      select: { id: true, name: true, email: true },
+      select: { id: true, name: true, email: true, locale: true },
     })
     if (!host) return NextResponse.json({ error: 'Hôte introuvable' }, { status: 400 })
 
@@ -69,6 +69,7 @@ export async function POST(
       visitorEmail: visitorEmail.trim(),
       companyName: company?.name ?? '',
       arrivedAt,
+      locale: host.locale ?? 'fr',
     }).catch(() => {})
 
     return NextResponse.json({ ok: true })
