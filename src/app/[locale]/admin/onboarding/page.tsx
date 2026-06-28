@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { useRouter } from '@/i18n/navigation'
 import Image from 'next/image'
 
 export const dynamic = 'force-dynamic'
@@ -9,7 +10,8 @@ export const dynamic = 'force-dynamic'
 /* ── Step indicator ──────────────────────────────────────────────────────── */
 
 function Steps({ current }: { current: 1 | 2 | 3 }) {
-  const labels = ['Société', 'Équipe', 'C\'est parti !']
+  const t = useTranslations('onboarding')
+  const labels = [t('stepCompany'), t('stepTeam'), t('stepGo')]
   return (
     <div className="flex items-center gap-2 mb-8">
       {labels.map((label, i) => {
@@ -50,6 +52,7 @@ function Step1({
 }: {
   onNext: () => void
 }) {
+  const t = useTranslations('onboarding')
   const [name, setName] = useState('')
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const [logoFile, setLogoFile] = useState<File | null>(null)
@@ -60,11 +63,11 @@ function Step1({
   const handleLogoChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 2 * 1024 * 1024) { setError('Logo trop lourd (max 2 Mo)'); return }
+    if (file.size > 2 * 1024 * 1024) { setError(t('logoTooLarge')); return }
     setLogoFile(file)
     setLogoPreview(URL.createObjectURL(file))
     setError('')
-  }, [])
+  }, [t])
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
@@ -77,48 +80,48 @@ function Step1({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: name.trim() }),
         })
-        if (!res.ok) throw new Error('Erreur lors de la mise à jour du nom')
+        if (!res.ok) throw new Error(t('nameUpdateError'))
       }
       if (logoFile) {
         const formData = new FormData()
         formData.append('logo', logoFile)
         const res = await fetch('/api/admin/company/logo', { method: 'POST', body: formData })
-        if (!res.ok) throw new Error('Erreur lors du téléchargement du logo')
+        if (!res.ok) throw new Error(t('logoUploadError'))
       }
       onNext()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur inattendue')
+      setError(err instanceof Error ? err.message : t('unexpectedError'))
     } finally {
       setSaving(false)
     }
-  }, [name, logoFile, onNext])
+  }, [name, logoFile, onNext, t])
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-[var(--pp-ink)] mb-1">Votre société</h2>
+        <h2 className="text-xl font-bold text-[var(--pp-ink)] mb-1">{t('step1Title')}</h2>
         <p className="text-sm text-[var(--pp-muted)]">
-          Confirmez le nom de votre société et ajoutez un logo (optionnel).
+          {t('step1Subtitle')}
         </p>
       </div>
 
       <div>
         <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1.5">
-          Nom de la société
+          {t('companyName')}
         </label>
         <input
           type="text"
           value={name}
           onChange={e => setName(e.target.value)}
-          placeholder="Mon Entreprise SA"
+          placeholder={t('companyNamePlaceholder')}
           className="w-full rounded-lg border border-[var(--pp-line)] bg-[var(--pp-bg)] px-3 py-2 text-sm text-[var(--pp-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)]"
         />
-        <p className="text-xs text-[var(--pp-muted)] mt-1">Laissez vide pour garder le nom actuel.</p>
+        <p className="text-xs text-[var(--pp-muted)] mt-1">{t('companyNameHint')}</p>
       </div>
 
       <div>
         <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1.5">
-          Logo <span className="text-[var(--pp-muted)] font-normal">(optionnel)</span>
+          {t('logo')} <span className="text-[var(--pp-muted)] font-normal">{t('optional')}</span>
         </label>
         <div
           className="flex items-center gap-4 p-4 rounded-lg border-2 border-dashed border-[var(--pp-line)] cursor-pointer hover:border-[var(--pp-pos)] transition-colors"
@@ -135,9 +138,9 @@ function Step1({
           )}
           <div>
             <p className="text-sm font-medium text-[var(--pp-ink)]">
-              {logoPreview ? 'Changer de logo' : 'Choisir un logo'}
+              {logoPreview ? t('changeLogo') : t('chooseLogo')}
             </p>
-            <p className="text-xs text-[var(--pp-muted)]">PNG, JPG, SVG — max 2 Mo</p>
+            <p className="text-xs text-[var(--pp-muted)]">{t('logoHint')}</p>
           </div>
         </div>
         <input
@@ -160,7 +163,7 @@ function Step1({
           className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition-opacity disabled:opacity-60"
           style={{ background: 'var(--pp-pos)' }}
         >
-          {saving ? 'Enregistrement…' : 'Suivant →'}
+          {saving ? t('saving') : t('next')}
         </button>
       </div>
     </form>
@@ -176,15 +179,16 @@ function Step2({
   onNext: () => void
   onBack: () => void
 }) {
+  const t = useTranslations('onboarding')
   const [email, setEmail] = useState('')
   const [empName, setEmpName] = useState('')
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
-  const [skipped, setSkipped] = useState(false)
+  const [, setSkipped] = useState(false)
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email.trim()) { setError('Email requis'); return }
+    if (!email.trim()) { setError(t('emailRequired')); return }
     setSending(true)
     setError('')
     try {
@@ -194,46 +198,46 @@ function Step2({
         body: JSON.stringify({ email: email.trim(), name: empName.trim() || null, role: 'EMPLOYEE' }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error ?? 'Erreur lors de l\'invitation')
+      if (!res.ok) throw new Error(data.error ?? t('inviteError'))
       onNext()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur inattendue')
+      setError(err instanceof Error ? err.message : t('unexpectedError'))
     } finally {
       setSending(false)
     }
-  }, [email, empName, onNext])
+  }, [email, empName, onNext, t])
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-[var(--pp-ink)] mb-1">Invitez votre premier employé</h2>
+        <h2 className="text-xl font-bold text-[var(--pp-ink)] mb-1">{t('step2Title')}</h2>
         <p className="text-sm text-[var(--pp-muted)]">
-          Un email d&apos;invitation sera envoyé avec un lien valable 48 h pour définir son mot de passe.
+          {t('step2Subtitle')}
         </p>
       </div>
 
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1.5">
-            Prénom et nom <span className="text-[var(--pp-muted)] font-normal">(optionnel)</span>
+            {t('fullName')} <span className="text-[var(--pp-muted)] font-normal">{t('optional')}</span>
           </label>
           <input
             type="text"
             value={empName}
             onChange={e => setEmpName(e.target.value)}
-            placeholder="Jean Dupont"
+            placeholder={t('fullNamePlaceholder')}
             className="w-full rounded-lg border border-[var(--pp-line)] bg-[var(--pp-bg)] px-3 py-2 text-sm text-[var(--pp-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)]"
           />
         </div>
         <div>
           <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1.5">
-            Adresse email *
+            {t('emailLabel')}
           </label>
           <input
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            placeholder="employe@monentreprise.be"
+            placeholder={t('emailPlaceholder')}
             required
             className="w-full rounded-lg border border-[var(--pp-line)] bg-[var(--pp-bg)] px-3 py-2 text-sm text-[var(--pp-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)]"
           />
@@ -250,7 +254,7 @@ function Step2({
           onClick={onBack}
           className="px-4 py-2 text-sm text-[var(--pp-muted)] hover:text-[var(--pp-ink)] transition-colors"
         >
-          ← Retour
+          {t('back')}
         </button>
         <div className="flex gap-3">
           <button
@@ -258,7 +262,7 @@ function Step2({
             onClick={() => { setSkipped(true); onNext() }}
             className="px-4 py-2 text-sm text-[var(--pp-muted)] hover:text-[var(--pp-ink)] transition-colors"
           >
-            Passer cette étape
+            {t('skipStep')}
           </button>
           <button
             type="submit"
@@ -266,7 +270,7 @@ function Step2({
             className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition-opacity disabled:opacity-60"
             style={{ background: 'var(--pp-pos)' }}
           >
-            {sending ? 'Envoi…' : 'Envoyer l\'invitation →'}
+            {sending ? t('sending') : t('sendInvite')}
           </button>
         </div>
       </div>
@@ -277,23 +281,24 @@ function Step2({
 /* ── Step 3 — Success ────────────────────────────────────────────────────── */
 
 function Step3({ onFinish, finishing }: { onFinish: () => void; finishing: boolean }) {
+  const t = useTranslations('onboarding')
   return (
     <div className="text-center space-y-6">
       <div className="w-20 h-20 rounded-full mx-auto flex items-center justify-center text-4xl" style={{ background: 'var(--pp-pos)/10' }}>
         🎉
       </div>
       <div>
-        <h2 className="text-2xl font-bold text-[var(--pp-ink)] mb-2">Vous êtes prêt !</h2>
+        <h2 className="text-2xl font-bold text-[var(--pp-ink)] mb-2">{t('step3Title')}</h2>
         <p className="text-sm text-[var(--pp-muted)] max-w-sm mx-auto">
-          Votre espace Pointon est configuré. Vos employés pourront pointer dès qu&apos;ils auront activé leur compte.
+          {t('step3Subtitle')}
         </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
         {[
-          { icon: '👥', title: 'Gérer les employés', desc: 'Ajoutez vos équipes et configurez les horaires.' },
-          { icon: '📍', title: 'Créer des sites', desc: 'Définissez les lieux de pointage de votre société.' },
-          { icon: '📊', title: 'Suivre les présences', desc: 'Consultez les rapports en temps réel.' },
+          { icon: '👥', title: t('card1Title'), desc: t('card1Desc') },
+          { icon: '📍', title: t('card2Title'), desc: t('card2Desc') },
+          { icon: '📊', title: t('card3Title'), desc: t('card3Desc') },
         ].map(({ icon, title, desc }) => (
           <div key={title} className="rounded-xl border border-[var(--pp-line)] bg-[var(--pp-bg)] p-4">
             <div className="text-2xl mb-2">{icon}</div>
@@ -309,7 +314,7 @@ function Step3({ onFinish, finishing }: { onFinish: () => void; finishing: boole
         className="px-8 py-3 rounded-xl text-sm font-bold text-white shadow-lg transition-opacity disabled:opacity-60"
         style={{ background: 'var(--pp-pos)' }}
       >
-        {finishing ? 'Chargement…' : 'Aller au tableau de bord →'}
+        {finishing ? t('loading') : t('goToDashboard')}
       </button>
     </div>
   )
@@ -318,6 +323,7 @@ function Step3({ onFinish, finishing }: { onFinish: () => void; finishing: boole
 /* ── Page ────────────────────────────────────────────────────────────────── */
 
 export default function OnboardingPage() {
+  const t = useTranslations('onboarding')
   const router = useRouter()
   const [step, setStep] = useState<1 | 2 | 3>(1)
   const [finishing, setFinishing] = useState(false)
@@ -339,9 +345,9 @@ export default function OnboardingPage() {
         {/* Header */}
         <div className="mb-8 text-center">
           <div className="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full text-xs font-semibold bg-[var(--pp-pos)]/10 text-[var(--pp-pos)]">
-            Bienvenue sur Pointon
+            {t('welcome')}
           </div>
-          <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Configurez votre espace en 5 min</h1>
+          <h1 className="text-2xl font-bold text-[var(--pp-ink)]">{t('setupTitle')}</h1>
         </div>
 
         <Steps current={step} />
@@ -360,7 +366,7 @@ export default function OnboardingPage() {
         </div>
 
         <p className="text-center text-xs text-[var(--pp-muted)] mt-4">
-          Vous pourrez modifier ces informations à tout moment dans les paramètres.
+          {t('editLater')}
         </p>
       </div>
     </div>

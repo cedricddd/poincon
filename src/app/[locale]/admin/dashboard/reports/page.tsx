@@ -2,8 +2,11 @@
 
 export const dynamic = 'force-dynamic'
 import { useEffect, useState, useCallback } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import { Card } from '@/components/Card'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
+
+const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -34,6 +37,8 @@ type Employee = { id: string; name: string | null; email: string }
 type Site = { id: string; name: string }
 type Team = { id: string; name: string }
 
+type TFn = (key: string, values?: Record<string, string | number>) => string
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function today(): string { return new Date().toISOString().split('T')[0] }
@@ -45,50 +50,57 @@ function fmt(minutes: number) {
   const h = Math.floor(minutes / 60); const m = minutes % 60
   return m > 0 ? `${h}h${String(m).padStart(2, '0')}` : `${h}h`
 }
-function fmtTime(iso: string) {
-  return new Date(iso).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
+function fmtTime(iso: string, bcp: string) {
+  return new Date(iso).toLocaleTimeString(bcp, { hour: '2-digit', minute: '2-digit' })
 }
-function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString('fr-BE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+function fmtDate(iso: string, bcp: string) {
+  return new Date(iso).toLocaleDateString(bcp, { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 function fmtHours(h: number) {
   const hours = Math.floor(h); const mins = Math.round((h - hours) * 60)
   return mins > 0 ? `${hours}h${String(mins).padStart(2, '0')}` : `${hours}h`
 }
 
-const GROUP_LABELS: Record<string, string> = {
-  employee: 'Employé', team: 'Équipe', week: 'Semaine', month: 'Mois',
+const GROUP_KEYS: Record<string, string> = {
+  employee: 'grpEmployee', team: 'grpTeam', week: 'grpWeek', month: 'grpMonth',
 }
 
 async function exportPDF(
   records: ClockRecord[],
   stats: Stats | null,
-  filters: { from: string; to: string; userName: string; siteName: string }
+  filters: { from: string; to: string; userName: string; siteName: string },
+  t: TFn,
+  bcp: string
 ) {
   const { default: jsPDF } = await import('jspdf')
   const { default: autoTable } = await import('jspdf-autotable')
   const doc = new jsPDF({ orientation: 'landscape' })
   doc.setFontSize(16); doc.setFont('helvetica', 'bold')
-  doc.text('Pointon — Rapport de pointage', 14, 18)
+  doc.text(t('pdfTitle'), 14, 18)
   doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(100)
   const subtitle = [
-    filters.userName ? `Employé : ${filters.userName}` : 'Tous les employés',
-    filters.siteName ? `Site : ${filters.siteName}` : '',
-    filters.from ? `Du : ${filters.from}` : '',
-    filters.to ? `Au : ${filters.to}` : '',
-    `Exporté le : ${new Date().toLocaleDateString('fr-BE')}`,
+    filters.userName ? t('pdfEmployee', { name: filters.userName }) : t('pdfAllEmployees'),
+    filters.siteName ? t('pdfSite', { name: filters.siteName }) : '',
+    filters.from ? t('pdfFrom', { date: filters.from }) : '',
+    filters.to ? t('pdfTo', { date: filters.to }) : '',
+    t('pdfExportedOn', { date: new Date().toLocaleDateString(bcp) }),
   ].filter(Boolean).join('   |   ')
   doc.text(subtitle, 14, 25)
   if (stats) {
     doc.setFontSize(9); doc.setTextColor(60)
-    doc.text(`Total : ${fmt(stats.totalMinutes)}   |   Moyenne/jour : ${fmt(stats.avgMinutes)}   |   Incomplets : ${stats.incompleteCount}   |   Heures sup : ${Number(stats.overtimeHours).toFixed(1)}h`, 14, 31)
+    doc.text(t('pdfSummary', {
+      total: fmt(stats.totalMinutes),
+      avg: fmt(stats.avgMinutes),
+      incomplete: stats.incompleteCount,
+      ot: Number(stats.overtimeHours).toFixed(1),
+    }), 14, 31)
   }
   autoTable(doc, {
     startY: 36,
-    head: [['Employé', 'Email', 'Date', 'Arrivée', 'Départ', 'Durée', 'Lieu', 'Site']],
+    head: [[t('employee'), t('email'), t('date'), t('arrival'), t('departure'), t('duration'), t('location'), t('site')]],
     body: records.map(r => [
-      r.user.name ?? '—', r.user.email, fmtDate(r.date), fmtTime(r.arrivalTime),
-      r.departureTime ? fmtTime(r.departureTime) : 'Non pointé',
+      r.user.name ?? '—', r.user.email, fmtDate(r.date, bcp), fmtTime(r.arrivalTime, bcp),
+      r.departureTime ? fmtTime(r.departureTime, bcp) : t('notClocked'),
       r.duration != null ? fmt(r.duration) : '—', r.location, r.site?.name ?? '—',
     ]),
     styles: { fontSize: 8, cellPadding: 2 },
@@ -101,6 +113,9 @@ async function exportPDF(
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function ReportsPage() {
+  const t = useTranslations('reports')
+  const locale = useLocale()
+  const bcp = BCP47[locale] ?? 'fr-BE'
   const [tab, setTab] = useState<Tab>('pointages')
 
   // ── Shared ───────────────────────────────────────────────────────────────
@@ -178,7 +193,7 @@ export default function ReportsPage() {
       } while (p <= totalPages)
       const userName = applied.userId ? employees.find(e => e.id === applied.userId)?.name ?? '' : ''
       const siteName = applied.siteId ? sites.find(s => s.id === applied.siteId)?.name ?? '' : ''
-      await exportPDF(allRecords, stats, { from: applied.from, to: applied.to, userName, siteName })
+      await exportPDF(allRecords, stats, { from: applied.from, to: applied.to, userName, siteName }, t, bcp)
     } finally { setExporting(null) }
   }
 
@@ -222,7 +237,7 @@ export default function ReportsPage() {
 
   const exportAnalysisCSV = () => {
     if (analysisRows.length === 0) return
-    const lines = ['Groupe;Pointages;Heures travaillées;Jours de congés']
+    const lines = [t('csvAnalysisHeader')]
     for (const r of analysisRows) {
       lines.push([r.label, r.recordCount, r.totalHours.toFixed(2), r.timeOffDays].join(';'))
     }
@@ -244,20 +259,20 @@ export default function ReportsPage() {
       {/* Header */}
       <div className="mb-5 flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Rapports</h1>
-          <p className="text-[var(--pp-muted)] text-sm mt-1">Historique des pointages et analyse RH.</p>
+          <h1 className="text-2xl font-bold text-[var(--pp-ink)]">{t('title')}</h1>
+          <p className="text-[var(--pp-muted)] text-sm mt-1">{t('subtitle')}</p>
         </div>
         <div className="flex gap-2 shrink-0">
           {tab === 'pointages' && (
             <>
               <button onClick={exportCSV} disabled={loadingP || total === 0}
                 className={`${btnBase} border border-[var(--pp-line)] text-[var(--pp-ink)] hover:bg-[var(--pp-line)]/30`}>
-                ↓ CSV
+                {t('csvBtn')}
               </button>
               {isAdvanced && (
                 <button onClick={exportPDF_} disabled={loadingP || total === 0 || exporting === 'pdf'}
                   className={`${btnBase} bg-[var(--pp-info)] text-white hover:opacity-90`}>
-                  {exporting === 'pdf' ? 'Génération…' : '↓ PDF'}
+                  {exporting === 'pdf' ? t('generating') : t('pdfBtn')}
                 </button>
               )}
             </>
@@ -265,7 +280,7 @@ export default function ReportsPage() {
           {tab === 'analyse' && analysisRan && analysisRows.length > 0 && (
             <button onClick={exportAnalysisCSV}
               className={`${btnBase} border border-[var(--pp-line)] text-[var(--pp-ink)] hover:bg-[var(--pp-line)]/30`}>
-              ↓ CSV
+              {t('csvBtn')}
             </button>
           )}
         </div>
@@ -274,19 +289,19 @@ export default function ReportsPage() {
       {/* Tabs */}
       <div className="flex mb-6 border-b border-[var(--pp-line)]">
         {[
-          { key: 'pointages', label: 'Pointages' },
-          { key: 'analyse', label: 'Analyse RH' },
-        ].map(t => (
+          { key: 'pointages', label: t('tabPointages') },
+          { key: 'analyse', label: t('tabAnalyse') },
+        ].map(tb => (
           <button
-            key={t.key}
-            onClick={() => setTab(t.key as Tab)}
+            key={tb.key}
+            onClick={() => setTab(tb.key as Tab)}
             className={`px-5 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
-              tab === t.key
+              tab === tb.key
                 ? 'border-[var(--pp-info)] text-[var(--pp-info)]'
                 : 'border-transparent text-[var(--pp-muted)] hover:text-[var(--pp-ink)]'
             }`}
           >
-            {t.label}
+            {tb.label}
           </button>
         ))}
       </div>
@@ -298,21 +313,21 @@ export default function ReportsPage() {
             <Card className="mb-6">
               <div className="flex flex-wrap gap-3 items-end">
                 <div className="relative">
-                  <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Employé</label>
+                  <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">{t('employee')}</label>
                   <input
                     type="search"
                     value={empSearch}
                     onChange={e => { setEmpSearch(e.target.value); setUserId(''); setEmpOpen(true) }}
                     onFocus={() => setEmpOpen(true)}
                     onBlur={() => setTimeout(() => setEmpOpen(false), 150)}
-                    placeholder="Tous les employés…"
+                    placeholder={t('allEmployeesPlaceholder')}
                     className="px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm bg-[var(--pp-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] w-52"
                   />
                   {empOpen && (
                     <div className="absolute z-10 mt-1 w-52 bg-[var(--pp-bg)] border border-[var(--pp-line)] rounded-lg shadow-lg max-h-52 overflow-y-auto">
                       <button type="button" onMouseDown={() => selectEmployee(null)}
                         className="w-full text-left px-3 py-2 text-sm text-[var(--pp-muted)] hover:bg-[var(--pp-line)]/30">
-                        Tous les employés
+                        {t('allEmployees')}
                       </button>
                       {filteredEmployees.map(e => (
                         <button key={e.id} type="button" onMouseDown={() => selectEmployee(e)}
@@ -322,39 +337,39 @@ export default function ReportsPage() {
                         </button>
                       ))}
                       {filteredEmployees.length === 0 && (
-                        <p className="px-3 py-2 text-xs text-[var(--pp-muted)] italic">Aucun résultat</p>
+                        <p className="px-3 py-2 text-xs text-[var(--pp-muted)] italic">{t('noResult')}</p>
                       )}
                     </div>
                   )}
                 </div>
                 {sites.length > 0 && (
                   <div>
-                    <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Site</label>
+                    <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">{t('site')}</label>
                     <select value={siteId} onChange={e => setSiteId(e.target.value)}
                       className="px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm bg-[var(--pp-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] w-44">
-                      <option value="">Tous les sites</option>
+                      <option value="">{t('allSites')}</option>
                       {sites.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                     </select>
                   </div>
                 )}
                 <div>
-                  <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Du</label>
+                  <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">{t('from')}</label>
                   <input type="date" value={from} onChange={e => setFrom(e.target.value)}
                     className="px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">Au</label>
+                  <label className="block text-xs font-medium text-[var(--pp-muted)] mb-1">{t('to')}</label>
                   <input type="date" value={to} onChange={e => setTo(e.target.value)}
                     className="px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]" />
                 </div>
                 <button onClick={apply}
                   className="px-4 py-2 bg-[var(--pp-info)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition">
-                  Filtrer
+                  {t('filter')}
                 </button>
                 {hasFilter && (
                   <button onClick={reset}
                     className="px-4 py-2 border border-[var(--pp-line)] text-[var(--pp-muted)] rounded-lg text-sm hover:text-[var(--pp-ink)] transition">
-                    Réinitialiser
+                    {t('reset')}
                   </button>
                 )}
               </div>
@@ -362,9 +377,9 @@ export default function ReportsPage() {
           ) : (
             <div className="mb-6 flex items-center gap-3 px-4 py-3 rounded-lg border border-[var(--pp-line)] bg-[var(--pp-line)]/10 text-sm text-[var(--pp-muted)]">
               <span>🔒</span>
-              <span>Filtres par employé, site et période disponibles à partir du plan <strong className="text-[var(--pp-ink)]">Solo</strong>.</span>
+              <span>{t.rich('lockedFilters', { b: (c) => <strong className="text-[var(--pp-ink)]">{c}</strong> })}</span>
               <Link href="/admin/dashboard/settings" className="ml-auto shrink-0 px-3 py-1.5 bg-[var(--pp-info)] text-white rounded-lg text-xs font-medium hover:opacity-90 transition">
-                Passer à Solo
+                {t('upgradeSolo')}
               </Link>
             </div>
           )}
@@ -372,10 +387,10 @@ export default function ReportsPage() {
           {stats && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               {[
-                { label: 'Total heures', value: fmt(stats.totalMinutes), sub: `${total} pointages` },
-                { label: 'Moyenne / jour', value: fmt(stats.avgMinutes), sub: `${stats.completedCount} journées complètes` },
-                { label: 'Incomplets', value: String(stats.incompleteCount), sub: 'sans départ' },
-                { label: 'Heures sup', value: `${Number(stats.overtimeHours).toFixed(1)}h`, sub: 'détectées sur la période' },
+                { label: t('totalHours'), value: fmt(stats.totalMinutes), sub: t('recordsCount', { count: total }) },
+                { label: t('statAvgPerDay'), value: fmt(stats.avgMinutes), sub: t('completeDays', { count: stats.completedCount }) },
+                { label: t('incomplete'), value: String(stats.incompleteCount), sub: t('withoutDeparture') },
+                { label: t('overtimes'), value: `${Number(stats.overtimeHours).toFixed(1)}h`, sub: t('detectedInPeriod') },
               ].map(s => (
                 <Card key={s.label}>
                   <p className="text-xs text-[var(--pp-muted)] mb-1">{s.label}</p>
@@ -388,21 +403,21 @@ export default function ReportsPage() {
 
           <Card>
             {loadingP ? (
-              <p className="text-center text-[var(--pp-muted)] text-sm py-10">Chargement…</p>
+              <p className="text-center text-[var(--pp-muted)] text-sm py-10">{t('loading')}</p>
             ) : records.length === 0 ? (
-              <p className="text-center text-[var(--pp-muted)] text-sm py-10 italic">Aucun pointage trouvé.</p>
+              <p className="text-center text-[var(--pp-muted)] text-sm py-10 italic">{t('noClockFound')}</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-[var(--pp-line)] text-left text-[var(--pp-muted)]">
-                      <th className="pb-3 pr-4 font-medium">Employé</th>
-                      <th className="pb-3 pr-4 font-medium">Date</th>
-                      <th className="pb-3 pr-4 font-medium">Arrivée</th>
-                      <th className="pb-3 pr-4 font-medium">Départ</th>
-                      <th className="pb-3 pr-4 font-medium">Durée</th>
-                      <th className="pb-3 pr-4 font-medium hidden md:table-cell">Lieu</th>
-                      <th className="pb-3 font-medium hidden md:table-cell">Site</th>
+                      <th className="pb-3 pr-4 font-medium">{t('employee')}</th>
+                      <th className="pb-3 pr-4 font-medium">{t('date')}</th>
+                      <th className="pb-3 pr-4 font-medium">{t('arrival')}</th>
+                      <th className="pb-3 pr-4 font-medium">{t('departure')}</th>
+                      <th className="pb-3 pr-4 font-medium">{t('duration')}</th>
+                      <th className="pb-3 pr-4 font-medium hidden md:table-cell">{t('location')}</th>
+                      <th className="pb-3 font-medium hidden md:table-cell">{t('site')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[var(--pp-line)]">
@@ -414,12 +429,12 @@ export default function ReportsPage() {
                             <p className="font-medium text-[var(--pp-ink)]">{r.user.name ?? '—'}</p>
                             <p className="text-xs text-[var(--pp-muted)]">{r.user.email}</p>
                           </td>
-                          <td className="py-3 pr-4 text-[var(--pp-ink)]">{fmtDate(r.date)}</td>
-                          <td className="py-3 pr-4 text-[var(--pp-ink)]">{fmtTime(r.arrivalTime)}</td>
+                          <td className="py-3 pr-4 text-[var(--pp-ink)]">{fmtDate(r.date, bcp)}</td>
+                          <td className="py-3 pr-4 text-[var(--pp-ink)]">{fmtTime(r.arrivalTime, bcp)}</td>
                           <td className="py-3 pr-4">
                             {r.departureTime
-                              ? <span className="text-[var(--pp-ink)]">{fmtTime(r.departureTime)}</span>
-                              : <span className="text-xs italic text-[var(--pp-neg)]">Non pointé</span>
+                              ? <span className="text-[var(--pp-ink)]">{fmtTime(r.departureTime, bcp)}</span>
+                              : <span className="text-xs italic text-[var(--pp-neg)]">{t('notClocked')}</span>
                             }
                           </td>
                           <td className="py-3 pr-4">
@@ -439,15 +454,15 @@ export default function ReportsPage() {
             )}
             {pages > 1 && (
               <div className="flex items-center justify-between mt-4 pt-4 border-t border-[var(--pp-line)]">
-                <p className="text-xs text-[var(--pp-muted)]">Page {page} / {pages} — {total} résultats</p>
+                <p className="text-xs text-[var(--pp-muted)]">{t('pageInfo', { page, pages, total })}</p>
                 <div className="flex gap-2">
                   <button disabled={page <= 1} onClick={() => setPage(p => p - 1)}
                     className="px-3 py-1.5 text-xs border border-[var(--pp-line)] rounded-lg disabled:opacity-40 hover:bg-[var(--pp-line)]/30 transition">
-                    ← Précédent
+                    {t('prev')}
                   </button>
                   <button disabled={page >= pages} onClick={() => setPage(p => p + 1)}
                     className="px-3 py-1.5 text-xs border border-[var(--pp-line)] rounded-lg disabled:opacity-40 hover:bg-[var(--pp-line)]/30 transition">
-                    Suivant →
+                    {t('next')}
                   </button>
                 </div>
               </div>
@@ -462,34 +477,34 @@ export default function ReportsPage() {
           <Card className="mb-6">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
               <div>
-                <label className="text-xs text-[var(--pp-muted)] block mb-1">Du</label>
+                <label className="text-xs text-[var(--pp-muted)] block mb-1">{t('from')}</label>
                 <input type="date" value={aFrom} onChange={e => setAFrom(e.target.value)}
                   className="w-full border border-[var(--pp-line)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]" />
               </div>
               <div>
-                <label className="text-xs text-[var(--pp-muted)] block mb-1">Au</label>
+                <label className="text-xs text-[var(--pp-muted)] block mb-1">{t('to')}</label>
                 <input type="date" value={aTo} onChange={e => setATo(e.target.value)}
                   className="w-full border border-[var(--pp-line)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]" />
               </div>
               <div>
-                <label className="text-xs text-[var(--pp-muted)] block mb-1">Regrouper par</label>
+                <label className="text-xs text-[var(--pp-muted)] block mb-1">{t('groupByLabel')}</label>
                 <select value={groupBy} onChange={e => setGroupBy(e.target.value as typeof groupBy)}
                   className="w-full border border-[var(--pp-line)] rounded-lg px-3 py-2 text-sm bg-[var(--pp-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]">
-                  {Object.entries(GROUP_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                  {Object.entries(GROUP_KEYS).map(([k, key]) => <option key={k} value={k}>{t(key)}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs text-[var(--pp-muted)] block mb-1">Équipe</label>
+                <label className="text-xs text-[var(--pp-muted)] block mb-1">{t('team')}</label>
                 <select value={aTeamId} onChange={e => setATeamId(e.target.value)}
                   className="w-full border border-[var(--pp-line)] rounded-lg px-3 py-2 text-sm bg-[var(--pp-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]">
-                  <option value="">Toutes</option>
-                  {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                  <option value="">{t('allTeams')}</option>
+                  {teams.map(tm => <option key={tm.id} value={tm.id}>{tm.name}</option>)}
                 </select>
               </div>
             </div>
             <button onClick={runAnalysis} disabled={loadingA}
               className="px-4 py-2 bg-[var(--pp-info)] text-white rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50 transition">
-              {loadingA ? 'Calcul…' : 'Générer le rapport'}
+              {loadingA ? t('calculating') : t('generate')}
             </button>
           </Card>
 
@@ -497,9 +512,9 @@ export default function ReportsPage() {
             <>
               <div className="grid grid-cols-3 gap-4 mb-6">
                 {[
-                  { label: 'Pointages', value: totalRecords },
-                  { label: 'Heures travaillées', value: fmtHours(totalHoursA) },
-                  { label: 'Jours de congés', value: totalTimeOff },
+                  { label: t('kpiRecords'), value: totalRecords },
+                  { label: t('kpiHours'), value: fmtHours(totalHoursA) },
+                  { label: t('kpiTimeOff'), value: totalTimeOff },
                 ].map(kpi => (
                   <Card key={kpi.label} className="text-center">
                     <p className="text-2xl font-bold text-[var(--pp-ink)]">{kpi.value}</p>
@@ -509,17 +524,17 @@ export default function ReportsPage() {
               </div>
 
               {analysisRows.length === 0 ? (
-                <p className="text-center py-12 text-[var(--pp-muted)] italic text-sm">Aucune donnée pour ces filtres.</p>
+                <p className="text-center py-12 text-[var(--pp-muted)] italic text-sm">{t('noData')}</p>
               ) : (
                 <Card>
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-[var(--pp-line)] text-left text-[var(--pp-muted)]">
-                          <th className="pb-3 pr-4 font-medium">{GROUP_LABELS[groupBy]}</th>
-                          <th className="pb-3 pr-4 font-medium text-right">Pointages</th>
-                          <th className="pb-3 pr-4 font-medium text-right">Heures</th>
-                          <th className="pb-3 font-medium text-right">Congés (j)</th>
+                          <th className="pb-3 pr-4 font-medium">{t(GROUP_KEYS[groupBy])}</th>
+                          <th className="pb-3 pr-4 font-medium text-right">{t('thRecords')}</th>
+                          <th className="pb-3 pr-4 font-medium text-right">{t('thHours')}</th>
+                          <th className="pb-3 font-medium text-right">{t('thTimeOffDays')}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[var(--pp-line)]">
@@ -538,7 +553,7 @@ export default function ReportsPage() {
                       </tbody>
                       <tfoot>
                         <tr className="border-t-2 border-[var(--pp-line)] font-semibold">
-                          <td className="pt-3 pr-4 text-xs text-[var(--pp-muted)]">Total</td>
+                          <td className="pt-3 pr-4 text-xs text-[var(--pp-muted)]">{t('totalRow')}</td>
                           <td className="pt-3 pr-4 text-right text-[var(--pp-ink)]">{totalRecords}</td>
                           <td className="pt-3 pr-4 text-right text-[var(--pp-ink)]">{fmtHours(totalHoursA)}</td>
                           <td className="pt-3 text-right text-[var(--pp-muted)]">{totalTimeOff}</td>
