@@ -96,6 +96,18 @@ export default async function SuperAdminDashboard() {
         <p className="text-[var(--pp-muted)] mt-1">Gestion commerciale de Pointon</p>
       </div>
 
+      <div className="rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 p-4 flex gap-3 items-start">
+        <span className="text-xl mt-0.5">📬</span>
+        <div>
+          <p className="font-semibold text-amber-800 dark:text-amber-300 text-sm">Rappel — Factures Odoo à envoyer manuellement</p>
+          <p className="text-amber-700 dark:text-amber-400 text-sm mt-1">
+            Les factures sont créées automatiquement dans Odoo après chaque paiement Stripe, mais tu dois les envoyer toi-même.{' '}
+            <a href="https://ced-it.odoo.com/odoo/accounting/customer-invoices" target="_blank" rel="noopener noreferrer"
+               className="underline font-medium">Ouvrir Odoo → Factures clients</a>
+          </p>
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         <div className="rounded-xl border border-[var(--pp-line)] bg-[var(--pp-bg)] p-5 hover:shadow-md hover:-translate-y-0.5 transition">
           <div className="text-2xl font-bold tabular-nums text-[#10b981]">

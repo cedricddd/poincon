@@ -1,6 +1,7 @@
 import { getStripe, STRIPE_PLAN_CONFIG } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
 import { isOdooConfigured, syncInvoiceToOdoo } from '@/lib/odoo'
+import { sendInternalInvoiceAlert } from '@/lib/mail'
 import { NextRequest, NextResponse } from 'next/server'
 
 // Parse Pointon's free-text company address into Odoo's structured fields.
@@ -192,6 +193,7 @@ export async function POST(req: NextRequest) {
 
       // Sync to Odoo if configured (non-blocking: Stripe must always get 200)
       console.log('[webhook] invoice.payment_succeeded', invoice.id, 'odooConfigured=', isOdooConfigured())
+      let syncedOdooId: number | null = null
       if (isOdooConfigured()) {
         try {
           // Pointon Company data is the authoritative source for billing identity.
@@ -208,7 +210,7 @@ export async function POST(req: NextRequest) {
             : (invoice.tax ?? 0)
           const billingAddress = parseBelgianAddress(companyFull?.address) ?? invoice.customer_address ?? null
 
-          const odooId = await syncInvoiceToOdoo({
+          syncedOdooId = await syncInvoiceToOdoo({
             stripeInvoiceId: invoice.id,
             customerEmail: companyFull?.contactEmail ?? invoice.customer_email ?? `company-${company.id}@pointon.be`,
             customerName: companyFull?.name ?? invoice.customer_name ?? 'Client Pointon',
@@ -224,12 +226,27 @@ export async function POST(req: NextRequest) {
 
           await prisma.stripeInvoice.update({
             where: { id: record.id },
-            data: { odooInvoiceId: odooId, odooSyncedAt: new Date() },
+            data: { odooInvoiceId: syncedOdooId, odooSyncedAt: new Date() },
           })
-          console.log('[webhook] Odoo sync OK for invoice', invoice.id, '-> odooId', odooId)
+          console.log('[webhook] Odoo sync OK for invoice', invoice.id, '-> odooId', syncedOdooId)
         } catch (err) {
           console.error('[webhook] Odoo sync FAILED for invoice', invoice.id, err instanceof Error ? err.message : err)
         }
+      }
+
+      // Internal alert — remind to send the Odoo invoice manually (fires regardless of Odoo config)
+      try {
+        await sendInternalInvoiceAlert({
+          companyName: companyFull?.name ?? 'Client inconnu',
+          amountPaid: invoice.amount_paid,
+          currency: invoice.currency ?? 'eur',
+          plan: planName,
+          billingCycle,
+          stripeInvoiceId: invoice.id,
+          odooInvoiceId: syncedOdooId,
+        })
+      } catch (err) {
+        console.error('[webhook] Invoice alert email FAILED', err instanceof Error ? err.message : err)
       }
       break
     }

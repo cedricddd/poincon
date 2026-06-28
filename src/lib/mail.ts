@@ -377,3 +377,65 @@ export async function sendEmail(params: {
   const { to, subject, html } = params
   await transporter.sendMail({ from: FROM, to, subject, html })
 }
+
+export async function sendInternalInvoiceAlert(params: {
+  companyName: string
+  amountPaid: number
+  currency: string
+  plan: string | null
+  billingCycle: string
+  stripeInvoiceId: string
+  odooInvoiceId: number | null
+}) {
+  if (!process.env.BREVO_SMTP_KEY) return
+
+  const { companyName, amountPaid, currency, plan, billingCycle, stripeInvoiceId, odooInvoiceId } = params
+  const notifyEmail = process.env.SUPER_ADMIN_NOTIFY_EMAIL ?? 'cedric@ced-it.be'
+  const odooUrl = 'https://ced-it.odoo.com/odoo/accounting/customer-invoices'
+  const date = new Date().toLocaleString('fr-BE', { dateStyle: 'full', timeStyle: 'short' })
+  const amount = (amountPaid / 100).toLocaleString('fr-BE', { style: 'currency', currency: currency.toUpperCase() })
+  const cycleLabel = billingCycle === 'yearly' ? 'Annuel' : 'Mensuel'
+  const odooStatus = odooInvoiceId
+    ? `✅ Facture Odoo créée (#${odooInvoiceId}) — <strong>à envoyer manuellement</strong>`
+    : `⚠️ Facture Odoo non créée (sync échouée) — vérifier les logs`
+
+  const html = `
+    <div style="font-family:system-ui,sans-serif;max-width:580px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
+      <div style="background:#ffffff;border-radius:12px;padding:32px;border:1px solid #e2e8f0;">
+        <h1 style="margin:0 0 4px;font-size:22px;color:#0f172a;">Pointon</h1>
+        <p style="margin:0 0 20px;font-size:13px;color:#94a3b8;">Notification super-admin</p>
+        <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 24px;">
+
+        <p style="color:#334155;margin:0 0 20px;font-size:16px;">
+          💰 <strong>Nouveau paiement reçu</strong>
+        </p>
+
+        <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px;">
+          <tr><td style="padding:8px 0;color:#64748b;width:160px;">Société</td><td style="padding:8px 0;color:#0f172a;font-weight:600;">${companyName}</td></tr>
+          <tr><td style="padding:8px 0;color:#64748b;">Montant</td><td style="padding:8px 0;color:#10b981;font-weight:700;font-size:16px;">${amount}</td></tr>
+          <tr><td style="padding:8px 0;color:#64748b;">Plan</td><td style="padding:8px 0;color:#0f172a;">${plan ?? 'Inconnu'} · ${cycleLabel}</td></tr>
+          <tr><td style="padding:8px 0;color:#64748b;">Date</td><td style="padding:8px 0;color:#0f172a;">${date}</td></tr>
+          <tr><td style="padding:8px 0;color:#64748b;">Stripe Invoice</td><td style="padding:8px 0;color:#64748b;font-size:12px;">${stripeInvoiceId}</td></tr>
+        </table>
+
+        <div style="background:#fef3c7;border-radius:8px;padding:14px 16px;margin-bottom:24px;border-left:3px solid #f59e0b;">
+          <p style="margin:0;color:#92400e;font-size:14px;">${odooStatus}</p>
+        </div>
+
+        <a href="${odooUrl}"
+           style="display:inline-block;background:#6366f1;color:#fff;text-decoration:none;padding:11px 24px;border-radius:8px;font-weight:600;font-size:14px;">
+          Ouvrir Odoo — Factures clients →
+        </a>
+
+        <p style="color:#94a3b8;font-size:12px;margin-top:28px;">Pointon · Notification automatique</p>
+      </div>
+    </div>
+  `
+
+  await transporter.sendMail({
+    from: FROM,
+    to: notifyEmail,
+    subject: `💰 Paiement reçu : ${companyName} — ${amount}`,
+    html,
+  })
+}
