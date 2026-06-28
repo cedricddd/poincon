@@ -1311,5 +1311,32 @@
     "pinDefine": "PIN instellen",
     "pinDelete": "PIN verwijderen",
     "close": "Sluiten"
+  },
+  "usersForm": {
+    "title": "Gebruiker aanmaken",
+    "subtitle": "Het account is onmiddellijk actief. Geef de inloggegevens door aan de werknemer.",
+    "success": "Account succesvol aangemaakt. Doorverwijzen…",
+    "error": "Fout bij het aanmaken.",
+    "fullName": "Volledige naam",
+    "placeholderName": "Voornaam Naam",
+    "email": "E-mail",
+    "placeholderEmail": "werknemer@bedrijf.be",
+    "tempPassword": "Tijdelijk wachtwoord",
+    "role": "Rol",
+    "defaultSite": "Standaardlocatie",
+    "noSite": "— Geen locatie —",
+    "creating": "Aanmaken…",
+    "createAccount": "Account aanmaken",
+    "cancel": "Annuleren",
+    "inviteTitle": "Werknemer uitnodigen",
+    "inviteSubtitle": "Er wordt een e-mail met een activatielink (48u geldig) naar het opgegeven adres gestuurd.",
+    "inviteSuccess": "✅ Uitnodiging verzonden! Doorverwijzen…",
+    "inviteError": "Fout bij het verzenden.",
+    "inviteErrorGeneric": "Fout bij het verzenden van de uitnodiging.",
+    "emailLabel": "E-mail",
+    "nameOptional": "Naam (optioneel)",
+    "nameHint": "De werknemer kan dit aanpassen bij de registratie.",
+    "sending": "Verzenden…",
+    "sendInvite": "Uitnodiging verzenden"
   }
 }

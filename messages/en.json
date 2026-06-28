@@ -1311,5 +1311,32 @@
     "pinDefine": "Set the PIN",
     "pinDelete": "Remove the PIN",
     "close": "Close"
+  },
+  "usersForm": {
+    "title": "Create a user",
+    "subtitle": "The account will be active immediately. Pass the credentials to the employee.",
+    "success": "Account created successfully. Redirecting…",
+    "error": "Error during creation.",
+    "fullName": "Full name",
+    "placeholderName": "First Last",
+    "email": "Email",
+    "placeholderEmail": "employee@company.be",
+    "tempPassword": "Temporary password",
+    "role": "Role",
+    "defaultSite": "Default site",
+    "noSite": "— No site —",
+    "creating": "Creating…",
+    "createAccount": "Create account",
+    "cancel": "Cancel",
+    "inviteTitle": "Invite an employee",
+    "inviteSubtitle": "An email with an activation link (valid 48h) will be sent to the given address.",
+    "inviteSuccess": "✅ Invitation sent! Redirecting…",
+    "inviteError": "Error while sending.",
+    "inviteErrorGeneric": "Error while sending the invitation.",
+    "emailLabel": "Email",
+    "nameOptional": "Name (optional)",
+    "nameHint": "The employee can change it during sign-up.",
+    "sending": "Sending…",
+    "sendInvite": "Send invitation"
   }
 }

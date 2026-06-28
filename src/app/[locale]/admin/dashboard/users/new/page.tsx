@@ -2,13 +2,16 @@
 
 export const dynamic = 'force-dynamic'
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { useRouter } from '@/i18n/navigation'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 
 type Site = { id: string; name: string }
 
 export default function NewUserPage() {
+  const t = useTranslations('usersForm')
+  const tc = useTranslations('common')
   const router = useRouter()
   const [formData, setFormData] = useState({
     name: '',
@@ -54,13 +57,13 @@ export default function NewUserPage() {
       })
       const data = await response.json()
       if (!response.ok) {
-        setError(data.error || 'Erreur lors de la création.')
+        setError(data.error || t('error'))
         return
       }
       setSuccess(true)
       setTimeout(() => router.push('/admin/dashboard'), 1500)
     } catch {
-      setError('Erreur lors de la création.')
+      setError(t('error'))
     } finally {
       setLoading(false)
     }
@@ -69,9 +72,9 @@ export default function NewUserPage() {
   return (
     <div className="p-6 md:p-8 max-w-xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Créer un utilisateur</h1>
+        <h1 className="text-2xl font-bold text-[var(--pp-ink)]">{t('title')}</h1>
         <p className="text-[var(--pp-muted)] text-sm mt-1">
-          Le compte sera actif immédiatement. Transmettez les identifiants à l'employé.
+          {t('subtitle')}
         </p>
       </div>
 
@@ -84,20 +87,20 @@ export default function NewUserPage() {
           )}
           {success && (
             <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
-              Compte créé avec succès. Redirection…
+              {t('success')}
             </div>
           )}
 
           <div>
             <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">
-              Nom complet
+              {t('fullName')}
             </label>
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
-              placeholder="Prénom Nom"
+              placeholder={t('placeholderName')}
               required
               className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
             />
@@ -105,14 +108,14 @@ export default function NewUserPage() {
 
           <div>
             <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">
-              Email
+              {t('email')}
             </label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="employe@entreprise.be"
+              placeholder={t('placeholderEmail')}
               required
               className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
             />
@@ -120,7 +123,7 @@ export default function NewUserPage() {
 
           <div>
             <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">
-              Mot de passe temporaire
+              {t('tempPassword')}
             </label>
             <input
               type="password"
@@ -136,7 +139,7 @@ export default function NewUserPage() {
 
           <div>
             <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">
-              Rôle
+              {t('role')}
             </label>
             <select
               name="role"
@@ -144,16 +147,16 @@ export default function NewUserPage() {
               onChange={handleChange}
               className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] bg-[var(--pp-bg)]"
             >
-              <option value="EMPLOYEE">Employé</option>
-              {canUseManagers && <option value="MANAGER">Manager</option>}
-              <option value="ADMIN">Admin</option>
+              <option value="EMPLOYEE">{tc('roleEmployee')}</option>
+              {canUseManagers && <option value="MANAGER">{tc('roleManager')}</option>}
+              <option value="ADMIN">{tc('roleAdmin')}</option>
             </select>
           </div>
 
           {sites.length > 0 && (
             <div>
               <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">
-                Site par défaut
+                {t('defaultSite')}
               </label>
               <select
                 name="defaultSiteId"
@@ -161,7 +164,7 @@ export default function NewUserPage() {
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] bg-[var(--pp-bg)]"
               >
-                <option value="">— Aucun site —</option>
+                <option value="">{t('noSite')}</option>
                 {sites.map(s => (
                   <option key={s.id} value={s.id}>{s.name}</option>
                 ))}
@@ -171,7 +174,7 @@ export default function NewUserPage() {
 
           <div className="flex gap-3 pt-2">
             <Button type="submit" disabled={loading || success} size="md">
-              {loading ? 'Création…' : 'Créer le compte'}
+              {loading ? t('creating') : t('createAccount')}
             </Button>
             <Button
               type="button"
@@ -179,7 +182,7 @@ export default function NewUserPage() {
               size="md"
               onClick={() => router.push('/admin/dashboard/users')}
             >
-              Annuler
+              {t('cancel')}
             </Button>
           </div>
         </form>

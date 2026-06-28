@@ -2,11 +2,14 @@
 
 export const dynamic = 'force-dynamic'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { useRouter } from '@/i18n/navigation'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 
 export default function InviteUserPage() {
+  const t = useTranslations('usersForm')
+  const tc = useTranslations('common')
   const router = useRouter()
   const [form, setForm] = useState({ email: '', name: '', role: 'EMPLOYEE' })
   const [loading, setLoading] = useState(false)
@@ -24,11 +27,11 @@ export default function InviteUserPage() {
         body: JSON.stringify(form),
       })
       const data = await res.json()
-      if (!res.ok) { setError(data.error ?? 'Erreur lors de l\'envoi.'); return }
+      if (!res.ok) { setError(data.error ?? t('inviteError')); return }
       setSuccess(true)
       setTimeout(() => router.push('/admin/dashboard/users'), 2500)
     } catch {
-      setError('Erreur lors de l\'envoi de l\'invitation.')
+      setError(t('inviteErrorGeneric'))
     } finally {
       setLoading(false)
     }
@@ -37,9 +40,9 @@ export default function InviteUserPage() {
   return (
     <div className="p-6 md:p-8 max-w-xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[var(--pp-ink)]">Inviter un employé</h1>
+        <h1 className="text-2xl font-bold text-[var(--pp-ink)]">{t('inviteTitle')}</h1>
         <p className="text-[var(--pp-muted)] text-sm mt-1">
-          Un email avec un lien d'activation (valable 48h) sera envoyé à l'adresse indiquée.
+          {t('inviteSubtitle')}
         </p>
       </div>
 
@@ -50,19 +53,19 @@ export default function InviteUserPage() {
           )}
           {success && (
             <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
-              ✅ Invitation envoyée ! Redirection…
+              {t('inviteSuccess')}
             </div>
           )}
 
           <div>
             <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">
-              Email <span className="text-[var(--pp-neg)]">*</span>
+              {t('emailLabel')} <span className="text-[var(--pp-neg)]">*</span>
             </label>
             <input
               type="email"
               value={form.email}
               onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-              placeholder="employe@entreprise.be"
+              placeholder={t('placeholderEmail')}
               required
               className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
             />
@@ -70,37 +73,37 @@ export default function InviteUserPage() {
 
           <div>
             <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">
-              Nom (optionnel)
+              {t('nameOptional')}
             </label>
             <input
               type="text"
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-              placeholder="Prénom Nom"
+              placeholder={t('placeholderName')}
               className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
             />
-            <p className="text-xs text-[var(--pp-muted)] mt-1">L'employé pourra le modifier lors de son inscription.</p>
+            <p className="text-xs text-[var(--pp-muted)] mt-1">{t('nameHint')}</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">Rôle</label>
+            <label className="block text-sm font-medium text-[var(--pp-ink)] mb-1">{t('role')}</label>
             <select
               value={form.role}
               onChange={e => setForm(f => ({ ...f, role: e.target.value }))}
               className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)] bg-[var(--pp-bg)]"
             >
-              <option value="EMPLOYEE">Employé</option>
-              <option value="MANAGER">Manager</option>
-              <option value="ADMIN">Administrateur</option>
+              <option value="EMPLOYEE">{tc('roleEmployee')}</option>
+              <option value="MANAGER">{tc('roleManager')}</option>
+              <option value="ADMIN">{tc('roleAdmin')}</option>
             </select>
           </div>
 
           <div className="flex gap-3 pt-2">
             <Button type="submit" disabled={loading || success} size="md">
-              {loading ? 'Envoi…' : 'Envoyer l\'invitation'}
+              {loading ? t('sending') : t('sendInvite')}
             </Button>
             <Button type="button" variant="outline" size="md" onClick={() => router.push('/admin/dashboard/users')}>
-              Annuler
+              {t('cancel')}
             </Button>
           </div>
         </form>

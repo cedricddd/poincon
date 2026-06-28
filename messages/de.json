@@ -1311,5 +1311,32 @@
     "pinDefine": "PIN festlegen",
     "pinDelete": "PIN entfernen",
     "close": "Schließen"
+  },
+  "usersForm": {
+    "title": "Benutzer erstellen",
+    "subtitle": "Das Konto ist sofort aktiv. Geben Sie die Zugangsdaten an den Mitarbeiter weiter.",
+    "success": "Konto erfolgreich erstellt. Weiterleitung…",
+    "error": "Fehler bei der Erstellung.",
+    "fullName": "Vollständiger Name",
+    "placeholderName": "Vorname Name",
+    "email": "E-Mail",
+    "placeholderEmail": "mitarbeiter@firma.be",
+    "tempPassword": "Temporäres Passwort",
+    "role": "Rolle",
+    "defaultSite": "Standardstandort",
+    "noSite": "— Kein Standort —",
+    "creating": "Erstellen…",
+    "createAccount": "Konto erstellen",
+    "cancel": "Abbrechen",
+    "inviteTitle": "Mitarbeiter einladen",
+    "inviteSubtitle": "Eine E-Mail mit einem Aktivierungslink (48 Std. gültig) wird an die angegebene Adresse gesendet.",
+    "inviteSuccess": "✅ Einladung gesendet! Weiterleitung…",
+    "inviteError": "Fehler beim Senden.",
+    "inviteErrorGeneric": "Fehler beim Senden der Einladung.",
+    "emailLabel": "E-Mail",
+    "nameOptional": "Name (optional)",
+    "nameHint": "Der Mitarbeiter kann ihn bei der Registrierung ändern.",
+    "sending": "Senden…",
+    "sendInvite": "Einladung senden"
   }
 }
