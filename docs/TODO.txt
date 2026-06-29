@@ -1,11 +1,11 @@
 ﻿================================================================================
-                    POINTON - TODO LIST (MISE À JOUR 2026-06-26)
+                    POINTON - TODO LIST (MISE À JOUR 2026-06-28)
 ================================================================================
 
-Dernière mise à jour: 2026-06-26
-Version: 0.7.1
-État: v0.7.1 — SuperAdmin nettoyé (flag isInternal, stats/MRR/ARR propres, 0€ test),
-      Docker LXC 106 nettoyé (27 Go libérés). Base propre pour premiers vrais clients.
+Dernière mise à jour: 2026-06-29
+Version: 0.8.1
+État: v0.8.1 — Chatbot aide Claude Haiku (Phase C) livré.
+      i18n FR/NL/EN/DE 100% terminé. Alertes factures Odoo actives.
       Reste : bascule Stripe LIVE, smoke tests prod, add-ons self-service.
 
 ================================================================================
@@ -159,7 +159,10 @@ PHASE 9: PLANS & MONÉTISATION (✓ COMPLÉTÉE)
 ✓ Stripe Tax TVA integration (21% BE) — fait 2026-06-26 (cf. PHASE 17)
     └─ Reste roadmap : autoliquidation UE B2B (tax_id_collection actif) + 0% hors UE à valider en LIVE
 [ ] PayPal alternative payment method — HORS SCOPE
-[ ] Odoo + Peppol integration — ROADMAP
+✓ Odoo + Peppol — COMPLÉTÉ (2026-06-28, cf. PHASE 17)
+    ├─ Factures créées automatiquement dans Odoo après chaque paiement Stripe
+    ├─ Peppol déjà actif dans Odoo Online (utilisé pour autres clients Ced-IT)
+    └─ Envoi manuel voulu (vérification avant envoi) — alerte email à cedric@ced-it.be
 
 PHASE 9.5: INVITATIONS EMPLOYÉS & AUTHENTIFICATION (✓ COMPLÉTÉE)
 ================================================================================
@@ -332,10 +335,15 @@ PHASE 16.7: PLANNING PER-DAY CONFIG (✓ COMPLÉTÉE — 2026-06-17)
 PHASE 17: STRIPE TAX + ODOO + FACTURATION PAR SIÈGE (✓ COMPLÉTÉE — 2026-06-26)
 ================================================================================
 ✓ Stripe Tax 21% BE activé (tax_behavior exclusive, services électroniques)
-✓ Sync facture Stripe → Odoo (account.move via XML-RPC)
+✓ Sync facture Stripe → Odoo (account.move via XML-RPC) — validé bout-en-bout 2026-06-26
     ✓ TVA lue depuis invoice.total_taxes[] (invoice.tax retiré API récente)
     ✓ Identité société depuis table Company (nom/adresse/tél/TVA), pas Stripe
     ✓ Idempotence ré-essayable (retry si odooInvoiceId manquant)
+✓ Alerte interne paiement — sendInternalInvoiceAlert() — DONE 2026-06-28
+    ✓ Email à cedric@ced-it.be à chaque invoice.payment_succeeded
+    ✓ Détail : société, montant, plan, lien direct Odoo, statut sync Odoo
+    ✓ Bandeau rappel sur /super-admin/dashboard (lien Odoo → factures clients)
+    ✓ Peppol déjà actif dans Odoo Online (ced-it.odoo.com) — envoi manuel voulu
 ✓ Catalogue Stripe : 6 produits + 12 prix (3 plans × mensuel/annuel × base/siège), test mode
 ✓ Facturation par siège — modèle SOUPLE (validé bout-en-bout test mode)
     ✓ Company.stripeSeatItemId + billedSeats
@@ -360,6 +368,26 @@ PHASE 18: SUPERADMIN NETTOYAGE + MAINTENANCE (✓ COMPLÉTÉE — 2026-06-26)
 
 Note infra : commandes SQL prod toujours via `pct exec 106 -- docker exec pointon-db psql ...`
 sans bash -c intermédiaire (quoting PowerShell plus fiable sans wrapper bash).
+
+PHASE 19: i18n FR/NL/EN/DE (✓ COMPLÉTÉE — 2026-06-28)
+================================================================================
+✓ Infrastructure next-intl v4 — routing /[locale]/... · locales fr (défaut), nl, en, de
+✓ messages/{fr,nl,en,de}.json — ~45 namespaces, ~350 strings chacun
+✓ Piège middleware résolu : x-next-intl-locale forcé dans proxy.ts avant pass-through
+✓ LocaleSwitcher (login + sidebar) + navigation locale-aware (@/i18n/navigation)
+✓ UI entière traduite : landing, pricing, login, toutes pages employé (clock, time-off,
+  rtt, overtime, presence, profile, reports), admin complet (dashboard, planning,
+  schedules, teams, sites, users, invitations, kiosk, onboarding, audit, reports,
+  settings+integrations), manager (dashboard, presence, planning), super-admin layout,
+  pages auth (signup, forgot/reset/set-password, 2FA challenge+setup)
+✓ Emails multilingues : sendApprovalEmail, sendPasswordResetEmail, sendWelcomeEmail,
+  sendInvitationEmail, sendKioskVisitorEmail — tous utilisent getTranslations({ locale })
+✓ User.locale String? (Prisma) — préférence langue email par utilisateur
+    ✓ Route PATCH /api/user/locale + GET
+    ✓ Sélecteur UI dans /app/profile (Card dédiée, sauvegarde instantanée)
+    ✓ db push dev + prod (OVH LXC 106) — 2026-06-28
+✓ Appelants emails mis à jour : approve (admin+manager), forgot-password, cron reminder,
+  kiosk visit, invitations, register → passent tous employee.locale ou header locale
 
 ================================================================================
 CE QUI RESTE A FAIRE — PLAN LANCEMENT JANVIER 2027
@@ -392,8 +420,7 @@ Objectif : premier vrai client peut s'inscrire et payer
 [ ] Seed plans prod — 5 plans
     └─ ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker compose run --rm app sh -c \"npm install bcryptjs --no-save --quiet && node prisma/seed.js\"'"
 
-[ ] Prisma db push prod — schema a changé depuis dernier deploy
-    └─ ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker compose run --rm app sh -c \"npx prisma@5.22.0 db push --accept-data-loss\"'"
+✓ Prisma db push prod — DONE 2026-06-28 (User.locale ajouté)
 
 [ ] Smoke tests end-to-end sur pointon.be
     ├─ Login / logout tous les roles (admin, manager, employé)
@@ -410,27 +437,22 @@ Objectif : premier vrai client peut s'inscrire et payer
     │   → webhook invoice.paid → POST /api/admin/addons (SUPER_ADMIN interne)
     └─ Concerné : API Access (29€) · Webhooks (19€) · Kiosk avancé (19€) · Export RGPD (15€) · Rapports custom (15€)
 
-PHASE B — i18n FR/NL/EN/DE · Aout 2026 · ~3-4 sessions
+PHASE B — i18n FR/NL/EN/DE · ✓ COMPLÉTÉE — 2026-06-28 (cf. PHASE 19)
 ================================================================================
-Objectif : capter les clients néerlandophones (50%+ du marché belge)
+✓ Toutes les items de cette phase sont terminées — voir PHASE 19 pour le détail.
 
-[ ] Setup next-intl + routing /fr /nl /en /de + détection langue navigateur
-[ ] Extraction ~350 strings UI (app employé + admin + super-admin + landing)
-[ ] Traduction auto DeepL (NL/EN/DE) + révision
-[ ] Préférence langue sauvegardée par utilisateur (profil)
-[ ] Emails Brevo multilingues (invitation, bienvenue, rappel fin de journée)
-[ ] Landing page + /pricing traduits dans les 4 langues
-
-PHASE C — CHATBOT AIDE · Aout 2026 · ~1 session
+PHASE C — CHATBOT AIDE · ✓ COMPLÉTÉE — 2026-06-29
 ================================================================================
-Objectif : support niveau 1 automatisé 24/7, différenciateur B2B
-
-[ ] Floating help button (coin bas-droit, toutes les pages connectées)
-[ ] Chatbot Claude API (claude-haiku-4-5 pour le cout)
-    ├─ System prompt : doc Pointon + FAQ conformité 2027 + tarifs + guides par role
-    ├─ Contexte injecté : plan actuel de l'utilisateur, son role
-    └─ Fallback "contacter Cedric" si question hors périmetre
-[ ] Base de connaissance consultable (modal articles markdown, sans IA)
+✓ Floating help button ❓ (coin bas-droit, toutes les pages connectées — admin, manager, employee)
+✓ Chatbot Claude API (claude-haiku-4-5)
+    ✓ POST /api/help/chat — proxy server-side (clé API jamais exposée client)
+    ✓ System prompt basé sur audit complet de toutes les pages réelles (zéro hallucination)
+    ✓ Contexte injecté : plan actuel de l'utilisateur + rôle (SUPER_ADMIN masqué → ADMIN)
+    ✓ Fallback contact@pointon.be si question hors périmètre
+    ✓ ANTHROPIC_API_KEY dans .env dev + OVH LXC 106
+    ✓ i18n 4 langues (FR/NL/EN/DE) — namespace HelpChatbot
+    ✓ Fix dark mode input (text-gray-900 forcé)
+[ ] Base de connaissance consultable (modal articles markdown, sans IA) — reporté post-lancement
 
 PHASE D — MARKETING & SEO · Septembre 2026 · ~2-3 sessions
 ================================================================================
