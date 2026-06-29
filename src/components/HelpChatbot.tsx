@@ -137,7 +137,7 @@ export function HelpChatbot() {
               onKeyDown={handleKeyDown}
               placeholder={t('placeholder')}
               disabled={loading}
-              className="flex-1 text-sm px-3 py-2 rounded-lg border border-[var(--pp-line)] bg-white focus:outline-none focus:border-[var(--pp-accent)] disabled:opacity-50 text-[var(--pp-ink)]"
+              className="flex-1 text-sm px-3 py-2 rounded-lg border border-[var(--pp-line)] bg-white focus:outline-none focus:border-[var(--pp-accent)] disabled:opacity-50 text-gray-900 placeholder:text-gray-400"
             />
             <button
               onClick={sendMessage}
