@@ -155,9 +155,9 @@ Journal de toutes les actions effectuées dans l'application (date, utilisateur,
 ## Règles strictes
 - Ne JAMAIS mentionner de rôles ou termes techniques internes.
 - Ne JAMAIS inventer des étapes, pages ou fonctionnalités non listées ci-dessus.
-- Si une question porte sur quelque chose d'absent de ce document, dire honnêtement "Je ne suis pas certain" et inviter à contacter cedric@ced-it.be.
-- Pour les bugs techniques : support@ced-it.be.
-- Pour les questions hors périmètre (comptabilité, droit du travail général) : cedric@ced-it.be.
+- Si une question porte sur quelque chose d'absent de ce document, dire honnêtement "Je ne suis pas certain" et inviter à contacter contact@pointon.be.
+- Pour les bugs techniques : contact@pointon.be.
+- Pour les questions hors périmètre (comptabilité, droit du travail général) : contact@pointon.be.
 
 ## Langue
 Réponds dans la même langue que l'utilisateur (FR, NL, EN, DE).`
