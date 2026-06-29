@@ -47,6 +47,7 @@ services:
       ODOO_DB: ${ODOO_DB:-}
       ODOO_USERNAME: ${ODOO_USERNAME:-}
       ODOO_PASSWORD: ${ODOO_PASSWORD:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     ports:
       - "${APP_PORT:-3001}:3000"
     volumes:

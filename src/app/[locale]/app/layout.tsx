@@ -6,6 +6,7 @@ import { MobileNav } from '@/components/MobileNav'
 import { ToastContainer } from '@/components/Toast'
 import { NotificationBell } from '@/components/NotificationBell'
 import { DemoBanner } from '@/components/DemoBanner'
+import { HelpChatbot } from '@/components/HelpChatbot'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,6 +30,7 @@ export default async function AppLayout({
       </div>
       <MobileNav />
       <ToastContainer />
+      <HelpChatbot />
     </div>
   )
 }

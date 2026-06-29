@@ -1938,5 +1938,13 @@
     "cancel": "Annuleren",
     "saving": "Opslaan…",
     "save": "Opslaan"
+  },
+  "HelpChatbot": {
+    "label": "Hulp",
+    "title": "Pointon Assistent",
+    "subtitle": "Stel uw vragen",
+    "placeholder": "Uw vraag…",
+    "greeting": "Hallo 👋 Ik ben de Pointon-assistent. Hoe kan ik u helpen?",
+    "error": "Verbindingsfout. Probeer opnieuw of neem contact op met cedric@ced-it.be."
   }
 }

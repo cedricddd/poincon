@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma'
 import { Sidebar } from '@/components/Sidebar'
 import { MobileNav } from '@/components/MobileNav'
 import { DemoBanner } from '@/components/DemoBanner'
+import { HelpChatbot } from '@/components/HelpChatbot'
 
 export const dynamic = 'force-dynamic'
 
@@ -46,6 +47,7 @@ export default async function AdminLayout({
         {children}
       </main>
       <MobileNav />
+      <HelpChatbot />
     </div>
   )
 }
