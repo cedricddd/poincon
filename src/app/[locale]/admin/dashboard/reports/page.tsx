@@ -38,6 +38,14 @@ type Employee = { id: string; name: string | null; email: string }
 type Site = { id: string; name: string }
 type Team = { id: string; name: string }
 
+type ReportTemplate = {
+  id: string
+  name: string
+  config: string
+  scheduledFrequency: string | null
+  recipientEmails: string | null
+}
+
 type TFn = (key: string, values?: Record<string, string | number>) => string
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -254,6 +262,61 @@ export default function ReportsPage() {
   const totalRecords = analysisRows.reduce((s, r) => s + r.recordCount, 0)
   const totalHoursA = analysisRows.reduce((s, r) => s + r.totalHours, 0)
   const totalTimeOff = analysisRows.reduce((s, r) => s + r.timeOffDays, 0)
+
+  // ── Report templates (addon_custom_reports) ─────────────────────────────
+  const [templates, setTemplates] = useState<ReportTemplate[]>([])
+  const [showSaveTemplate, setShowSaveTemplate] = useState(false)
+  const [templateName, setTemplateName] = useState('')
+  const [templateFrequency, setTemplateFrequency] = useState<'' | 'weekly' | 'monthly'>('')
+  const [templateEmails, setTemplateEmails] = useState('')
+  const [savingTemplate, setSavingTemplate] = useState(false)
+
+  const fetchTemplates = useCallback(async () => {
+    const res = await fetch('/api/admin/reports/templates')
+    if (res.ok) setTemplates((await res.json()).templates ?? [])
+  }, [])
+
+  useEffect(() => { if (tab === 'analyse') fetchTemplates() }, [tab, fetchTemplates])
+
+  const saveTemplate = async () => {
+    if (!templateName.trim()) return
+    setSavingTemplate(true)
+    const emails = templateEmails.split(',').map(e => e.trim()).filter(Boolean)
+    const res = await fetch('/api/admin/reports/templates', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: templateName.trim(),
+        config: { groupBy, teamId: aTeamId || null },
+        scheduledFrequency: templateFrequency || null,
+        recipientEmails: emails,
+      }),
+    })
+    if (res.ok) {
+      setTemplateName(''); setTemplateFrequency(''); setTemplateEmails('')
+      setShowSaveTemplate(false)
+      showToast(t('templateSaved'), 'success')
+      fetchTemplates()
+    } else {
+      const data = await res.json()
+      showToast(data.error ?? t('error'), 'error')
+    }
+    setSavingTemplate(false)
+  }
+
+  const loadTemplate = (tpl: ReportTemplate) => {
+    try {
+      const config = JSON.parse(tpl.config)
+      if (config.groupBy) setGroupBy(config.groupBy)
+      setATeamId(config.teamId ?? '')
+    } catch { /* invalid config */ }
+  }
+
+  const deleteTemplate = async (id: string) => {
+    if (!confirm(t('confirmDeleteTemplate'))) return
+    const res = await fetch(`/api/admin/reports/templates/${id}`, { method: 'DELETE' })
+    if (res.ok) setTemplates(prev => prev.filter(tpl => tpl.id !== id))
+  }
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -507,10 +570,67 @@ export default function ReportsPage() {
                 </select>
               </div>
             </div>
-            <button onClick={runAnalysis} disabled={loadingA}
-              className="px-4 py-2 bg-[var(--pp-info)] text-white rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50 transition">
-              {loadingA ? t('calculating') : t('generate')}
-            </button>
+            <div className="flex items-center gap-3">
+              <button onClick={runAnalysis} disabled={loadingA}
+                className="px-4 py-2 bg-[var(--pp-info)] text-white rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50 transition">
+                {loadingA ? t('calculating') : t('generate')}
+              </button>
+              <button onClick={() => setShowSaveTemplate(v => !v)}
+                className="px-4 py-2 border border-[var(--pp-line)] text-[var(--pp-ink)] rounded-lg text-sm font-medium hover:bg-[var(--pp-line)]/30 transition">
+                {t('saveAsTemplate')}
+              </button>
+            </div>
+
+            {showSaveTemplate && (
+              <div className="mt-4 pt-4 border-t border-[var(--pp-line)] flex flex-wrap gap-3 items-end">
+                <div className="flex-1 min-w-40">
+                  <label className="text-xs text-[var(--pp-muted)] block mb-1">{t('templateName')}</label>
+                  <input value={templateName} onChange={e => setTemplateName(e.target.value)}
+                    className="w-full border border-[var(--pp-line)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]" />
+                </div>
+                <div>
+                  <label className="text-xs text-[var(--pp-muted)] block mb-1">{t('templateFrequency')}</label>
+                  <select value={templateFrequency} onChange={e => setTemplateFrequency(e.target.value as typeof templateFrequency)}
+                    className="border border-[var(--pp-line)] rounded-lg px-3 py-2 text-sm bg-[var(--pp-bg)]">
+                    <option value="">{t('templateFrequencyNone')}</option>
+                    <option value="weekly">{t('templateFrequencyWeekly')}</option>
+                    <option value="monthly">{t('templateFrequencyMonthly')}</option>
+                  </select>
+                </div>
+                {templateFrequency && (
+                  <div className="flex-1 min-w-48">
+                    <label className="text-xs text-[var(--pp-muted)] block mb-1">{t('templateEmails')}</label>
+                    <input value={templateEmails} onChange={e => setTemplateEmails(e.target.value)}
+                      placeholder="a@co.be, b@co.be"
+                      className="w-full border border-[var(--pp-line)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]" />
+                  </div>
+                )}
+                <button onClick={saveTemplate} disabled={savingTemplate || !templateName.trim()}
+                  className="px-4 py-2 bg-[var(--pp-info)] text-white rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50">
+                  {savingTemplate ? t('loading') : t('save')}
+                </button>
+              </div>
+            )}
+
+            {templates.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-[var(--pp-line)] flex flex-wrap gap-2">
+                {templates.map(tpl => (
+                  <div key={tpl.id} className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--pp-line)] text-xs">
+                    <button onClick={() => loadTemplate(tpl)} className="font-medium text-[var(--pp-ink)] hover:text-[var(--pp-info)]">
+                      {tpl.name}
+                    </button>
+                    {tpl.scheduledFrequency && (
+                      <span className="text-[var(--pp-muted)]">
+                        ({tpl.scheduledFrequency === 'weekly' ? t('templateFrequencyWeekly') : t('templateFrequencyMonthly')})
+                      </span>
+                    )}
+                    <button onClick={() => deleteTemplate(tpl.id)} className="text-[var(--pp-neg)] hover:underline">
+                      {t('delete')}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </Card>
 
           {analysisRan && (

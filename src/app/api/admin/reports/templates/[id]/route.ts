@@ -2,7 +2,6 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { isAdminRole } from '@/lib/roles'
 import { companyHasAddon } from '@/lib/plan'
-import { runReportAnalysis, type ReportGroupBy } from '@/lib/reportAnalysis'
 import { NextRequest, NextResponse } from 'next/server'
 
 async function requireAdmin() {
@@ -19,7 +18,7 @@ async function getCompanyId(userId: string): Promise<string | null> {
   return company?.id ?? null
 }
 
-export async function GET(req: NextRequest) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireAdmin()
   if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
@@ -27,23 +26,13 @@ export async function GET(req: NextRequest) {
   if (!companyId) return NextResponse.json({ error: 'No company' }, { status: 400 })
 
   if (!await companyHasAddon(companyId, 'addon_custom_reports')) {
-    return NextResponse.json({ error: 'Add-on Rapports custom requis', addon: 'addon_custom_reports' }, { status: 403 })
+    return NextResponse.json({ error: 'Add-on Rapports custom requis' }, { status: 403 })
   }
 
-  const { searchParams } = new URL(req.url)
-  const from = searchParams.get('from')
-  const to = searchParams.get('to')
-  const teamId = searchParams.get('teamId')
-  const groupBy = (searchParams.get('groupBy') ?? 'employee') as ReportGroupBy
+  const { id } = await params
+  const template = await prisma.reportTemplate.findFirst({ where: { id, companyId } })
+  if (!template) return NextResponse.json({ error: 'Template introuvable' }, { status: 404 })
 
-  if (!from || !to) return NextResponse.json({ error: 'from et to requis' }, { status: 400 })
-
-  const rows = await runReportAnalysis({ companyId, from, to, teamId, groupBy })
-  const teams = await prisma.team.findMany({ where: { companyId }, select: { id: true, name: true }, orderBy: { name: 'asc' } })
-  const employees = await prisma.user.findMany({
-    where: { companyId, deletedAt: null },
-    select: { id: true, name: true, email: true },
-  })
-
-  return NextResponse.json({ rows, teams, employees: employees.map(u => ({ id: u.id, name: u.name ?? u.email })) })
+  await prisma.reportTemplate.delete({ where: { id } })
+  return NextResponse.json({ success: true })
 }
