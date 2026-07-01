@@ -2,11 +2,9 @@
 export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
-import { useTranslations, useLocale } from "next-intl"
+import { useTranslations } from "next-intl"
 import { Link } from "@/i18n/navigation"
 import { usePlan } from "@/hooks/usePlan"
-
-const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
 
 interface Site {
   id: string
@@ -23,13 +21,10 @@ interface QrData {
   qrDataUrl: string
   siteId: string
   siteName: string
-  expiresAt: string | null
 }
 
 function QrModal({ site, onClose }: { site: Site; onClose: () => void }) {
   const t = useTranslations('sites')
-  const locale = useLocale()
-  const bcp = BCP47[locale] ?? 'fr-BE'
   const [qr, setQr] = useState<QrData | null>(null)
   const [loading, setLoading] = useState(true)
   const [rotating, setRotating] = useState(false)
@@ -86,11 +81,6 @@ function QrModal({ site, onClose }: { site: Site; onClose: () => void }) {
 
   useEffect(() => { load() }, [site.id])
 
-  const expiresAt = qr?.expiresAt ? new Date(qr.expiresAt) : null
-  const expiresLabel = expiresAt
-    ? expiresAt.toLocaleString(bcp, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
-    : null
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4" onClick={onClose}>
       <div
@@ -121,11 +111,6 @@ function QrModal({ site, onClose }: { site: Site; onClose: () => void }) {
               <div className="rounded-xl border-4 border-[var(--pp-line)] overflow-hidden bg-white">
                 <img src={qr.qrDataUrl} alt="QR Code" width={280} height={280} />
               </div>
-              {expiresLabel && (
-                <p className="text-xs text-[var(--pp-muted)] text-center">
-                  {t('qrExpires', { date: expiresLabel })}
-                </p>
-              )}
             </>
           ) : (
             <p className="text-sm text-red-500">{t('qrError')}</p>

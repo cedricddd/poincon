@@ -1508,7 +1508,6 @@
     "qrTitle": "QR-code — {name}",
     "qrSubtitle": "Scan → directe registratie",
     "generating": "Genereren...",
-    "qrExpires": "Vervalt op {date} · Automatische rotatie om middernacht",
     "qrError": "Fout bij het genereren",
     "copied": "✓ Gekopieerd!",
     "copyLink": "Link kopiëren",

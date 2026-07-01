@@ -14,16 +14,12 @@ export default async function QrPage({ params }: Props) {
       id: true,
       name: true,
       active: true,
-      qrTokenExpiresAt: true,
       company: { select: { name: true, logoUrl: true } },
     },
   })
 
   if (!site || !site.active) {
-    return <QrError reason="not_found" />
-  }
-  if (site.qrTokenExpiresAt && site.qrTokenExpiresAt < new Date()) {
-    return <QrError reason="expired" siteName={site.name} />
+    return <QrError />
   }
 
   return (
@@ -36,7 +32,7 @@ export default async function QrPage({ params }: Props) {
   )
 }
 
-function QrError({ reason, siteName }: { reason: 'not_found' | 'expired'; siteName?: string }) {
+function QrError() {
   return (
     <div className="min-h-screen bg-[#090c14] flex items-center justify-center px-4">
       <div className="max-w-sm w-full text-center">
@@ -47,20 +43,8 @@ function QrError({ reason, siteName }: { reason: 'not_found' | 'expired'; siteNa
             <line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
         </div>
-        {reason === 'expired' ? (
-          <>
-            <h1 className="text-xl font-bold text-white mb-2">QR code expiré</h1>
-            <p className="text-white/50 text-sm">
-              {siteName && <span className="font-medium text-white/70">{siteName} — </span>}
-              Demandez à votre administrateur de renouveler le QR code.
-            </p>
-          </>
-        ) : (
-          <>
-            <h1 className="text-xl font-bold text-white mb-2">QR code invalide</h1>
-            <p className="text-white/50 text-sm">Ce QR code n'est pas reconnu.</p>
-          </>
-        )}
+        <h1 className="text-xl font-bold text-white mb-2">QR code invalide</h1>
+        <p className="text-white/50 text-sm">Ce QR code n'est pas reconnu.</p>
       </div>
     </div>
   )

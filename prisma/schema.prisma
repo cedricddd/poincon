@@ -109,7 +109,6 @@ model Site {
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
   qrToken          String?       @unique
-  qrTokenExpiresAt DateTime?
 
   company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
   users        User[]        @relation("DefaultSite")

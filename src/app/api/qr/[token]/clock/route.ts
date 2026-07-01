@@ -15,15 +15,11 @@ export async function GET(
     select: {
       name: true,
       active: true,
-      qrTokenExpiresAt: true,
       company: { select: { name: true, logoUrl: true } },
     },
   })
   if (!site || !site.active) {
     return NextResponse.json({ error: 'QR code invalide' }, { status: 404 })
-  }
-  if (site.qrTokenExpiresAt && site.qrTokenExpiresAt < new Date()) {
-    return NextResponse.json({ error: 'QR code expiré' }, { status: 410 })
   }
   return NextResponse.json({
     siteName: site.name,
@@ -80,16 +76,12 @@ export async function POST(
       select: {
         id: true,
         active: true,
-        qrTokenExpiresAt: true,
         company: { select: { id: true, name: true, logoUrl: true } },
       },
     })
 
     if (!site || !site.active) {
       return NextResponse.json({ error: 'QR code invalide' }, { status: 404 })
-    }
-    if (site.qrTokenExpiresAt && site.qrTokenExpiresAt < new Date()) {
-      return NextResponse.json({ error: 'QR code expiré' }, { status: 410 })
     }
 
     const plan = await getCompanyPlan(site.company.id)

@@ -1508,7 +1508,6 @@
     "qrTitle": "QR-Code — {name}",
     "qrSubtitle": "Scan → sofortiges Stempeln",
     "generating": "Generieren...",
-    "qrExpires": "Läuft ab am {date} · Automatische Rotation um Mitternacht",
     "qrError": "Fehler bei der Generierung",
     "copied": "✓ Kopiert!",
     "copyLink": "Link kopieren",

@@ -1508,7 +1508,6 @@
     "qrTitle": "QR Code — {name}",
     "qrSubtitle": "Scan → instant clock-in",
     "generating": "Generating...",
-    "qrExpires": "Expires on {date} · Automatic rotation at midnight",
     "qrError": "Error during generation",
     "copied": "✓ Copied!",
     "copyLink": "Copy link",

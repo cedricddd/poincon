@@ -7,7 +7,7 @@ import QRCode from 'qrcode'
 async function resolveSite(siteId: string, companyId: string) {
   return prisma.site.findFirst({
     where: { id: siteId, companyId },
-    select: { id: true, name: true, qrTokenExpiresAt: true },
+    select: { id: true, name: true },
   })
 }
 
@@ -40,7 +40,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     qrDataUrl,
     siteId: site.id,
     siteName: site.name,
-    expiresAt: site.qrTokenExpiresAt,
   })
 }
 
@@ -68,6 +67,5 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     qrDataUrl,
     siteId: site.id,
     siteName: site.name,
-    expiresAt: null,
   })
 }
