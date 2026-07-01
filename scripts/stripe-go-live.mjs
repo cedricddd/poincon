@@ -47,6 +47,17 @@ const PLANS = [
   { plan: 'BUSINESS', base: { m: 6990, y: 69900 }, seat: { m: 220, y: 2200 } },
 ]
 
+// Add-ons (HTVA, cents). Annuel = 10 mois, cohérent avec la grille des plans.
+// Doit rester synchronisé avec STRIPE_ADDON_CONFIG (src/lib/stripe.ts) et
+// ADDON_INFO (src/lib/plan.ts).
+const ADDONS = [
+  { key: 'api_access',     envSuffix: 'API_ACCESS',     name: 'Pointon — Accès API',         m: 2900, y: 29000 },
+  { key: 'webhooks',       envSuffix: 'WEBHOOKS',       name: 'Pointon — Webhooks sortants',  m: 1900, y: 19000 },
+  { key: 'kiosk_advanced', envSuffix: 'KIOSK_ADVANCED', name: 'Pointon — Kiosk avancé',        m: 1900, y: 19000 },
+  { key: 'rgpd_export',    envSuffix: 'RGPD_EXPORT',    name: 'Pointon — Export RGPD',         m: 1500, y: 15000 },
+  { key: 'custom_reports', envSuffix: 'CUSTOM_REPORTS', name: 'Pointon — Rapports custom',     m: 1500, y: 15000 },
+]
+
 const envLines = []
 
 for (const { plan, base, seat } of PLANS) {
@@ -77,8 +88,30 @@ for (const { plan, base, seat } of PLANS) {
   }
 }
 
+for (const { key, envSuffix, name, m, y } of ADDONS) {
+  const prodKey = `pointon_addon_${key}`
+  const product = await stripe('products', {
+    name,
+    metadata: { pointon_key: prodKey, addon: key },
+  }, `prod-live-${prodKey}`)
+  console.log(`✓ ${name} → ${product.id}`)
+
+  for (const [cycle, interval, amount] of [['MONTHLY', 'month', m], ['YEARLY', 'year', y]]) {
+    const price = await stripe('prices', {
+      product: product.id,
+      currency: 'eur',
+      unit_amount: amount,
+      tax_behavior: 'exclusive',
+      recurring: { interval },
+      metadata: { pointon_key: prodKey, cycle },
+    }, `price-live-${prodKey}-${cycle}`)
+    envLines.push(`STRIPE_PRICE_ADDON_${envSuffix}_${cycle}=${price.id}`)
+    console.log(`    ${cycle.padEnd(7)} ${(amount / 100).toFixed(2)}€ → ${price.id}`)
+  }
+}
+
 console.log('\n========================================================')
-console.log('1) Colle ces 12 lignes dans le .env de prod (remplace les price_ test) :\n')
+console.log('1) Colle ces 22 lignes dans le .env de prod (remplace les price_ test) :\n')
 console.log(envLines.join('\n'))
 console.log('\n2) Remplace aussi dans le .env de prod :')
 console.log('   STRIPE_SECRET_KEY=sk_live_…')

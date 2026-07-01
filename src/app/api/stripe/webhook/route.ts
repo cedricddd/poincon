@@ -1,7 +1,8 @@
-import { getStripe, STRIPE_PLAN_CONFIG } from '@/lib/stripe'
+import { getStripe, STRIPE_PLAN_CONFIG, STRIPE_ADDON_CONFIG } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
 import { isOdooConfigured, syncInvoiceToOdoo } from '@/lib/odoo'
 import { sendInternalInvoiceAlert } from '@/lib/mail'
+import { ADDON_FLAGS } from '@/lib/plan'
 import { NextRequest, NextResponse } from 'next/server'
 
 // Parse Pointon's free-text company address into Odoo's structured fields.
@@ -59,6 +60,27 @@ export async function POST(req: NextRequest) {
     case 'checkout.session.completed': {
       const session = event.data.object as any
       if (session.mode !== 'subscription') break
+
+      if (session.metadata?.kind === 'addon') {
+        const { companyId, addonFlag } = session.metadata
+        if (!companyId || !addonFlag) break
+        const stripe = getStripe()
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const sub = await stripe.subscriptions.retrieve(session.subscription as string) as any
+        const addonPriceIds = [STRIPE_ADDON_CONFIG[addonFlag]?.monthly, STRIPE_ADDON_CONFIG[addonFlag]?.yearly]
+        const item = sub.items?.data?.find((i: any) => addonPriceIds.includes(i.price?.id))
+
+        await prisma.company.update({
+          where: { id: companyId },
+          data: { stripeCustomerId: session.customer, stripeSubscriptionId: session.subscription },
+        })
+        await prisma.companyFeatureFlag.upsert({
+          where: { companyId_flag: { companyId, flag: addonFlag } },
+          create: { companyId, flag: addonFlag, enabled: true, stripeSubscriptionItemId: item?.id ?? null, stripePriceId: item?.price?.id ?? null, activatedAt: new Date() },
+          update: { enabled: true, stripeSubscriptionItemId: item?.id ?? null, stripePriceId: item?.price?.id ?? null, activatedAt: new Date() },
+        })
+        break
+      }
 
       const { userId, companyId, plan } = session.metadata ?? {}
       if (!companyId || !plan) break
@@ -118,6 +140,21 @@ export async function POST(req: NextRequest) {
           ...(planRecord ? { planId: planRecord.id } : {}),
         },
       })
+
+      // Réconciliation défensive : un item d'add-on retiré manuellement côté Dashboard
+      // Stripe (ou par dunning) ne doit pas laisser le flag actif en DB.
+      const addonFlags = await prisma.companyFeatureFlag.findMany({
+        where: { companyId: company.id, flag: { in: [...ADDON_FLAGS] }, stripeSubscriptionItemId: { not: null } },
+      })
+      const activeItemIds = new Set((sub.items?.data ?? []).map((i: any) => i.id))
+      for (const flag of addonFlags) {
+        if (flag.stripeSubscriptionItemId && !activeItemIds.has(flag.stripeSubscriptionItemId)) {
+          await prisma.companyFeatureFlag.update({
+            where: { id: flag.id },
+            data: { enabled: false, stripeSubscriptionItemId: null },
+          })
+        }
+      }
       break
     }
 
@@ -138,6 +175,12 @@ export async function POST(req: NextRequest) {
           stripeCancelAtPeriodEnd: false,
           planExpiresAt: null,
         },
+      })
+
+      // Résiliation complète → tous les add-ons de la company repassent inactifs.
+      await prisma.companyFeatureFlag.updateMany({
+        where: { companyId: company.id, flag: { in: [...ADDON_FLAGS] } },
+        data: { enabled: false, stripeSubscriptionItemId: null },
       })
       break
     }

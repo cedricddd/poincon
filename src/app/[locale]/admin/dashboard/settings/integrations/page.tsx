@@ -144,6 +144,30 @@ export default function IntegrationsPage() {
     if (res.ok) { fetchAll(); showToast(t('keyDeleted'), 'success') }
   }
 
+  // --- Addons ---
+  const [togglingAddon, setTogglingAddon] = useState<string | null>(null)
+  const toggleAddon = async (flag: string, enable: boolean) => {
+    if (!enable && !confirm(t('confirmDeactivateAddon'))) return
+    setTogglingAddon(flag)
+    const res = await fetch('/api/admin/addons/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ flag, enable }),
+    })
+    const data = await res.json()
+    if (res.ok && data.checkoutUrl) {
+      window.location.href = data.checkoutUrl
+      return
+    }
+    if (res.ok) {
+      fetchAll()
+      showToast(enable ? t('addonActivated') : t('addonDeactivated'), 'success')
+    } else {
+      showToast(data.error ?? t('error'), 'error')
+    }
+    setTogglingAddon(null)
+  }
+
   // --- Webhooks ---
   const createWebhook = async () => {
     if (!whUrl.trim()) return
@@ -244,15 +268,20 @@ export default function IntegrationsPage() {
                     <span className="text-sm font-semibold text-[var(--pp-ink)]">{t('addonPrice', { price: addon.price })}</span>
                     {!addon.enabled && addon.availableForPlan && (
                       <button
-                        className="text-xs px-3 py-1.5 bg-[var(--pp-info)] text-white rounded-lg font-medium hover:opacity-90"
-                        onClick={() => showToast(t('stripeRedirect'), 'success')}
+                        className="text-xs px-3 py-1.5 bg-[var(--pp-info)] text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-50"
+                        disabled={togglingAddon === addon.flag}
+                        onClick={() => toggleAddon(addon.flag, true)}
                       >
-                        {t('activate')}
+                        {togglingAddon === addon.flag ? t('loading') : t('activate')}
                       </button>
                     )}
                     {addon.enabled && !isEnterprise && (
-                      <button className="text-xs px-3 py-1.5 border border-red-200 text-red-600 rounded-lg hover:bg-red-50">
-                        {t('deactivate')}
+                      <button
+                        className="text-xs px-3 py-1.5 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 disabled:opacity-50"
+                        disabled={togglingAddon === addon.flag}
+                        onClick={() => toggleAddon(addon.flag, false)}
+                      >
+                        {togglingAddon === addon.flag ? t('loading') : t('deactivate')}
                       </button>
                     )}
                   </div>

@@ -72,3 +72,37 @@ export const STRIPE_PLAN_CONFIG: Record<string, {
 
 // Legacy alias — used by existing webhook code
 export const STRIPE_PRICES = STRIPE_PLAN_CONFIG
+
+// Add-on pricing (HTVA, cents). Kept in sync with ADDON_INFO.price in src/lib/plan.ts —
+// that file is the human-facing display source, this one is the Stripe billing source.
+export const STRIPE_ADDON_CONFIG: Record<string, {
+  priceCents: number
+  monthly: string | null
+  yearly: string | null
+}> = {
+  addon_api_access: {
+    priceCents: 2900,
+    monthly: process.env.STRIPE_PRICE_ADDON_API_ACCESS_MONTHLY ?? null,
+    yearly: process.env.STRIPE_PRICE_ADDON_API_ACCESS_YEARLY ?? null,
+  },
+  addon_webhooks: {
+    priceCents: 1900,
+    monthly: process.env.STRIPE_PRICE_ADDON_WEBHOOKS_MONTHLY ?? null,
+    yearly: process.env.STRIPE_PRICE_ADDON_WEBHOOKS_YEARLY ?? null,
+  },
+  addon_kiosk_advanced: {
+    priceCents: 1900,
+    monthly: process.env.STRIPE_PRICE_ADDON_KIOSK_ADVANCED_MONTHLY ?? null,
+    yearly: process.env.STRIPE_PRICE_ADDON_KIOSK_ADVANCED_YEARLY ?? null,
+  },
+  addon_rgpd_export: {
+    priceCents: 1500,
+    monthly: process.env.STRIPE_PRICE_ADDON_RGPD_EXPORT_MONTHLY ?? null,
+    yearly: process.env.STRIPE_PRICE_ADDON_RGPD_EXPORT_YEARLY ?? null,
+  },
+  addon_custom_reports: {
+    priceCents: 1500,
+    monthly: process.env.STRIPE_PRICE_ADDON_CUSTOM_REPORTS_MONTHLY ?? null,
+    yearly: process.env.STRIPE_PRICE_ADDON_CUSTOM_REPORTS_YEARLY ?? null,
+  },
+}

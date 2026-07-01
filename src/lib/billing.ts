@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma'
-import { getStripe, STRIPE_PLAN_CONFIG } from '@/lib/stripe'
-import { getActiveMemberCount } from '@/lib/plan'
+import { getStripe, STRIPE_PLAN_CONFIG, STRIPE_ADDON_CONFIG } from '@/lib/stripe'
+import { getActiveMemberCount, type AddonFlag } from '@/lib/plan'
 
 /**
  * Reconcile the "extra seats" Stripe subscription item quantity for a company
@@ -91,5 +91,95 @@ export async function syncSeatQuantity(companyId: string): Promise<void> {
 export function syncSeatQuantitySafe(companyId: string): void {
   syncSeatQuantity(companyId).catch(err =>
     console.error('[billing] seat sync failed for company', companyId, err instanceof Error ? err.message : err)
+  )
+}
+
+/**
+ * Activate or deactivate a paid add-on for a company by creating/deleting the
+ * corresponding Stripe subscription item, then syncing CompanyFeatureFlag.
+ * Idempotent — safe to call repeatedly with the same target state.
+ *
+ * Billed on the same cycle as the company's main subscription (monthly/yearly),
+ * mirroring syncSeatQuantity's proration strategy.
+ *
+ * Returns { requiresCheckout: true } if the company has no active Stripe
+ * subscription yet (FREE / unpaid) — the caller must redirect to a Stripe
+ * Checkout session instead (see /api/admin/addons/subscribe).
+ */
+export async function syncAddonSubscription(
+  companyId: string,
+  addon: AddonFlag,
+  enable: boolean
+): Promise<{ ok: boolean; requiresCheckout?: boolean }> {
+  const company = await prisma.company.findUnique({
+    where: { id: companyId },
+    select: { stripeSubscriptionId: true, stripeSubscriptionBillingCycle: true, plan: { select: { name: true } } },
+  })
+
+  if (company?.plan?.name?.toUpperCase() === 'ENTERPRISE') return { ok: true } // inclus, rien à facturer
+
+  if (!company?.stripeSubscriptionId) return { ok: false, requiresCheckout: true }
+
+  const cycle = company.stripeSubscriptionBillingCycle === 'yearly' ? 'yearly' : 'monthly'
+  const priceId = STRIPE_ADDON_CONFIG[addon]?.[cycle]
+  if (!priceId) {
+    console.error('[billing] missing Stripe price id for addon', addon, cycle)
+    return { ok: false }
+  }
+
+  const existingFlag = await prisma.companyFeatureFlag.findUnique({
+    where: { companyId_flag: { companyId, flag: addon } },
+  })
+
+  const stripe = getStripe()
+  const proration_behavior = cycle === 'yearly' ? 'always_invoice' : 'create_prorations'
+
+  if (enable) {
+    if (existingFlag?.enabled && existingFlag.stripeSubscriptionItemId) return { ok: true } // déjà actif
+
+    let itemId = existingFlag?.stripeSubscriptionItemId ?? null
+    if (!itemId) {
+      const existing = await stripe.subscriptionItems.list({ subscription: company.stripeSubscriptionId })
+      const found = existing.data.find(i => i.price.id === priceId)
+      if (found) {
+        itemId = found.id
+      } else {
+        const item = await stripe.subscriptionItems.create({
+          subscription: company.stripeSubscriptionId,
+          price: priceId,
+          quantity: 1,
+          proration_behavior,
+        })
+        itemId = item.id
+      }
+    }
+
+    await prisma.companyFeatureFlag.upsert({
+      where: { companyId_flag: { companyId, flag: addon } },
+      create: { companyId, flag: addon, enabled: true, stripeSubscriptionItemId: itemId, stripePriceId: priceId, activatedAt: new Date() },
+      update: { enabled: true, stripeSubscriptionItemId: itemId, stripePriceId: priceId, activatedAt: new Date() },
+    })
+  } else {
+    if (existingFlag?.stripeSubscriptionItemId) {
+      await stripe.subscriptionItems.del(existingFlag.stripeSubscriptionItemId, { proration_behavior })
+    }
+    await prisma.companyFeatureFlag.upsert({
+      where: { companyId_flag: { companyId, flag: addon } },
+      create: { companyId, flag: addon, enabled: false },
+      update: { enabled: false, stripeSubscriptionItemId: null },
+    })
+  }
+
+  return { ok: true }
+}
+
+/**
+ * Fire-and-forget wrapper for syncAddonSubscription — use only for reactions
+ * to Stripe webhook events, never in the self-service route (where the
+ * caller needs to see the error, e.g. a declined card on immediate proration).
+ */
+export function syncAddonSubscriptionSafe(companyId: string, addon: AddonFlag, enable: boolean): void {
+  syncAddonSubscription(companyId, addon, enable).catch(err =>
+    console.error('[billing] addon sync failed', companyId, addon, err instanceof Error ? err.message : err)
   )
 }

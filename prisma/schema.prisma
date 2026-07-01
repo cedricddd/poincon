@@ -263,17 +263,21 @@ model TeamMember {
 }
 
 model CompanyFeatureFlag {
-  id         String   @id @default(cuid())
-  companyId  String
-  flag       String   // ex: "early_access_api", "extended_export"
-  enabled    Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id                       String    @id @default(cuid())
+  companyId                String
+  flag                     String   // ex: "early_access_api", "extended_export"
+  enabled                  Boolean  @default(false)
+  stripeSubscriptionItemId String?  // item Stripe pour cet add-on (null si flag non facturé)
+  stripePriceId            String?  // price ID utilisé à l'activation (traçabilité)
+  activatedAt              DateTime?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
 
   company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@unique([companyId, flag])
   @@index([companyId])
+  @@index([stripeSubscriptionItemId])
 }
 
 model PlanHistory {
