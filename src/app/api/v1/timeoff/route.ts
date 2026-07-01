@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
       ...(userId && { userId }),
       ...(status && { status }),
       ...(from && { endDate: { gte: new Date(from) } }),
-      ...(to && { startDate: { lte: new Date(to) } }),
+      ...(to && { startDate: { lte: new Date(to + 'T23:59:59.999Z') } }),
     },
     select: {
       id: true, userId: true, startDate: true, endDate: true, leaveType: true, status: true, reason: true, createdAt: true,
