@@ -1,6 +1,7 @@
 import { requireAdminWithCompany, canAccessUser, forbiddenError } from '@/lib/admin-security'
 import { prisma } from '@/lib/prisma'
 import { getCompanyPlan, planCanAccess } from '@/lib/plan'
+import { dispatchWebhookSafe } from '@/lib/webhook'
 import { NextRequest, NextResponse } from 'next/server'
 
 function utcDateKey(d: Date): string {
@@ -165,6 +166,10 @@ export async function POST(req: NextRequest) {
       resourceId: shift.id,
       changes: JSON.stringify({ userId, date, startTime, endTime }),
     },
+  })
+
+  dispatchWebhookSafe(auth.admin.companyId, 'shift.created', {
+    shiftId: shift.id, userId: shift.userId, date: shift.date, startTime: shift.startTime, endTime: shift.endTime,
   })
 
   return NextResponse.json({ shift }, { status: 201 })

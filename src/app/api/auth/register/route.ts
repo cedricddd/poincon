@@ -42,6 +42,8 @@ export async function POST(req: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 10)
     const fullName = `${firstName.trim()} ${lastName.trim()}`
 
+    // Pas de dispatchWebhookSafe('employee.created') ici : à ce stade la company vient
+    // d'être créée, aucun addon_webhooks ne peut encore être actif (pas de flag posé).
     const { user, company } = await prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {

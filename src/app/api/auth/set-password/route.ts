@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { syncSeatQuantitySafe } from '@/lib/billing'
+import { dispatchWebhookSafe } from '@/lib/webhook'
 import bcrypt from 'bcryptjs'
 
 export async function GET(req: NextRequest) {
@@ -41,7 +42,7 @@ export async function POST(req: NextRequest) {
   const hashedPassword = await bcrypt.hash(password, 12)
   const displayName = name?.trim() || invitation.name || invitation.email.split('@')[0]
 
-  await prisma.$transaction(async (tx) => {
+  const createdUser = await prisma.$transaction(async (tx) => {
     const user = await tx.user.create({
       data: {
         email: invitation.email,
@@ -63,6 +64,10 @@ export async function POST(req: NextRequest) {
 
   // New active member → reconcile billed seats with Stripe (non-blocking)
   syncSeatQuantitySafe(invitation.companyId)
+
+  dispatchWebhookSafe(invitation.companyId, 'employee.created', {
+    userId: createdUser.id, name: createdUser.name, email: createdUser.email, role: createdUser.role,
+  })
 
   return NextResponse.json({ ok: true, email: invitation.email })
 }

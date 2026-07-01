@@ -1,6 +1,7 @@
 import { requireAdminWithCompany, forbiddenError } from '@/lib/admin-security'
 import { prisma } from '@/lib/prisma'
 import { getCompanyPlan, planCanAccess } from '@/lib/plan'
+import { dispatchWebhookSafe } from '@/lib/webhook'
 import { NextRequest, NextResponse } from 'next/server'
 
 async function getShiftForAdmin(id: string, companyId: string) {
@@ -47,6 +48,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     },
   })
 
+  dispatchWebhookSafe(auth.admin.companyId, 'shift.updated', {
+    shiftId: updated.id, userId: updated.userId, date: updated.date, startTime: updated.startTime, endTime: updated.endTime,
+  })
+
   return NextResponse.json({ shift: updated })
 }
 
@@ -68,6 +73,8 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       resourceId: id,
     },
   })
+
+  dispatchWebhookSafe(auth.admin.companyId, 'shift.deleted', { shiftId: shift.id, userId: shift.userId })
 
   return NextResponse.json({ success: true })
 }

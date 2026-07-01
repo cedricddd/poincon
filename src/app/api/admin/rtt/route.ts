@@ -1,5 +1,6 @@
 import { requireAdminWithCompany, canAccessUser, forbiddenError } from '@/lib/admin-security'
 import { prisma } from '@/lib/prisma'
+import { dispatchWebhookSafe } from '@/lib/webhook'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(req: NextRequest) {
@@ -62,6 +63,10 @@ export async function POST(req: NextRequest) {
       changes: JSON.stringify({ date, hoursToRecover, reason, status }),
     },
   })
+
+  if (record.status === 'APPROVED') {
+    dispatchWebhookSafe(auth.admin.companyId, 'rtt.approved', { rttId: record.id, userId: record.userId })
+  }
 
   return NextResponse.json({ record })
 }

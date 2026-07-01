@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { requireAdminWithCompany, forbiddenError, canAccessUser } from '@/lib/admin-security'
 import { sendApprovalEmail } from '@/lib/mail'
+import { dispatchWebhookSafe } from '@/lib/webhook'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function PATCH(req: NextRequest) {
@@ -135,6 +136,15 @@ export async function PATCH(req: NextRequest) {
         changes: JSON.stringify({ status: action === 'approve' ? 'APPROVED' : 'REJECTED' }),
       },
     })
+
+    if (type === 'timeoff') {
+      dispatchWebhookSafe(auth.admin.companyId, action === 'approve' ? 'timeoff.approved' : 'timeoff.rejected', {
+        timeOffId: requestId, userId: result.userId,
+      })
+    }
+    if (type === 'rtt' && action === 'approve') {
+      dispatchWebhookSafe(auth.admin.companyId, 'rtt.approved', { rttId: requestId, userId: result.userId })
+    }
 
     return NextResponse.json({ success: true, data: result })
   } catch (error) {

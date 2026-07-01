@@ -1,5 +1,6 @@
 import crypto from 'crypto'
 import { prisma } from '@/lib/prisma'
+import { companyHasAddon } from '@/lib/plan'
 
 export type WebhookEventType =
   | 'shift.created'
@@ -39,6 +40,8 @@ export async function dispatchWebhook(
   event: WebhookEventType,
   data: Record<string, unknown>
 ): Promise<void> {
+  if (!(await companyHasAddon(companyId, 'addon_webhooks'))) return
+
   const endpoints = await prisma.webhookEndpoint.findMany({
     where: { companyId, enabled: true },
   })
@@ -83,5 +86,15 @@ export async function dispatchWebhook(
           data: { endpointId: ep.id, event, payload, statusCode, responseBody, success },
         })
       })
+  )
+}
+
+export function dispatchWebhookSafe(
+  companyId: string,
+  event: WebhookEventType,
+  data: Record<string, unknown>
+): void {
+  dispatchWebhook(companyId, event, data).catch(err =>
+    console.error('[webhook] dispatch failed', companyId, event, err instanceof Error ? err.message : err)
   )
 }

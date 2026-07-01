@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { isAdminRole } from '@/lib/roles'
 import { getCompanyPlan, planCanAccess, PLAN_LIMITS } from '@/lib/plan'
 import { syncSeatQuantitySafe } from '@/lib/billing'
+import { dispatchWebhookSafe } from '@/lib/webhook'
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { createHash } from 'crypto'
@@ -126,6 +127,10 @@ export async function PATCH(req: NextRequest) {
         resourceId: id,
         changes: JSON.stringify({ name, email, role, passwordChanged: !!password }),
       },
+    })
+
+    dispatchWebhookSafe(admin.companyId, 'employee.updated', {
+      userId: user.id, name: user.name, email: user.email, role: user.role,
     })
 
     return NextResponse.json({ id: user.id, name: user.name, email: user.email, role: user.role })

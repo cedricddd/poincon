@@ -2,6 +2,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { sendApprovalEmail } from '@/lib/mail'
 import { getUserPlan, planCanAccess } from '@/lib/plan'
+import { dispatchWebhookSafe } from '@/lib/webhook'
 import { NextRequest, NextResponse } from 'next/server'
 
 async function getManagerTeamMemberIds(managerId: string): Promise<string[]> {
@@ -105,6 +106,17 @@ export async function PATCH(req: NextRequest) {
         changes: JSON.stringify({ status: action === 'approve' ? 'APPROVED' : 'REJECTED' }),
       },
     })
+
+    if (user?.companyId) {
+      if (type === 'timeoff') {
+        dispatchWebhookSafe(user.companyId, action === 'approve' ? 'timeoff.approved' : 'timeoff.rejected', {
+          timeOffId: requestId, userId: result.userId,
+        })
+      }
+      if (type === 'rtt' && action === 'approve') {
+        dispatchWebhookSafe(user.companyId, 'rtt.approved', { rttId: requestId, userId: result.userId })
+      }
+    }
 
     return NextResponse.json({ success: true, data: result })
   } catch (error) {

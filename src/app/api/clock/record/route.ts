@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { logAudit } from '@/lib/audit'
+import { dispatchWebhookSafe } from '@/lib/webhook'
 import { NextRequest, NextResponse } from 'next/server'
 
 const OVERTIME_GRACE_MINUTES = 30
@@ -130,6 +131,9 @@ export async function POST(req: NextRequest) {
       await prisma.company.update({
         where: { id: user.companyId },
         data: { lastActivityAt: new Date() },
+      })
+      dispatchWebhookSafe(user.companyId, 'clockrecord.created', {
+        clockRecordId: record.id, userId: record.userId, arrivalTime: record.arrivalTime, location: record.location,
       })
     }
 

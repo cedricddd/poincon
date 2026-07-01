@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { logAudit } from '@/lib/audit'
+import { dispatchWebhookSafe } from '@/lib/webhook'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
@@ -60,6 +61,13 @@ export async function POST(req: NextRequest) {
       resourceId: request.id,
       changes: { startDate, endDate, leaveType: resolvedLeaveType, reason: reason || '', status: 'PENDING' },
     })
+
+    const requester = await prisma.user.findUnique({ where: { id: session.user.id }, select: { companyId: true } })
+    if (requester?.companyId) {
+      dispatchWebhookSafe(requester.companyId, 'timeoff.created', {
+        timeOffId: request.id, userId: request.userId, startDate: request.startDate, endDate: request.endDate, leaveType: request.leaveType,
+      })
+    }
 
     return NextResponse.json(request, { status: 201 })
   } catch (error) {
