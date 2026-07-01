@@ -5,6 +5,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Card } from '@/components/Card'
 import { Link } from '@/i18n/navigation'
+import { showToast } from '@/hooks/useToast'
 
 const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
 
@@ -227,7 +228,11 @@ export default function ReportsPage() {
     const params = new URLSearchParams({ from: aFrom, to: aTo, groupBy })
     if (aTeamId) params.set('teamId', aTeamId)
     const res = await fetch(`/api/admin/reports/custom?${params}`)
-    if (!res.ok) { setLoadingA(false); return }
+    if (!res.ok) {
+      if (res.status === 403) showToast(t('customReportsAddonRequired'), 'error')
+      setLoadingA(false)
+      return
+    }
     const data = await res.json()
     setAnalysisRows(data.rows ?? [])
     setTeams(data.teams ?? [])

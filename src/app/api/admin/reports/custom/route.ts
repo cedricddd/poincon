@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { isAdminRole } from '@/lib/roles'
+import { companyHasAddon } from '@/lib/plan'
 import { NextRequest, NextResponse } from 'next/server'
 
 async function requireAdmin() {
@@ -35,6 +36,10 @@ export async function GET(req: NextRequest) {
 
   const companyId = await getCompanyId(session.user.id)
   if (!companyId) return NextResponse.json({ error: 'No company' }, { status: 400 })
+
+  if (!await companyHasAddon(companyId, 'addon_custom_reports')) {
+    return NextResponse.json({ error: 'Add-on Rapports custom requis', addon: 'addon_custom_reports' }, { status: 403 })
+  }
 
   const { searchParams } = new URL(req.url)
   const from   = searchParams.get('from')

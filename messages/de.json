@@ -359,6 +359,7 @@
   },
   "reports": {
     "title": "Berichte",
+    "customReportsAddonRequired": "Das Add-on Benutzerdefinierte Berichte ist für den Tab Analyse erforderlich.",
     "employee": "Mitarbeiter",
     "email": "E-Mail",
     "date": "Datum",

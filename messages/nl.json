@@ -359,6 +359,7 @@
   },
   "reports": {
     "title": "Rapporten",
+    "customReportsAddonRequired": "De add-on Aangepaste rapporten is vereist voor het tabblad Analyse.",
     "employee": "Medewerker",
     "email": "E-mail",
     "date": "Datum",

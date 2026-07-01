@@ -359,6 +359,7 @@
   },
   "reports": {
     "title": "Rapports",
+    "customReportsAddonRequired": "L'add-on Rapports custom est requis pour l'onglet Analyse.",
     "employee": "Employé",
     "email": "Email",
     "date": "Date",

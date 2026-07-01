@@ -359,6 +359,7 @@
   },
   "reports": {
     "title": "Reports",
+    "customReportsAddonRequired": "The Custom Reports add-on is required for the Analysis tab.",
     "employee": "Employee",
     "email": "Email",
     "date": "Date",
