@@ -115,6 +115,11 @@ export default function IntegrationsPage() {
 
   const hasApiAddon = addons.find(a => a.flag === 'addon_api_access')?.enabled ?? false
   const hasWHAddon = addons.find(a => a.flag === 'addon_webhooks')?.enabled ?? false
+  const hasRgpdAddon = addons.find(a => a.flag === 'addon_rgpd_export')?.enabled ?? false
+
+  useEffect(() => {
+    if (hasRgpdAddon && retentionYears === null) fetchRetention()
+  }, [hasRgpdAddon])
 
   // --- API Keys ---
   const createKey = async () => {
@@ -146,6 +151,53 @@ export default function IntegrationsPage() {
 
   // --- Addons ---
   const [togglingAddon, setTogglingAddon] = useState<string | null>(null)
+  const [retentionYears, setRetentionYears] = useState<number | null>(null)
+  const [savingRetention, setSavingRetention] = useState(false)
+  const [exportingRgpd, setExportingRgpd] = useState(false)
+
+  const fetchRetention = async () => {
+    const res = await fetch('/api/admin/company/retention')
+    if (res.ok) {
+      const d = await res.json()
+      setRetentionYears(d.auditLogRetentionYears ?? 3)
+    }
+  }
+
+  const saveRetention = async (years: number) => {
+    setSavingRetention(true)
+    const res = await fetch('/api/admin/company/retention', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ years }),
+    })
+    if (res.ok) {
+      setRetentionYears(years)
+      showToast(t('retentionSaved'), 'success')
+    } else {
+      const data = await res.json()
+      showToast(data.error ?? t('error'), 'error')
+    }
+    setSavingRetention(false)
+  }
+
+  const exportCompanyData = async () => {
+    setExportingRgpd(true)
+    try {
+      const res = await fetch('/api/admin/company/export')
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        showToast(data.error ?? t('error'), 'error')
+        return
+      }
+      const blob = await res.blob()
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(blob)
+      a.download = `pointon-export-entreprise-${new Date().toISOString().slice(0, 10)}.json`
+      a.click()
+    } finally {
+      setExportingRgpd(false)
+    }
+  }
   const toggleAddon = async (flag: string, enable: boolean) => {
     if (!enable && !confirm(t('confirmDeactivateAddon'))) return
     setTogglingAddon(flag)
@@ -289,6 +341,34 @@ export default function IntegrationsPage() {
               </div>
             ))}
           </div>
+
+          {hasRgpdAddon && (
+            <div className="bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-xl p-5 space-y-4">
+              <h3 className="font-semibold text-[var(--pp-ink)] text-sm">{t('rgpdSectionTitle')}</h3>
+              <div className="flex items-center gap-3">
+                <button
+                  className="text-xs px-3 py-1.5 bg-[var(--pp-info)] text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-50"
+                  disabled={exportingRgpd}
+                  onClick={exportCompanyData}
+                >
+                  {exportingRgpd ? t('loading') : t('rgpdExportBtn')}
+                </button>
+              </div>
+              <div className="flex items-center gap-3">
+                <label className="text-xs text-[var(--pp-muted)]">{t('rgpdRetentionLabel')}</label>
+                <select
+                  value={retentionYears ?? 3}
+                  disabled={savingRetention}
+                  onChange={e => saveRetention(Number(e.target.value))}
+                  className="px-2 py-1 border border-[var(--pp-line)] rounded-lg text-xs bg-[var(--pp-bg)]"
+                >
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(y => (
+                    <option key={y} value={y}>{y} {t('years')}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
