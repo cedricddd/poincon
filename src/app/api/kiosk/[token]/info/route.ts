@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import { getCompanyPlan, planCanAccess } from '@/lib/plan'
+import { getCompanyPlan, planCanAccess, companyHasAddon } from '@/lib/plan'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(
@@ -23,10 +23,15 @@ export async function GET(
       return NextResponse.json({ error: 'Plan insuffisant', upgrade: true }, { status: 403 })
     }
 
+    // Branding par terminal (addon_kiosk_advanced) — dégradation gracieuse sur le logo/thème
+    // par défaut de la company si l'addon n'est pas actif (ou plus actif).
+    const hasAdvancedKiosk = await companyHasAddon(kioskToken.companyId, 'addon_kiosk_advanced')
+
     return NextResponse.json({
       companyId: kioskToken.companyId,
       companyName: kioskToken.company.name,
-      logoUrl: kioskToken.company.logoUrl,
+      logoUrl: (hasAdvancedKiosk && kioskToken.logoUrl) || kioskToken.company.logoUrl,
+      accentColor: hasAdvancedKiosk ? kioskToken.accentColor : null,
       siteId: kioskToken.siteId,
       siteName: kioskToken.site?.name ?? null,
       label: kioskToken.label,

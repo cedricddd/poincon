@@ -19,6 +19,10 @@ type KioskToken = {
   theme: string
   visitorsEnabled: boolean
   createdAt: string
+  logoUrl: string | null
+  accentColor: string | null
+  autoRotateEnabled: boolean
+  autoRotateIntervalHours: number | null
 }
 
 export default function KioskPage() {
@@ -37,6 +41,8 @@ export default function KioskPage() {
   const [copied, setCopied] = useState<string | null>(null)
   const [togglingTheme, setTogglingTheme] = useState<string | null>(null)
   const [togglingVisitors, setTogglingVisitors] = useState<string | null>(null)
+  const [hasAdvancedKiosk, setHasAdvancedKiosk] = useState(false)
+  const [savingAdvanced, setSavingAdvanced] = useState<string | null>(null)
 
   const fetchTokens = () => {
     setLoading(true)
@@ -47,6 +53,7 @@ export default function KioskPage() {
         setTokens(d.tokens ?? [])
         setSites(d.sites ?? [])
         setPlan(d.plan ?? '')
+        setHasAdvancedKiosk(!!d.hasAdvancedKiosk)
       })
       .finally(() => setLoading(false))
   }
@@ -123,6 +130,41 @@ export default function KioskPage() {
       }
     } finally {
       setTogglingTheme(null)
+    }
+  }
+
+  const toggleAutoRotate = async (tok: KioskToken) => {
+    const enabling = !tok.autoRotateEnabled
+    if (enabling && !confirm(t('confirmAutoRotate'))) return
+    setSavingAdvanced(tok.id)
+    try {
+      const res = await fetch(`/api/admin/kiosk/tokens/${tok.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ autoRotateEnabled: enabling, ...(enabling ? { autoRotateIntervalHours: tok.autoRotateIntervalHours ?? 168 } : {}) }),
+      })
+      if (res.ok) {
+        const updated = await res.json()
+        setTokens(prev => prev.map(tk => tk.id === tok.id ? { ...tk, autoRotateEnabled: updated.autoRotateEnabled, autoRotateIntervalHours: updated.autoRotateIntervalHours } : tk))
+      }
+    } finally {
+      setSavingAdvanced(null)
+    }
+  }
+
+  const setAutoRotateInterval = async (tok: KioskToken, hours: number) => {
+    setSavingAdvanced(tok.id)
+    try {
+      const res = await fetch(`/api/admin/kiosk/tokens/${tok.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ autoRotateIntervalHours: hours }),
+      })
+      if (res.ok) {
+        setTokens(prev => prev.map(tk => tk.id === tok.id ? { ...tk, autoRotateIntervalHours: hours } : tk))
+      }
+    } finally {
+      setSavingAdvanced(null)
     }
   }
 
@@ -271,6 +313,34 @@ export default function KioskPage() {
                     </button>
                   </div>
                 </div>
+
+                {hasAdvancedKiosk && tk.site && (
+                  <div className="mt-3 pt-3 border-t border-[var(--pp-line)] flex items-center gap-3 flex-wrap">
+                    <button
+                      onClick={() => toggleAutoRotate(tk)}
+                      disabled={savingAdvanced === tk.id}
+                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-medium transition-colors disabled:opacity-50"
+                      style={tk.autoRotateEnabled
+                        ? { borderColor: 'rgba(239,68,68,0.35)', color: '#dc2626', background: 'rgba(239,68,68,0.07)' }
+                        : { borderColor: 'rgba(156,163,175,0.35)', color: '#6b7280', background: 'rgba(156,163,175,0.07)' }
+                      }
+                    >
+                      {tk.autoRotateEnabled ? t('autoRotateOn') : t('autoRotateOff')}
+                    </button>
+                    {tk.autoRotateEnabled && (
+                      <select
+                        value={tk.autoRotateIntervalHours ?? 168}
+                        onChange={e => setAutoRotateInterval(tk, Number(e.target.value))}
+                        disabled={savingAdvanced === tk.id}
+                        className="px-2 py-1 border border-[var(--pp-line)] rounded-lg text-xs bg-[var(--pp-bg)]"
+                      >
+                        <option value={168}>{t('intervalWeekly')}</option>
+                        <option value={720}>{t('intervalMonthly')}</option>
+                      </select>
+                    )}
+                    <span className="text-xs text-[var(--pp-muted)]">{t('autoRotateWarning')}</span>
+                  </div>
+                )}
               </div>
             ))}
           </div>

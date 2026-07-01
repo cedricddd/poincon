@@ -171,6 +171,7 @@ model Company {
   presenceForManagers  Boolean         @default(true)
   presenceForEmployees Boolean         @default(true)
   mealBreakEnabled     Boolean         @default(false)
+  auditLogRetentionYears Int           @default(3) // addon_rgpd_export — modifiable 1-10 ans, 3 = défaut légal
   createdAt             DateTime        @default(now())
   updatedAt             DateTime        @updatedAt
   deletedAt             DateTime?       // soft delete pour RGPD
@@ -189,6 +190,7 @@ model Company {
   kioskTokens           KioskToken[]
   kioskVisits           KioskVisit[]
   stripeInvoices        StripeInvoice[]
+  reportTemplates       ReportTemplate[]
 
   @@index([adminId])
   @@index([planId])
@@ -344,6 +346,22 @@ model WebhookDelivery {
 
   @@index([endpointId])
   @@index([attemptedAt])
+}
+
+model ReportTemplate {
+  id                  String    @id @default(cuid())
+  companyId           String
+  createdBy           String
+  name                String
+  config              String    // JSON: { groupBy, filters, teamId... }
+  scheduledFrequency  String?   // "weekly" | "monthly" | null
+  recipientEmails     String?   // JSON string[]
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  company             Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
 }
 
 model ClockRecord {
@@ -620,14 +638,21 @@ model StripeInvoice {
 }
 
 model KioskToken {
-  id               String   @id @default(cuid())
-  token            String   @unique
-  companyId        String
-  siteId           String?
-  label            String?
-  theme            String   @default("dark")
-  visitorsEnabled  Boolean  @default(true)
-  createdAt        DateTime @default(now())
+  id                      String    @id @default(cuid())
+  token                   String    @unique
+  companyId               String
+  siteId                  String?
+  label                   String?
+  theme                   String    @default("dark")
+  visitorsEnabled         Boolean   @default(true)
+  createdAt               DateTime  @default(now())
+
+  // addon_kiosk_advanced — tous nullable/false par défaut, jamais actifs sans action explicite de l'admin
+  logoUrl                 String?
+  accentColor             String?
+  autoRotateEnabled       Boolean   @default(false)
+  autoRotateIntervalHours Int?
+  lastRotatedAt           DateTime?
 
   company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   site      Site?    @relation(fields: [siteId], references: [id])

@@ -1,7 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { isAdminRole } from '@/lib/roles'
-import { getCompanyPlan, planCanAccess } from '@/lib/plan'
+import { getCompanyPlan, planCanAccess, companyHasAddon } from '@/lib/plan'
 import { NextRequest, NextResponse } from 'next/server'
 import { randomBytes } from 'crypto'
 
@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Upgrade required', plan }, { status: 403 })
     }
 
-    const [tokens, sites] = await Promise.all([
+    const [tokens, sites, hasAdvancedKiosk] = await Promise.all([
       prisma.kioskToken.findMany({
         where: { companyId: ctx.companyId },
         include: { site: { select: { id: true, name: true } } },
@@ -37,9 +37,10 @@ export async function GET(req: NextRequest) {
         select: { id: true, name: true },
         orderBy: { name: 'asc' },
       }),
+      companyHasAddon(ctx.companyId, 'addon_kiosk_advanced'),
     ])
 
-    return NextResponse.json({ tokens, sites, plan })
+    return NextResponse.json({ tokens, sites, plan, hasAdvancedKiosk })
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }

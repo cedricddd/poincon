@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { isAdminRole } from '@/lib/roles'
+import { companyHasAddon } from '@/lib/plan'
 import { NextRequest, NextResponse } from 'next/server'
 
 async function requireAdminToken(req: NextRequest, id: string) {
@@ -40,6 +41,35 @@ export async function PATCH(
       }
       updates.visitorsEnabled = body.visitorsEnabled
     }
+
+    const advancedFieldsRequested = ['logoUrl', 'accentColor', 'autoRotateEnabled', 'autoRotateIntervalHours'].some(k => k in body)
+    if (advancedFieldsRequested) {
+      if (!await companyHasAddon(token.companyId, 'addon_kiosk_advanced')) {
+        return NextResponse.json({ error: 'Add-on Kiosk avancé requis' }, { status: 403 })
+      }
+      if ('logoUrl' in body) updates.logoUrl = body.logoUrl ?? null
+      if ('accentColor' in body) {
+        if (body.accentColor !== null && !/^#[0-9a-fA-F]{6}$/.test(body.accentColor)) {
+          return NextResponse.json({ error: 'accentColor invalide (format #RRGGBB)' }, { status: 400 })
+        }
+        updates.accentColor = body.accentColor ?? null
+      }
+      if ('autoRotateEnabled' in body) {
+        if (typeof body.autoRotateEnabled !== 'boolean') {
+          return NextResponse.json({ error: 'autoRotateEnabled invalide' }, { status: 400 })
+        }
+        updates.autoRotateEnabled = body.autoRotateEnabled
+        if (!body.autoRotateEnabled) updates.autoRotateIntervalHours = null
+      }
+      if ('autoRotateIntervalHours' in body) {
+        const hours = Number(body.autoRotateIntervalHours)
+        if (!Number.isInteger(hours) || hours < 24 || hours > 8760) {
+          return NextResponse.json({ error: 'autoRotateIntervalHours doit être entre 24 et 8760 heures' }, { status: 400 })
+        }
+        updates.autoRotateIntervalHours = hours
+      }
+    }
+
     if (Object.keys(updates).length === 0) {
       return NextResponse.json({ error: 'Aucune donnée' }, { status: 400 })
     }
