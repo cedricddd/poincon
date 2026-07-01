@@ -2,10 +2,11 @@
                     POINTON - TODO LIST (MISE À JOUR 2026-06-28)
 ================================================================================
 
-Dernière mise à jour: 2026-06-29
-Version: 0.8.1
-État: v0.8.1 — Chatbot aide Claude Haiku (Phase C) livré.
-      i18n FR/NL/EN/DE 100% terminé. Alertes factures Odoo actives.
+Dernière mise à jour: 2026-07-01
+Version: 0.8.2
+État: v0.8.2 — QR code par site : token statique (fini la rotation à minuit).
+      Chatbot aide Claude Haiku (Phase C) livré. i18n FR/NL/EN/DE 100% terminé.
+      Alertes factures Odoo actives.
       Reste : bascule Stripe LIVE, smoke tests prod, add-ons self-service.
 
 ================================================================================
@@ -310,9 +311,11 @@ PHASE 16.5: QR CODE POINTAGE (✓ COMPLÉTÉE — 2026-06-17)
     ├─ Fix Permissions-Policy : camera=(self)
     ├─ Fix srcObject attaché après montage vidéo (évite TDZ en prod)
     └─ Logo affiché correctement
-✓ Phase 3 : QR par site avec rotation 24h
-    ├─ Token QR régénéré toutes les 24h (sécurité anti-copie)
-    └─ Un QR par site, géré dans /admin/dashboard/sites
+✓ Phase 3 : QR par site — token statique — DONE (2026-07-01)
+    ├─ Un QR par site, géré dans /admin/dashboard/sites
+    ├─ Token statique (imprimable une fois, plus de rotation auto à minuit)
+    ├─ Régénération manuelle uniquement (bouton admin, si QR perdu/compromis)
+    └─ Sécurité anti-fraude : PIN bcrypt + rate limit + plan gate + audit log
 
 PHASE 16.6: LANDING PAGE & PRICING REDESIGN (✓ COMPLÉTÉE — 2026-06-17)
 ================================================================================
