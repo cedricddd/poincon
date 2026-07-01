@@ -1708,6 +1708,7 @@
     "evEmployeeCreated": "Mitarbeiter erstellt",
     "evEmployeeUpdated": "Mitarbeiter geändert",
     "evClockCreated": "Erfassung gespeichert",
+    "evClockDeparted": "Abmeldung erfasst",
     "evRttApproved": "RTT genehmigt",
     "optionsTeamRequired": "Optionen sind ab dem <b>TEAM</b>-Plan verfügbar. Führen Sie ein Upgrade durch, um darauf zuzugreifen.",
     "included": "Inbegriffen",

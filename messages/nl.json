@@ -1708,6 +1708,7 @@
     "evEmployeeCreated": "Werknemer aangemaakt",
     "evEmployeeUpdated": "Werknemer gewijzigd",
     "evClockCreated": "Registratie opgeslagen",
+    "evClockDeparted": "Vertrek geregistreerd",
     "evRttApproved": "RTT goedgekeurd",
     "optionsTeamRequired": "Opties zijn beschikbaar vanaf het <b>TEAM</b>-plan. Upgrade om toegang te krijgen.",
     "included": "Inbegrepen",

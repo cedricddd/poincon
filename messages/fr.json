@@ -1709,6 +1709,7 @@
     "evEmployeeCreated": "Employé créé",
     "evEmployeeUpdated": "Employé modifié",
     "evClockCreated": "Pointage enregistré",
+    "evClockDeparted": "Départ enregistré",
     "evRttApproved": "RTT approuvé",
     "optionsTeamRequired": "Les options sont disponibles à partir du plan <b>TEAM</b>. Mettez à niveau pour y accéder.",
     "included": "Inclus",

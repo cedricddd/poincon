@@ -256,6 +256,9 @@ export async function PATCH(req: NextRequest) {
         where: { id: user.companyId },
         data: { lastActivityAt: new Date() },
       })
+      dispatchWebhookSafe(user.companyId, 'clockrecord.departed', {
+        clockRecordId: record.id, userId: record.userId, departureTime: record.departureTime, duration: record.duration,
+      })
     }
 
     // Create DetectedOvertime only if hours exceed standard (shift-snapped value)

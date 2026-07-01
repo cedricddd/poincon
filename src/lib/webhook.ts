@@ -12,6 +12,7 @@ export type WebhookEventType =
   | 'employee.created'
   | 'employee.updated'
   | 'clockrecord.created'
+  | 'clockrecord.departed'
   | 'rtt.approved'
 
 export const WEBHOOK_EVENT_LABELS: Record<WebhookEventType, string> = {
@@ -24,6 +25,7 @@ export const WEBHOOK_EVENT_LABELS: Record<WebhookEventType, string> = {
   'employee.created':    'Employé créé',
   'employee.updated':    'Employé modifié',
   'clockrecord.created': 'Pointage enregistré',
+  'clockrecord.departed': 'Départ enregistré',
   'rtt.approved':        'RTT approuvé',
 }
 

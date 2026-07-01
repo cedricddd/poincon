@@ -46,14 +46,14 @@ const ALL_EVENTS = [
   'shift.created', 'shift.updated', 'shift.deleted',
   'timeoff.created', 'timeoff.approved', 'timeoff.rejected',
   'employee.created', 'employee.updated',
-  'clockrecord.created', 'rtt.approved',
+  'clockrecord.created', 'clockrecord.departed', 'rtt.approved',
 ]
 
 const EVENT_KEY: Record<string, string> = {
   'shift.created': 'evShiftCreated', 'shift.updated': 'evShiftUpdated', 'shift.deleted': 'evShiftDeleted',
   'timeoff.created': 'evTimeoffCreated', 'timeoff.approved': 'evTimeoffApproved', 'timeoff.rejected': 'evTimeoffRejected',
   'employee.created': 'evEmployeeCreated', 'employee.updated': 'evEmployeeUpdated',
-  'clockrecord.created': 'evClockCreated', 'rtt.approved': 'evRttApproved',
+  'clockrecord.created': 'evClockCreated', 'clockrecord.departed': 'evClockDeparted', 'rtt.approved': 'evRttApproved',
 }
 
 type Tab = 'addons' | 'apikeys' | 'webhooks'

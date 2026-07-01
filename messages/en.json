@@ -1708,6 +1708,7 @@
     "evEmployeeCreated": "Employee created",
     "evEmployeeUpdated": "Employee updated",
     "evClockCreated": "Clock record saved",
+    "evClockDeparted": "Clock-out recorded",
     "evRttApproved": "RTT approved",
     "optionsTeamRequired": "Options are available from the <b>TEAM</b> plan. Upgrade to access them.",
     "included": "Included",
