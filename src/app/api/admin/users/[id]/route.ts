@@ -6,15 +6,32 @@ import { NextRequest, NextResponse } from 'next/server'
 async function requireAdmin() {
   const session = await auth()
   if (!session?.user?.id) return null
-  const user = await prisma.user.findUnique({ where: { id: session.user.id } })
-  return isAdminRole(user?.role) ? session : null
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { role: true, companyId: true },
+  })
+  if (!isAdminRole(user?.role) || !user?.companyId) return null
+  return { session, companyId: user.companyId as string }
+}
+
+// Ensure the targeted user belongs to the admin's company (prevent cross-tenant IDOR)
+async function assertSameCompany(targetId: string, companyId: string) {
+  const target = await prisma.user.findUnique({
+    where: { id: targetId },
+    select: { companyId: true },
+  })
+  return target != null && target.companyId === companyId
 }
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await requireAdmin()
-  if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const admin = await requireAdmin()
+  if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const { id } = await params
+
+  if (!await assertSameCompany(id, admin.companyId)) {
+    return NextResponse.json({ error: 'Introuvable' }, { status: 404 })
+  }
 
   const user = await prisma.user.findUnique({
     where: { id },
@@ -78,10 +95,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await requireAdmin()
-  if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const admin = await requireAdmin()
+  if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const { id } = await params
+
+  if (!await assertSameCompany(id, admin.companyId)) {
+    return NextResponse.json({ error: 'Introuvable' }, { status: 404 })
+  }
+
   const body = await req.json()
   const { balanceAdjustment, adjustmentReason, defaultSiteId } = body
 
@@ -111,7 +133,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   await prisma.auditLog.create({
     data: {
-      userId: session.user.id,
+      userId: admin.session.user.id,
       action: 'admin_balance_adjustment',
       resource: 'DetectedOvertime',
       resourceId: id,
