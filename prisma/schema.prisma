@@ -191,6 +191,7 @@ model Company {
   kioskVisits           KioskVisit[]
   stripeInvoices        StripeInvoice[]
   reportTemplates       ReportTemplate[]
+  workSchedules         WorkSchedule[]
 
   @@index([adminId])
   @@index([planId])
@@ -459,6 +460,7 @@ model TimeOffRequest {
 
 model WorkSchedule {
   id            String         @id @default(cuid())
+  companyId     String?        // null = preset global partagé ; sinon horaire custom d'une entreprise
   name          String
   type          String         // JOURNEE | 2X8 | 3X8 | 4X8 | 5X8 | 2X12 | NUIT | PARTIEL | VARIABLE
   startTime     String         // "06:00"
@@ -472,9 +474,11 @@ model WorkSchedule {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
+  company       Company?       @relation(fields: [companyId], references: [id], onDelete: Cascade)
   userSchedules UserSchedule[]
 
   @@index([type])
+  @@index([companyId])
 }
 
 model UserSchedule {

@@ -6,23 +6,29 @@ import { NextRequest, NextResponse } from 'next/server'
 async function requireAdmin() {
   const session = await auth()
   if (!session?.user?.id) return null
-  const user = await prisma.user.findUnique({ where: { id: session.user.id } })
-  return isAdminRole(user?.role) ? session : null
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { role: true, companyId: true },
+  })
+  if (!isAdminRole(user?.role) || !user?.companyId) return null
+  return { session, companyId: user.companyId as string }
 }
 
 export async function GET() {
-  const session = await requireAdmin()
-  if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const admin = await requireAdmin()
+  if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
+  // Presets globaux (companyId null) + horaires custom de l'entreprise uniquement
   const schedules = await prisma.workSchedule.findMany({
+    where: { OR: [{ companyId: null }, { companyId: admin.companyId }] },
     orderBy: [{ isPreset: 'desc' }, { type: 'asc' }, { name: 'asc' }],
   })
   return NextResponse.json({ schedules })
 }
 
 export async function POST(req: NextRequest) {
-  const session = await requireAdmin()
-  if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const admin = await requireAdmin()
+  if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const body = await req.json()
   const { name, type, startTime, endTime, hoursPerDay, weeklyHours, daysOfWeek, description, dayConfig } = body
@@ -33,6 +39,7 @@ export async function POST(req: NextRequest) {
 
   const schedule = await prisma.workSchedule.create({
     data: {
+      companyId: admin.companyId,
       name,
       type,
       startTime,
@@ -49,15 +56,18 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const session = await requireAdmin()
-  if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const admin = await requireAdmin()
+  if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const body = await req.json()
   const { id, name, type, startTime, endTime, hoursPerDay, weeklyHours, daysOfWeek, description, dayConfig } = body
   if (!id) return NextResponse.json({ error: 'ID requis' }, { status: 400 })
 
-  const existing = await prisma.workSchedule.findUnique({ where: { id } })
-  if (!existing) return NextResponse.json({ error: 'Introuvable' }, { status: 404 })
+  // Seuls les horaires custom de l'entreprise sont modifiables (pas les presets globaux ni ceux d'un autre tenant)
+  const existing = await prisma.workSchedule.findUnique({ where: { id }, select: { companyId: true } })
+  if (!existing || existing.companyId !== admin.companyId) {
+    return NextResponse.json({ error: 'Introuvable' }, { status: 404 })
+  }
 
   const schedule = await prisma.workSchedule.update({
     where: { id },
@@ -77,15 +87,17 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const session = await requireAdmin()
-  if (!session) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const admin = await requireAdmin()
+  if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const { searchParams } = new URL(req.url)
   const id = searchParams.get('id')
   if (!id) return NextResponse.json({ error: 'ID requis' }, { status: 400 })
 
-  const existing = await prisma.workSchedule.findUnique({ where: { id } })
-  if (!existing) return NextResponse.json({ error: 'Introuvable' }, { status: 404 })
+  const existing = await prisma.workSchedule.findUnique({ where: { id }, select: { companyId: true } })
+  if (!existing || existing.companyId !== admin.companyId) {
+    return NextResponse.json({ error: 'Introuvable' }, { status: 404 })
+  }
 
   await prisma.workSchedule.delete({ where: { id } })
   return NextResponse.json({ success: true })

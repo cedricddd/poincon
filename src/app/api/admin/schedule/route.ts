@@ -46,7 +46,10 @@ export async function PATCH(req: NextRequest) {
 
   if (scheduleId) {
     const ws = await prisma.workSchedule.findUnique({ where: { id: scheduleId } })
-    if (!ws) return NextResponse.json({ error: 'Gabarit introuvable' }, { status: 400 })
+    // N'accepter qu'un preset global (companyId null) ou un horaire de l'entreprise de l'admin
+    if (!ws || (ws.companyId !== null && ws.companyId !== auth.admin.companyId)) {
+      return NextResponse.json({ error: 'Gabarit introuvable' }, { status: 400 })
+    }
     resolvedHours = ws.hoursPerDay
     resolvedScheduleId = ws.id
   }
