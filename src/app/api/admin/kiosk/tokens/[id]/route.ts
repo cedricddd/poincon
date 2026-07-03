@@ -41,6 +41,15 @@ export async function PATCH(
       }
       updates.visitorsEnabled = body.visitorsEnabled
     }
+    if ('siteId' in body) {
+      if (body.siteId) {
+        const site = await prisma.site.findFirst({
+          where: { id: body.siteId, companyId: token.companyId },
+        })
+        if (!site) return NextResponse.json({ error: 'Site introuvable' }, { status: 400 })
+      }
+      updates.siteId = body.siteId ?? null
+    }
 
     const advancedFieldsRequested = ['logoUrl', 'accentColor', 'autoRotateEnabled', 'autoRotateIntervalHours'].some(k => k in body)
     if (advancedFieldsRequested) {

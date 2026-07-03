@@ -217,6 +217,23 @@ export default function KioskPage() {
     }
   }
 
+  const handleSiteChange = async (tok: KioskToken, siteId: string) => {
+    setSavingAdvanced(tok.id)
+    try {
+      const res = await fetch(`/api/admin/kiosk/tokens/${tok.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ siteId: siteId || null }),
+      })
+      if (res.ok) {
+        const updated = await res.json()
+        setTokens(prev => prev.map(tk => tk.id === tok.id ? { ...tk, siteId: updated.siteId, site: updated.site } : tk))
+      }
+    } finally {
+      setSavingAdvanced(null)
+    }
+  }
+
   const planBlocked = plan && plan !== 'FREE' ? false : plan === 'FREE'
 
   return (
@@ -362,6 +379,33 @@ export default function KioskPage() {
                     </button>
                   </div>
                 </div>
+
+                {!hasAdvancedKiosk && (
+                  <div className="mt-3 pt-3 border-t border-[var(--pp-line)]">
+                    <p className="text-xs text-[var(--pp-muted)]">
+                      {t.rich('advancedAddonRequired', {
+                        link: (c) => <Link href="/admin/dashboard/settings/integrations" className="text-[var(--pp-info)] hover:underline">{c}</Link>,
+                      })}
+                    </p>
+                  </div>
+                )}
+
+                {hasAdvancedKiosk && !tk.site && (
+                  <div className="mt-3 pt-3 border-t border-[var(--pp-line)] flex items-center gap-3 flex-wrap">
+                    <p className="text-xs text-[var(--pp-muted)]">{t('advancedSiteRequired')}</p>
+                    {sites.length > 0 && (
+                      <select
+                        value=""
+                        onChange={e => handleSiteChange(tk, e.target.value)}
+                        disabled={savingAdvanced === tk.id}
+                        className="px-2 py-1 border border-[var(--pp-line)] rounded-lg text-xs bg-[var(--pp-bg)]"
+                      >
+                        <option value="" disabled>{t('assignSite')}</option>
+                        {sites.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                      </select>
+                    )}
+                  </div>
+                )}
 
                 {hasAdvancedKiosk && tk.site && (
                   <div className="mt-3 pt-3 border-t border-[var(--pp-line)] space-y-3">
