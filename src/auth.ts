@@ -13,13 +13,16 @@ export const authConfig: NextAuthConfig = {
         password: { label: 'Mot de passe', type: 'password' },
         rememberMe: { label: 'Se souvenir de moi', type: 'text' },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         const email = credentials?.email as string | undefined
         const password = credentials?.password as string | undefined
         if (!email || !password) return null
 
-        const { allowed } = rateLimit(`login:${email.toLowerCase().trim()}`, 10, 15 * 60 * 1000)
-        if (!allowed) throw new Error('TooManyAttempts')
+        // Per-account limit (brute force) + per-IP limit (password spraying across accounts)
+        const ip = request?.headers?.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+        const perAccount = rateLimit(`login:${email.toLowerCase().trim()}`, 10, 15 * 60 * 1000)
+        const perIp = rateLimit(`login-ip:${ip}`, 50, 15 * 60 * 1000)
+        if (!perAccount.allowed || !perIp.allowed) throw new Error('TooManyAttempts')
 
         try {
           const user = await prisma.user.findUnique({ where: { email } })
@@ -61,9 +64,9 @@ export const authConfig: NextAuthConfig = {
         token.sub = user.id
         token.email = user.email
         token.name = user.name
-        token.role = (user as { role: string; rememberMe: boolean }).role
-        const rememberMe = (user as { rememberMe: boolean }).rememberMe
-        const role = (user as { role: string }).role
+        token.role = (user as unknown as { role: string; rememberMe: boolean }).role
+        const rememberMe = (user as unknown as { rememberMe: boolean }).rememberMe
+        const role = (user as unknown as { role: string }).role
 
         let sessionDurationMs: number
         if (!rememberMe) {
