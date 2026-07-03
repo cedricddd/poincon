@@ -1728,6 +1728,8 @@
     "addonDeactivated": "Add-on gedeactiveerd",
     "rgpdSectionTitle": "AVG-export",
     "rgpdExportBtn": "Alle bedrijfsgegevens exporteren",
+    "rgpdExportBtnPdf": "Exporteren als PDF",
+    "rgpdExportBtnJson": "Exporteren als JSON",
     "rgpdRetentionLabel": "Bewaartermijn auditlogs:",
     "retentionSaved": "Bewaartermijn bijgewerkt",
     "years": "jaar",

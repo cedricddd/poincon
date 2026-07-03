@@ -1728,6 +1728,8 @@
     "addonDeactivated": "Add-on deactivated",
     "rgpdSectionTitle": "GDPR Export",
     "rgpdExportBtn": "Export all company data",
+    "rgpdExportBtnPdf": "Export as PDF",
+    "rgpdExportBtnJson": "Export as JSON",
     "rgpdRetentionLabel": "Audit log retention:",
     "retentionSaved": "Retention updated",
     "years": "years",

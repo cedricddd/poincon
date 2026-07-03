@@ -1729,6 +1729,8 @@
     "addonDeactivated": "Add-on désactivé",
     "rgpdSectionTitle": "Export RGPD",
     "rgpdExportBtn": "Exporter toutes les données de l'entreprise",
+    "rgpdExportBtnPdf": "Exporter en PDF",
+    "rgpdExportBtnJson": "Exporter en JSON",
     "rgpdRetentionLabel": "Rétention des journaux d'audit :",
     "retentionSaved": "Rétention mise à jour",
     "years": "ans",

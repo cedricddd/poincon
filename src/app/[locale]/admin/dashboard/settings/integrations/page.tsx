@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { showToast } from '@/hooks/useToast'
+import { downloadCompanyDataPdf } from '@/lib/personalDataPdf'
 
 const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
 
@@ -180,7 +181,7 @@ export default function IntegrationsPage() {
     setSavingRetention(false)
   }
 
-  const exportCompanyData = async () => {
+  const exportCompanyData = async (format: 'pdf' | 'json') => {
     setExportingRgpd(true)
     try {
       const res = await fetch('/api/admin/company/export')
@@ -189,11 +190,16 @@ export default function IntegrationsPage() {
         showToast(data.error ?? t('error'), 'error')
         return
       }
-      const blob = await res.blob()
-      const a = document.createElement('a')
-      a.href = URL.createObjectURL(blob)
-      a.download = `pointon-export-entreprise-${new Date().toISOString().slice(0, 10)}.json`
-      a.click()
+      if (format === 'json') {
+        const blob = await res.blob()
+        const a = document.createElement('a')
+        a.href = URL.createObjectURL(blob)
+        a.download = `pointon-export-entreprise-${new Date().toISOString().slice(0, 10)}.json`
+        a.click()
+      } else {
+        const data = await res.json()
+        await downloadCompanyDataPdf(data)
+      }
     } finally {
       setExportingRgpd(false)
     }
@@ -349,9 +355,16 @@ export default function IntegrationsPage() {
                 <button
                   className="text-xs px-3 py-1.5 bg-[var(--pp-info)] text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-50"
                   disabled={exportingRgpd}
-                  onClick={exportCompanyData}
+                  onClick={() => exportCompanyData('pdf')}
                 >
-                  {exportingRgpd ? t('loading') : t('rgpdExportBtn')}
+                  {exportingRgpd ? t('loading') : t('rgpdExportBtnPdf')}
+                </button>
+                <button
+                  className="text-xs px-3 py-1.5 border border-[var(--pp-line)] text-[var(--pp-ink)] rounded-lg font-medium hover:bg-[var(--pp-bg)] disabled:opacity-50"
+                  disabled={exportingRgpd}
+                  onClick={() => exportCompanyData('json')}
+                >
+                  {exportingRgpd ? t('loading') : t('rgpdExportBtnJson')}
                 </button>
               </div>
               <div className="flex items-center gap-3">
