@@ -279,7 +279,7 @@ function HeroClockWidget() {
   const sideBtn  = dark ? '#060a10' : '#111'
 
   return (
-    <div className="relative mx-auto select-none" style={{ width: 'min(380px, 92vw)' }}>
+    <div className="relative mx-auto select-none" style={{ width: 'min(380px, 92vw)' }} aria-hidden="true">
       {/* Tablet kiosk — behind phone */}
       <div
         className="absolute hidden sm:block pointer-events-none"
