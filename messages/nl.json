@@ -1213,7 +1213,13 @@
     "emailLocaleLabel": "Taal voor ontvangen e-mails",
     "emailLocaleSave": "Opslaan",
     "emailLocaleSuccess": "Taalvoorkeur bijgewerkt",
-    "emailLocaleError": "Fout bij het bijwerken"
+    "emailLocaleError": "Fout bij het bijwerken",
+    "rgpdTitle": "Mijn persoonsgegevens (AVG)",
+    "rgpdDescription": "Download een kopie van alle gegevens die Pointon over u bewaart (art. 15 AVG).",
+    "rgpdDownloadPdf": "Downloaden als PDF",
+    "rgpdDownloadJson": "Downloaden als JSON",
+    "rgpdGenerating": "Genereren…",
+    "rgpdError": "Fout bij het downloaden"
   },
   "myReports": {
     "title": "Mijn rapporten",

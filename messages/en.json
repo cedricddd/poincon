@@ -1213,7 +1213,13 @@
     "emailLocaleLabel": "Language for receiving emails",
     "emailLocaleSave": "Save",
     "emailLocaleSuccess": "Language preference updated",
-    "emailLocaleError": "Error updating preference"
+    "emailLocaleError": "Error updating preference",
+    "rgpdTitle": "My personal data (GDPR)",
+    "rgpdDescription": "Download a copy of all the data Pointon holds about you (GDPR art. 15).",
+    "rgpdDownloadPdf": "Download as PDF",
+    "rgpdDownloadJson": "Download as JSON",
+    "rgpdGenerating": "Generating…",
+    "rgpdError": "Error downloading data"
   },
   "myReports": {
     "title": "My reports",

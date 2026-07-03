@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import { Card } from '@/components/Card'
 import { Button } from '@/components/Button'
+import { downloadPersonalDataPdf } from '@/lib/personalDataPdf'
 
 const LOCALE_OPTIONS = [
   { value: 'fr', label: 'Français' },
@@ -30,6 +31,9 @@ export default function ProfilePage() {
   const [localeLoading, setLocaleLoading] = useState(false)
   const [localeError, setLocaleError] = useState('')
   const [localeSuccess, setLocaleSuccess] = useState('')
+
+  const [rgpdError, setRgpdError] = useState('')
+  const [rgpdLoading, setRgpdLoading] = useState<'pdf' | 'json' | null>(null)
 
   useEffect(() => {
     fetch('/api/user/locale')
@@ -101,6 +105,32 @@ export default function ProfilePage() {
   }
 
   const role = (session?.user as { role?: string } | undefined)?.role ?? ''
+
+  const handleRgpdDownload = async (format: 'pdf' | 'json') => {
+    setRgpdError('')
+    setRgpdLoading(format)
+    try {
+      const res = await fetch('/api/user/export')
+      if (!res.ok) {
+        setRgpdError(t('rgpdError'))
+        return
+      }
+      if (format === 'json') {
+        const blob = await res.blob()
+        const a = document.createElement('a')
+        a.href = URL.createObjectURL(blob)
+        a.download = `pointon-mes-donnees-${new Date().toISOString().slice(0, 10)}.json`
+        a.click()
+      } else {
+        const data = await res.json()
+        await downloadPersonalDataPdf(data)
+      }
+    } catch {
+      setRgpdError(t('rgpdError'))
+    } finally {
+      setRgpdLoading(null)
+    }
+  }
 
   return (
     <div className="p-6 max-w-xl space-y-6">
@@ -198,6 +228,26 @@ export default function ProfilePage() {
           <Button type="button" onClick={handleLocaleSave} disabled={localeLoading} size="md">
             {localeLoading ? t('submitting') : t('emailLocaleSave')}
           </Button>
+        </div>
+      </Card>
+
+      <Card>
+        <div className="space-y-4">
+          <h2 className="text-sm font-semibold text-[var(--pp-ink)]">{t('rgpdTitle')}</h2>
+          <p className="text-sm text-[var(--pp-muted)]">{t('rgpdDescription')}</p>
+
+          {rgpdError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">{rgpdError}</div>
+          )}
+
+          <div className="flex gap-3">
+            <Button type="button" onClick={() => handleRgpdDownload('pdf')} disabled={rgpdLoading !== null} size="md">
+              {rgpdLoading === 'pdf' ? t('rgpdGenerating') : t('rgpdDownloadPdf')}
+            </Button>
+            <Button type="button" variant="secondary" onClick={() => handleRgpdDownload('json')} disabled={rgpdLoading !== null} size="md">
+              {rgpdLoading === 'json' ? t('rgpdGenerating') : t('rgpdDownloadJson')}
+            </Button>
+          </div>
         </div>
       </Card>
     </div>

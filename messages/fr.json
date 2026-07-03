@@ -1213,7 +1213,13 @@
     "emailLocaleLabel": "Langue de réception des emails",
     "emailLocaleSave": "Enregistrer",
     "emailLocaleSuccess": "Préférence de langue mise à jour",
-    "emailLocaleError": "Erreur lors de la mise à jour"
+    "emailLocaleError": "Erreur lors de la mise à jour",
+    "rgpdTitle": "Mes données personnelles (RGPD)",
+    "rgpdDescription": "Téléchargez une copie de toutes les données que Pointon détient sur vous (art. 15 RGPD).",
+    "rgpdDownloadPdf": "Télécharger en PDF",
+    "rgpdDownloadJson": "Télécharger en JSON",
+    "rgpdGenerating": "Génération…",
+    "rgpdError": "Erreur lors du téléchargement"
   },
   "myReports": {
     "title": "Mes rapports",
