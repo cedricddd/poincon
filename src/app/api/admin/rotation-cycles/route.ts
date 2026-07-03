@@ -103,6 +103,12 @@ export async function PATCH(req: NextRequest) {
   const { id, name, periodUnit, anchorDate, periods } = await req.json()
   if (!id) return NextResponse.json({ error: 'id requis' }, { status: 400 })
 
+  const companyId = await resolveCompanyId(session.user.id)
+  const existing = await prisma.rotationCycle.findUnique({ where: { id }, select: { companyId: true } })
+  if (!existing || !companyId || existing.companyId !== companyId) {
+    return NextResponse.json({ error: 'Cycle introuvable' }, { status: 404 })
+  }
+
   const cycle = await prisma.rotationCycle.update({
     where: { id },
     data: {
@@ -147,6 +153,12 @@ export async function DELETE(req: NextRequest) {
 
   const id = new URL(req.url).searchParams.get('id')
   if (!id) return NextResponse.json({ error: 'id requis' }, { status: 400 })
+
+  const companyId = await resolveCompanyId(session.user.id)
+  const existing = await prisma.rotationCycle.findUnique({ where: { id }, select: { companyId: true } })
+  if (!existing || !companyId || existing.companyId !== companyId) {
+    return NextResponse.json({ error: 'Cycle introuvable' }, { status: 404 })
+  }
 
   await prisma.rotationCycle.delete({ where: { id } })
 
