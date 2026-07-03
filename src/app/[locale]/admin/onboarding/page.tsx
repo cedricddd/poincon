@@ -130,7 +130,7 @@ function Step1({
           {logoPreview ? (
             <Image src={logoPreview} alt="Logo preview" width={48} height={48} className="w-12 h-12 object-contain rounded" />
           ) : (
-            <div className="w-12 h-12 rounded-lg bg-[var(--pp-pos)]/10 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-lg bg-[var(--pp-pos-btn)]/10 flex items-center justify-center">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--pp-pos)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
               </svg>
@@ -344,7 +344,7 @@ export default function OnboardingPage() {
 
         {/* Header */}
         <div className="mb-8 text-center">
-          <div className="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full text-xs font-semibold bg-[var(--pp-pos)]/10 text-[var(--pp-pos)]">
+          <div className="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full text-xs font-semibold bg-[var(--pp-pos-btn)]/10 text-[var(--pp-pos)]">
             {t('welcome')}
           </div>
           <h1 className="text-2xl font-bold text-[var(--pp-ink)]">{t('setupTitle')}</h1>

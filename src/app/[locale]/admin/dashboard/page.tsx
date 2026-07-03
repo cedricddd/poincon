@@ -268,7 +268,7 @@ export default function AdminDashboard() {
         <div className="rounded-xl border border-[var(--pp-line)] bg-[var(--pp-bg)] p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[var(--pp-pos)] animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-[var(--pp-pos-btn)] animate-pulse" />
               <h2 className="text-sm font-semibold text-[var(--pp-ink)]">{t('livePresences')}</h2>
             </div>
             <Link href="/admin/dashboard/presence" className="text-xs text-[var(--pp-muted)] hover:text-[var(--pp-pos)] transition">
@@ -287,7 +287,7 @@ export default function AdminDashboard() {
               {present.slice(0, 8).map((p, i) => (
                 <div key={i} className="flex items-center justify-between py-2 border-b border-[var(--pp-line)] last:border-b-0">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-full bg-[var(--pp-pos)]/15 flex items-center justify-center shrink-0">
+                    <div className="w-7 h-7 rounded-full bg-[var(--pp-pos-btn)]/15 flex items-center justify-center shrink-0">
                       <span className="text-xs font-bold text-[var(--pp-pos)]">
                         {(p.user.name ?? p.user.email)[0].toUpperCase()}
                       </span>
@@ -299,7 +299,7 @@ export default function AdminDashboard() {
                       {p.site && <p className="text-xs text-[var(--pp-muted)]">{p.site.name}</p>}
                     </div>
                   </div>
-                  <span className="text-xs font-mono text-[var(--pp-pos)] bg-[var(--pp-pos)]/10 px-2 py-0.5 rounded-full">
+                  <span className="text-xs font-mono text-[var(--pp-pos)] bg-[var(--pp-pos-btn)]/10 px-2 py-0.5 rounded-full">
                     {t('since', { time: fmtTime(p.arrivalTime, bcp) })}
                   </span>
                 </div>

@@ -512,7 +512,7 @@ function StatCounter({ value, suffix, label, delay = 0 }: { value: number; suffi
       {/* underline draws in after reveal */}
       <div className="relative mx-auto mb-2.5" style={{ width: 'clamp(2rem,5vw,3rem)', height: '2px' }}>
         <div
-          className="absolute inset-0 rounded-full bg-[var(--pp-pos)]"
+          className="absolute inset-0 rounded-full bg-[var(--pp-pos-btn)]"
           style={{
             transform: started ? 'scaleX(1)' : 'scaleX(0)',
             transformOrigin: 'left',
@@ -708,7 +708,7 @@ function PricingCard({ tier, annual, delay }: { tier: TierItem; annual: boolean;
         <div className="flex items-start justify-between mb-5">
           <h3 className="font-display font-bold text-[var(--pp-ink)] text-xl">{tier.name}</h3>
           {tier.highlight && (
-            <span className="text-[9px] bg-[var(--pp-pos)] text-white font-bold px-2 py-1 rounded-full tracking-widest">{t('popular')}</span>
+            <span className="text-[9px] bg-[var(--pp-pos-btn)] text-white font-bold px-2 py-1 rounded-full tracking-widest">{t('popular')}</span>
           )}
         </div>
         {price === null ? (
@@ -1155,7 +1155,7 @@ function PointingMethodCard({ m, delay }: { m: MethodItem; delay: number }) {
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div className="inline-flex items-center gap-2 text-[var(--pp-pos)] mb-5">
-      <span className="w-5 h-px bg-[var(--pp-pos)]" />
+      <span className="w-5 h-px bg-[var(--pp-pos-btn)]" />
       <span className="text-[11px] font-bold tracking-[0.18em] uppercase">{children}</span>
     </div>
   )
@@ -1204,6 +1204,7 @@ export default function Home() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       <Header />
 
+      <main>
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section
         className="relative min-h-screen flex items-center overflow-hidden"
@@ -1497,7 +1498,7 @@ export default function Home() {
                   className={`relative z-10 px-5 py-2 rounded-full text-sm font-semibold transition-colors duration-200 flex items-center gap-2 ${annual ? 'text-[var(--pp-ink)]' : 'text-[var(--pp-muted)]'}`}
                 >
                   {t('pricing.annual')}
-                  <span className="text-[10px] bg-[var(--pp-pos)] text-white px-1.5 py-0.5 rounded-full font-bold leading-none">{t('pricing.saveBadge')}</span>
+                  <span className="text-[10px] bg-[var(--pp-pos-btn)] text-white px-1.5 py-0.5 rounded-full font-bold leading-none">{t('pricing.saveBadge')}</span>
                 </button>
               </div>
             </div>
@@ -1577,6 +1578,8 @@ export default function Home() {
       {/* ── CTA final ────────────────────────────────────────────────────── */}
       <CtaCountdown />
 
+      </main>
+
       {/* ── Footer ───────────────────────────────────────────────────────── */}
       <footer className="py-14 bg-[var(--pp-bg)]">
         <div className="mx-auto max-w-6xl px-4">
@@ -1591,7 +1594,7 @@ export default function Home() {
             </div>
 
             <div>
-              <h4 className="text-[10px] font-bold text-[var(--pp-ink)] uppercase tracking-[0.15em] mb-4">{t('footer.colProduct')}</h4>
+              <h3 className="text-[10px] font-bold text-[var(--pp-ink)] uppercase tracking-[0.15em] mb-4">{t('footer.colProduct')}</h3>
               <ul className="space-y-2.5 text-sm text-[var(--pp-muted)]">
                 <li><a href="#features" className="hover:text-[var(--pp-ink)] transition-colors">{t('footer.linkFeatures')}</a></li>
                 <li><a href="#pricing" className="hover:text-[var(--pp-ink)] transition-colors">{t('footer.linkPricing')}</a></li>
@@ -1600,7 +1603,7 @@ export default function Home() {
             </div>
 
             <div>
-              <h4 className="text-[10px] font-bold text-[var(--pp-ink)] uppercase tracking-[0.15em] mb-4">{t('footer.colLegal')}</h4>
+              <h3 className="text-[10px] font-bold text-[var(--pp-ink)] uppercase tracking-[0.15em] mb-4">{t('footer.colLegal')}</h3>
               <ul className="space-y-2.5 text-sm text-[var(--pp-muted)]">
                 <li><Link href="/legal/privacy" className="hover:text-[var(--pp-ink)] transition-colors">{t('footer.linkPrivacy')}</Link></li>
                 <li><Link href="/legal/terms" className="hover:text-[var(--pp-ink)] transition-colors">{t('footer.linkTerms')}</Link></li>
@@ -1610,7 +1613,7 @@ export default function Home() {
             </div>
 
             <div>
-              <h4 className="text-[10px] font-bold text-[var(--pp-ink)] uppercase tracking-[0.15em] mb-4">{t('footer.colResources')}</h4>
+              <h3 className="text-[10px] font-bold text-[var(--pp-ink)] uppercase tracking-[0.15em] mb-4">{t('footer.colResources')}</h3>
               <ul className="space-y-2.5 text-sm text-[var(--pp-muted)]">
                 <li><a href="mailto:support@pointon.be" className="hover:text-[var(--pp-ink)] transition-colors">{t('footer.linkSupport')}</a></li>
                 <li><a href="mailto:contact@pointon.be" className="hover:text-[var(--pp-ink)] transition-colors">{t('footer.linkContact')}</a></li>

@@ -165,7 +165,7 @@ export default function SecurityPage() {
               'Les exports (CSV, PDF) sont filtrés par entreprise et vérifiés côté serveur',
             ].map(item => (
               <div key={item} className="flex items-start gap-3 bg-[var(--pp-bg2)] rounded-lg p-3">
-                <div className="w-1.5 h-1.5 rounded-full bg-[var(--pp-pos)] mt-1.5 flex-shrink-0" />
+                <div className="w-1.5 h-1.5 rounded-full bg-[var(--pp-pos-btn)] mt-1.5 flex-shrink-0" />
                 <span>{item}</span>
               </div>
             ))}

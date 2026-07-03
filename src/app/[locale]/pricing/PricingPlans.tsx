@@ -183,7 +183,7 @@ export function PricingPlans({ isAuthenticated }: { isAuthenticated: boolean }) 
         ) : (
           <div className="flex items-center gap-4 text-sm">
             <Link href="/login" className="text-[var(--pp-muted)] hover:text-[var(--pp-ink)] transition-colors">Se connecter</Link>
-            <Link href="/signup" className="px-4 py-2 bg-[var(--pp-pos)] text-white rounded-lg font-medium hover:opacity-90 transition-opacity">
+            <Link href="/signup" className="px-4 py-2 bg-[var(--pp-pos-btn)] text-white rounded-lg font-medium hover:opacity-90 transition-opacity">
               Démarrer gratuitement
             </Link>
           </div>
@@ -223,7 +223,7 @@ export function PricingPlans({ isAuthenticated }: { isAuthenticated: boolean }) 
             >
               Annuel
               <span className={`text-xs font-bold px-2 py-0.5 rounded-full transition-colors ${
-                annual ? 'bg-[var(--pp-pos)] text-white' : 'bg-[var(--pp-pos)]/15 text-[var(--pp-pos)]'
+                annual ? 'bg-[var(--pp-pos-btn)] text-white' : 'bg-[var(--pp-pos-btn)]/15 text-[var(--pp-pos)]'
               }`}>
                 −17%
               </span>
@@ -281,7 +281,7 @@ export function PricingPlans({ isAuthenticated }: { isAuthenticated: boolean }) 
               >
                 {plan.highlight && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="bg-[var(--pp-pos)] text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-widest uppercase shadow-sm">
+                    <span className="bg-[var(--pp-pos-btn)] text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-widest uppercase shadow-sm">
                       Populaire
                     </span>
                   </div>
@@ -314,7 +314,7 @@ export function PricingPlans({ isAuthenticated }: { isAuthenticated: boolean }) 
                     href={href}
                     className={`block w-full py-2.5 rounded-xl text-sm font-semibold text-center transition-all mt-4 ${
                       plan.highlight
-                        ? 'bg-[var(--pp-pos)] text-white hover:opacity-90'
+                        ? 'bg-[var(--pp-pos-btn)] text-white hover:opacity-90'
                         : 'border border-[var(--pp-line)] text-[var(--pp-ink)] hover:border-[var(--pp-pos)] hover:text-[var(--pp-pos)]'
                     }`}
                   >

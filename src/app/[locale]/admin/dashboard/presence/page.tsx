@@ -139,8 +139,8 @@ export default function PresencePage() {
           {/* Total badge */}
           <div className="mb-6 flex items-center gap-3 flex-wrap">
             {(data.total ?? 0) > 0 && (
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)]/30">
-                <span className="w-2.5 h-2.5 rounded-full bg-[var(--pp-pos)] animate-pulse" />
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--pp-pos-btn)]/10 border border-[var(--pp-pos)]/30">
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--pp-pos-btn)] animate-pulse" />
                 <span className="text-sm font-semibold text-[var(--pp-pos)]">
                   {t('employeesPresent', { count: data.total })}
                 </span>
@@ -201,7 +201,7 @@ export default function PresencePage() {
                       {group.site?.name ?? t('siteNotSet')}
                     </h2>
                   </div>
-                  <span className="px-3 py-1 rounded-full bg-[var(--pp-pos)]/10 text-[var(--pp-pos)] text-sm font-bold">
+                  <span className="px-3 py-1 rounded-full bg-[var(--pp-pos-btn)]/10 text-[var(--pp-pos)] text-sm font-bold">
                     {group.people.length}
                   </span>
                 </div>

@@ -10,6 +10,8 @@
   --pp-muted: #6b7280;
   --pp-line: #e5e7eb;
   --pp-pos: #10b981;
+  /* Fond des boutons pleins avec texte blanc — assombri pour passer WCAG AA (4.5:1). --pp-pos reste l'accent (text/border/points). */
+  --pp-pos-btn: #047857;
   --pp-neg: #ef4444;
   --pp-info: #6366f1;
   --pp-peach: #fb923c;

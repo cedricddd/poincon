@@ -69,7 +69,7 @@ export function MonthlyCalendar({ initialYear, initialMonth }: MonthlyCalendarPr
 
   const getHourColor = (hours: number) => {
     if (!hours) return 'bg-[var(--pp-line)]/30'
-    if (hours >= 8) return 'bg-[var(--pp-pos)]/20 text-[var(--pp-pos)]'
+    if (hours >= 8) return 'bg-[var(--pp-pos-btn)]/20 text-[var(--pp-pos)]'
     if (hours >= 4) return 'bg-[var(--pp-info)]/20 text-[var(--pp-info)]'
     return 'bg-[var(--pp-neg)]/10 text-[var(--pp-neg)]'
   }
@@ -150,7 +150,7 @@ export function MonthlyCalendar({ initialYear, initialMonth }: MonthlyCalendarPr
         {/* Legend */}
         <div className="pt-2 border-t border-[var(--pp-line)] grid grid-cols-3 gap-2 text-xs">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-sm bg-[var(--pp-pos)]/20" />
+            <div className="w-3 h-3 rounded-sm bg-[var(--pp-pos-btn)]/20" />
             <span className="text-[var(--pp-muted)]">&ge; 8h</span>
           </div>
           <div className="flex items-center gap-2">

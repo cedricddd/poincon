@@ -202,7 +202,7 @@ export function Sidebar() {
       <div className="flex items-center h-16 border-b border-[var(--pp-line)] shrink-0 px-3 justify-between">
         {!c && (
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-[var(--pp-pos)] flex items-center justify-center shrink-0 shadow-sm">
+            <div className="w-8 h-8 rounded-lg bg-[var(--pp-pos-btn)] flex items-center justify-center shrink-0 shadow-sm">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
               </svg>
@@ -211,7 +211,7 @@ export function Sidebar() {
           </div>
         )}
         {c && (
-          <div className="w-8 h-8 rounded-lg bg-[var(--pp-pos)] flex items-center justify-center mx-auto shadow-sm">
+          <div className="w-8 h-8 rounded-lg bg-[var(--pp-pos-btn)] flex items-center justify-center mx-auto shadow-sm">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
             </svg>

@@ -453,9 +453,9 @@ export default function ClockPage() {
                 <p className="text-xs text-amber-500 mt-1">{t('breakPaused')}</p>
               </div>
             ) : isClockedIn && elapsed ? (
-              <div className="text-center p-4 rounded-2xl bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)]/20">
+              <div className="text-center p-4 rounded-2xl bg-[var(--pp-pos-btn)]/10 border border-[var(--pp-pos)]/20">
                 <div className="flex items-center justify-center gap-2 mb-1">
-                  <span className="w-2 h-2 rounded-full bg-[var(--pp-pos)] animate-pulse" />
+                  <span className="w-2 h-2 rounded-full bg-[var(--pp-pos-btn)] animate-pulse" />
                   <p className="text-xs font-semibold text-[var(--pp-pos)] uppercase tracking-widest">{t('inProgress')}</p>
                 </div>
                 <p className="text-3xl font-mono font-bold text-[var(--pp-pos)] tabular-nums">{elapsed}</p>
@@ -483,7 +483,7 @@ export default function ClockPage() {
                   <div className="flex items-center gap-2 mb-1.5">
                     <label className="text-[10px] font-semibold text-[var(--pp-muted)] uppercase tracking-wider">{t('site')}</label>
                     {isViaQr && (
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[var(--pp-pos)]/15 text-[var(--pp-pos)] uppercase tracking-wide">
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[var(--pp-pos-btn)]/15 text-[var(--pp-pos)] uppercase tracking-wide">
                         {t('viaQr')}
                       </span>
                     )}
@@ -589,7 +589,7 @@ export default function ClockPage() {
                           </p>
                         </div>
                         {dep && (
-                          <span className="text-xs font-semibold px-2 py-1 rounded-full bg-[var(--pp-pos)]/10 text-[var(--pp-pos)]">
+                          <span className="text-xs font-semibold px-2 py-1 rounded-full bg-[var(--pp-pos-btn)]/10 text-[var(--pp-pos)]">
                             {Math.floor(durH)}h{String(Math.round((durH % 1) * 60)).padStart(2, '0')}
                           </span>
                         )}
@@ -610,7 +610,7 @@ export default function ClockPage() {
                   onClick={() => setViewMode(mode)}
                   className={`flex-1 py-2.5 px-3 rounded-xl text-sm font-semibold transition touch-manipulation ${
                     viewMode === mode
-                      ? 'bg-[var(--pp-pos)] text-white'
+                      ? 'bg-[var(--pp-pos-btn)] text-white'
                       : 'bg-[var(--pp-bg2)] text-[var(--pp-muted)] hover:bg-[var(--pp-line)]'
                   }`}
                 >

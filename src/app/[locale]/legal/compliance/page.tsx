@@ -70,7 +70,7 @@ export default function CompliancePage() {
 
       {/* Hero */}
       <div className="mb-12">
-        <div className="inline-flex items-center gap-2 bg-[var(--pp-pos)]/10 text-[var(--pp-pos)] text-xs font-semibold px-3 py-1 rounded-full mb-4">
+        <div className="inline-flex items-center gap-2 bg-[var(--pp-pos-btn)]/10 text-[var(--pp-pos)] text-xs font-semibold px-3 py-1 rounded-full mb-4">
           <CheckIcon />
           Conforme Belgique 2027
         </div>
@@ -132,7 +132,7 @@ export default function CompliancePage() {
 
         <div className="border border-[var(--pp-line)] rounded-xl p-6">
           <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-lg bg-[var(--pp-pos)]/10 flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-[var(--pp-pos-btn)]/10 flex items-center justify-center flex-shrink-0">
               <span className="text-[var(--pp-pos)] font-bold text-xs">RGPD</span>
             </div>
             <div>

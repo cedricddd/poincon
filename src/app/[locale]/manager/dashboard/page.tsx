@@ -10,7 +10,7 @@ const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', d
 type LeaveType = 'ANNUAL' | 'SICK' | 'MATERNITY'
 const LEAVE_TYPE_KEY: Record<LeaveType, string> = { ANNUAL: 'leaveAnnual', SICK: 'leaveSick', MATERNITY: 'leaveMaternity' }
 const LEAVE_TYPE_COLORS: Record<LeaveType, string> = {
-  ANNUAL: 'bg-[var(--pp-pos)]/12 text-[var(--pp-pos)]',
+  ANNUAL: 'bg-[var(--pp-pos-btn)]/12 text-[var(--pp-pos)]',
   SICK: 'bg-orange-500/12 text-orange-600 dark:text-orange-400',
   MATERNITY: 'bg-pink-500/12 text-pink-600 dark:text-pink-400',
 }
@@ -183,7 +183,7 @@ export default function ManagerDashboard() {
       <Section
         title={t('sectionTimeOffs')}
         count={timeOffs.filter(to => to.status === 'PENDING').length}
-        action={<button onClick={() => setShowLeaveModal(true)} className="text-xs px-3 py-1 bg-[var(--pp-pos)] text-white rounded-lg hover:opacity-90 transition font-medium">{t('add')}</button>}
+        action={<button onClick={() => setShowLeaveModal(true)} className="text-xs px-3 py-1 bg-[var(--pp-pos-btn)] text-white rounded-lg hover:opacity-90 transition font-medium">{t('add')}</button>}
       >
         {timeOffs.map(to => {
           const lt = (to.leaveType ?? 'ANNUAL') as LeaveType
@@ -278,7 +278,7 @@ export default function ManagerDashboard() {
                   {t('cancel')}
                 </button>
                 <button type="submit" disabled={submittingLeave}
-                  className="flex-1 px-4 py-2.5 bg-[var(--pp-pos)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition disabled:opacity-60">
+                  className="flex-1 px-4 py-2.5 bg-[var(--pp-pos-btn)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition disabled:opacity-60">
                   {submittingLeave ? t('saving') : t('save')}
                 </button>
               </div>

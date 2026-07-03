@@ -506,7 +506,7 @@ export default function SettingsPage() {
                   onClick={() => handlePresenceToggle('presenceForManagers')}
                   disabled={presenceSaving}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 ${
-                    presenceSettings.presenceForManagers ? 'bg-[var(--pp-pos)]' : 'bg-[var(--pp-line)]'
+                    presenceSettings.presenceForManagers ? 'bg-[var(--pp-pos-btn)]' : 'bg-[var(--pp-line)]'
                   }`}
                 >
                   <span
@@ -525,7 +525,7 @@ export default function SettingsPage() {
                   onClick={() => handlePresenceToggle('presenceForEmployees')}
                   disabled={presenceSaving}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 ${
-                    presenceSettings.presenceForEmployees ? 'bg-[var(--pp-pos)]' : 'bg-[var(--pp-line)]'
+                    presenceSettings.presenceForEmployees ? 'bg-[var(--pp-pos-btn)]' : 'bg-[var(--pp-line)]'
                   }`}
                 >
                   <span
@@ -558,7 +558,7 @@ export default function SettingsPage() {
               onClick={() => handlePresenceToggle('mealBreakEnabled')}
               disabled={presenceSaving}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 shrink-0 ml-4 ${
-                presenceSettings.mealBreakEnabled ? 'bg-[var(--pp-pos)]' : 'bg-[var(--pp-line)]'
+                presenceSettings.mealBreakEnabled ? 'bg-[var(--pp-pos-btn)]' : 'bg-[var(--pp-line)]'
               }`}
             >
               <span

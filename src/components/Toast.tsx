@@ -3,7 +3,7 @@
 import { useToast, dismissToast, type ToastType } from '@/hooks/useToast'
 
 const styles: Record<ToastType, string> = {
-  success: 'bg-[var(--pp-pos)]/10 border-[var(--pp-pos)] text-[var(--pp-pos)]',
+  success: 'bg-[var(--pp-pos-btn)]/10 border-[var(--pp-pos)] text-[var(--pp-pos)]',
   error: 'bg-[var(--pp-neg)]/10 border-[var(--pp-neg)] text-[var(--pp-neg)]',
   warning: 'bg-orange-500/10 border-orange-500 text-orange-500',
   info: 'bg-blue-500/10 border-blue-500 text-blue-500',

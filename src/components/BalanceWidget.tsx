@@ -87,7 +87,7 @@ export function BalanceWidget() {
 
         {/* Breakdown */}
         <div className="grid grid-cols-2 gap-2">
-          <div className="p-2 rounded-lg bg-[var(--pp-pos)]/10">
+          <div className="p-2 rounded-lg bg-[var(--pp-pos-btn)]/10">
             <p className="text-xs text-[var(--pp-muted)]">{t('overtime')}</p>
             <p className="text-lg font-bold text-[var(--pp-pos)]">
               {balance.overtimeHours.toFixed(1)}h

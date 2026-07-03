@@ -53,7 +53,7 @@ export default function OvertimePage() {
                 </p>
               </div>
 
-              <div className="p-3 rounded-lg bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)]/20">
+              <div className="p-3 rounded-lg bg-[var(--pp-pos-btn)]/10 border border-[var(--pp-pos)]/20">
                 <p className="font-medium text-[var(--pp-pos)] mb-1">{t('way2Title')}</p>
                 <p className="text-[var(--pp-muted)]">{t('way2Body')}</p>
                 <p className="text-xs text-[var(--pp-muted)] mt-1">
@@ -81,7 +81,7 @@ export default function OvertimePage() {
                     <p className="text-xs font-medium text-[var(--pp-info)]">{t('option1Label')}</p>
                     <p className="text-xs text-[var(--pp-muted)]">{t('option1Body')}</p>
                   </div>
-                  <div className="p-2 rounded bg-[var(--pp-pos)]/10">
+                  <div className="p-2 rounded bg-[var(--pp-pos-btn)]/10">
                     <p className="text-xs font-medium text-[var(--pp-pos)]">{t('option2Label')}</p>
                     <p className="text-xs text-[var(--pp-muted)]">{t('option2Body')}</p>
                   </div>

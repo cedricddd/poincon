@@ -129,7 +129,7 @@ function QrModal({ site, onClose }: { site: Site; onClose: () => void }) {
               </button>
               <button
                 onClick={print}
-                className="flex-1 py-2.5 rounded-xl bg-[var(--pp-pos)] text-white text-sm font-medium hover:opacity-90 transition-opacity"
+                className="flex-1 py-2.5 rounded-xl bg-[var(--pp-pos-btn)] text-white text-sm font-medium hover:opacity-90 transition-opacity"
               >
                 {t('print')}
               </button>
@@ -378,7 +378,7 @@ export default function SitesPage() {
               <div className="flex items-center gap-2 flex-wrap justify-end">
                 <button
                   onClick={() => setQrSite(site)}
-                  className="text-xs border border-[var(--pp-pos)]/40 text-[var(--pp-pos)] px-3 py-1.5 rounded-lg hover:bg-[var(--pp-pos)]/10 transition-colors flex items-center gap-1.5"
+                  className="text-xs border border-[var(--pp-pos)]/40 text-[var(--pp-pos)] px-3 py-1.5 rounded-lg hover:bg-[var(--pp-pos-btn)]/10 transition-colors flex items-center gap-1.5"
                 >
                   <svg viewBox="0 0 16 16" fill="none" width="12" height="12">
                     <rect x="1" y="1" width="5" height="5" rx="0.5" stroke="currentColor" strokeWidth="1.3"/>

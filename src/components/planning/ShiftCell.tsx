@@ -25,7 +25,7 @@ interface ShiftCellProps {
 
 const LEAVE_CONFIG: Record<string, { bg: string; text: string; labelKey: string; icon: React.ReactNode }> = {
   ANNUAL: {
-    bg: 'bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)]/25',
+    bg: 'bg-[var(--pp-pos-btn)]/10 border border-[var(--pp-pos)]/25',
     text: 'text-[var(--pp-pos)]',
     labelKey: 'leaveAnnual',
     icon: (

@@ -90,8 +90,8 @@ export default function EmployeePresencePage() {
         </Card>
       ) : (
         <>
-          <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)]/30">
-            <span className="w-2.5 h-2.5 rounded-full bg-[var(--pp-pos)] animate-pulse" />
+          <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--pp-pos-btn)]/10 border border-[var(--pp-pos)]/30">
+            <span className="w-2.5 h-2.5 rounded-full bg-[var(--pp-pos-btn)] animate-pulse" />
             <span className="text-sm font-semibold text-[var(--pp-pos)]">
               {t('present', { count: data.total })}
             </span>
@@ -143,7 +143,7 @@ export default function EmployeePresencePage() {
                         {group.site?.name ?? t('siteNotSet')}
                       </h2>
                     </div>
-                    <span className="px-3 py-1 rounded-full bg-[var(--pp-pos)]/10 text-[var(--pp-pos)] text-sm font-bold">
+                    <span className="px-3 py-1 rounded-full bg-[var(--pp-pos-btn)]/10 text-[var(--pp-pos)] text-sm font-bold">
                       {group.people.length}
                     </span>
                   </div>
@@ -154,7 +154,7 @@ export default function EmployeePresencePage() {
                         key={pi}
                         className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${p.onBreak ? 'bg-amber-50 border-amber-200' : 'bg-[var(--pp-bg2)] border-[var(--pp-line)]'}`}
                       >
-                        <span className={`w-2 h-2 rounded-full shrink-0 ${p.onBreak ? 'bg-amber-400' : 'bg-[var(--pp-pos)]'}`} />
+                        <span className={`w-2 h-2 rounded-full shrink-0 ${p.onBreak ? 'bg-amber-400' : 'bg-[var(--pp-pos-btn)]'}`} />
                         <span className="text-sm font-medium text-[var(--pp-ink)]">{p.name}</span>
                         {p.onBreak && <span className="text-xs text-amber-500">{t('onBreak')}</span>}
                       </div>

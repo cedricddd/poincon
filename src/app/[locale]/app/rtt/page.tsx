@@ -22,7 +22,7 @@ interface RTTRequest {
 function StatusBadge({ status }: { status: RTTRequest['status'] }) {
   const t = useTranslations('rtt')
   const cfg = {
-    APPROVED: { label: t('statusApproved'), bg: 'bg-[var(--pp-pos)]/12',  text: 'text-[var(--pp-pos)]',  dot: 'bg-[var(--pp-pos)]' },
+    APPROVED: { label: t('statusApproved'), bg: 'bg-[var(--pp-pos-btn)]/12',  text: 'text-[var(--pp-pos)]',  dot: 'bg-[var(--pp-pos-btn)]' },
     REJECTED: { label: t('statusRejected'), bg: 'bg-[var(--pp-neg)]/12',  text: 'text-[var(--pp-neg)]',  dot: 'bg-[var(--pp-neg)]' },
     PENDING:  { label: t('statusPending'),  bg: 'bg-[var(--pp-info)]/12', text: 'text-[var(--pp-info)]', dot: 'bg-[var(--pp-info)]' },
   }[status]
@@ -137,7 +137,7 @@ export default function RTTPage() {
                 </div>
 
                 {formData.hoursToRecover && formData.date && (
-                  <div className="p-3 rounded-xl bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)]/20">
+                  <div className="p-3 rounded-xl bg-[var(--pp-pos-btn)]/10 border border-[var(--pp-pos)]/20">
                     <p className="text-xs text-[var(--pp-muted)] mb-0.5">{t('preview')}</p>
                     <p className="text-base font-bold text-[var(--pp-pos)]">
                       {fmt(formData.date)} · {parseFloat(formData.hoursToRecover).toFixed(1)}h

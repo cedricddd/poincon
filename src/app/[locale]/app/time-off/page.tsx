@@ -18,7 +18,7 @@ const LEAVE_TYPE_KEYS: Record<LeaveType, string> = {
 }
 
 const LEAVE_TYPE_COLORS: Record<LeaveType, string> = {
-  ANNUAL: 'bg-[var(--pp-pos)]/12 text-[var(--pp-pos)]',
+  ANNUAL: 'bg-[var(--pp-pos-btn)]/12 text-[var(--pp-pos)]',
   SICK: 'bg-orange-500/12 text-orange-600 dark:text-orange-400',
   MATERNITY: 'bg-pink-500/12 text-pink-600 dark:text-pink-400',
 }
@@ -60,7 +60,7 @@ interface TimeOffRequest {
 function StatusBadge({ status }: { status: TimeOffRequest['status'] }) {
   const t = useTranslations('timeoff')
   const cfg = {
-    APPROVED: { label: t('statusApproved'), bg: 'bg-[var(--pp-pos)]/12',  text: 'text-[var(--pp-pos)]',  dot: 'bg-[var(--pp-pos)]' },
+    APPROVED: { label: t('statusApproved'), bg: 'bg-[var(--pp-pos-btn)]/12',  text: 'text-[var(--pp-pos)]',  dot: 'bg-[var(--pp-pos-btn)]' },
     REJECTED: { label: t('statusRejected'), bg: 'bg-[var(--pp-neg)]/12',  text: 'text-[var(--pp-neg)]',  dot: 'bg-[var(--pp-neg)]' },
     PENDING:  { label: t('statusPending'),  bg: 'bg-[var(--pp-info)]/12', text: 'text-[var(--pp-info)]', dot: 'bg-[var(--pp-info)]' },
   }[status]
@@ -183,7 +183,7 @@ export default function TimeOffPage() {
                 </div>
 
                 {formData.startDate && formData.endDate && (
-                  <div className="p-3 rounded-xl bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)]/20">
+                  <div className="p-3 rounded-xl bg-[var(--pp-pos-btn)]/10 border border-[var(--pp-pos)]/20">
                     <p className="text-xs text-[var(--pp-muted)] mb-0.5">{t('duration')}</p>
                     <p className="text-base font-bold text-[var(--pp-pos)]">
                       {t('days', { count: daysBetween(formData.startDate, formData.endDate) })}

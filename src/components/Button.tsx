@@ -16,7 +16,7 @@ export function Button({
   const baseStyles = 'font-medium rounded-lg transition-all font-sans'
 
   const variantStyles = {
-    primary: 'bg-[var(--pp-pos)] text-white hover:opacity-90',
+    primary: 'bg-[var(--pp-pos-btn)] text-white hover:opacity-90',
     secondary: 'bg-[var(--pp-info)] text-white hover:opacity-90',
     outline: 'border border-[var(--pp-line)] text-[var(--pp-ink)] hover:bg-[var(--pp-bg)]',
     mauve: 'bg-[#7c3aed] text-white hover:bg-[#6d28d9]',

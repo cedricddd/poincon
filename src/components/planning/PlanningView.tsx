@@ -310,7 +310,7 @@ export function PlanningView({ apiBase }: PlanningViewProps) {
           {t('legRecovery')}
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block w-4 h-4 rounded bg-[var(--pp-pos)]/10 border border-[var(--pp-pos)]/25" />
+          <span className="inline-block w-4 h-4 rounded bg-[var(--pp-pos-btn)]/10 border border-[var(--pp-pos)]/25" />
           {t('legAnnual')}
         </span>
         <span className="flex items-center gap-1.5">

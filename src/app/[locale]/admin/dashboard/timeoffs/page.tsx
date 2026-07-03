@@ -17,7 +17,7 @@ const LEAVE_TYPE_KEYS: Record<LeaveType, string> = {
 }
 
 const LEAVE_TYPE_COLORS: Record<LeaveType, string> = {
-  ANNUAL: 'bg-[var(--pp-pos)]/12 text-[var(--pp-pos)]',
+  ANNUAL: 'bg-[var(--pp-pos-btn)]/12 text-[var(--pp-pos)]',
   SICK: 'bg-orange-500/12 text-orange-600 dark:text-orange-400',
   MATERNITY: 'bg-pink-500/12 text-pink-600 dark:text-pink-400',
 }
@@ -164,7 +164,7 @@ export default function TimeoffsPage() {
         </h1>
         <button
           onClick={() => setShowModal(true)}
-          className="px-4 py-2 bg-[var(--pp-pos)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition"
+          className="px-4 py-2 bg-[var(--pp-pos-btn)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition"
         >
           {t('addLeave')}
         </button>
@@ -294,7 +294,7 @@ export default function TimeoffsPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 px-4 py-2.5 bg-[var(--pp-pos)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition disabled:opacity-60"
+                  className="flex-1 px-4 py-2.5 bg-[var(--pp-pos-btn)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition disabled:opacity-60"
                 >
                   {submitting ? t('saving') : t('save')}
                 </button>
