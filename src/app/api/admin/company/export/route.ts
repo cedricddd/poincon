@@ -16,17 +16,31 @@ export async function GET() {
 
   const users = await prisma.user.findMany({
     where: { companyId: auth.admin.companyId, deletedAt: null },
-    select: { id: true, name: true, email: true, role: true, createdAt: true },
+    select: {
+      id: true, name: true, email: true, image: true, role: true, active: true,
+      managerId: true, defaultSiteId: true, createdAt: true, updatedAt: true,
+    },
   })
 
   const payload = await Promise.all(users.map(async (user) => {
-    const [clockRecords, timeOffRequests, rttRequests, detectedOvertimes] = await Promise.all([
+    const [
+      clockRecords, timeOffRequests, rttRequests, detectedOvertimes,
+      shifts, userSchedule, userConsents, notifications, teamMemberships,
+    ] = await Promise.all([
       prisma.clockRecord.findMany({ where: { userId: user.id }, include: { breaks: true }, orderBy: { date: 'asc' } }),
       prisma.timeOffRequest.findMany({ where: { userId: user.id }, orderBy: { startDate: 'asc' } }),
       prisma.rTTRequest.findMany({ where: { userId: user.id }, orderBy: { date: 'asc' } }),
       prisma.detectedOvertime.findMany({ where: { userId: user.id }, orderBy: { date: 'asc' } }),
+      prisma.shift.findMany({ where: { userId: user.id }, orderBy: { date: 'asc' } }),
+      prisma.userSchedule.findUnique({ where: { userId: user.id }, include: { workSchedule: true } }),
+      prisma.userConsent.findUnique({ where: { userId: user.id } }),
+      prisma.notification.findMany({ where: { userId: user.id }, orderBy: { createdAt: 'asc' } }),
+      prisma.teamMember.findMany({ where: { userId: user.id }, include: { team: { select: { name: true } } } }),
     ])
-    return { profile: user, clockRecords, timeOffRequests, rttRequests, detectedOvertimes }
+    return {
+      profile: user, clockRecords, timeOffRequests, rttRequests, detectedOvertimes,
+      shifts, userSchedule, userConsents, notifications, teamMemberships,
+    }
   }))
 
   const exportDate = new Date().toISOString().slice(0, 10)
@@ -44,7 +58,7 @@ export async function GET() {
   return new NextResponse(JSON.stringify({ exportedAt: new Date().toISOString(), employees: payload }), {
     status: 200,
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json; charset=utf-8',
       'Content-Disposition': `attachment; filename="pointon-export-entreprise-${exportDate}.json"`,
     },
   })
