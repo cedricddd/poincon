@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic'
 import { useEffect, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
+import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { Card } from '@/components/Card'
 import { Button } from '@/components/Button'
@@ -43,6 +44,7 @@ export default function KioskPage() {
   const [togglingVisitors, setTogglingVisitors] = useState<string | null>(null)
   const [hasAdvancedKiosk, setHasAdvancedKiosk] = useState(false)
   const [savingAdvanced, setSavingAdvanced] = useState<string | null>(null)
+  const [uploadingLogo, setUploadingLogo] = useState<string | null>(null)
 
   const fetchTokens = () => {
     setLoading(true)
@@ -162,6 +164,53 @@ export default function KioskPage() {
       })
       if (res.ok) {
         setTokens(prev => prev.map(tk => tk.id === tok.id ? { ...tk, autoRotateIntervalHours: hours } : tk))
+      }
+    } finally {
+      setSavingAdvanced(null)
+    }
+  }
+
+  const handleLogoUpload = async (tok: KioskToken, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingLogo(tok.id)
+    setError('')
+    try {
+      const fd = new FormData()
+      fd.append('logo', file)
+      const res = await fetch(`/api/admin/kiosk/tokens/${tok.id}/logo`, { method: 'POST', body: fd })
+      const data = await res.json()
+      if (!res.ok) { setError(data.error ?? t('brandingError')); return }
+      setTokens(prev => prev.map(tk => tk.id === tok.id ? { ...tk, logoUrl: data.logoUrl } : tk))
+    } finally {
+      setUploadingLogo(null)
+      e.target.value = ''
+    }
+  }
+
+  const handleLogoDelete = async (tok: KioskToken) => {
+    if (!confirm(t('confirmDeleteLogo'))) return
+    setUploadingLogo(tok.id)
+    try {
+      const res = await fetch(`/api/admin/kiosk/tokens/${tok.id}/logo`, { method: 'DELETE' })
+      if (res.ok) {
+        setTokens(prev => prev.map(tk => tk.id === tok.id ? { ...tk, logoUrl: null } : tk))
+      }
+    } finally {
+      setUploadingLogo(null)
+    }
+  }
+
+  const handleAccentColorChange = async (tok: KioskToken, color: string) => {
+    setSavingAdvanced(tok.id)
+    try {
+      const res = await fetch(`/api/admin/kiosk/tokens/${tok.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accentColor: color }),
+      })
+      if (res.ok) {
+        setTokens(prev => prev.map(tk => tk.id === tok.id ? { ...tk, accentColor: color } : tk))
       }
     } finally {
       setSavingAdvanced(null)
@@ -315,7 +364,47 @@ export default function KioskPage() {
                 </div>
 
                 {hasAdvancedKiosk && tk.site && (
-                  <div className="mt-3 pt-3 border-t border-[var(--pp-line)] flex items-center gap-3 flex-wrap">
+                  <div className="mt-3 pt-3 border-t border-[var(--pp-line)] space-y-3">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span className="text-xs font-medium text-[var(--pp-muted)]">{t('brandingTitle')}</span>
+                      <div className="w-8 h-8 rounded-lg border border-[var(--pp-line)] overflow-hidden bg-[var(--pp-bg)] flex items-center justify-center shrink-0">
+                        {tk.logoUrl ? (
+                          <Image src={tk.logoUrl} alt="Logo" width={32} height={32} className="object-contain w-full h-full" />
+                        ) : (
+                          <span className="text-xs">🖼️</span>
+                        )}
+                      </div>
+                      <label className="text-xs px-2.5 py-1 rounded-lg border border-[var(--pp-line)] cursor-pointer hover:bg-[var(--pp-bg)]">
+                        {uploadingLogo === tk.id ? t('logoUploading') : t('logoUpload')}
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg,image/webp"
+                          className="hidden"
+                          disabled={uploadingLogo === tk.id}
+                          onChange={e => handleLogoUpload(tk, e)}
+                        />
+                      </label>
+                      {tk.logoUrl && (
+                        <button
+                          onClick={() => handleLogoDelete(tk)}
+                          disabled={uploadingLogo === tk.id}
+                          className="text-xs text-[var(--pp-neg)] hover:underline"
+                        >
+                          {t('logoDelete')}
+                        </button>
+                      )}
+                      <label className="text-xs text-[var(--pp-muted)] flex items-center gap-1.5">
+                        {t('accentColor')}
+                        <input
+                          type="color"
+                          value={tk.accentColor ?? '#6c4ca8'}
+                          onChange={e => handleAccentColorChange(tk, e.target.value)}
+                          disabled={savingAdvanced === tk.id}
+                          className="w-7 h-7 rounded border border-[var(--pp-line)] cursor-pointer"
+                        />
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-3 flex-wrap">
                     <button
                       onClick={() => toggleAutoRotate(tk)}
                       disabled={savingAdvanced === tk.id}
@@ -339,6 +428,7 @@ export default function KioskPage() {
                       </select>
                     )}
                     <span className="text-xs text-[var(--pp-muted)]">{t('autoRotateWarning')}</span>
+                    </div>
                   </div>
                 )}
               </div>
