@@ -101,7 +101,7 @@ function CameraDeniedInstructions({ onRetry, camError }: { onRetry: () => void; 
     : [
         'Ouvrez Chrome (le navigateur, pas cette appli)',
         'Menu ⋮ → Paramètres → Paramètres du site → Caméra',
-        'Trouvez app.pointon.be et sélectionnez Autoriser',
+        'Trouvez pointon.be et sélectionnez Autoriser',
         'Revenez ici et appuyez sur Réessayer',
       ]
 
