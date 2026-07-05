@@ -1,3 +1,5 @@
+// Client-side Sentry init. Next 16 builds with Turbopack, which only loads
+// instrumentation-client.ts — the legacy sentry.client.config.ts is ignored.
 import * as Sentry from '@sentry/nextjs'
 
 Sentry.init({
@@ -18,3 +20,5 @@ Sentry.init({
     return event
   },
 })
+
+export const onRouterTransitionStart = Sentry.captureRouterTransitionStart

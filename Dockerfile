@@ -14,6 +14,11 @@ RUN npx prisma generate
 
 COPY . .
 
+# NEXT_PUBLIC_* vars are inlined into the client bundle at build time; .env is
+# dockerignored so the DSN must come in as a build arg (see docker-compose.yml)
+ARG NEXT_PUBLIC_SENTRY_DSN
+ENV NEXT_PUBLIC_SENTRY_DSN=$NEXT_PUBLIC_SENTRY_DSN
+
 # Compile-only build (skips static prerender of /_global-error — Next 16 bug)
 # Standalone output produces a self-contained server in .next/standalone/
 RUN npx next build --experimental-build-mode compile
