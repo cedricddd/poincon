@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const validLeaveTypes = ['ANNUAL', 'SICK', 'MATERNITY']
+  const validLeaveTypes = ['ANNUAL', 'SICK', 'MATERNITY', 'ECONOMIC_UNEMPLOYMENT']
   const resolvedLeaveType = validLeaveTypes.includes(leaveType) ? leaveType : 'ANNUAL'
   const record = await prisma.timeOffRequest.create({
     data: {

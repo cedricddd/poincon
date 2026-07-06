@@ -59,6 +59,17 @@ const LEAVE_CONFIG: Record<string, { bg: string; text: string; labelKey: string;
       </svg>
     ),
   },
+  ECONOMIC_UNEMPLOYMENT: {
+    bg: 'bg-slate-500/10 border border-slate-500/25',
+    text: 'text-slate-600 dark:text-slate-400',
+    labelKey: 'leaveEconomicUnemployment',
+    icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="7" width="20" height="14" rx="2"/>
+        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+      </svg>
+    ),
+  },
 }
 
 const SHIFT_TYPE_CONFIG: Record<string, { bg: string; hover: string; text: string; labelKey: string; templateBg: string; dashedBorder: string }> = {

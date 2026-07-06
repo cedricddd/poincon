@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
   if (!userId || !startDate || !endDate) return NextResponse.json({ error: 'Champs requis' }, { status: 400 })
   if (!await canAccessUser(auth.admin.companyId, userId)) return forbiddenError()
 
-  const validLeaveTypes = ['ANNUAL', 'SICK', 'MATERNITY']
+  const validLeaveTypes = ['ANNUAL', 'SICK', 'MATERNITY', 'ECONOMIC_UNEMPLOYMENT']
   const record = await prisma.timeOffRequest.create({
     data: {
       userId,

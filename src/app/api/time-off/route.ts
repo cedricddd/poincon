@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const validLeaveTypes = ['ANNUAL', 'SICK', 'MATERNITY']
+    const validLeaveTypes = ['ANNUAL', 'SICK', 'MATERNITY', 'ECONOMIC_UNEMPLOYMENT']
     const resolvedLeaveType = validLeaveTypes.includes(leaveType) ? leaveType : 'ANNUAL'
     const request = await prisma.timeOffRequest.create({
       data: {

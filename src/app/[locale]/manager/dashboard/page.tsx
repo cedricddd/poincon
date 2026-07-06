@@ -7,12 +7,13 @@ import { showToast } from '@/hooks/useToast'
 
 const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
 
-type LeaveType = 'ANNUAL' | 'SICK' | 'MATERNITY'
-const LEAVE_TYPE_KEY: Record<LeaveType, string> = { ANNUAL: 'leaveAnnual', SICK: 'leaveSick', MATERNITY: 'leaveMaternity' }
+type LeaveType = 'ANNUAL' | 'SICK' | 'MATERNITY' | 'ECONOMIC_UNEMPLOYMENT'
+const LEAVE_TYPE_KEY: Record<LeaveType, string> = { ANNUAL: 'leaveAnnual', SICK: 'leaveSick', MATERNITY: 'leaveMaternity', ECONOMIC_UNEMPLOYMENT: 'leaveEconomicUnemployment' }
 const LEAVE_TYPE_COLORS: Record<LeaveType, string> = {
   ANNUAL: 'bg-[var(--pp-pos-btn)]/12 text-[var(--pp-pos)]',
   SICK: 'bg-orange-500/12 text-orange-600 dark:text-orange-400',
   MATERNITY: 'bg-pink-500/12 text-pink-600 dark:text-pink-400',
+  ECONOMIC_UNEMPLOYMENT: 'bg-slate-500/12 text-slate-600 dark:text-slate-400',
 }
 const LEAVE_TYPE_ICONS: Record<LeaveType, React.ReactNode> = {
   ANNUAL: (
@@ -33,6 +34,12 @@ const LEAVE_TYPE_ICONS: Record<LeaveType, React.ReactNode> = {
   MATERNITY: (
     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+    </svg>
+  ),
+  ECONOMIC_UNEMPLOYMENT: (
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="7" width="20" height="14" rx="2"/>
+      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
     </svg>
   ),
 }

@@ -438,7 +438,7 @@ model TimeOffRequest {
   userId                String
   startDate             DateTime
   endDate               DateTime
-  leaveType             String          @default("ANNUAL") // ANNUAL, SICK, MATERNITY
+  leaveType             String          @default("ANNUAL") // ANNUAL, SICK, MATERNITY, ECONOMIC_UNEMPLOYMENT
   reason                String?
   status                String          @default("PENDING") // PENDING, APPROVED, REJECTED
   approvedBy            String?
