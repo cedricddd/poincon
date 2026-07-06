@@ -19,12 +19,21 @@ function fmt(minutes: number) {
 }
 
 function fmtDate(iso: Date) {
-  return iso.toLocaleDateString('fr-BE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  return iso.toLocaleDateString('fr-BE', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-')
 }
 
 function fmtTime(iso: Date) {
-  return iso.toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
+  return iso.toLocaleTimeString('fr-BE', { hour: 'numeric', minute: '2-digit' })
 }
+
+const LEAVE_TAGS: Record<string, string> = {
+  ANNUAL: 'Congé',
+  SICK: 'Maladie',
+  MATERNITY: 'Maternité',
+  ECONOMIC_UNEMPLOYMENT: 'Chômage économique',
+}
+
+interface ExportRow { userId: string; date: Date; cells: string[] }
 
 export async function GET(req: NextRequest) {
   const session = await requireAdmin()
@@ -81,21 +90,76 @@ export async function GET(req: NextRequest) {
     include: {
       user: { select: { name: true, email: true } },
       site: { select: { name: true } },
+      breaks: { where: { endedAt: { not: null } }, select: { startedAt: true, endedAt: true } },
     },
     orderBy: [{ userId: 'asc' }, { date: 'desc' }],
   })
 
-  const header = ['Employé', 'Email', 'Date', 'Arrivée', 'Départ', 'Durée', 'Lieu', 'Site']
-  const rows = records.map(r => [
-    r.user.name ?? '',
-    r.user.email,
-    fmtDate(r.date),
-    fmtTime(r.arrivalTime),
-    r.departureTime ? fmtTime(r.departureTime) : 'Non pointé',
-    r.duration != null ? fmt(r.duration) : '',
-    r.location,
-    r.site?.name ?? '',
-  ])
+  const header = ['Employé', 'Email', 'Date', 'Arrivée', 'Départ', 'Pause (min)', 'Durée', 'Lieu', 'Site', 'Tag']
+
+  const workedRows: ExportRow[] = records.map(r => {
+    const pauseMinutes = r.breaks.reduce((sum, b) => sum + Math.round((b.endedAt!.getTime() - b.startedAt.getTime()) / 60000), 0)
+    return {
+      userId: r.userId,
+      date: r.date,
+      cells: [
+        r.user.name ?? '',
+        r.user.email,
+        fmtDate(r.date),
+        fmtTime(r.arrivalTime),
+        r.departureTime ? fmtTime(r.departureTime) : 'Non pointé',
+        String(pauseMinutes),
+        r.duration != null ? fmt(r.duration) : '',
+        r.location,
+        r.site?.name ?? '',
+        '',
+      ],
+    }
+  })
+
+  // Fusion des absences approuvées chevauchant la plage — skip si filtre par site (les absences n'ont pas de site)
+  const absenceRows: ExportRow[] = []
+  if (!siteId) {
+    const rangeFromDate = effectiveFrom ? new Date(effectiveFrom) : null
+    const rangeToDate = to ? new Date(to + 'T23:59:59') : null
+
+    const timeOffRequests = await prisma.timeOffRequest.findMany({
+      where: {
+        status: 'APPROVED',
+        user: { companyId: adminUser.companyId },
+        ...(userId ? { userId } : {}),
+        ...(rangeFromDate ? { endDate: { gte: rangeFromDate } } : {}),
+        ...(rangeToDate ? { startDate: { lte: rangeToDate } } : {}),
+      },
+      include: { user: { select: { name: true, email: true } } },
+    })
+
+    for (const tor of timeOffRequests) {
+      const clampStart = rangeFromDate && rangeFromDate > tor.startDate ? rangeFromDate : tor.startDate
+      const clampEnd = rangeToDate && rangeToDate < tor.endDate ? rangeToDate : tor.endDate
+      const tag = LEAVE_TAGS[tor.leaveType] ?? tor.leaveType
+
+      const cur = new Date(clampStart)
+      cur.setHours(0, 0, 0, 0)
+      const endBound = new Date(clampEnd)
+      endBound.setHours(0, 0, 0, 0)
+      while (cur <= endBound) {
+        const dow = cur.getDay()
+        if (dow >= 1 && dow <= 5) {
+          absenceRows.push({
+            userId: tor.userId,
+            date: new Date(cur),
+            cells: [tor.user.name ?? '', tor.user.email, fmtDate(cur), '', '', '', '', '', '', tag],
+          })
+        }
+        cur.setDate(cur.getDate() + 1)
+      }
+    }
+  }
+
+  const rows = [...workedRows, ...absenceRows]
+    .sort((a, b) => (a.userId !== b.userId ? (a.userId < b.userId ? -1 : 1) : b.date.getTime() - a.date.getTime()))
+    .map(r => r.cells)
 
   const safeCell = (v: string) => {
     const s = String(v)
