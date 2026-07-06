@@ -23,9 +23,9 @@ function formatDuration(minutes: number | null): string {
 function buildCsv(records: any[]): string {
   const header = 'Employé,Email,Date,Arrivée,Départ,Durée,Site,Localisation'
   const rows = records.map(r => {
-    const arrival = new Date(r.arrivalTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
-    const departure = r.departureTime ? new Date(r.departureTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' }) : ''
-    const date = new Date(r.date).toLocaleDateString('fr-BE')
+    const arrival = new Date(r.arrivalTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Brussels' })
+    const departure = r.departureTime ? new Date(r.departureTime).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Brussels' }) : ''
+    const date = new Date(r.date).toLocaleDateString('fr-BE', { timeZone: 'Europe/Brussels' })
     return [
       r.user.name ?? '',
       r.user.email,
@@ -108,8 +108,8 @@ export async function GET(req: NextRequest) {
 
     const csv = buildCsv(records)
     const periodLabel = schedule === 'weekly'
-      ? `semaine du ${periodStart.toLocaleDateString('fr-BE')}`
-      : `mois de ${periodStart.toLocaleDateString('fr-BE', { month: 'long', year: 'numeric' })}`
+      ? `semaine du ${periodStart.toLocaleDateString('fr-BE', { timeZone: 'Europe/Brussels' })}`
+      : `mois de ${periodStart.toLocaleDateString('fr-BE', { month: 'long', year: 'numeric', timeZone: 'Europe/Brussels' })}`
     const filename = `pointages-${periodLabel.replace(/\s/g, '-')}.csv`
 
     await transporter.sendMail({

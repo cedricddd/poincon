@@ -19,11 +19,11 @@ function fmt(minutes: number) {
 }
 
 function fmtDate(iso: Date) {
-  return iso.toLocaleDateString('fr-BE', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-')
+  return iso.toLocaleDateString('fr-BE', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Europe/Brussels' }).replace(/\//g, '-')
 }
 
 function fmtTime(iso: Date) {
-  return iso.toLocaleTimeString('fr-BE', { hour: 'numeric', minute: '2-digit' })
+  return iso.toLocaleTimeString('fr-BE', { hour: 'numeric', minute: '2-digit', timeZone: 'Europe/Brussels' })
 }
 
 const LEAVE_TAGS: Record<string, string> = {
