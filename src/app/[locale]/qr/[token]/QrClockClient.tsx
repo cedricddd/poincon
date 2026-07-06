@@ -1,14 +1,17 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import Image from 'next/image'
 
-type Screen = 'pin' | 'loading' | 'result'
+type Screen = 'pin' | 'loading' | 'choice' | 'result'
+type ClockAction = 'clock_in' | 'clock_out' | 'break_start' | 'break_end'
 type ClockResult = {
-  action: 'clock_in' | 'clock_out'
+  action: ClockAction | 'choice'
   firstName: string
   userName: string
-  time: string
+  time?: string
+  hasOpenBreak?: boolean
+  breakStartedAt?: string
 }
 
 interface Props {
@@ -20,6 +23,46 @@ interface Props {
 
 function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
+}
+
+const RESULT_STYLE: Record<ClockAction, { color: string; glow: string }> = {
+  clock_in: { color: '#34d399', glow: 'rgba(16,185,129' },
+  clock_out: { color: '#a78bfa', glow: 'rgba(99,102,241' },
+  break_start: { color: '#f59e0b', glow: 'rgba(245,158,11' },
+  break_end: { color: '#34d399', glow: 'rgba(16,185,129' },
+}
+
+function ResultIcon({ action }: { action: ClockAction }) {
+  if (action === 'clock_in') {
+    return (
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke={RESULT_STYLE[action].color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+    )
+  }
+  if (action === 'clock_out') {
+    return (
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke={RESULT_STYLE[action].color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+        <polyline points="16 17 21 12 16 7" />
+        <line x1="21" y1="12" x2="9" y2="12" />
+      </svg>
+    )
+  }
+  if (action === 'break_start') {
+    return (
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke={RESULT_STYLE[action].color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+        <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+        <line x1="6" y1="1" x2="6" y2="4" /><line x1="10" y1="1" x2="10" y2="4" /><line x1="14" y1="1" x2="14" y2="4" />
+      </svg>
+    )
+  }
+  return (
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke={RESULT_STYLE[action].color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  )
 }
 
 function PinDots({ count }: { count: number }) {
@@ -88,6 +131,16 @@ export function QrClockClient({ token, siteName, companyName, logoUrl }: Props) 
   const [error, setError] = useState('')
   const [errorKey, setErrorKey] = useState(0)
   const [result, setResult] = useState<ClockResult | null>(null)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const clearTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+      timerRef.current = null
+    }
+  }, [])
+
+  useEffect(() => clearTimer, [clearTimer])
 
   const handleKey = useCallback((digit: string) => {
     setError('')
@@ -107,14 +160,15 @@ export function QrClockClient({ token, siteName, companyName, logoUrl }: Props) 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pin])
 
-  async function submit(pinValue: string) {
+  async function submit(pinValue: string, action?: 'clock_out' | 'break_start' | 'break_end') {
+    clearTimer()
     setScreen('loading')
     setError('')
     try {
       const res = await fetch(`/api/qr/${token}/clock`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin: pinValue }),
+        body: JSON.stringify(action ? { pin: pinValue, action } : { pin: pinValue }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -125,9 +179,17 @@ export function QrClockClient({ token, siteName, companyName, logoUrl }: Props) 
         return
       }
       setResult(data)
+      if (data.action === 'choice') {
+        setScreen('choice')
+        // Départ automatique après 10s si l'employé ne choisit rien (évite les pointages ouverts la nuit)
+        timerRef.current = setTimeout(() => {
+          submit(pinValue, 'clock_out')
+        }, 10000)
+        return
+      }
       setScreen('result')
       // Auto-reset after 5 seconds
-      setTimeout(() => {
+      timerRef.current = setTimeout(() => {
         setResult(null)
         setPin('')
         setError('')
@@ -213,33 +275,54 @@ export function QrClockClient({ token, siteName, companyName, logoUrl }: Props) 
           </>
         )}
 
+        {/* ── Choice screen (pause pointée) ── */}
+        {screen === 'choice' && result && result.action === 'choice' && (
+          <div className="text-center">
+            <div className="mb-6 opacity-50">
+              <CompanyLogo logoUrl={logoUrl} companyName={companyName} />
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-8">
+              Bonjour, {result.firstName}
+            </h2>
+            <div className="flex flex-col gap-4">
+              <button
+                onClick={() => submit(pin, result.hasOpenBreak ? 'break_end' : 'break_start')}
+                className="h-16 rounded-2xl text-lg font-semibold transition-all active:scale-95"
+                style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.4)', color: '#f59e0b' }}
+              >
+                {result.hasOpenBreak ? 'Terminer la pause' : 'Commencer la pause'}
+              </button>
+              <button
+                onClick={() => submit(pin, 'clock_out')}
+                className="h-16 rounded-2xl text-lg font-semibold transition-all active:scale-95"
+                style={{ background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa' }}
+              >
+                Départ
+              </button>
+            </div>
+            <p className="text-white/30 text-xs mt-6">Départ automatique dans 10 secondes</p>
+            <div className="mt-4 h-0.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
+              <div
+                className="h-full rounded-full"
+                style={{ background: '#a78bfa', animation: 'shrink 10s linear forwards' }}
+              />
+            </div>
+          </div>
+        )}
+
         {/* ── Result screen ── */}
-        {screen === 'result' && result && (
+        {screen === 'result' && result && result.action !== 'choice' && (
           <div className="text-center">
             {/* Icon */}
             <div
               className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-8"
               style={{
-                background: result.action === 'clock_in'
-                  ? 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.08))'
-                  : 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(99,102,241,0.08))',
-                border: `1px solid ${result.action === 'clock_in' ? 'rgba(16,185,129,0.35)' : 'rgba(99,102,241,0.35)'}`,
-                boxShadow: result.action === 'clock_in'
-                  ? '0 0 40px rgba(16,185,129,0.15)'
-                  : '0 0 40px rgba(99,102,241,0.15)',
+                background: `linear-gradient(135deg, ${RESULT_STYLE[result.action].glow},0.2), ${RESULT_STYLE[result.action].glow},0.08))`,
+                border: `1px solid ${RESULT_STYLE[result.action].glow},0.35)`,
+                boxShadow: `0 0 40px ${RESULT_STYLE[result.action].glow},0.15)`,
               }}
             >
-              {result.action === 'clock_in' ? (
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#34d399" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              ) : (
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                  <polyline points="16 17 21 12 16 7" />
-                  <line x1="21" y1="12" x2="9" y2="12" />
-                </svg>
-              )}
+              <ResultIcon action={result.action} />
             </div>
 
             {/* Company logo small */}
@@ -247,30 +330,33 @@ export function QrClockClient({ token, siteName, companyName, logoUrl }: Props) 
               <CompanyLogo logoUrl={logoUrl} companyName={companyName} />
             </div>
 
-            {result.action === 'clock_in' ? (
+            {result.action === 'clock_in' && (
               <>
-                <h2 className="text-3xl font-bold text-white mb-2">
-                  Bienvenue au travail,
-                </h2>
-                <h3 className="text-4xl font-bold" style={{ color: '#34d399' }}>
-                  {result.firstName} !
-                </h3>
-                <p className="text-white/40 text-lg mt-4">
-                  Pointé à {formatTime(result.time)}
-                </p>
+                <h2 className="text-3xl font-bold text-white mb-2">Bienvenue au travail,</h2>
+                <h3 className="text-4xl font-bold" style={{ color: RESULT_STYLE.clock_in.color }}>{result.firstName} !</h3>
+                <p className="text-white/40 text-lg mt-4">Pointé à {formatTime(result.time!)}</p>
               </>
-            ) : (
+            )}
+            {result.action === 'clock_out' && (
               <>
-                <h2 className="text-3xl font-bold text-white mb-2">
-                  Au revoir,
-                </h2>
-                <h3 className="text-4xl font-bold" style={{ color: '#a78bfa' }}>
-                  {result.firstName} !
-                </h3>
+                <h2 className="text-3xl font-bold text-white mb-2">Au revoir,</h2>
+                <h3 className="text-4xl font-bold" style={{ color: RESULT_STYLE.clock_out.color }}>{result.firstName} !</h3>
                 <p className="text-white/50 text-xl mt-3">Bonne fin de journée 👋</p>
-                <p className="text-white/40 text-base mt-2">
-                  Pointé à {formatTime(result.time)}
-                </p>
+                <p className="text-white/40 text-base mt-2">Pointé à {formatTime(result.time!)}</p>
+              </>
+            )}
+            {result.action === 'break_start' && (
+              <>
+                <h2 className="text-3xl font-bold text-white mb-2">Bonne pause,</h2>
+                <h3 className="text-4xl font-bold" style={{ color: RESULT_STYLE.break_start.color }}>{result.firstName} !</h3>
+                <p className="text-white/40 text-lg mt-4">Pause démarrée à {formatTime(result.time!)}</p>
+              </>
+            )}
+            {result.action === 'break_end' && (
+              <>
+                <h2 className="text-3xl font-bold text-white mb-2">Bon retour,</h2>
+                <h3 className="text-4xl font-bold" style={{ color: RESULT_STYLE.break_end.color }}>{result.firstName} !</h3>
+                <p className="text-white/40 text-lg mt-4">Pause terminée à {formatTime(result.time!)}</p>
               </>
             )}
 
@@ -279,7 +365,7 @@ export function QrClockClient({ token, siteName, companyName, logoUrl }: Props) 
               <div
                 className="h-full rounded-full"
                 style={{
-                  background: result.action === 'clock_in' ? '#34d399' : '#a78bfa',
+                  background: RESULT_STYLE[result.action].color,
                   animation: 'shrink 5s linear forwards',
                 }}
               />

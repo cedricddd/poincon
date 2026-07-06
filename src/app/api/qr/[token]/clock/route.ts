@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { getCompanyPlan, planCanAccess } from '@/lib/plan'
 import { rateLimit } from '@/lib/rateLimit'
 import { logAudit } from '@/lib/audit'
+import { closeClockRecord } from '@/lib/clock'
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 
@@ -28,37 +29,6 @@ export async function GET(
   })
 }
 
-const OVERTIME_GRACE_MINUTES = 30
-
-function computeShiftDuration(
-  actualArrival: Date,
-  actualDeparture: Date,
-  startTimeStr: string | null | undefined,
-  endTimeStr: string | null | undefined,
-  hoursPerDay: number
-): { duration: number; hoursWorked: number; hoursStandard: number } {
-  if (!startTimeStr || !endTimeStr) {
-    const duration = Math.round((actualDeparture.getTime() - actualArrival.getTime()) / 60000)
-    return { duration, hoursWorked: duration / 60, hoursStandard: hoursPerDay }
-  }
-  const parseTime = (timeStr: string, ref: Date) => {
-    const [h, m] = timeStr.split(':').map(Number)
-    const d = new Date(ref)
-    d.setHours(h, m, 0, 0)
-    return d
-  }
-  const shiftStart = parseTime(startTimeStr, actualArrival)
-  let shiftEnd = parseTime(endTimeStr, actualArrival)
-  if (shiftEnd <= shiftStart) shiftEnd.setDate(shiftEnd.getDate() + 1)
-  const effectiveArrival = actualArrival < shiftStart ? shiftStart : actualArrival
-  const graceEnd = new Date(shiftEnd.getTime() + OVERTIME_GRACE_MINUTES * 60000)
-  const effectiveDeparture =
-    actualDeparture >= shiftEnd && actualDeparture <= graceEnd ? shiftEnd : actualDeparture
-  const duration = Math.round((effectiveDeparture.getTime() - effectiveArrival.getTime()) / 60000)
-  const hoursStandard = Math.round((shiftEnd.getTime() - shiftStart.getTime()) / 60000) / 60
-  return { duration, hoursWorked: duration / 60, hoursStandard }
-}
-
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ token: string }> }
@@ -66,7 +36,7 @@ export async function POST(
   try {
     const { token } = await params
     const ip = req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? 'unknown'
-    const rl = rateLimit(`qr-clock:${ip}:${token}`, 10, 5 * 60 * 1000)
+    const rl = rateLimit(`qr-clock:${ip}:${token}`, 30, 5 * 60 * 1000)
     if (!rl.allowed) {
       return NextResponse.json({ error: 'Trop de tentatives. Réessayez dans 5 minutes.' }, { status: 429 })
     }
@@ -76,7 +46,7 @@ export async function POST(
       select: {
         id: true,
         active: true,
-        company: { select: { id: true, name: true, logoUrl: true } },
+        company: { select: { id: true, name: true, logoUrl: true, mealBreakEnabled: true } },
       },
     })
 
@@ -89,9 +59,12 @@ export async function POST(
       return NextResponse.json({ error: 'Fonctionnalité non disponible sur votre plan' }, { status: 403 })
     }
 
-    const { pin } = await req.json()
+    const { pin, action } = await req.json()
     if (!pin || !/^\d{4}$/.test(pin)) {
       return NextResponse.json({ error: 'PIN invalide' }, { status: 400 })
+    }
+    if (action && !['clock_out', 'break_start', 'break_end'].includes(action)) {
+      return NextResponse.json({ error: 'Action invalide' }, { status: 400 })
     }
 
     const usersWithPin = await prisma.user.findMany({
@@ -107,6 +80,10 @@ export async function POST(
       }
     }
     if (!matchedUser) {
+      const rlFail = rateLimit(`qr-fail:${ip}:${token}`, 10, 5 * 60 * 1000)
+      if (!rlFail.allowed) {
+        return NextResponse.json({ error: 'Trop de tentatives. Réessayez dans 5 minutes.' }, { status: 429 })
+      }
       return NextResponse.json({ error: 'PIN incorrect' }, { status: 401 })
     }
 
@@ -149,65 +126,123 @@ export async function POST(
       })
     }
 
-    // Clock out
-    const userSchedule = await prisma.userSchedule.findUnique({
-      where: { userId: matchedUser.id },
-      include: { workSchedule: true },
-    })
-    const hoursPerDay = userSchedule?.hoursPerDay ?? 8
-    const { duration: computedDuration, hoursStandard } = computeShiftDuration(
-      openRecord.arrivalTime,
-      now,
-      userSchedule?.workSchedule?.startTime,
-      userSchedule?.workSchedule?.endTime,
-      hoursPerDay
-    )
+    const mealBreakEnabled = site.company.mealBreakEnabled
 
-    const openBreak = await prisma.breakEntry.findFirst({
-      where: { clockRecordId: openRecord.id, endedAt: null },
-    })
-    if (openBreak) {
-      await prisma.breakEntry.update({ where: { id: openBreak.id }, data: { endedAt: now } })
-    }
-    const allBreaks = await prisma.breakEntry.findMany({
-      where: { clockRecordId: openRecord.id, endedAt: { not: null } },
-      select: { startedAt: true, endedAt: true },
-    })
-    const totalBreakMinutes = allBreaks.reduce((sum, b) => {
-      return sum + Math.round((b.endedAt!.getTime() - b.startedAt.getTime()) / 60000)
-    }, 0)
-    const finalDuration = Math.max(1, computedDuration - totalBreakMinutes)
-
-    await prisma.clockRecord.update({
-      where: { id: openRecord.id },
-      data: { departureTime: now, duration: finalDuration },
-    })
-    await prisma.company.update({ where: { id: site.company.id }, data: { lastActivityAt: now } })
-
-    if (finalDuration / 60 > hoursStandard) {
-      await prisma.detectedOvertime.create({
-        data: {
+    if (!action) {
+      if (!mealBreakEnabled) {
+        // Auto clock-out — comportement inchangé pour les sociétés sans pause pointée
+        const { finalDuration } = await closeClockRecord({
           userId: matchedUser.id,
-          date: openRecord.date,
-          hoursWorked: finalDuration / 60,
-          hoursStandard,
-          overtimeHours: finalDuration / 60 - hoursStandard,
-          status: 'PENDING',
-        },
+          record: openRecord,
+          departureTime: now,
+        })
+        await prisma.company.update({ where: { id: site.company.id }, data: { lastActivityAt: now } })
+        await logAudit({
+          userId: matchedUser.id,
+          action: 'kiosk_clock_out',
+          resource: 'clockRecord',
+          resourceId: openRecord.id,
+          changes: { via: 'qr', token, duration: finalDuration },
+          ipAddress: ip,
+        })
+        return NextResponse.json({
+          action: 'clock_out',
+          firstName,
+          userName: matchedUser.name,
+          time: now.toISOString(),
+          logoUrl: site.company.logoUrl,
+          companyName: site.company.name,
+        })
+      }
+
+      // Pause pointée activée : aucune mutation, l'employé choisit ensuite
+      const openBreak = await prisma.breakEntry.findFirst({
+        where: { clockRecordId: openRecord.id, endedAt: null },
+        select: { startedAt: true },
+      })
+      return NextResponse.json({
+        action: 'choice',
+        hasOpenBreak: !!openBreak,
+        breakStartedAt: openBreak?.startedAt.toISOString(),
+        firstName,
+        userName: matchedUser.name,
+        logoUrl: site.company.logoUrl,
+        companyName: site.company.name,
       })
     }
 
-    await logAudit({
-      userId: matchedUser.id,
-      action: 'kiosk_clock_out',
-      resource: 'clockRecord',
-      resourceId: openRecord.id,
-      changes: { via: 'qr', token, duration: finalDuration },
-      ipAddress: ip,
+    if (action === 'clock_out') {
+      const { finalDuration } = await closeClockRecord({
+        userId: matchedUser.id,
+        record: openRecord,
+        departureTime: now,
+      })
+      await prisma.company.update({ where: { id: site.company.id }, data: { lastActivityAt: now } })
+      await logAudit({
+        userId: matchedUser.id,
+        action: 'kiosk_clock_out',
+        resource: 'clockRecord',
+        resourceId: openRecord.id,
+        changes: { via: 'qr', token, duration: finalDuration },
+        ipAddress: ip,
+      })
+      return NextResponse.json({
+        action: 'clock_out',
+        firstName,
+        userName: matchedUser.name,
+        time: now.toISOString(),
+        logoUrl: site.company.logoUrl,
+        companyName: site.company.name,
+      })
+    }
+
+    // break_start / break_end
+    if (!mealBreakEnabled) {
+      return NextResponse.json({ error: 'Pause non activée pour votre société' }, { status: 403 })
+    }
+    const openBreak = await prisma.breakEntry.findFirst({
+      where: { clockRecordId: openRecord.id, endedAt: null },
     })
 
+    if (action === 'break_start') {
+      if (openBreak) {
+        return NextResponse.json({ error: 'Pause déjà en cours' }, { status: 409 })
+      }
+      await prisma.breakEntry.create({ data: { clockRecordId: openRecord.id, startedAt: now } })
+      await logAudit({
+        userId: matchedUser.id,
+        action: 'kiosk_break_start',
+        resource: 'clockRecord',
+        resourceId: openRecord.id,
+        changes: { via: 'qr' },
+        ipAddress: ip,
+      })
+      return NextResponse.json({
+        action: 'break_start',
+        firstName,
+        userName: matchedUser.name,
+        time: now.toISOString(),
+        logoUrl: site.company.logoUrl,
+        companyName: site.company.name,
+      })
+    }
+
+    // break_end
+    if (!openBreak) {
+      return NextResponse.json({ error: 'Aucune pause en cours' }, { status: 409 })
+    }
+    const durationMinutes = Math.round((now.getTime() - openBreak.startedAt.getTime()) / 60000)
+    await prisma.breakEntry.update({ where: { id: openBreak.id }, data: { endedAt: now } })
+    await logAudit({
+      userId: matchedUser.id,
+      action: 'kiosk_break_end',
+      resource: 'clockRecord',
+      resourceId: openRecord.id,
+      changes: { via: 'qr', durationMinutes },
+      ipAddress: ip,
+    })
     return NextResponse.json({
-      action: 'clock_out',
+      action: 'break_end',
       firstName,
       userName: matchedUser.name,
       time: now.toISOString(),
