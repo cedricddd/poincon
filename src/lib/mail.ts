@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
   },
 })
 
-const FROM = `Pointon <${process.env.BREVO_FROM_EMAIL ?? 'noreply@ced-it.be'}>`
+const FROM = `Pointon <${process.env.BREVO_FROM_EMAIL ?? 'noreply@pointon.be'}>`
 
 type ApprovalEmailParams = {
   to: string
