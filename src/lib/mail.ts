@@ -9,6 +9,9 @@ const transporter = nodemailer.createTransport({
     user: process.env.BREVO_SMTP_USER,
     pass: process.env.BREVO_SMTP_KEY,
   },
+}, {
+  // FROM is a "noreply" address — route replies to a monitored inbox instead of the void.
+  replyTo: 'contact@pointon.be',
 })
 
 const FROM = `Pointon <${process.env.BREVO_FROM_EMAIL ?? 'noreply@pointon.be'}>`
