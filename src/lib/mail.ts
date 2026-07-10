@@ -45,7 +45,7 @@ export async function sendApprovalEmail(params: ApprovalEmailParams) {
   const body = `
     <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
       <div style="background:#ffffff;border-radius:12px;padding:32px;border:1px solid #e2e8f0;">
-        <h1 style="margin:0 0 8px;font-size:22px;color:#0f172a;">Pointon</h1>
+        <img src="${appUrl}/images/logo-email.png" alt="Pointon" width="160" style="display:block;height:auto;margin:0 0 16px;">
         <hr style="border:none;border-top:1px solid #e2e8f0;margin:16px 0;">
         <p style="color:#334155;margin:0 0 16px;">${greeting}</p>
         <p style="color:#334155;margin:0 0 24px;">
@@ -83,7 +83,7 @@ export async function sendEndOfDayReminderEmail(params: { to: string; name: stri
   const body = `
     <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
       <div style="background:#ffffff;border-radius:12px;padding:32px;border:1px solid #e2e8f0;">
-        <h1 style="margin:0 0 8px;font-size:22px;color:#0f172a;">Pointon</h1>
+        <img src="${appUrl}/images/logo-email.png" alt="Pointon" width="160" style="display:block;height:auto;margin:0 0 16px;">
         <hr style="border:none;border-top:1px solid #e2e8f0;margin:16px 0;">
         <p style="color:#334155;margin:0 0 16px;">${greeting}</p>
         <p style="color:#334155;margin:0 0 8px;">${t('endOfDay.body')}</p>
@@ -118,8 +118,7 @@ export async function sendInvitationEmail(params: {
   const html = `
     <div style="font-family:system-ui,sans-serif;max-width:580px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
       <div style="background:#ffffff;border-radius:12px;padding:32px;border:1px solid #e2e8f0;">
-        <h1 style="margin:0 0 4px;font-size:22px;color:#0f172a;">Pointon</h1>
-        <p style="margin:0 0 20px;font-size:13px;color:#94a3b8;">Pointage légal belge</p>
+        <img src="${appUrl}/images/logo-email.png" alt="Pointon" width="160" style="display:block;height:auto;margin:0 0 20px;">
         <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 24px;">
 
         <p style="color:#334155;margin:0 0 12px;">${greeting}</p>
@@ -187,8 +186,7 @@ export async function sendPasswordResetEmail(params: {
   const html = `
     <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
       <div style="background:#ffffff;border-radius:12px;padding:32px;border:1px solid #e2e8f0;">
-        <h1 style="margin:0 0 4px;font-size:22px;color:#0f172a;">Pointon</h1>
-        <p style="margin:0 0 20px;font-size:13px;color:#94a3b8;">Pointage légal belge</p>
+        <img src="${appUrl}/images/logo-email.png" alt="Pointon" width="160" style="display:block;height:auto;margin:0 0 20px;">
         <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 24px;">
 
         <p style="color:#334155;margin:0 0 12px;">${greeting}</p>
@@ -233,8 +231,7 @@ export async function sendWelcomeEmail(params: {
   const html = `
     <div style="font-family:system-ui,sans-serif;max-width:580px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
       <div style="background:#ffffff;border-radius:12px;padding:32px;border:1px solid #e2e8f0;">
-        <h1 style="margin:0 0 4px;font-size:22px;color:#0f172a;">Pointon</h1>
-        <p style="margin:0 0 20px;font-size:13px;color:#94a3b8;">Pointage légal belge</p>
+        <img src="${appUrl}/images/logo-email.png" alt="Pointon" width="160" style="display:block;height:auto;margin:0 0 20px;">
         <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 24px;">
 
         <p style="color:#334155;margin:0 0 12px;">${t('greeting', { name })}</p>
@@ -288,8 +285,7 @@ export async function sendNewCompanyNotification(params: {
   const html = `
     <div style="font-family:system-ui,sans-serif;max-width:580px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
       <div style="background:#ffffff;border-radius:12px;padding:32px;border:1px solid #e2e8f0;">
-        <h1 style="margin:0 0 4px;font-size:22px;color:#0f172a;">Pointon</h1>
-        <p style="margin:0 0 20px;font-size:13px;color:#94a3b8;">Notification super-admin</p>
+        <img src="${appUrl}/images/logo-email.png" alt="Pointon" width="160" style="display:block;height:auto;margin:0 0 20px;">
         <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 24px;">
 
         <p style="color:#334155;margin:0 0 20px;font-size:16px;">
@@ -336,6 +332,7 @@ export async function sendKioskVisitorEmail(params: {
 
   const { to, hostName, visitorName, visitorEmail, companyName, arrivedAt, locale = 'fr' } = params
   const t = await getTranslations({ locale, namespace: 'emails' })
+  const appUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
 
   const bcp47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
   const greeting = hostName ? t('greeting', { name: hostName }) : t('greetingGeneric')
@@ -344,8 +341,7 @@ export async function sendKioskVisitorEmail(params: {
   const html = `
     <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
       <div style="background:#ffffff;border-radius:12px;padding:32px;border:1px solid #e2e8f0;">
-        <h1 style="margin:0 0 4px;font-size:22px;color:#0f172a;">Pointon</h1>
-        <p style="margin:0 0 20px;font-size:13px;color:#94a3b8;">Notification visiteur</p>
+        <img src="${appUrl}/images/logo-email.png" alt="Pointon" width="160" style="display:block;height:auto;margin:0 0 20px;">
         <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 24px;">
 
         <p style="color:#334155;margin:0 0 16px;">${greeting}</p>
@@ -394,6 +390,7 @@ export async function sendInternalInvoiceAlert(params: {
 
   const { companyName, amountPaid, currency, plan, billingCycle, stripeInvoiceId, odooInvoiceId } = params
   const notifyEmail = process.env.SUPER_ADMIN_NOTIFY_EMAIL ?? 'cedric@ced-it.be'
+  const appUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
   const odooUrl = 'https://ced-it.odoo.com/odoo/accounting/customer-invoices'
   const date = new Date().toLocaleString('fr-BE', { dateStyle: 'full', timeStyle: 'short' })
   const amount = (amountPaid / 100).toLocaleString('fr-BE', { style: 'currency', currency: currency.toUpperCase() })
@@ -405,8 +402,7 @@ export async function sendInternalInvoiceAlert(params: {
   const html = `
     <div style="font-family:system-ui,sans-serif;max-width:580px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
       <div style="background:#ffffff;border-radius:12px;padding:32px;border:1px solid #e2e8f0;">
-        <h1 style="margin:0 0 4px;font-size:22px;color:#0f172a;">Pointon</h1>
-        <p style="margin:0 0 20px;font-size:13px;color:#94a3b8;">Notification super-admin</p>
+        <img src="${appUrl}/images/logo-email.png" alt="Pointon" width="160" style="display:block;height:auto;margin:0 0 20px;">
         <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 24px;">
 
         <p style="color:#334155;margin:0 0 20px;font-size:16px;">
