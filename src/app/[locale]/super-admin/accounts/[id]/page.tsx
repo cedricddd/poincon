@@ -261,8 +261,9 @@ export default function AccountDetail() {
                 className="px-3 py-2 border border-[var(--pp-line)] rounded-lg w-full"
               >
                 <option>FREE</option>
-                <option>SOLO</option>
+                <option>STARTER</option>
                 <option>TEAM</option>
+                <option>BUSINESS</option>
                 <option>ENTERPRISE</option>
               </select>
               {editPlan !== company.plan && (
@@ -444,7 +445,7 @@ export default function AccountDetail() {
         </p>
         <div className="space-y-2">
           {[
-            { key: 'presences', label: 'Présences', desc: 'Débloque la vue des présences en temps réel (plans FREE et SOLO)' },
+            { key: 'presences', label: 'Présences', desc: 'Débloque la vue des présences en temps réel (plans FREE et STARTER)' },
             { key: 'early_access_api', label: 'early_access_api', desc: 'Accès anticipé à l\'API' },
             { key: 'extended_export', label: 'extended_export', desc: 'Exports étendus' },
             { key: 'custom_reports', label: 'custom_reports', desc: 'Rapports personnalisés' },

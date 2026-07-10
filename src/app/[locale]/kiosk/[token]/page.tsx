@@ -26,7 +26,7 @@ const DARK = {
   bg: '#090c14',
   g1: 'radial-gradient(ellipse 75% 55% at 50% -5%, rgba(99,102,241,0.09) 0%, transparent 65%)',
   g2: 'radial-gradient(ellipse 50% 45% at 95% 95%, rgba(59,130,246,0.04) 0%, transparent 60%)',
-  scheme: 'dark' as const,
+  scheme: 'dark' as 'dark' | 'light',
   c1: 'rgba(255,255,255,0.88)',
   c2: 'rgba(255,255,255,0.48)',
   c3: 'rgba(255,255,255,0.28)',
@@ -529,7 +529,7 @@ export default function KioskPage() {
         <div className="kiosk-result-in" style={{ position: 'relative', textAlign: 'center' }}>
           <div style={{ width: 88, height: 88, borderRadius: 20, background: t.s1, border: `1px solid ${t.b1}`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 28px', fontSize: '2rem' }}>🔒</div>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: 10 }}>Kiosque non disponible</h1>
-          <p style={{ color: t.c3 }}>Le mode kiosque requiert un plan SOLO, TEAM ou ENTERPRISE.</p>
+          <p style={{ color: t.c3 }}>Le mode kiosque requiert un plan STARTER, TEAM, BUSINESS ou ENTERPRISE.</p>
         </div>
       </div>
     )

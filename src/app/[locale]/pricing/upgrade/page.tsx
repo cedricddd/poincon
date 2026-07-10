@@ -38,14 +38,6 @@ const PLAN_INFO: Record<string, {
     yearlyNote: 'facturé 699€/an · économisez 140€',
     features: ['30 utilisateurs inclus', 'API & intégrations', 'SLA 99.9%', '+2,20€/siège supplémentaire'],
   },
-  SOLO: {
-    label: 'Starter',
-    color: '#10b981',
-    monthly: '19,90€/mois HTVA',
-    yearly: '16,58€/mois HTVA',
-    yearlyNote: 'facturé 199€/an · économisez 40€',
-    features: ['5 utilisateurs inclus', 'Mode kiosque tablette', 'Export CSV/PDF illimité'],
-  },
 }
 
 function UpgradeContent() {

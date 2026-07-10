@@ -12,11 +12,11 @@ export async function GET(req: NextRequest) {
   const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
   const in31Days = new Date(now.getTime() + 31 * 24 * 60 * 60 * 1000)
 
-  // Solo/Team companies renewing in ~30 days (via Stripe stripeCurrentPeriodEnd)
+  // Starter/Team/Business companies renewing in ~30 days (via Stripe stripeCurrentPeriodEnd)
   const companies = await prisma.company.findMany({
     where: {
       deletedAt: null,
-      plan: { name: { in: ['SOLO', 'TEAM'] } },
+      plan: { name: { in: ['STARTER', 'TEAM', 'BUSINESS'] } },
       stripeCurrentPeriodEnd: { gte: in30Days, lt: in31Days },
     },
     include: {

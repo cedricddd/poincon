@@ -112,9 +112,10 @@ export default function TermsPage() {
             <div className="grid sm:grid-cols-2 gap-3">
               {[
                 { plan: 'FREE', desc: "Jusqu'à 3 employés, fonctionnalités de base" },
-                { plan: 'SOLO', desc: "Jusqu'à 10 employés, exports CSV" },
-                { plan: 'TEAM', desc: "Jusqu'à 50 employés, gestion équipes" },
-                { plan: 'ENTERPRISE', desc: 'Illimité, API, support prioritaire' },
+                { plan: 'STARTER', desc: "Jusqu'à 5 employés, kiosque, exports CSV/PDF" },
+                { plan: 'TEAM', desc: "Jusqu'à 15 employés, planning, gestion équipes" },
+                { plan: 'BUSINESS', desc: "Jusqu'à 30 employés, API, rapports avancés" },
+                { plan: 'ENTERPRISE', desc: 'Illimité, support prioritaire' },
               ].map(p => (
                 <div key={p.plan} className="bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-lg p-3">
                   <span className="font-semibold text-[var(--pp-ink)]">{p.plan}</span>

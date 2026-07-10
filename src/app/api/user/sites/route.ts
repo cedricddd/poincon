@@ -8,17 +8,18 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const [sites, user] = await Promise.all([
-    prisma.site.findMany({
-      where: { active: true },
-      orderBy: { name: "asc" },
-      select: { id: true, name: true },
-    }),
-    prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { defaultSiteId: true },
-    }),
-  ])
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { defaultSiteId: true, companyId: true },
+  })
+
+  const sites = user?.companyId
+    ? await prisma.site.findMany({
+        where: { active: true, companyId: user.companyId },
+        orderBy: { name: "asc" },
+        select: { id: true, name: true },
+      })
+    : []
 
   return NextResponse.json({ sites, defaultSiteId: user?.defaultSiteId ?? null })
 }

@@ -297,8 +297,9 @@ export default function SettingsPage() {
 
           const planColors: Record<string, string> = {
             FREE: 'bg-[var(--pp-line)] text-[var(--pp-muted)]',
-            SOLO: 'bg-blue-100 text-blue-700',
+            STARTER: 'bg-blue-100 text-blue-700',
             TEAM: 'bg-[#7c3aed]/10 text-[#7c3aed]',
+            BUSINESS: 'bg-violet-100 text-violet-700',
             ENTERPRISE: 'bg-amber-100 text-amber-700',
           }
           const planColor = planColors[planName] ?? planColors.FREE

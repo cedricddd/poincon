@@ -245,12 +245,12 @@ export default function AdminDashboard() {
           {planInfo.plan === 'FREE' && (
             <UpgradeBanner
               currentPlan={planInfo.plan}
-              upgradeTo="SOLO"
+              upgradeTo={upgradeTo}
               feature={t('upgradeFreeFeature')}
               description={t('upgradeFreeDesc', { max: planInfo.maxEmployees })}
             />
           )}
-          {planInfo.plan === 'SOLO' && !planInfo.canTeams && (
+          {planInfo.plan === 'STARTER' && !planInfo.canTeams && (
             <UpgradeBanner
               currentPlan={planInfo.plan}
               upgradeTo={upgradeTo}

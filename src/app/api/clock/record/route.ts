@@ -113,6 +113,19 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { companyId: true },
+    })
+
+    // SECURITY: Reject siteId that doesn't belong to the user's own company (cross-tenant IDOR)
+    if (siteId) {
+      const site = await prisma.site.findFirst({ where: { id: siteId, companyId: user?.companyId ?? undefined }, select: { id: true } })
+      if (!site) {
+        return NextResponse.json({ error: 'Invalid site' }, { status: 400 })
+      }
+    }
+
     const record = await prisma.clockRecord.create({
       data: {
         userId: session.user.id,
@@ -123,10 +136,6 @@ export async function POST(req: NextRequest) {
     })
 
     // Update company's lastActivityAt for super-admin dashboard
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { companyId: true },
-    })
     if (user?.companyId) {
       await prisma.company.update({
         where: { id: user.companyId },

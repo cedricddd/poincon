@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 export interface PlanInfo {
-  plan: 'FREE' | 'SOLO' | 'TEAM' | 'ENTERPRISE'
+  plan: 'FREE' | 'STARTER' | 'TEAM' | 'BUSINESS' | 'ENTERPRISE'
   maxEmployees: number
   maxManagers: number
   canTeams: boolean
@@ -14,9 +14,10 @@ export interface PlanInfo {
 }
 
 const UPGRADE_LABELS: Record<string, string> = {
-  FREE: 'SOLO',
-  SOLO: 'TEAM',
-  TEAM: 'ENTERPRISE',
+  FREE: 'STARTER',
+  STARTER: 'TEAM',
+  TEAM: 'BUSINESS',
+  BUSINESS: 'ENTERPRISE',
   ENTERPRISE: '',
 }
 

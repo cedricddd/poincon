@@ -2,12 +2,15 @@
                     POINTON - TODO LIST (MISE À JOUR 2026-06-28)
 ================================================================================
 
-Dernière mise à jour: 2026-07-01
-Version: 0.8.2
-État: v0.8.2 — QR code par site : token statique (fini la rotation à minuit).
-      Chatbot aide Claude Haiku (Phase C) livré. i18n FR/NL/EN/DE 100% terminé.
-      Alertes factures Odoo actives.
-      Reste : bascule Stripe LIVE, smoke tests prod, add-ons self-service.
+Dernière mise à jour: 2026-07-10
+Version: 0.8.3
+État: Bascule Stripe LIVE faite (2026-07-06, 22 prix incl. add-ons). Add-ons
+      self-service réel (checkout Stripe, plus un toast factice). Premier
+      client ALUNION : chômage économique + export CSV enrichi + pause
+      pointée QR livrés (semaine du 2026-07-06).
+      Reste côté lancement : gestion changement de plan avec sièges, smoke
+      tests e2e post-bascule live, backups hors-site, facture Odoo #132 à
+      annuler (attente comptable), DKIM/DMARC Mailcow à confirmer.
 
 ================================================================================
 PHASES COMPLÉTÉES (✓)
@@ -412,20 +415,18 @@ Objectif : premier vrai client peut s'inscrire et payer
 [ ] (UX) Estimation du cout AVANT d'inviter, dans le modal d'invitation
 [ ] (Qualité) Test unitaire syncSeatQuantity (mock Stripe) — add / update / remove / no-op
 
-[ ] Bascule Stripe LIVE — catalogue + clés (script semi-auto)
-    ├─ 1) node scripts/stripe-go-live.mjs  (STRIPE_SECRET_KEY_LIVE=sk_live_xxx)
-    │     → crée 6 produits + 12 prix en LIVE, imprime le bloc STRIPE_PRICE_* à coller
-    ├─ 2) .env LXC 106 : remplacer STRIPE_SECRET_KEY + STRIPE_PUBLISHABLE_KEY
-    │     + STRIPE_WEBHOOK_SECRET (créer endpoint webhook dans Dashboard LIVE) + les 12 STRIPE_PRICE_*
-    ├─ 3) Activer Stripe Tax en mode LIVE (TVA 21% BE, services électroniques)
-    └─ 4) docker compose up -d --force-recreate app + checkout réel sur pointon.be → vérifier facture Odoo
+✓ Bascule Stripe LIVE — DONE 2026-07-06
+    ├─ Déclenchée en urgence : ALUNION a tenté de payer STARTER pendant que la prod était encore en clés TEST
+    ├─ 22 prix live recréés (12 plans + 10 add-ons, script étendu — cf. project_addons_integrations_gap)
+    ├─ Comptes avec stripeCustomerId test orphelin corrigés (ALUNION, compte démo)
+    └─ Non résolu : facture Odoo #132 (24,08€) créée par erreur par le webhook test avant bascule
+        → à annuler via note de crédit, attente validation comptable avant d'agir (piège Peppol : ré-envoi réel)
 
-[ ] Seed plans prod — 5 plans
-    └─ ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker compose run --rm app sh -c \"npm install bcryptjs --no-save --quiet && node prisma/seed.js\"'"
+✓ Seed plans prod — 5 plans — fait avec la bascule live du 2026-07-06
 
 ✓ Prisma db push prod — DONE 2026-06-28 (User.locale ajouté)
 
-[ ] Smoke tests end-to-end sur pointon.be
+[ ] Smoke tests end-to-end sur pointon.be — À REFAIRE post-bascule live (jamais exécutés en LIVE)
     ├─ Login / logout tous les roles (admin, manager, employé)
     ├─ Clock in / clock out + pause repas
     ├─ Invitation employé + flow set-password
@@ -434,11 +435,9 @@ Objectif : premier vrai client peut s'inscrire et payer
     ├─ Stripe checkout (live) + webhook
     └─ Export CSV + PDF rapports
 
-[ ] Add-ons self-service — bouton "Activer" est un toast factice
-    ├─ Option A (recommandée) : redirect vers Stripe checkout avec subscription item
-    │   → checkout.session.create avec line_items add-on price_id
-    │   → webhook invoice.paid → POST /api/admin/addons (SUPER_ADMIN interne)
-    └─ Concerné : API Access (29€) · Webhooks (19€) · Kiosk avancé (19€) · Export RGPD (15€) · Rapports custom (15€)
+✓ Add-ons self-service — DONE 2026-07-01 (commit df62e47)
+    ├─ Checkout Stripe réel (POST /api/admin/addons/subscribe), plus un toast factice
+    └─ Testé bout-en-bout : webhooks sortants, accès API, 2 add-ons payés en conditions réelles (tunnel stripe listen)
 
 PHASE B — i18n FR/NL/EN/DE · ✓ COMPLÉTÉE — 2026-06-28 (cf. PHASE 19)
 ================================================================================
@@ -528,13 +527,16 @@ PRODUCTION DEPLOYMENT
     ✓ Build Next 16 (--experimental-build-mode compile) : ~12s
     ✓ .env LXC 106 complet (NEXTAUTH_URL, SECRET, BREVO, SENTRY)
     ✓ Plans seedés (⚠ à re-seeder : 5 plans depuis v0.6.0)
-    [ ] Stripe live keys → à remplacer dans .env LXC 106
+    ✓ Stripe live keys — DONE 2026-07-06 (cf. ligne PHASE A ci-dessus)
     [ ] db push si schema modifié (voir checklist CLAUDE.md)
 
 ✓ SSL/HTTPS · Backups Proxmox · Renouvellement OVH — DONE
+[ ] ⚠️ Backups hors-site — vzdump quotidiens sont sur le même nœud pve que les données
+    (violation règle 3-2-1). À faire : copie hors du serveur (PBS sur NAS ou rsync nocturne)
+    + rétention hebdo/mensuelle (conservation légale pointages) + test de restauration.
 
 [ ] Post-Deploy Tests
-    [ ] Smoke tests complets (login, kiosque, QR, Stripe live, exports)
+    [ ] Smoke tests complets (login, kiosque, QR, Stripe live, exports) — voir PHASE A
     [ ] Performance (Lighthouse audit, response time < 500ms)
     [ ] Security (SSL check, OWASP top 10, no secrets in logs)
 
@@ -542,8 +544,11 @@ PRODUCTION DEPLOYMENT
 BLOQUEURS EXTERNES RÉSOLUS
 ================================================================================
 
-✓ Email domain SPF/DKIM/DMARC — Mailcow LXC 110 · noreply@pointon.be
 ✓ Contact email landing — contact@pointon.be (ced-it.be supprimé)
 ✓ Loi 2027 — landing conforme, montants exacts à confirmer après publication Moniteur
+✓ Email domain SPF/DKIM/DMARC — validés 2026-07-10 (XML rapport agrégé Microsoft :
+    dkim=pass, spf=pass, policy quarantine/pct=100). BREVO_FROM_EMAIL en noreply@pointon.be
+    côté code (commit 6ea8017).
+[ ] Tester délivrabilité (mail-tester.com)
 
 ================================================================================

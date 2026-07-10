@@ -76,8 +76,9 @@ export default function SuperAdminAccounts() {
             >
               <option value="ALL">Tous les plans</option>
               <option value="FREE">FREE</option>
-              <option value="SOLO">SOLO</option>
+              <option value="STARTER">STARTER</option>
               <option value="TEAM">TEAM</option>
+              <option value="BUSINESS">BUSINESS</option>
               <option value="ENTERPRISE">ENTERPRISE</option>
             </select>
           </div>
