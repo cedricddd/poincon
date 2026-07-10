@@ -3,14 +3,18 @@
 ================================================================================
 
 Dernière mise à jour: 2026-07-10
-Version: 0.8.3
+Version: 0.8.4
 État: Bascule Stripe LIVE faite (2026-07-06, 22 prix incl. add-ons). Add-ons
       self-service réel (checkout Stripe, plus un toast factice). Premier
       client ALUNION : chômage économique + export CSV enrichi + pause
       pointée QR livrés (semaine du 2026-07-06).
-      Reste côté lancement : gestion changement de plan avec sièges, smoke
-      tests e2e post-bascule live, backups hors-site, facture Odoo #132 à
-      annuler (attente comptable), DKIM/DMARC Mailcow à confirmer.
+      Smoke test e2e prod fait le 2026-07-10 : 4 bugs trouvés et corrigés/
+      déployés (fuite cross-tenant sites, cron renouvellement cassé,
+      renommage SOLO→STARTER incomplet, emails next-intl cassés) — détail
+      dans la mémoire Claude project_smoke_test_2026_07_10.
+      Reste côté lancement : gestion changement de plan avec sièges,
+      backups hors-site, facture Odoo #132 à annuler (attente comptable).
+      DKIM/DMARC Mailcow validés le 2026-07-10 (rapports agrégés reçus).
 
 ================================================================================
 PHASES COMPLÉTÉES (✓)
@@ -426,14 +430,17 @@ Objectif : premier vrai client peut s'inscrire et payer
 
 ✓ Prisma db push prod — DONE 2026-06-28 (User.locale ajouté)
 
-[ ] Smoke tests end-to-end sur pointon.be — À REFAIRE post-bascule live (jamais exécutés en LIVE)
-    ├─ Login / logout tous les roles (admin, manager, employé)
-    ├─ Clock in / clock out + pause repas
-    ├─ Invitation employé + flow set-password
-    ├─ Mode kiosque : générer token, PIN employé, visiteur, theme
-    ├─ QR code : générer, scanner, PIN
-    ├─ Stripe checkout (live) + webhook
-    └─ Export CSV + PDF rapports
+✓ Smoke tests end-to-end sur pointon.be — DONE 2026-07-10 (entreprise de test isolée,
+  supprimée après coup — jamais toucher ALUNION/Foyer des Orphelins)
+    ✓ Login / logout admin + employé (2FA obligatoire testé)
+    ✓ Clock in / clock out
+    ✓ Invitation employé + flow set-password
+    ✓ Mode kiosque : plan gating vérifié (FREE → 403 correct)
+    ✓ Stripe checkout (live) : prix Starter 19,90€ vérifié, arrêté avant paiement réel
+    ✓ Export CSV rapports (format enrichi ALUNION confirmé)
+    [ ] QR code scan physique + PDF rapports — pas testés cette session, à refaire si besoin
+    → 4 bugs trouvés et corrigés/déployés (commit 06d0d34) : voir mémoire
+      project_smoke_test_2026_07_10 pour le détail complet
 
 ✓ Add-ons self-service — DONE 2026-07-01 (commit df62e47)
     ├─ Checkout Stripe réel (POST /api/admin/addons/subscribe), plus un toast factice
