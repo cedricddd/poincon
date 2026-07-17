@@ -12,7 +12,11 @@ Version: 0.8.4
       Bascule Stripe LIVE faite (2026-07-06, 22 prix incl. add-ons). Add-ons
       self-service réel (checkout Stripe, plus un toast factice). Premier
       client ALUNION : chômage économique + export CSV enrichi + pause
-      pointée QR livrés (semaine du 2026-07-06).
+      pointée QR livrés (semaine du 2026-07-06). Chantiers 4 (modifier/
+      supprimer un congé, sélection multiple + actions groupées) et 5
+      (export CSV grille jour-par-jour, week-ends inclus) livrés le
+      2026-07-17 (commits ecc553f, fb2b495). Reste : retester QR/PDF avec
+      le client.
       Smoke test e2e prod fait le 2026-07-10 : 4 bugs trouvés et corrigés/
       déployés (fuite cross-tenant sites, cron renouvellement cassé,
       renommage SOLO→STARTER incomplet, emails next-intl cassés) — détail
