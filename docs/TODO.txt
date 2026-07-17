@@ -2,9 +2,14 @@
                     POINTON - TODO LIST (MISE À JOUR 2026-06-28)
 ================================================================================
 
-Dernière mise à jour: 2026-07-10
+Dernière mise à jour: 2026-07-17
 Version: 0.8.4
-État: Bascule Stripe LIVE faite (2026-07-06, 22 prix incl. add-ons). Add-ons
+État: PHASE A (facturation par siège) TERMINÉE le 2026-07-17 — changement de
+      plan durci + testé réel (annuel always_invoice + STARTER→TEAM + invitation
+      bout-en-bout), estimation de coût avant invitation livrée, 2 bugs de prod
+      trouvés et corrigés en route (checkout 500 sur client existant, webhook
+      plan jamais resync). Détail dans la mémoire Claude project_seat_billing.
+      Bascule Stripe LIVE faite (2026-07-06, 22 prix incl. add-ons). Add-ons
       self-service réel (checkout Stripe, plus un toast factice). Premier
       client ALUNION : chômage économique + export CSV enrichi + pause
       pointée QR livrés (semaine du 2026-07-06).
@@ -12,8 +17,8 @@ Version: 0.8.4
       déployés (fuite cross-tenant sites, cron renouvellement cassé,
       renommage SOLO→STARTER incomplet, emails next-intl cassés) — détail
       dans la mémoire Claude project_smoke_test_2026_07_10.
-      Reste côté lancement : gestion changement de plan avec sièges,
-      backups hors-site, facture Odoo #132 à annuler (attente comptable).
+      Reste côté lancement : backups hors-site, facture Odoo #132 à annuler
+      (attente comptable).
       DKIM/DMARC Mailcow validés le 2026-07-10 (rapports agrégés reçus).
 
 ================================================================================
@@ -403,7 +408,7 @@ PHASE 19: i18n FR/NL/EN/DE (✓ COMPLÉTÉE — 2026-06-28)
 CE QUI RESTE A FAIRE — PLAN LANCEMENT JANVIER 2027
 ================================================================================
 
-PHASE A — LANCEMENT PRODUCTION · Juillet 2026 · ~2 sessions
+PHASE A — LANCEMENT PRODUCTION · Juillet 2026 · ✓ TERMINÉE 2026-07-17
 ================================================================================
 Objectif : premier vrai client peut s'inscrire et payer
 
@@ -433,10 +438,18 @@ Objectif : premier vrai client peut s'inscrire et payer
        client ayant déjà un stripeCustomerId (donc tout client qui re-checkout après un 1er abonnement) —
        Stripe exige customer_update.name='auto' en plus de address='auto' quand tax_id_collection est
        actif sur un customer existant. Fix : src/app/api/stripe/checkout/route.ts:107
-[ ] Validation UI bout-en-bout des triggers : inviter un membre qui dépasse le seuil
-    └─ voir badge "+1 siege" + panneau cout + item siege dans Stripe
+✓ Validation UI bout-en-bout des triggers — DONE 2026-07-17
+    └─ Vraie invitation envoyée + acceptée (set-password) en Stripe test mode, seuil dépassé (5→6) :
+       badge "+1 siège" + bannière coût sur Users, panneau Réglages→Abonnement (6 membres/5 inclus/
+       +29€/an), item siège réel créé dans Stripe — les 4 confirmés en une seule fois
 ✓ Décision : l'admin compte comme un siege — getActiveMemberCount inclut tous les roles (voulu)
-[ ] (UX) Estimation du cout AVANT d'inviter, dans le modal d'invitation
+✓ (UX) Estimation du cout AVANT d'inviter, dans le modal d'invitation — DONE 2026-07-17
+    ├─ Page invite fetch seatUsage, affiche avant envoi si l'invitation reste incluse ou facture
+    │  un siège supplémentaire (prix + cycle exacts) — commit b8f6a13, i18n FR/NL/EN/DE
+    └─ Piège dev trouvé en testant : le Service Worker PWA (cache-first) servait un bundle JS
+       périmé après modif de fichier → hydration mismatch silencieux qui supprimait l'UI neuve.
+       Se reproduira à chaque session de dev UI : si un changement client n'apparaît pas malgré
+       un restart Docker propre, désenregistrer le SW + vider les caches dans la console navigateur.
 ✓ Test unitaire syncSeatQuantity (mock Stripe) — DONE 2026-07-17
     └─ Vitest ajouté (src/lib/billing.test.ts, npm run test:unit), 10 cas :
        no-op (pas de sub, plan illimité, price id manquant, déjà sync),
