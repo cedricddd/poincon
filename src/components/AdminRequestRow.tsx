@@ -14,6 +14,10 @@ interface RequestRowProps {
   disabled?: boolean
   onApprove: () => void
   onReject: () => void
+  onEdit?: () => void
+  onDelete?: () => void
+  selected?: boolean
+  onToggleSelect?: () => void
 }
 
 const statusColors: Record<string, string> = {
@@ -34,6 +38,10 @@ export function AdminRequestRow({
   disabled = false,
   onApprove,
   onReject,
+  onEdit,
+  onDelete,
+  selected,
+  onToggleSelect,
 }: RequestRowProps) {
   const t = useTranslations('adminRequests')
   const statusLabels: Record<string, string> = {
@@ -43,6 +51,17 @@ export function AdminRequestRow({
   }
   return (
     <tr className="border-b border-[var(--pp-line)] hover:bg-[var(--pp-bg2)]">
+      {onToggleSelect && (
+        <td className="px-4 py-3">
+          <input
+            type="checkbox"
+            checked={!!selected}
+            onChange={onToggleSelect}
+            aria-label={t('selectRow')}
+            className="h-4 w-4 cursor-pointer"
+          />
+        </td>
+      )}
       <td className="px-4 py-3">
         {typeColor ? (
           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${typeColor}`}>
@@ -82,6 +101,28 @@ export function AdminRequestRow({
           >
             ✗
           </button>
+          {onEdit && (
+            <button
+              onClick={onEdit}
+              disabled={disabled}
+              title={t('edit')}
+              aria-label={t('edit')}
+              className="px-3 py-1 bg-[var(--pp-bg2)] text-[var(--pp-ink)] border border-[var(--pp-line)] rounded text-sm hover:bg-[var(--pp-line)] disabled:opacity-50"
+            >
+              ✎
+            </button>
+          )}
+          {onDelete && (
+            <button
+              onClick={onDelete}
+              disabled={disabled}
+              title={t('delete')}
+              aria-label={t('delete')}
+              className="px-3 py-1 bg-[var(--pp-bg2)] text-red-500 border border-[var(--pp-line)] rounded text-sm hover:bg-red-500 hover:text-white disabled:opacity-50"
+            >
+              🗑
+            </button>
+          )}
         </div>
       </td>
     </tr>
