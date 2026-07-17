@@ -90,7 +90,7 @@ async function generatePDF() {
       margin: { left: 14, right: 14 },
     })
 
-    startY = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 6
+    startY = (doc as InstanceType<typeof jsPDF> & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 6
   }
 
   const footerY = startY + 6

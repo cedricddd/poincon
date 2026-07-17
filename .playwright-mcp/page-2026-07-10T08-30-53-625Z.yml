@@ -1,0 +1,76 @@
+- generic [ref=f28e2]:
+  - complementary [ref=f28e3]:
+    - generic [ref=f28e4]:
+      - img "Pointon" [ref=f28e11]
+      - button "Réduire le menu" [ref=f28e12] [cursor=pointer]
+    - navigation [ref=f28e15]:
+      - button "Pointage" [ref=f28e16] [cursor=pointer]
+      - generic [ref=f28e21]:
+        - link [ref=f28e22] [cursor=pointer]:
+          - /url: /fr/app/clock
+        - link [ref=f28e27] [cursor=pointer]:
+          - /url: /fr/app/time-off
+        - link [ref=f28e31] [cursor=pointer]:
+          - /url: /fr/app/rtt
+        - link [ref=f28e35] [cursor=pointer]:
+          - /url: /fr/app/reports
+        - link [ref=f28e38] [cursor=pointer]:
+          - /url: /fr/app/presence
+      - button "Admin" [ref=f28e45] [cursor=pointer]
+      - generic [ref=f28e54]:
+        - link "Tableau de bord" [ref=f28e55] [cursor=pointer]:
+          - /url: /fr/admin/dashboard
+        - link "Heures Sup." [ref=f28e60] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/overtimes
+        - link "Congés" [ref=f28e67] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/timeoffs
+        - link "Récupération" [ref=f28e71] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/rtts
+        - link "Horaires" [ref=f28e75] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/schedules
+        - link "Équipes" [ref=f28e79] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/teams
+        - link "Planning" [ref=f28e86] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/planning
+        - link "Présences" [ref=f28e90] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/presence
+        - link "Utilisateurs" [ref=f28e96] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/users
+        - link "Invitations" [ref=f28e103] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/invitations
+        - link "Sites" [ref=f28e108] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/sites
+        - link "Audit Trail" [ref=f28e113] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/audit
+        - link "Rapports" [ref=f28e118] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/reports
+        - link "Kiosque" [ref=f28e121] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/kiosk
+        - link "Paramètres" [ref=f28e125] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/settings
+        - link "Intégrations" [ref=f28e130] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/settings/integrations
+    - generic [ref=f28e134]:
+      - button "Mode sombre" [ref=f28e135] [cursor=pointer]
+      - button "🇧🇪 Français" [ref=f28e139] [cursor=pointer]
+      - generic [ref=f28e146]:
+        - generic [ref=f28e147]: SM
+        - generic [ref=f28e149]:
+          - paragraph [ref=f28e150]: Smoke Test
+          - paragraph [ref=f28e151]: cedric.deroanne+smoketest@gmail.com
+      - button "Se déconnecter" [ref=f28e152] [cursor=pointer]
+  - main [ref=f28e156]:
+    - generic [ref=f28e157]:
+      - generic [ref=f28e159]:
+        - heading "Tableau de bord" [level=1] [ref=f28e160]
+        - paragraph [ref=f28e161]: Chargement…
+      - generic [ref=f28e169]:
+        - generic [ref=f28e171]:
+          - heading "Présences en direct" [level=2] [ref=f28e174]
+          - link "Voir tout →" [ref=f28e175] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/presence
+        - generic [ref=f28e181]:
+          - heading "Activité récente" [level=2] [ref=f28e182]
+          - link "Voir tout →" [ref=f28e183] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/reports
+  - button "Aide" [ref=f28e189] [cursor=pointer]: ❓

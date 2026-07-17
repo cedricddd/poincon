@@ -1,0 +1,579 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "Pointon — accueil" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - img "Pointon" [ref=e6]
+        - navigation [ref=e7]:
+          - link "Fonctionnalités" [ref=e8] [cursor=pointer]:
+            - /url: "#features"
+          - link "Comment ça marche" [ref=e9] [cursor=pointer]:
+            - /url: "#how"
+          - link "Tarifs" [ref=e10] [cursor=pointer]:
+            - /url: "#pricing"
+          - link "FAQ" [ref=e11] [cursor=pointer]:
+            - /url: "#faq"
+        - generic [ref=e12]:
+          - button "Mode sombre" [ref=e13] [cursor=pointer]:
+            - img [ref=e14]
+          - link "Connexion" [ref=e16] [cursor=pointer]:
+            - /url: /login
+          - link "Commencer" [ref=e17] [cursor=pointer]:
+            - /url: /login
+            - button "Commencer" [ref=e18]
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - img "Pointon" [ref=e24]
+        - generic [ref=e27]: Conformiteit België 2027
+        - heading "Klok in. Conform. Belgisch." [level=1] [ref=e28]:
+          - text: Klok in.
+          - text: Conform.
+          - text: Belgisch.
+        - paragraph [ref=e29]: Registreer arbeidstijd wettelijk in België. In 1 tik. Zonder gedoe. Onveranderbaar audit trail.
+        - generic [ref=e30]:
+          - link "Gratis starten" [ref=e31] [cursor=pointer]:
+            - /url: /nl/login
+            - button "Gratis starten" [ref=e32]
+          - link "Hoe het werkt →" [ref=e33] [cursor=pointer]:
+            - /url: "#how"
+            - button "Hoe het werkt →" [ref=e34]
+        - paragraph [ref=e35]: Geen kaart · Onbeperkt Free-plan · Geen GPS · GDPR
+      - generic [ref=e37]:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic: Kiosk
+                - generic: Hoofdkantoor Brussel
+                - generic:
+                  - generic: "1"
+                  - generic: "2"
+                  - generic: "3"
+                  - generic: "4"
+                  - generic: "5"
+                  - generic: "6"
+                  - generic: "7"
+                  - generic: "8"
+                  - generic: "9"
+                  - generic: "*"
+                  - generic: "0"
+                  - generic: "#"
+                - generic: PIN vereist
+        - generic [ref=e40]:
+          - generic [ref=e44]:
+            - img [ref=e45]
+            - img [ref=e50]
+          - generic [ref=e57]: Hoofdkantoor
+          - generic [ref=e59]: ──:──:──
+          - button "UITKLOKKEN ✕" [ref=e61] [cursor=pointer]
+          - generic [ref=e62]:
+            - generic [ref=e63]:
+              - generic [ref=e64]: Vandaag
+              - generic [ref=e65]: ⏳ in afwachting
+            - generic [ref=e66]:
+              - generic [ref=e67]:
+                - generic [ref=e70]: Aankomst
+                - generic [ref=e71]: 09:42
+              - generic [ref=e72]:
+                - generic [ref=e75]: Vertrek
+                - generic [ref=e76]: —
+    - generic [ref=e82]:
+      - generic [ref=e83]:
+        - generic [ref=e84]:
+          - generic [ref=e85]: "0"
+          - generic [ref=e86]: +
+        - generic [ref=e88]: Belgische kmo’s
+      - generic [ref=e89]:
+        - generic [ref=e90]:
+          - generic [ref=e91]: "0"
+          - generic [ref=e92]: min
+        - generic [ref=e94]: Gemiddelde setup
+      - generic [ref=e95]:
+        - generic [ref=e96]:
+          - generic [ref=e97]: "0"
+          - generic [ref=e98]: "%"
+        - generic [ref=e100]: HVJEU-conform
+      - generic [ref=e101]:
+        - generic [ref=e102]:
+          - generic [ref=e103]: "0"
+          - generic [ref=e104]: €
+        - generic [ref=e106]: Om te starten
+    - generic [ref=e109]:
+      - generic [ref=e112]: Live demo
+      - heading "Pointon in actie" [level=2] [ref=e113]
+      - paragraph [ref=e114]: 20 seconden om het wezenlijke te begrijpen.
+    - generic [ref=e118]:
+      - generic [ref=e119]:
+        - generic [ref=e122]: Functies
+        - generic [ref=e123]:
+          - heading "Alles wat nodig is. Niets overbodigs." [level=2] [ref=e124]:
+            - text: Alles wat nodig is.
+            - text: Niets overbodigs.
+          - paragraph [ref=e125]: Een oplossing op maat van Belgische kmo’s die conform willen zijn zonder zich het leven moeilijk te maken.
+      - generic [ref=e126]:
+        - generic [ref=e127]:
+          - generic [ref=e129]: "01"
+          - heading "Inklokken in 1 tik" [level=3] [ref=e131]
+          - paragraph [ref=e132]: IN / UIT met één gebaar. Werkt op smartphone, tablet en pc zonder opleiding.
+        - generic [ref=e133]:
+          - generic [ref=e135]: "02"
+          - heading "Conform wet 2027" [level=3] [ref=e137]
+          - paragraph [ref=e138]: Objectieve registratie, onveranderbaar audit trail en gecertificeerde export. Klaar voor wettelijke inspectie.
+        - generic [ref=e139]:
+          - generic [ref=e141]: "03"
+          - heading "Kiosk, QR & Mobiel" [level=3] [ref=e143]
+          - paragraph [ref=e144]: "4 methoden: mobiele app (PWA), tabletkiosk, afdrukbare QR-code per locatie (1 scan = directe registratie) of webinterface. Geen installatie."
+        - generic [ref=e145]:
+          - generic [ref=e147]: "04"
+          - heading "Slimme meldingen" [level=3] [ref=e149]
+          - paragraph [ref=e150]: Herinnering einde dag, detectie van overuren, realtime notificaties.
+        - generic [ref=e151]:
+          - generic [ref=e153]: "05"
+          - heading "Geen GPS · GDPR" [level=3] [ref=e155]
+          - paragraph [ref=e156]: Geen geolocatie (cao 68 · GDPR). CSV- en PDF-export digitaal ondertekend voor wettelijke inspectie.
+        - generic [ref=e157]:
+          - generic [ref=e159]: "06"
+          - heading "Teambeheer" [level=3] [ref=e161]
+          - paragraph [ref=e162]: Managers, locaties, verlof, recuperatie — alles centraal voor HR en beheerders.
+    - generic [ref=e164]:
+      - generic [ref=e165]:
+        - generic [ref=e168]: Hoe inklokken
+        - heading "4 manieren om in te klokken. Geen wrijving." [level=2] [ref=e169]:
+          - text: 4 manieren om in te klokken.
+          - text: Geen wrijving.
+        - paragraph [ref=e170]: Elk team is anders. Pointon past zich aan uw realiteit aan.
+      - generic [ref=e171]:
+        - generic [ref=e172]:
+          - img [ref=e174]
+          - generic [ref=e177]:
+            - heading "Mobiele PWA" [level=3] [ref=e178]
+            - paragraph [ref=e179]: Aankomst en vertrek in 1 tik vanaf elke smartphone. Zonder installatie.
+        - generic [ref=e180]:
+          - img [ref=e182]
+          - generic [ref=e192]:
+            - heading "Tabletkiosk" [level=3] [ref=e193]
+            - paragraph [ref=e194]: Pincode van 4 cijfers aan de ingang. Ideaal voor vaste teams op locatie.
+          - generic [ref=e195]:
+            - generic [ref=e196]:
+              - img [ref=e197]
+              - generic [ref=e199]: Bezoekersmodus inbegrepen
+            - paragraph [ref=e200]: Onthaal, tijdgestempelde badge en opvolging van externe bezoeken — zonder Pointon-account.
+        - generic [ref=e201]:
+          - img [ref=e203]
+          - generic [ref=e211]:
+            - heading "QR-code" [level=3] [ref=e212]
+            - paragraph [ref=e213]: 1 QR per locatie. 1 scan = 1 directe registratie. Afdrukbaar, onvervalsbaar.
+        - generic [ref=e214]:
+          - img [ref=e216]
+          - generic [ref=e219]:
+            - heading "Webinterface" [level=3] [ref=e220]
+            - paragraph [ref=e221]: Vanaf elke pc en browser. Zelfde ervaring, zelfde eenvoud.
+    - generic [ref=e223]:
+      - generic [ref=e224]:
+        - generic [ref=e227]: Zij vertrouwen ons
+        - heading "Belgische kmo’s die dagelijks inklokken" [level=2] [ref=e228]:
+          - text: Belgische kmo’s die dagelijks
+          - text: inklokken
+      - generic [ref=e229]:
+        - generic [ref=e230]:
+          - generic [ref=e231]:
+            - img [ref=e232]
+            - img [ref=e234]
+            - img [ref=e236]
+            - img [ref=e238]
+            - img [ref=e240]
+          - paragraph [ref=e242]: "“Vroeger noteerden we de uren op papier. Nu gaat het automatisch. Mijn medewerkers klokken in op de tablet bij de ingang, ik exporteer het overzicht op vrijdag. Setup: 10 minuten.”"
+          - generic [ref=e243]:
+            - generic [ref=e244]: MR
+            - generic [ref=e245]:
+              - paragraph [ref=e246]: Marie Renard
+              - paragraph [ref=e247]: Zaakvoerder · Boulangerie Renard · Liège
+            - generic [ref=e248]: Plan Starter
+        - generic [ref=e249]:
+          - generic [ref=e250]:
+            - img [ref=e251]
+            - img [ref=e253]
+            - img [ref=e255]
+            - img [ref=e257]
+            - img [ref=e259]
+          - paragraph [ref=e261]: “We zochten een oplossing conform de wet 2027 zonder GPS of tracking. Pointon vinkt alle vakjes aan. Het onveranderbare audit trail stelt ons gerust bij sociale controles.”
+          - generic [ref=e262]:
+            - generic [ref=e263]: TH
+            - generic [ref=e264]:
+              - paragraph [ref=e265]: Thomas Henrard
+              - paragraph [ref=e266]: Technisch directeur · DataBridge SPRL · Bruxelles
+            - generic [ref=e267]: Plan Team
+        - generic [ref=e268]:
+          - generic [ref=e269]:
+            - img [ref=e270]
+            - img [ref=e272]
+            - img [ref=e274]
+            - img [ref=e276]
+            - img [ref=e278]
+          - paragraph [ref=e280]: “Mijn technici zijn zelden op kantoor. Met de tabletkiosk in het depot en de mobiele app voor verplaatsingen klokt iedereen vlot in.”
+          - generic [ref=e281]:
+            - generic [ref=e282]: SP
+            - generic [ref=e283]:
+              - paragraph [ref=e284]: Sébastien Pirard
+              - paragraph [ref=e285]: Bedrijfsleider · Pirard Installations · Namur
+            - generic [ref=e286]: Plan Starter
+        - generic [ref=e287]:
+          - generic [ref=e288]:
+            - img [ref=e289]
+            - img [ref=e291]
+            - img [ref=e293]
+            - img [ref=e295]
+            - img [ref=e297]
+          - paragraph [ref=e299]: “Uw getuigenis hier — deel uw ervaring met Pointon.”
+          - generic [ref=e300]:
+            - img [ref=e302]
+            - generic [ref=e305]:
+              - paragraph [ref=e306]: Uw onderneming
+              - paragraph [ref=e307]: België
+          - link "Contacteer ons" [ref=e308] [cursor=pointer]:
+            - /url: mailto:contact@pointon.be
+            - text: Contacteer ons
+            - img [ref=e309]
+      - paragraph [ref=e311]: Deze getuigenissen zijn representatief voor reële gebruikssituaties.
+      - paragraph [ref=e312]: Geen GPS · Geen geolocatie · GDPR-conform · cao 68 België
+    - generic [ref=e313]:
+      - generic:
+        - generic: HOW
+      - generic [ref=e315]:
+        - generic [ref=e316]:
+          - generic [ref=e319]: Hoe het werkt
+          - heading "Operationeel in 5 minuten" [level=2] [ref=e320]:
+            - text: Operationeel
+            - text: in 5 minuten
+          - paragraph [ref=e321]: Geen opleiding, geen complexe integratie. Uw team klokt in vanaf dag één.
+          - link "Gratis proberen →" [ref=e322] [cursor=pointer]:
+            - /url: /nl/login
+            - generic [ref=e323]: Gratis proberen
+            - generic [ref=e324]: →
+        - generic [ref=e325]:
+          - generic [ref=e327]:
+            - generic [ref=e329]: "01"
+            - generic [ref=e331]:
+              - img [ref=e333]
+              - heading "Maak uw account" [level=3] [ref=e336]
+              - paragraph [ref=e337]: Schrijf u in 2 minuten in. Geen bankkaart nodig voor het gratis plan.
+          - generic [ref=e339]:
+            - generic [ref=e341]: "02"
+            - generic [ref=e343]:
+              - img [ref=e345]
+              - heading "Nodig uw medewerkers uit" [level=3] [ref=e350]
+              - paragraph [ref=e351]: Voeg uw teams toe en wijs locaties toe. Elk lid krijgt onmiddellijk toegang.
+          - generic [ref=e353]:
+            - generic [ref=e355]: "03"
+            - generic [ref=e356]:
+              - img [ref=e358]
+              - heading "Klok in & exporteer" [level=3] [ref=e361]
+              - paragraph [ref=e362]: Uw medewerkers klokken in op telefoon, tablet of computer. U exporteert de rapporten met één klik.
+    - generic [ref=e364]:
+      - generic [ref=e365]:
+        - generic [ref=e368]: Tarieven
+        - heading "Transparante tarieven" [level=2] [ref=e369]
+        - paragraph [ref=e370]: Start gratis. Betaal pas wanneer u groeit.
+        - paragraph [ref=e371]: Alle prijzen zijn exclusief btw (21 %).
+        - generic [ref=e373]:
+          - button "Maandelijks" [ref=e375] [cursor=pointer]
+          - button "Jaarlijks −17%" [ref=e376] [cursor=pointer]:
+            - text: Jaarlijks
+            - generic [ref=e377]: −17%
+      - generic [ref=e378]:
+        - generic [ref=e379]:
+          - generic [ref=e380]:
+            - heading "Free" [level=3] [ref=e382]
+            - generic [ref=e383]: Gratis
+            - paragraph [ref=e384]: 3 gebruikers inbegrepen
+          - link "Gratis starten" [ref=e386] [cursor=pointer]:
+            - /url: /login
+            - button "Gratis starten" [ref=e387]
+          - generic [ref=e388]:
+            - list [ref=e389]:
+              - listitem [ref=e390]:
+                - img [ref=e391]
+                - text: Mobiel inklokken (PWA)
+              - listitem [ref=e394]:
+                - img [ref=e395]
+                - text: CSV-export (30 dagen)
+              - listitem [ref=e398]:
+                - img [ref=e399]
+                - text: Basisrapporten
+            - generic [ref=e402]:
+              - paragraph [ref=e403]: "Inbegrepen:"
+              - list [ref=e404]:
+                - listitem [ref=e405]:
+                  - img [ref=e406]
+                  - text: Onveranderbaar audit trail
+                - listitem [ref=e408]:
+                  - img [ref=e409]
+                  - text: Multi-toestel
+                - listitem [ref=e411]:
+                  - img [ref=e412]
+                  - text: Beveiligde authenticatie
+        - generic [ref=e414]:
+          - generic [ref=e415]:
+            - heading "Starter" [level=3] [ref=e417]
+            - generic [ref=e419]:
+              - generic [ref=e420]: 19,90€
+              - generic [ref=e421]: /maand excl. btw
+            - paragraph [ref=e422]: 5 gebruikers inbegrepen
+            - paragraph [ref=e423]: +2.9€/extra zitje
+          - link "Kies Starter" [ref=e425] [cursor=pointer]:
+            - /url: /api/stripe/checkout?plan=starter&billing=monthly
+            - button "Kies Starter" [ref=e426]
+          - generic [ref=e427]:
+            - list [ref=e428]:
+              - listitem [ref=e429]:
+                - img [ref=e430]
+                - text: Tabletkioskmodus
+              - listitem [ref=e433]:
+                - img [ref=e434]
+                - text: QR-code per locatie (1 scan = registratie)
+              - listitem [ref=e437]:
+                - img [ref=e438]
+                - text: Onbeperkte CSV/PDF-export
+            - generic [ref=e441]:
+              - paragraph [ref=e442]: "Alles van Free inbegrepen:"
+              - list [ref=e443]:
+                - listitem [ref=e444]:
+                  - img [ref=e445]
+                  - text: E-mailondersteuning
+                - listitem [ref=e447]:
+                  - img [ref=e448]
+                  - text: Automatische overuren
+                - listitem [ref=e450]:
+                  - img [ref=e451]
+                  - text: Verlof & Recuperatie
+        - generic [ref=e453]:
+          - generic [ref=e455]:
+            - generic [ref=e456]:
+              - heading "Team" [level=3] [ref=e457]
+              - generic [ref=e458]: POPULAIR
+            - generic [ref=e460]:
+              - generic [ref=e461]: 44,90€
+              - generic [ref=e462]: /maand excl. btw
+            - paragraph [ref=e463]: 15 gebruikers inbegrepen
+            - paragraph [ref=e464]: +2.6€/extra zitje
+          - link "Kies Team" [ref=e466] [cursor=pointer]:
+            - /url: /api/stripe/checkout?plan=team&billing=monthly
+            - button "Kies Team" [ref=e467]
+          - generic [ref=e468]:
+            - list [ref=e469]:
+              - listitem [ref=e470]:
+                - img [ref=e471]
+                - text: Geavanceerd planning & verlof
+              - listitem [ref=e474]:
+                - img [ref=e475]
+                - text: Managerrol
+              - listitem [ref=e478]:
+                - img [ref=e479]
+                - text: Geplande exports
+            - generic [ref=e482]:
+              - paragraph [ref=e483]: "Alles van Starter inbegrepen:"
+              - list [ref=e484]:
+                - listitem [ref=e485]:
+                  - img [ref=e486]
+                  - text: Prioritaire ondersteuning
+                - listitem [ref=e488]:
+                  - img [ref=e489]
+                  - text: Multi-locatie
+                - listitem [ref=e491]:
+                  - img [ref=e492]
+                  - text: Managerdashboard
+        - generic [ref=e494]:
+          - generic [ref=e495]:
+            - heading "Business" [level=3] [ref=e497]
+            - generic [ref=e499]:
+              - generic [ref=e500]: 69,90€
+              - generic [ref=e501]: /maand excl. btw
+            - paragraph [ref=e502]: 30 gebruikers inbegrepen
+            - paragraph [ref=e503]: +2.2€/extra zitje
+          - link "Kies Business" [ref=e505] [cursor=pointer]:
+            - /url: /api/stripe/checkout?plan=business&billing=monthly
+            - button "Kies Business" [ref=e506]
+          - generic [ref=e507]:
+            - list [ref=e508]:
+              - listitem [ref=e509]:
+                - img [ref=e510]
+                - text: API & integraties
+              - listitem [ref=e513]:
+                - img [ref=e514]
+                - text: Geavanceerde rapporten
+              - listitem [ref=e517]:
+                - img [ref=e518]
+                - text: Multi-vennootschap
+            - generic [ref=e521]:
+              - paragraph [ref=e522]: "Alles van Team inbegrepen:"
+              - list [ref=e523]:
+                - listitem [ref=e524]:
+                  - img [ref=e525]
+                  - text: SLA 99.9%
+                - listitem [ref=e527]:
+                  - img [ref=e528]
+                  - text: Toegewijde onboarding
+                - listitem [ref=e530]:
+                  - img [ref=e531]
+                  - text: Gepersonaliseerde facturatie
+        - generic [ref=e533]:
+          - generic [ref=e534]:
+            - heading "Enterprise" [level=3] [ref=e536]
+            - generic [ref=e537]: Op aanvraag
+            - paragraph [ref=e538]: Onbeperkt gebruikers
+          - link "Contacteer ons" [ref=e540] [cursor=pointer]:
+            - /url: mailto:contact@pointon.be
+            - button "Contacteer ons" [ref=e541]
+          - generic [ref=e542]:
+            - list [ref=e543]:
+              - listitem [ref=e544]:
+                - img [ref=e545]
+                - text: Onbeperkt managers
+              - listitem [ref=e548]:
+                - img [ref=e549]
+                - text: Wekelijkse geplande export
+              - listitem [ref=e552]:
+                - img [ref=e553]
+                - text: Gegarandeerde SLA
+            - generic [ref=e556]:
+              - paragraph [ref=e557]: "Alles van Business inbegrepen:"
+              - list [ref=e558]:
+                - listitem [ref=e559]:
+                  - img [ref=e560]
+                  - text: Toegewijde ondersteuning
+                - listitem [ref=e562]:
+                  - img [ref=e563]
+                  - text: Gepersonaliseerde onboarding
+                - listitem [ref=e565]:
+                  - img [ref=e566]
+                  - text: Contract op maat
+      - paragraph [ref=e568]:
+        - text: 💡 Schakel over naar jaarlijkse facturatie en
+        - button "bespaar 17% (2 maanden gratis)" [ref=e569] [cursor=pointer]
+    - generic [ref=e572]:
+      - generic [ref=e573]:
+        - generic [ref=e576]: FAQ
+        - heading "Veelgestelde vragen" [level=2] [ref=e577]:
+          - text: Veelgestelde
+          - text: vragen
+        - paragraph [ref=e578]: Vindt u uw antwoord niet? Contacteer ons rechtstreeks.
+        - link "Schrijf ons" [ref=e579] [cursor=pointer]:
+          - /url: mailto:contact@pointon.be
+          - text: Schrijf ons
+          - img [ref=e580]
+      - generic [ref=e582]:
+        - generic [ref=e583]:
+          - button "01 Is de oplossing conform de Belgische wet 2027?" [ref=e584] [cursor=pointer]:
+            - generic [ref=e585]: "01"
+            - generic [ref=e586]: Is de oplossing conform de Belgische wet 2027?
+            - img [ref=e588]
+          - generic [ref=e590]: "Ja. Pointon voldoet aan alle Belgische en HVJEU wettelijke vereisten: objectieve registratie, onveranderbaar audit trail, gecertificeerde export."
+        - generic [ref=e591]:
+          - button "02 Hoe worden de gegevens opgeslagen?" [ref=e592] [cursor=pointer]:
+            - generic [ref=e593]: "02"
+            - generic [ref=e594]: Hoe worden de gegevens opgeslagen?
+            - img [ref=e596]
+          - generic [ref=e598]: Gegevens gehost in de EU (Vercel Postgres of zelf-gehoste server). HTTPS-versleuteling. GDPR-conform.
+        - generic [ref=e599]:
+          - button "03 Kan ik de gegevens exporteren?" [ref=e600] [cursor=pointer]:
+            - generic [ref=e601]: "03"
+            - generic [ref=e602]: Kan ik de gegevens exporteren?
+            - img [ref=e604]
+          - generic [ref=e606]: Ja. CSV/PDF-export digitaal ondertekend voor wettelijke inspectie. Beschikbaar op alle plannen.
+        - generic [ref=e607]:
+          - button "04 Wat is de opzettijd?" [ref=e608] [cursor=pointer]:
+            - generic [ref=e609]: "04"
+            - generic [ref=e610]: Wat is de opzettijd?
+            - img [ref=e612]
+          - generic [ref=e614]: "Setup in 5 minuten. Integratie: 15 min. Onmiddellijk inklokken na aanmaak van het account."
+        - generic [ref=e615]:
+          - button "05 Is er een proefperiode?" [ref=e616] [cursor=pointer]:
+            - generic [ref=e617]: "05"
+            - generic [ref=e618]: Is er een proefperiode?
+            - img [ref=e620]
+          - generic [ref=e622]: Onbeperkt Free-plan zonder verbintenis. Probeer gratis, geen kaart vereist.
+        - generic [ref=e623]:
+          - button "06 Wat gebeurt er als ik offline inklok?" [ref=e624] [cursor=pointer]:
+            - generic [ref=e625]: "06"
+            - generic [ref=e626]: Wat gebeurt er als ik offline inklok?
+            - img [ref=e628]
+          - generic [ref=e630]: Uw registratie wordt lokaal opgeslagen en gemarkeerd als "⏳ in afwachting van sync". Bij herverbinding synchroniseert ze automatisch met de server en wordt ze officieel. Het aanwezigheidsbord telt enkel gesynchroniseerde registraties.
+    - generic [ref=e632]:
+      - generic [ref=e635]: De Belgische wet treedt in werking op 1 januari 2027
+      - generic [ref=e637]:
+        - generic [ref=e638]:
+          - generic [ref=e639]: "000"
+          - generic [ref=e640]: dagen
+        - generic [ref=e641]: ":"
+        - generic [ref=e642]:
+          - generic [ref=e643]: "00"
+          - generic [ref=e644]: uren
+        - generic [ref=e645]: ":"
+        - generic [ref=e646]:
+          - generic [ref=e647]: "00"
+          - generic [ref=e648]: minuten
+        - generic [ref=e649]: ":"
+        - generic [ref=e650]:
+          - generic [ref=e651]: "00"
+          - generic [ref=e652]: seconden
+      - generic [ref=e656]:
+        - generic [ref=e657]: "2024"
+        - generic [ref=e658]: "2027"
+      - heading "Is uw systeem klaar?" [level=2] [ref=e659]
+      - paragraph [ref=e660]: Geen kaart vereist. Setup in 2 minuten. Conform vanaf de eerste registratie.
+      - generic [ref=e661]:
+        - link "Maak mijn gratis account" [ref=e662] [cursor=pointer]:
+          - /url: /nl/login
+          - button "Maak mijn gratis account" [ref=e663]
+        - link "Praat met een expert" [ref=e664] [cursor=pointer]:
+          - /url: mailto:contact@pointon.be
+          - button "Praat met een expert" [ref=e665]
+    - contentinfo [ref=e666]:
+      - generic [ref=e667]:
+        - generic [ref=e668]:
+          - generic [ref=e669]:
+            - img "Pointon" [ref=e672]
+            - paragraph [ref=e673]: De Belgische wettelijke prikklok voor kmo’s. Eenvoudig, mobile-first, conform 2027.
+          - generic [ref=e674]:
+            - heading "Product" [level=4] [ref=e675]
+            - list [ref=e676]:
+              - listitem [ref=e677]:
+                - link "Functies" [ref=e678] [cursor=pointer]:
+                  - /url: "#features"
+              - listitem [ref=e679]:
+                - link "Tarieven" [ref=e680] [cursor=pointer]:
+                  - /url: "#pricing"
+              - listitem [ref=e681]:
+                - link "FAQ" [ref=e682] [cursor=pointer]:
+                  - /url: "#faq"
+          - generic [ref=e683]:
+            - heading "Juridisch" [level=4] [ref=e684]
+            - list [ref=e685]:
+              - listitem [ref=e686]:
+                - link "Privacy" [ref=e687] [cursor=pointer]:
+                  - /url: /nl/legal/privacy
+              - listitem [ref=e688]:
+                - link "Voorwaarden" [ref=e689] [cursor=pointer]:
+                  - /url: /nl/legal/terms
+              - listitem [ref=e690]:
+                - link "Conformiteit" [ref=e691] [cursor=pointer]:
+                  - /url: /nl/legal/compliance
+              - listitem [ref=e692]:
+                - link "Beveiliging" [ref=e693] [cursor=pointer]:
+                  - /url: /nl/legal/security
+          - generic [ref=e694]:
+            - heading "Bronnen" [level=4] [ref=e695]
+            - list [ref=e696]:
+              - listitem [ref=e697]:
+                - link "Ondersteuning" [ref=e698] [cursor=pointer]:
+                  - /url: mailto:support@pointon.be
+              - listitem [ref=e699]:
+                - link "Contact" [ref=e700] [cursor=pointer]:
+                  - /url: mailto:contact@pointon.be
+        - generic [ref=e701]:
+          - generic [ref=e702]: © 2026 Pointon · Ced-IT · België
+          - generic [ref=e703]: Conform België 2027 · GDPR · HTTPS
+  - button "Open Next.js Dev Tools" [ref=e709] [cursor=pointer]:
+    - img [ref=e710]

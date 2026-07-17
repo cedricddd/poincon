@@ -60,11 +60,11 @@ export async function GET() {
     const totalUsers = await prisma.user.count({ where: userWhere })
 
     const activeUsers7d = await prisma.user.count({
-      where: { ...userWhere, clockRecords: { some: { clockIn: { gte: sevenDaysAgo } } } },
+      where: { ...userWhere, clockRecords: { some: { arrivalTime: { gte: sevenDaysAgo } } } },
     })
 
     const activeUsers30d = await prisma.user.count({
-      where: { ...userWhere, clockRecords: { some: { clockIn: { gte: thirtyDaysAgo } } } },
+      where: { ...userWhere, clockRecords: { some: { arrivalTime: { gte: thirtyDaysAgo } } } },
     })
 
     // Churn: paying companies with cancel scheduled / total paying companies

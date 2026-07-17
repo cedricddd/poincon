@@ -48,10 +48,10 @@ ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker comp
 - ADMIN → `/admin/dashboard/*` | MANAGER → `/manager/dashboard` | EMPLOYEE → `/app/*`
 - SUPER_ADMIN → `/super-admin/*` + override plan Enterprise
 
-## Plans: FREE | SOLO | TEAM | ENTERPRISE
+## Plans: FREE | STARTER | TEAM | BUSINESS | ENTERPRISE
 
 - Helper: `src/lib/plan.ts` → `planCanAccess(plan, feature)`
-- Checkout: `GET /api/stripe/checkout?plan=solo&billing=monthly` → `/pointon-stripe`
+- Checkout: `GET /api/stripe/checkout?plan=starter&billing=monthly` → `/pointon-stripe`
 
 ## Invitations
 
@@ -68,6 +68,13 @@ ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker comp
 - **SSH** : `ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && git pull origin main && docker compose up -d --build app'"`
 - **CI/CD** : GitHub Actions auto-deploy → `/pointon-cicd`
 
+## i18n (next-intl FR/NL/EN/DE)
+
+- Routes préfixées `/[locale]/...` · Import `Link`/`useRouter` depuis `@/i18n/navigation`
+- Piège : `proxy.ts` doit forcer `x-next-intl-locale` header avant pass-through
+- Messages : `messages/{fr,nl,en,de}.json` · Namespaces dans `src/i18n/request.ts`
+- → `/pointon-i18n` pour les patterns complets
+
 ## Key Skills
 
-`/pointon-dev` · `/pointon-kiosk` · `/pointon-planning` · `/pointon-stripe` · `/pointon-cicd` · `/pointon-cron` · `/rtk-dev` · `/security-review`
+`/pointon-dev` · `/pointon-i18n` · `/pointon-kiosk` · `/pointon-planning` · `/pointon-stripe` · `/pointon-cicd` · `/pointon-cron` · `/rtk-dev` · `/security-review`

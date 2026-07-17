@@ -1,0 +1,125 @@
+- generic [active] [ref=f21e1]:
+  - generic [ref=f21e2]:
+    - complementary [ref=f21e3]:
+      - generic [ref=f21e4]:
+        - generic [ref=f21e5]:
+          - img [ref=f21e7]
+          - img "Pointon" [ref=f21e11]
+        - button "Réduire le menu" [ref=f21e12] [cursor=pointer]:
+          - img [ref=f21e13]
+      - navigation [ref=f21e15]:
+        - button "Pointage" [ref=f21e16] [cursor=pointer]:
+          - generic [ref=f21e17]: Pointage
+          - img [ref=f21e19]
+        - generic [ref=f21e21]:
+          - link "Pointage" [ref=f21e22] [cursor=pointer]:
+            - /url: /fr/app/clock
+            - img [ref=f21e24]
+            - text: Pointage
+          - link "Congés" [ref=f21e27] [cursor=pointer]:
+            - /url: /fr/app/time-off
+            - img [ref=f21e29]
+            - text: Congés
+          - link "Récupération" [ref=f21e31] [cursor=pointer]:
+            - /url: /fr/app/rtt
+            - img [ref=f21e33]
+            - text: Récupération
+          - link "Rapports" [ref=f21e35] [cursor=pointer]:
+            - /url: /fr/app/reports
+            - img [ref=f21e37]
+            - text: Rapports
+          - link "Présences" [ref=f21e38] [cursor=pointer]:
+            - /url: /fr/app/presence
+            - img [ref=f21e40]
+            - text: Présences
+        - button "Admin" [ref=f21e45] [cursor=pointer]:
+          - generic [ref=f21e46]:
+            - img [ref=f21e47]
+            - generic [ref=f21e50]: Admin
+          - img [ref=f21e52]
+        - generic [ref=f21e54]:
+          - link "Tableau de bord" [ref=f21e55] [cursor=pointer]:
+            - /url: /fr/admin/dashboard
+            - img [ref=f21e56]
+            - generic [ref=f21e59]: Tableau de bord
+          - link "Heures Sup." [ref=f21e60] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/overtimes
+            - img [ref=f21e61]
+            - generic [ref=f21e66]: Heures Sup.
+          - link "Congés" [ref=f21e67] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/timeoffs
+            - img [ref=f21e68]
+            - generic [ref=f21e70]: Congés
+          - link "Récupération" [ref=f21e71] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/rtts
+            - img [ref=f21e72]
+            - generic [ref=f21e74]: Récupération
+          - link "Horaires" [ref=f21e75] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/schedules
+            - img [ref=f21e76]
+            - generic [ref=f21e78]: Horaires
+          - link "Équipes" [ref=f21e79] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/teams
+            - img [ref=f21e80]
+            - generic [ref=f21e85]: Équipes
+          - link "Planning" [ref=f21e86] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/planning
+            - img [ref=f21e87]
+            - generic [ref=f21e89]: Planning
+          - link "Présences" [ref=f21e90] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/presence
+            - img [ref=f21e91]
+            - generic [ref=f21e95]: Présences
+          - link "Utilisateurs" [ref=f21e96] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/users
+            - img [ref=f21e97]
+            - generic [ref=f21e102]: Utilisateurs
+          - link "Invitations" [ref=f21e103] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/invitations
+            - img [ref=f21e104]
+            - generic [ref=f21e107]: Invitations
+          - link "Sites" [ref=f21e108] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/sites
+            - img [ref=f21e109]
+            - generic [ref=f21e112]: Sites
+          - link "Audit Trail" [ref=f21e113] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/audit
+            - img [ref=f21e114]
+            - generic [ref=f21e117]: Audit Trail
+          - link "Rapports" [ref=f21e118] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/reports
+            - img [ref=f21e119]
+            - generic [ref=f21e120]: Rapports
+          - link "Kiosque" [ref=f21e121] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/kiosk
+            - img [ref=f21e122]
+            - generic [ref=f21e124]: Kiosque
+          - link "Paramètres" [ref=f21e125] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/settings
+            - img [ref=f21e126]
+            - generic [ref=f21e129]: Paramètres
+          - link "Intégrations" [ref=f21e130] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/settings/integrations
+            - img [ref=f21e131]
+            - generic [ref=f21e133]: Intégrations
+      - generic [ref=f21e134]:
+        - button "Mode sombre" [ref=f21e135] [cursor=pointer]:
+          - img [ref=f21e136]
+          - text: Mode sombre
+        - button "🇧🇪 Français" [ref=f21e139] [cursor=pointer]:
+          - img [ref=f21e140]
+          - generic [ref=f21e143]: 🇧🇪 Français
+          - img [ref=f21e144]
+        - generic [ref=f21e146]:
+          - generic [ref=f21e148]: AD
+          - generic [ref=f21e149]:
+            - paragraph [ref=f21e150]: Admin User
+            - paragraph [ref=f21e151]: admin@pointon.be
+        - button "Se déconnecter" [ref=f21e152] [cursor=pointer]:
+          - img [ref=f21e153]
+          - text: Se déconnecter
+    - main [ref=f21e156]:
+      - generic [ref=f21e157]: Chargement...
+    - button "Aide" [ref=f21e158] [cursor=pointer]: ❓
+  - button "Open Next.js Dev Tools" [ref=f21e164] [cursor=pointer]:
+    - img [ref=f21e165]

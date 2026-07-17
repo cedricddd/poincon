@@ -1,0 +1,583 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "Pointon — accueil" [ref=e5] [cursor=pointer]:
+          - /url: /en
+          - img "Pointon" [ref=e6]
+        - navigation [ref=e7]:
+          - link "Features" [ref=e8] [cursor=pointer]:
+            - /url: "#features"
+          - link "How it works" [ref=e9] [cursor=pointer]:
+            - /url: "#how"
+          - link "Pricing" [ref=e10] [cursor=pointer]:
+            - /url: "#pricing"
+          - link "FAQ" [ref=e11] [cursor=pointer]:
+            - /url: "#faq"
+        - generic [ref=e12]:
+          - button "🇬🇧 English" [ref=e15] [cursor=pointer]:
+            - img [ref=e16]
+            - generic [ref=e19]: 🇬🇧 English
+            - img [ref=e20]
+          - button "Dark mode" [ref=e22] [cursor=pointer]:
+            - img [ref=e23]
+          - link "Sign in" [ref=e25] [cursor=pointer]:
+            - /url: /en/login
+          - link "Get started" [ref=e26] [cursor=pointer]:
+            - /url: /en/login
+            - button "Get started" [ref=e27]
+    - generic [ref=e30]:
+      - generic [ref=e31]:
+        - img "Pointon" [ref=e33]
+        - generic [ref=e36]: Belgium Compliance 2027
+        - heading "Clock in. Compliant. Belgian." [level=1] [ref=e37]:
+          - text: Clock in.
+          - text: Compliant.
+          - text: Belgian.
+        - paragraph [ref=e38]: Record working time legally in Belgium. In 1 tap. No hassle. Immutable audit trail.
+        - generic [ref=e39]:
+          - link "Start for free" [ref=e40] [cursor=pointer]:
+            - /url: /en/login
+            - button "Start for free" [ref=e41]
+          - link "How it works →" [ref=e42] [cursor=pointer]:
+            - /url: "#how"
+            - button "How it works →" [ref=e43]
+        - paragraph [ref=e44]: No card · Unlimited Free plan · Zero GPS · GDPR
+      - generic [ref=e46]:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic: Kiosk
+                - generic: Brussels HQ
+                - generic:
+                  - generic: "1"
+                  - generic: "2"
+                  - generic: "3"
+                  - generic: "4"
+                  - generic: "5"
+                  - generic: "6"
+                  - generic: "7"
+                  - generic: "8"
+                  - generic: "9"
+                  - generic: "*"
+                  - generic: "0"
+                  - generic: "#"
+                - generic: PIN required
+        - generic [ref=e49]:
+          - generic [ref=e53]:
+            - img [ref=e54]
+            - img [ref=e59]
+          - generic [ref=e66]: Head office
+          - generic [ref=e68]: ──:──:──
+          - button "CLOCK OUT ✕" [ref=e70] [cursor=pointer]
+          - generic [ref=e71]:
+            - generic [ref=e72]:
+              - generic [ref=e73]: Today
+              - generic [ref=e74]: ⏳ pending
+            - generic [ref=e75]:
+              - generic [ref=e76]:
+                - generic [ref=e79]: Arrival
+                - generic [ref=e80]: 09:42
+              - generic [ref=e81]:
+                - generic [ref=e84]: Departure
+                - generic [ref=e85]: —
+    - generic [ref=e91]:
+      - generic [ref=e92]:
+        - generic [ref=e93]:
+          - generic [ref=e94]: "0"
+          - generic [ref=e95]: +
+        - generic [ref=e97]: Belgian SMEs
+      - generic [ref=e98]:
+        - generic [ref=e99]:
+          - generic [ref=e100]: "0"
+          - generic [ref=e101]: min
+        - generic [ref=e103]: Average setup
+      - generic [ref=e104]:
+        - generic [ref=e105]:
+          - generic [ref=e106]: "0"
+          - generic [ref=e107]: "%"
+        - generic [ref=e109]: CJEU compliant
+      - generic [ref=e110]:
+        - generic [ref=e111]:
+          - generic [ref=e112]: "0"
+          - generic [ref=e113]: €
+        - generic [ref=e115]: To get started
+    - generic [ref=e118]:
+      - generic [ref=e121]: Live demo
+      - heading "See Pointon in action" [level=2] [ref=e122]
+      - paragraph [ref=e123]: 20 seconds to grasp the essentials.
+    - generic [ref=e127]:
+      - generic [ref=e128]:
+        - generic [ref=e131]: Features
+        - generic [ref=e132]:
+          - heading "Everything you need. Nothing superfluous." [level=2] [ref=e133]:
+            - text: Everything you need.
+            - text: Nothing superfluous.
+          - paragraph [ref=e134]: A solution designed for Belgian SMEs that want to be compliant without complicating their lives.
+      - generic [ref=e135]:
+        - generic [ref=e136]:
+          - generic [ref=e138]: "01"
+          - heading "Clock in with 1 tap" [level=3] [ref=e140]
+          - paragraph [ref=e141]: IN / OUT in a single gesture. Works on smartphone, tablet and PC with no training.
+        - generic [ref=e142]:
+          - generic [ref=e144]: "02"
+          - heading "Compliant with 2027 law" [level=3] [ref=e146]
+          - paragraph [ref=e147]: Objective recording, immutable audit trail and certified export. Ready for legal inspection.
+        - generic [ref=e148]:
+          - generic [ref=e150]: "03"
+          - heading "Kiosk, QR & Mobile" [level=3] [ref=e152]
+          - paragraph [ref=e153]: "4 methods: mobile app (PWA), tablet kiosk, printable QR code per site (1 scan = instant clock-in) or web interface. Zero installation."
+        - generic [ref=e154]:
+          - generic [ref=e156]: "04"
+          - heading "Smart alerts" [level=3] [ref=e158]
+          - paragraph [ref=e159]: End-of-day reminder, overtime detection, real-time notifications.
+        - generic [ref=e160]:
+          - generic [ref=e162]: "05"
+          - heading "Zero GPS · GDPR" [level=3] [ref=e164]
+          - paragraph [ref=e165]: No geolocation (CBA 68 · GDPR). CSV and PDF exports digitally signed for legal inspection.
+        - generic [ref=e166]:
+          - generic [ref=e168]: "06"
+          - heading "Team management" [level=3] [ref=e170]
+          - paragraph [ref=e171]: Managers, sites, leave, time-off recovery — all centralised for HR and administrators.
+    - generic [ref=e173]:
+      - generic [ref=e174]:
+        - generic [ref=e177]: How to clock in
+        - heading "4 ways to clock in. Zero friction." [level=2] [ref=e178]:
+          - text: 4 ways to clock in.
+          - text: Zero friction.
+        - paragraph [ref=e179]: Every team is different. Pointon adapts to your reality.
+      - generic [ref=e180]:
+        - generic [ref=e181]:
+          - img [ref=e183]
+          - generic [ref=e186]:
+            - heading "Mobile PWA" [level=3] [ref=e187]
+            - paragraph [ref=e188]: Arrival and departure in 1 tap from any smartphone. No installation.
+        - generic [ref=e189]:
+          - img [ref=e191]
+          - generic [ref=e201]:
+            - heading "Tablet kiosk" [level=3] [ref=e202]
+            - paragraph [ref=e203]: 4-digit PIN at the office entrance. Ideal for fixed on-site teams.
+          - generic [ref=e204]:
+            - generic [ref=e205]:
+              - img [ref=e206]
+              - generic [ref=e208]: Visitor mode included
+            - paragraph [ref=e209]: Reception, time-stamped badge and tracking of external visits — without a Pointon account.
+        - generic [ref=e210]:
+          - img [ref=e212]
+          - generic [ref=e220]:
+            - heading "QR Code" [level=3] [ref=e221]
+            - paragraph [ref=e222]: 1 QR per site. 1 scan = 1 instant clock-in. Printable, tamper-proof.
+        - generic [ref=e223]:
+          - img [ref=e225]
+          - generic [ref=e228]:
+            - heading "Web interface" [level=3] [ref=e229]
+            - paragraph [ref=e230]: From any PC and browser. Same experience, same simplicity.
+    - generic [ref=e232]:
+      - generic [ref=e233]:
+        - generic [ref=e236]: They trust us
+        - heading "Belgian SMEs clocking in every day" [level=2] [ref=e237]:
+          - text: Belgian SMEs clocking in
+          - text: every day
+      - generic [ref=e238]:
+        - generic [ref=e239]:
+          - generic [ref=e240]:
+            - img [ref=e241]
+            - img [ref=e243]
+            - img [ref=e245]
+            - img [ref=e247]
+            - img [ref=e249]
+          - paragraph [ref=e251]: "“We used to write hours on paper. Now it’s automatic. My employees clock in on the tablet at the entrance, I export the summary on Friday. Setup: 10 minutes.”"
+          - generic [ref=e252]:
+            - generic [ref=e253]: MR
+            - generic [ref=e254]:
+              - paragraph [ref=e255]: Marie Renard
+              - paragraph [ref=e256]: Manager · Boulangerie Renard · Liège
+            - generic [ref=e257]: Starter plan
+        - generic [ref=e258]:
+          - generic [ref=e259]:
+            - img [ref=e260]
+            - img [ref=e262]
+            - img [ref=e264]
+            - img [ref=e266]
+            - img [ref=e268]
+          - paragraph [ref=e270]: “We were looking for a solution compliant with the 2027 law without GPS or tracking. Pointon ticks every box. The immutable audit trail reassures us for social inspections.”
+          - generic [ref=e271]:
+            - generic [ref=e272]: TH
+            - generic [ref=e273]:
+              - paragraph [ref=e274]: Thomas Henrard
+              - paragraph [ref=e275]: Technical Director · DataBridge SPRL · Bruxelles
+            - generic [ref=e276]: Team plan
+        - generic [ref=e277]:
+          - generic [ref=e278]:
+            - img [ref=e279]
+            - img [ref=e281]
+            - img [ref=e283]
+            - img [ref=e285]
+            - img [ref=e287]
+          - paragraph [ref=e289]: “My technicians are rarely in the office. With the tablet kiosk at the depot and the mobile app for travel, everyone clocks in easily.”
+          - generic [ref=e290]:
+            - generic [ref=e291]: SP
+            - generic [ref=e292]:
+              - paragraph [ref=e293]: Sébastien Pirard
+              - paragraph [ref=e294]: Director · Pirard Installations · Namur
+            - generic [ref=e295]: Starter plan
+        - generic [ref=e296]:
+          - generic [ref=e297]:
+            - img [ref=e298]
+            - img [ref=e300]
+            - img [ref=e302]
+            - img [ref=e304]
+            - img [ref=e306]
+          - paragraph [ref=e308]: “Your testimonial here — share your experience with Pointon.”
+          - generic [ref=e309]:
+            - img [ref=e311]
+            - generic [ref=e314]:
+              - paragraph [ref=e315]: Your company
+              - paragraph [ref=e316]: Belgium
+          - link "Contact us" [ref=e317] [cursor=pointer]:
+            - /url: mailto:contact@pointon.be
+            - text: Contact us
+            - img [ref=e318]
+      - paragraph [ref=e320]: These testimonials are representative of real use cases.
+      - paragraph [ref=e321]: Zero GPS · No geolocation · GDPR compliant · CBA 68 Belgium
+    - generic [ref=e322]:
+      - generic:
+        - generic: HOW
+      - generic [ref=e324]:
+        - generic [ref=e325]:
+          - generic [ref=e328]: How it works
+          - heading "Up and running in 5 minutes" [level=2] [ref=e329]:
+            - text: Up and running
+            - text: in 5 minutes
+          - paragraph [ref=e330]: No training, no complex integration. Your team clocks in from day one.
+          - link "Try for free →" [ref=e331] [cursor=pointer]:
+            - /url: /en/login
+            - generic [ref=e332]: Try for free
+            - generic [ref=e333]: →
+        - generic [ref=e334]:
+          - generic [ref=e336]:
+            - generic [ref=e338]: "01"
+            - generic [ref=e340]:
+              - img [ref=e342]
+              - heading "Create your account" [level=3] [ref=e345]
+              - paragraph [ref=e346]: Sign up in 2 minutes. No credit card required for the free plan.
+          - generic [ref=e348]:
+            - generic [ref=e350]: "02"
+            - generic [ref=e352]:
+              - img [ref=e354]
+              - heading "Invite your employees" [level=3] [ref=e359]
+              - paragraph [ref=e360]: Add your teams and assign sites. Each member gets access immediately.
+          - generic [ref=e362]:
+            - generic [ref=e364]: "03"
+            - generic [ref=e365]:
+              - img [ref=e367]
+              - heading "Clock in & export" [level=3] [ref=e370]
+              - paragraph [ref=e371]: Your employees clock in on phone, tablet or computer. You export reports in one click.
+    - generic [ref=e373]:
+      - generic [ref=e374]:
+        - generic [ref=e377]: Pricing
+        - heading "Transparent pricing" [level=2] [ref=e378]
+        - paragraph [ref=e379]: Start for free. Pay only when you grow.
+        - paragraph [ref=e380]: All prices are shown excluding VAT (21%).
+        - generic [ref=e382]:
+          - button "Monthly" [ref=e384] [cursor=pointer]
+          - button "Annual −17%" [ref=e385] [cursor=pointer]:
+            - text: Annual
+            - generic [ref=e386]: −17%
+      - generic [ref=e387]:
+        - generic [ref=e388]:
+          - generic [ref=e389]:
+            - heading "Free" [level=3] [ref=e391]
+            - generic [ref=e392]: Free
+            - paragraph [ref=e393]: 3 users included
+          - link "Start for free" [ref=e395] [cursor=pointer]:
+            - /url: /login
+            - button "Start for free" [ref=e396]
+          - generic [ref=e397]:
+            - list [ref=e398]:
+              - listitem [ref=e399]:
+                - img [ref=e400]
+                - text: Mobile clock-in (PWA)
+              - listitem [ref=e403]:
+                - img [ref=e404]
+                - text: CSV export (30 days)
+              - listitem [ref=e407]:
+                - img [ref=e408]
+                - text: Basic reports
+            - generic [ref=e411]:
+              - paragraph [ref=e412]: "Included:"
+              - list [ref=e413]:
+                - listitem [ref=e414]:
+                  - img [ref=e415]
+                  - text: Immutable audit trail
+                - listitem [ref=e417]:
+                  - img [ref=e418]
+                  - text: Multi-device
+                - listitem [ref=e420]:
+                  - img [ref=e421]
+                  - text: Secure authentication
+        - generic [ref=e423]:
+          - generic [ref=e424]:
+            - heading "Starter" [level=3] [ref=e426]
+            - generic [ref=e428]:
+              - generic [ref=e429]: 19.90€
+              - generic [ref=e430]: /month excl. VAT
+            - paragraph [ref=e431]: 5 users included
+            - paragraph [ref=e432]: +2.9€/additional seat
+          - link "Choose Starter" [ref=e434] [cursor=pointer]:
+            - /url: /api/stripe/checkout?plan=starter&billing=monthly
+            - button "Choose Starter" [ref=e435]
+          - generic [ref=e436]:
+            - list [ref=e437]:
+              - listitem [ref=e438]:
+                - img [ref=e439]
+                - text: Tablet kiosk mode
+              - listitem [ref=e442]:
+                - img [ref=e443]
+                - text: QR code per site (1 scan = clock-in)
+              - listitem [ref=e446]:
+                - img [ref=e447]
+                - text: Unlimited CSV/PDF export
+            - generic [ref=e450]:
+              - paragraph [ref=e451]: "Everything in Free:"
+              - list [ref=e452]:
+                - listitem [ref=e453]:
+                  - img [ref=e454]
+                  - text: Email support
+                - listitem [ref=e456]:
+                  - img [ref=e457]
+                  - text: Automatic overtime
+                - listitem [ref=e459]:
+                  - img [ref=e460]
+                  - text: Leave & Time-off recovery
+        - generic [ref=e462]:
+          - generic [ref=e464]:
+            - generic [ref=e465]:
+              - heading "Team" [level=3] [ref=e466]
+              - generic [ref=e467]: POPULAR
+            - generic [ref=e469]:
+              - generic [ref=e470]: 44.90€
+              - generic [ref=e471]: /month excl. VAT
+            - paragraph [ref=e472]: 15 users included
+            - paragraph [ref=e473]: +2.6€/additional seat
+          - link "Choose Team" [ref=e475] [cursor=pointer]:
+            - /url: /api/stripe/checkout?plan=team&billing=monthly
+            - button "Choose Team" [ref=e476]
+          - generic [ref=e477]:
+            - list [ref=e478]:
+              - listitem [ref=e479]:
+                - img [ref=e480]
+                - text: Advanced planning & leave
+              - listitem [ref=e483]:
+                - img [ref=e484]
+                - text: Manager role
+              - listitem [ref=e487]:
+                - img [ref=e488]
+                - text: Scheduled exports
+            - generic [ref=e491]:
+              - paragraph [ref=e492]: "Everything in Starter:"
+              - list [ref=e493]:
+                - listitem [ref=e494]:
+                  - img [ref=e495]
+                  - text: Priority support
+                - listitem [ref=e497]:
+                  - img [ref=e498]
+                  - text: Multi-site
+                - listitem [ref=e500]:
+                  - img [ref=e501]
+                  - text: Manager dashboard
+        - generic [ref=e503]:
+          - generic [ref=e504]:
+            - heading "Business" [level=3] [ref=e506]
+            - generic [ref=e508]:
+              - generic [ref=e509]: 69.90€
+              - generic [ref=e510]: /month excl. VAT
+            - paragraph [ref=e511]: 30 users included
+            - paragraph [ref=e512]: +2.2€/additional seat
+          - link "Choose Business" [ref=e514] [cursor=pointer]:
+            - /url: /api/stripe/checkout?plan=business&billing=monthly
+            - button "Choose Business" [ref=e515]
+          - generic [ref=e516]:
+            - list [ref=e517]:
+              - listitem [ref=e518]:
+                - img [ref=e519]
+                - text: API & integrations
+              - listitem [ref=e522]:
+                - img [ref=e523]
+                - text: Advanced reports
+              - listitem [ref=e526]:
+                - img [ref=e527]
+                - text: Multi-company
+            - generic [ref=e530]:
+              - paragraph [ref=e531]: "Everything in Team:"
+              - list [ref=e532]:
+                - listitem [ref=e533]:
+                  - img [ref=e534]
+                  - text: SLA 99.9%
+                - listitem [ref=e536]:
+                  - img [ref=e537]
+                  - text: Dedicated onboarding
+                - listitem [ref=e539]:
+                  - img [ref=e540]
+                  - text: Custom billing
+        - generic [ref=e542]:
+          - generic [ref=e543]:
+            - heading "Enterprise" [level=3] [ref=e545]
+            - generic [ref=e546]: Quote
+            - paragraph [ref=e547]: Unlimited users
+          - link "Contact us" [ref=e549] [cursor=pointer]:
+            - /url: mailto:contact@pointon.be
+            - button "Contact us" [ref=e550]
+          - generic [ref=e551]:
+            - list [ref=e552]:
+              - listitem [ref=e553]:
+                - img [ref=e554]
+                - text: Unlimited managers
+              - listitem [ref=e557]:
+                - img [ref=e558]
+                - text: Weekly scheduled export
+              - listitem [ref=e561]:
+                - img [ref=e562]
+                - text: Guaranteed SLA
+            - generic [ref=e565]:
+              - paragraph [ref=e566]: "Everything in Business:"
+              - list [ref=e567]:
+                - listitem [ref=e568]:
+                  - img [ref=e569]
+                  - text: Dedicated support
+                - listitem [ref=e571]:
+                  - img [ref=e572]
+                  - text: Personalised onboarding
+                - listitem [ref=e574]:
+                  - img [ref=e575]
+                  - text: Custom contract
+      - paragraph [ref=e577]:
+        - text: 💡 Switch to annual billing and
+        - button "save 17% (2 months free)" [ref=e578] [cursor=pointer]
+    - generic [ref=e581]:
+      - generic [ref=e582]:
+        - generic [ref=e585]: FAQ
+        - heading "Frequently asked questions" [level=2] [ref=e586]:
+          - text: Frequently asked
+          - text: questions
+        - paragraph [ref=e587]: Can’t find your answer? Contact us directly.
+        - link "Write to us" [ref=e588] [cursor=pointer]:
+          - /url: mailto:contact@pointon.be
+          - text: Write to us
+          - img [ref=e589]
+      - generic [ref=e591]:
+        - generic [ref=e592]:
+          - button "01 Is the solution compliant with the Belgian 2027 law?" [ref=e593] [cursor=pointer]:
+            - generic [ref=e594]: "01"
+            - generic [ref=e595]: Is the solution compliant with the Belgian 2027 law?
+            - img [ref=e597]
+          - generic [ref=e599]: "Yes. Pointon meets all Belgian and CJEU legal requirements: objective recording, immutable audit trail, certified export."
+        - generic [ref=e600]:
+          - button "02 How is the data stored?" [ref=e601] [cursor=pointer]:
+            - generic [ref=e602]: "02"
+            - generic [ref=e603]: How is the data stored?
+            - img [ref=e605]
+          - generic [ref=e607]: Data hosted in the EU (Vercel Postgres or self-hosted server). HTTPS encryption. GDPR compliant.
+        - generic [ref=e608]:
+          - button "03 Can I export the data?" [ref=e609] [cursor=pointer]:
+            - generic [ref=e610]: "03"
+            - generic [ref=e611]: Can I export the data?
+            - img [ref=e613]
+          - generic [ref=e615]: Yes. CSV/PDF export digitally signed for legal inspection. Available on all plans.
+        - generic [ref=e616]:
+          - button "04 What is the setup time?" [ref=e617] [cursor=pointer]:
+            - generic [ref=e618]: "04"
+            - generic [ref=e619]: What is the setup time?
+            - img [ref=e621]
+          - generic [ref=e623]: "Setup in 5 minutes. Integration: 15 min. Immediate clock-in after account creation."
+        - generic [ref=e624]:
+          - button "05 Is there a trial period?" [ref=e625] [cursor=pointer]:
+            - generic [ref=e626]: "05"
+            - generic [ref=e627]: Is there a trial period?
+            - img [ref=e629]
+          - generic [ref=e631]: Unlimited Free plan with no commitment. Try for free, no card required.
+        - generic [ref=e632]:
+          - button "06 What happens if I clock in offline?" [ref=e633] [cursor=pointer]:
+            - generic [ref=e634]: "06"
+            - generic [ref=e635]: What happens if I clock in offline?
+            - img [ref=e637]
+          - generic [ref=e639]: Your clock-in is saved locally and marked "⏳ pending sync". On reconnection, it automatically syncs to the server and becomes official. The presence board only counts synced clock-ins.
+    - generic [ref=e641]:
+      - generic [ref=e644]: The Belgian law comes into force on 1 January 2027
+      - generic [ref=e646]:
+        - generic [ref=e647]:
+          - generic [ref=e648]: "000"
+          - generic [ref=e649]: days
+        - generic [ref=e650]: ":"
+        - generic [ref=e651]:
+          - generic [ref=e652]: "00"
+          - generic [ref=e653]: hours
+        - generic [ref=e654]: ":"
+        - generic [ref=e655]:
+          - generic [ref=e656]: "00"
+          - generic [ref=e657]: minutes
+        - generic [ref=e658]: ":"
+        - generic [ref=e659]:
+          - generic [ref=e660]: "00"
+          - generic [ref=e661]: seconds
+      - generic [ref=e665]:
+        - generic [ref=e666]: "2024"
+        - generic [ref=e667]: "2027"
+      - heading "Is your system ready?" [level=2] [ref=e668]
+      - paragraph [ref=e669]: No card required. Setup in 2 minutes. Compliant from the first clock-in.
+      - generic [ref=e670]:
+        - link "Create my free account" [ref=e671] [cursor=pointer]:
+          - /url: /en/login
+          - button "Create my free account" [ref=e672]
+        - link "Talk to an expert" [ref=e673] [cursor=pointer]:
+          - /url: mailto:contact@pointon.be
+          - button "Talk to an expert" [ref=e674]
+    - contentinfo [ref=e675]:
+      - generic [ref=e676]:
+        - generic [ref=e677]:
+          - generic [ref=e678]:
+            - img "Pointon" [ref=e681]
+            - paragraph [ref=e682]: The Belgian legal time clock for SMEs. Simple, mobile-first, 2027 compliant.
+          - generic [ref=e683]:
+            - heading "Product" [level=4] [ref=e684]
+            - list [ref=e685]:
+              - listitem [ref=e686]:
+                - link "Features" [ref=e687] [cursor=pointer]:
+                  - /url: "#features"
+              - listitem [ref=e688]:
+                - link "Pricing" [ref=e689] [cursor=pointer]:
+                  - /url: "#pricing"
+              - listitem [ref=e690]:
+                - link "FAQ" [ref=e691] [cursor=pointer]:
+                  - /url: "#faq"
+          - generic [ref=e692]:
+            - heading "Legal" [level=4] [ref=e693]
+            - list [ref=e694]:
+              - listitem [ref=e695]:
+                - link "Privacy" [ref=e696] [cursor=pointer]:
+                  - /url: /en/legal/privacy
+              - listitem [ref=e697]:
+                - link "Terms" [ref=e698] [cursor=pointer]:
+                  - /url: /en/legal/terms
+              - listitem [ref=e699]:
+                - link "Compliance" [ref=e700] [cursor=pointer]:
+                  - /url: /en/legal/compliance
+              - listitem [ref=e701]:
+                - link "Security" [ref=e702] [cursor=pointer]:
+                  - /url: /en/legal/security
+          - generic [ref=e703]:
+            - heading "Resources" [level=4] [ref=e704]
+            - list [ref=e705]:
+              - listitem [ref=e706]:
+                - link "Support" [ref=e707] [cursor=pointer]:
+                  - /url: mailto:support@pointon.be
+              - listitem [ref=e708]:
+                - link "Contact" [ref=e709] [cursor=pointer]:
+                  - /url: mailto:contact@pointon.be
+        - generic [ref=e710]:
+          - generic [ref=e711]: © 2026 Pointon · Ced-IT · Belgium
+          - generic [ref=e712]: Belgium 2027 compliant · GDPR · HTTPS
+  - button "Open Next.js Dev Tools" [ref=e718] [cursor=pointer]:
+    - img [ref=e719]

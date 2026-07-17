@@ -188,7 +188,7 @@ export async function GET(req: NextRequest) {
         cell?.firstArrival ? fmtTime(cell.firstArrival) : '',
         cell?.lastDeparture ? fmtTime(cell.lastDeparture) : (cell?.hasOpenRecord ? 'Non pointé' : ''),
         cell?.firstArrival ? String(cell.pauseMinutes) : '',
-        cell && (cell.totalDuration > 0 || cell.firstArrival) ? fmt(cell.totalDuration) : '',
+        cell && (cell.totalDuration > 0 || cell.lastDeparture) ? fmt(cell.totalDuration) : '',
         cell ? [...cell.locations].join(', ') : '',
         cell ? [...cell.sites].join(', ') : '',
         cell?.tag ?? '',

@@ -1,0 +1,124 @@
+- generic [active] [ref=f3e1]:
+  - generic [ref=f3e2]:
+    - complementary [ref=f3e3]:
+      - generic [ref=f3e4]:
+        - img "Pointon" [ref=f3e11]
+        - button "Réduire le menu" [ref=f3e12] [cursor=pointer]
+      - navigation [ref=f3e15]:
+        - button "Pointage" [ref=f3e16] [cursor=pointer]
+        - generic [ref=f3e21]:
+          - link [ref=f3e22] [cursor=pointer]:
+            - /url: /fr/app/clock
+          - link [ref=f3e27] [cursor=pointer]:
+            - /url: /fr/app/time-off
+          - link [ref=f3e31] [cursor=pointer]:
+            - /url: /fr/app/rtt
+          - link [ref=f3e35] [cursor=pointer]:
+            - /url: /fr/app/reports
+          - link [ref=f3e38] [cursor=pointer]:
+            - /url: /fr/app/presence
+        - button "Admin" [ref=f3e45] [cursor=pointer]
+        - generic [ref=f3e54]:
+          - link "Tableau de bord" [ref=f3e55] [cursor=pointer]:
+            - /url: /fr/admin/dashboard
+          - link "Heures Sup." [ref=f3e60] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/overtimes
+          - link "Congés" [ref=f3e67] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/timeoffs
+          - link "Récupération" [ref=f3e71] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/rtts
+          - link "Horaires" [ref=f3e75] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/schedules
+          - link "Équipes 🔒" [ref=f3e206] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/teams
+            - generic [ref=f3e85]: Équipes
+            - generic [ref=f3e207]: 🔒
+          - link "Planning" [ref=f3e86] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/planning
+          - link "Présences" [ref=f3e90] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/presence
+          - link "Utilisateurs" [ref=f3e96] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/users
+          - link "Invitations" [ref=f3e103] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/invitations
+          - link "Sites" [ref=f3e108] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/sites
+          - link "Audit Trail" [ref=f3e113] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/audit
+          - link "Rapports" [ref=f3e118] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/reports
+          - link "Kiosque" [ref=f3e121] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/kiosk
+          - link "Paramètres" [ref=f3e125] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/settings
+          - link "Intégrations" [ref=f3e130] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/settings/integrations
+      - generic [ref=f3e134]:
+        - button "Mode clair" [ref=f3e135] [cursor=pointer]
+        - button "🇧🇪 Français" [ref=f3e143] [cursor=pointer]
+        - generic [ref=f3e150]:
+          - generic [ref=f3e151]: SM
+          - generic [ref=f3e153]:
+            - paragraph [ref=f3e154]: Smoke Test
+            - paragraph [ref=f3e155]: cedric.deroanne+smoketest@gmail.com
+        - button "Se déconnecter" [ref=f3e156] [cursor=pointer]
+    - main [ref=f3e160]:
+      - generic [ref=f3e243]:
+        - generic [ref=f3e245]:
+          - heading "Tableau de bord" [level=1] [ref=f3e246]
+          - paragraph [ref=f3e247]: Tout est à jour ✓
+        - generic [ref=f3e248]:
+          - link "0 en attente Heures supplémentaires →" [ref=f3e249] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/overtimes
+            - generic [ref=f3e257]: "0"
+            - generic [ref=f3e258]: en attente
+            - generic [ref=f3e259]: Heures supplémentaires →
+          - link "0 en attente Congés →" [ref=f3e260] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/timeoffs
+            - generic [ref=f3e265]: "0"
+            - generic [ref=f3e266]: en attente
+            - generic [ref=f3e267]: Congés →
+          - link "0 en attente Récupération →" [ref=f3e268] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/rtts
+            - generic [ref=f3e273]: "0"
+            - generic [ref=f3e274]: en attente
+            - generic [ref=f3e275]: Récupération →
+          - link "0 pointés maintenant Présences →" [ref=f3e276] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/presence
+            - generic [ref=f3e284]: "0"
+            - generic [ref=f3e285]: pointés maintenant
+            - generic [ref=f3e286]: Présences →
+          - link "0 employés actifs Utilisateurs →" [ref=f3e287] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/users
+            - generic [ref=f3e293]: "0"
+            - generic [ref=f3e294]: employés actifs
+            - generic [ref=f3e295]: Utilisateurs →
+          - link "0 à configurer Sans horaire →" [ref=f3e296] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/schedules
+            - generic [ref=f3e301]: "0"
+            - generic [ref=f3e302]: à configurer
+            - generic [ref=f3e303]: Sans horaire →
+        - generic [ref=f3e305]:
+          - generic [ref=f3e306]:
+            - generic [ref=f3e307]:
+              - generic [ref=f3e308]: 🔒
+              - generic [ref=f3e309]: Vous utilisez le plan gratuit
+              - generic [ref=f3e310]: Plan SOLO
+            - paragraph [ref=f3e311]: Limité à 3 employés. Passez au plan SOLO pour plus d'employés, ou TEAM pour les équipes et managers.
+          - link "Upgrader vers SOLO" [ref=f3e312] [cursor=pointer]:
+            - /url: /fr/pricing
+        - generic [ref=f3e313]:
+          - generic [ref=f3e314]:
+            - generic [ref=f3e315]:
+              - heading "Présences en direct" [level=2] [ref=f3e318]
+              - link "Voir tout →" [ref=f3e319] [cursor=pointer]:
+                - /url: /fr/admin/dashboard/presence
+            - paragraph [ref=f3e321]: Personne de pointé en ce moment
+          - generic [ref=f3e322]:
+            - generic [ref=f3e323]:
+              - heading "Activité récente" [level=2] [ref=f3e324]
+              - link "Voir tout →" [ref=f3e325] [cursor=pointer]:
+                - /url: /fr/admin/dashboard/reports
+            - paragraph [ref=f3e327]: Aucun pointage cette semaine
+    - button "Aide" [ref=f3e204] [cursor=pointer]: ❓
+  - alert [ref=f3e205]

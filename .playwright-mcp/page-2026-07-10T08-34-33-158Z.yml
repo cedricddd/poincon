@@ -1,0 +1,95 @@
+- generic [ref=f31e2]:
+  - complementary [ref=f31e3]:
+    - generic [ref=f31e4]:
+      - img "Pointon" [ref=f31e11]
+      - button "Réduire le menu" [ref=f31e12] [cursor=pointer]
+    - navigation [ref=f31e15]:
+      - button "Pointage" [ref=f31e16] [cursor=pointer]
+      - generic [ref=f31e21]:
+        - link [ref=f31e22] [cursor=pointer]:
+          - /url: /fr/app/clock
+        - link [ref=f31e27] [cursor=pointer]:
+          - /url: /fr/app/time-off
+        - link [ref=f31e31] [cursor=pointer]:
+          - /url: /fr/app/rtt
+        - link [ref=f31e35] [cursor=pointer]:
+          - /url: /fr/app/reports
+        - link [ref=f31e38] [cursor=pointer]:
+          - /url: /fr/app/presence
+      - button "Admin" [ref=f31e45] [cursor=pointer]
+      - generic [ref=f31e54]:
+        - link "Tableau de bord" [ref=f31e55] [cursor=pointer]:
+          - /url: /fr/admin/dashboard
+        - link "Heures Sup." [ref=f31e60] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/overtimes
+        - link "Congés" [ref=f31e67] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/timeoffs
+        - link "Récupération" [ref=f31e71] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/rtts
+        - link "Horaires" [ref=f31e75] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/schedules
+        - link "Équipes" [ref=f31e79] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/teams
+        - link "Planning" [ref=f31e86] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/planning
+        - link "Présences" [ref=f31e90] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/presence
+        - link "Utilisateurs" [ref=f31e96] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/users
+        - link "Invitations" [ref=f31e103] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/invitations
+        - link "Sites" [ref=f31e108] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/sites
+        - link "Audit Trail" [ref=f31e113] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/audit
+        - link "Rapports" [ref=f31e118] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/reports
+        - link "Kiosque" [ref=f31e121] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/kiosk
+        - link "Paramètres" [ref=f31e125] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/settings
+        - link "Intégrations" [ref=f31e130] [cursor=pointer]:
+          - /url: /fr/admin/dashboard/settings/integrations
+    - generic [ref=f31e134]:
+      - button "Mode sombre" [ref=f31e135] [cursor=pointer]
+      - button "🇧🇪 Français" [ref=f31e139] [cursor=pointer]
+      - generic [ref=f31e146]:
+        - generic [ref=f31e147]: SM
+        - generic [ref=f31e149]:
+          - paragraph [ref=f31e150]: Smoke Test
+          - paragraph [ref=f31e151]: cedric.deroanne+smoketest@gmail.com
+      - button "Se déconnecter" [ref=f31e152] [cursor=pointer]
+  - main [ref=f31e156]:
+    - generic [ref=f31e158]:
+      - generic [ref=f31e159]:
+        - heading "Bon après-midi, Smoke 👋" [level=1] [ref=f31e160]
+        - paragraph
+      - generic [ref=f31e161]:
+        - generic [ref=f31e162]:
+          - generic [ref=f31e163]: "--:--:--"
+          - generic [ref=f31e166]:
+            - generic [ref=f31e167]: Mode
+            - combobox [ref=f31e168]:
+              - option "Sur site" [selected]
+              - option "Télétravail"
+              - option "Déplacement"
+          - button "ARRIVÉE ✓" [ref=f31e170] [cursor=pointer]
+        - generic [ref=f31e179]:
+          - generic [ref=f31e180]:
+            - paragraph [ref=f31e181]: Pointé aujourd'hui
+            - generic [ref=f31e182]: 0h00
+          - generic [ref=f31e184]: Sur site
+        - generic [ref=f31e185]:
+          - generic [ref=f31e186]:
+            - button "Semaine" [ref=f31e187] [cursor=pointer]
+            - button "Mois" [ref=f31e188] [cursor=pointer]
+          - generic [ref=f31e189]:
+            - heading "Semaine en cours" [level=3] [ref=f31e190]
+            - generic [ref=f31e191]:
+              - generic [ref=f31e192]: Lun
+              - generic [ref=f31e196]: Mar
+              - generic [ref=f31e200]: Mer
+              - generic [ref=f31e204]: Jeu
+              - generic [ref=f31e208]: Ven
+  - button "Notifications" [ref=f31e214] [cursor=pointer]: 🔔
+  - button "Aide" [ref=f31e215] [cursor=pointer]: ❓

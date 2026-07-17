@@ -1,0 +1,459 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "Pointon — accueil" [ref=e5] [cursor=pointer]:
+          - /url: /fr
+          - img "Pointon" [ref=e6]
+        - navigation [ref=e7]:
+          - link "Fonctionnalités" [ref=e8] [cursor=pointer]:
+            - /url: "#features"
+          - link "Comment ça marche" [ref=e9] [cursor=pointer]:
+            - /url: "#how"
+          - link "Tarifs" [ref=e10] [cursor=pointer]:
+            - /url: "#pricing"
+          - link "FAQ" [ref=e11] [cursor=pointer]:
+            - /url: "#faq"
+        - generic [ref=e12]:
+          - button "🇧🇪 Français" [ref=e15] [cursor=pointer]
+          - button "Mode clair" [ref=e22] [cursor=pointer]
+          - link "Connexion" [ref=e26] [cursor=pointer]:
+            - /url: /fr/login
+          - link [ref=e27] [cursor=pointer]:
+            - /url: /fr/login
+            - button "Commencer" [ref=e28]
+    - main [ref=e29]:
+      - generic [ref=e32]:
+        - generic [ref=e33]:
+          - img "Pointon" [ref=e35]
+          - generic [ref=e36]: Conformité Belgique 2027
+          - heading "Pointez. Conforme. Belge." [level=1] [ref=e39]: Pointez.Conforme.Belge.
+          - paragraph [ref=e40]: Enregistrez le temps de travail légalement en Belgique. En 1 tap. Sans complications. Audit trail immuable.
+          - generic [ref=e41]:
+            - link [ref=e42] [cursor=pointer]:
+              - /url: /fr/login
+              - button "Commencer gratuitement" [ref=e43]
+            - link [ref=e44] [cursor=pointer]:
+              - /url: "#how"
+              - button "Comment ça marche →" [ref=e45]
+          - paragraph [ref=e46]: Aucune carte · Plan Free illimité · Zéro GPS · RGPD
+        - generic [ref=e48]:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic: Kiosque
+                  - generic: Siège Bruxelles
+                  - generic:
+                    - generic: "1"
+                    - generic: "2"
+                    - generic: "3"
+                    - generic: "4"
+                    - generic: "5"
+                    - generic: "6"
+                    - generic: "7"
+                    - generic: "8"
+                    - generic: "9"
+                    - generic: "*"
+                    - generic: "0"
+                    - generic: "#"
+                  - generic: PIN requis
+          - generic [ref=e51]:
+            - generic [ref=e54]: 09:58
+            - generic [ref=e66]: Siège social
+            - generic [ref=e70]:
+              - generic [ref=e71]: 09:58:06
+              - generic [ref=e72]: vendredi 10 juillet
+            - button [ref=e74] [cursor=pointer]: POINTER DÉPART ✕
+            - generic [ref=e75]:
+              - generic [ref=e76]:
+                - generic [ref=e77]: Aujourd'hui
+                - generic [ref=e78]: ⏳ en attente
+              - generic [ref=e79]:
+                - generic [ref=e80]:
+                  - generic [ref=e81]: Arrivée
+                  - generic [ref=e84]: 09:42
+                - generic [ref=e85]:
+                  - generic [ref=e86]: Départ
+                  - generic [ref=e89]: —
+                - generic [ref=e90]:
+                  - generic [ref=e91]: Durée
+                  - generic [ref=e92]: 00h15
+      - generic [ref=e98]:
+        - generic [ref=e99]:
+          - generic [ref=e100]:
+            - generic [ref=e101]: "0"
+            - generic [ref=e102]: +
+          - generic [ref=e104]: PME belges
+        - generic [ref=e105]:
+          - generic [ref=e106]:
+            - generic [ref=e107]: "0"
+            - generic [ref=e108]: min
+          - generic [ref=e110]: Setup moyen
+        - generic [ref=e111]:
+          - generic [ref=e112]:
+            - generic [ref=e113]: "0"
+            - generic [ref=e114]: "%"
+          - generic [ref=e116]: Conforme CJUE
+        - generic [ref=e117]:
+          - generic [ref=e118]:
+            - generic [ref=e119]: "0"
+            - generic [ref=e120]: €
+          - generic [ref=e122]: Pour commencer
+      - generic [ref=e125]:
+        - generic [ref=e126]: Démo live
+        - heading "Voir Pointon en action" [level=2] [ref=e129]
+        - paragraph [ref=e130]: 20 secondes pour comprendre l'essentiel.
+      - generic [ref=e134]:
+        - generic [ref=e135]:
+          - generic [ref=e136]: Fonctionnalités
+          - generic [ref=e139]:
+            - heading "Tout ce qu'il faut. Rien de superflu." [level=2] [ref=e140]: Tout ce qu'il faut.Rien de superflu.
+            - paragraph [ref=e141]: Une solution pensée pour les PME belges qui veulent être conformes sans se compliquer la vie.
+        - generic [ref=e142]:
+          - generic [ref=e143]:
+            - generic [ref=e144]: "01"
+            - heading "Pointage en 1 tap" [level=3] [ref=e147]
+            - paragraph [ref=e148]: ARRIVÉE / DÉPART en un geste. Fonctionne sur smartphone, tablette et PC sans formation.
+          - generic [ref=e149]:
+            - generic [ref=e150]: "02"
+            - heading "Conforme loi 2027" [level=3] [ref=e153]
+            - paragraph [ref=e154]: Enregistrement objectif, audit trail immuable et export certifié. Prêt pour inspection légale.
+          - generic [ref=e155]:
+            - generic [ref=e156]: "03"
+            - heading "Kiosque, QR & Mobile" [level=3] [ref=e159]
+            - paragraph [ref=e160]: "4 méthodes : application mobile (PWA), kiosque tablette, QR code imprimable par site (1 scan = pointage instantané) ou interface web. Zéro installation."
+          - generic [ref=e161]:
+            - generic [ref=e162]: "04"
+            - heading "Alertes intelligentes" [level=3] [ref=e165]
+            - paragraph [ref=e166]: Rappel fin de journée, détection d'heures supplémentaires, notifications temps réel.
+          - generic [ref=e167]:
+            - generic [ref=e168]: "05"
+            - heading "Zéro GPS · RGPD" [level=3] [ref=e171]
+            - paragraph [ref=e172]: Aucune géolocalisation (CCT 68 · RGPD). Export CSV et PDF signés numériquement pour inspection légale.
+          - generic [ref=e173]:
+            - generic [ref=e174]: "06"
+            - heading "Gestion d'équipes" [level=3] [ref=e177]
+            - paragraph [ref=e178]: Managers, sites, congés, récupérations — tout centralisé pour les RH et les administrateurs.
+      - generic [ref=e180]:
+        - generic [ref=e181]:
+          - generic [ref=e182]: Comment pointer
+          - heading "4 façons de pointer. Zéro friction." [level=2] [ref=e185]: 4 façons de pointer.Zéro friction.
+          - paragraph [ref=e186]: Chaque équipe est différente. Pointon s'adapte à votre réalité.
+        - generic [ref=e187]:
+          - generic [ref=e193]:
+            - heading "Mobile PWA" [level=3] [ref=e194]
+            - paragraph [ref=e195]: Arrivée et départ en 1 tap depuis n'importe quel smartphone. Sans installation.
+          - generic [ref=e196]:
+            - generic [ref=e208]:
+              - heading "Kiosque tablette" [level=3] [ref=e209]
+              - paragraph [ref=e210]: PIN 4 chiffres à l'entrée du bureau. Idéal pour les équipes fixes sur site.
+            - generic [ref=e211]:
+              - generic [ref=e212]: Mode visiteur inclus
+              - paragraph [ref=e216]: Accueil, badge horodaté et suivi des passages externes — sans compte Pointon.
+          - generic [ref=e227]:
+            - heading "QR Code" [level=3] [ref=e228]
+            - paragraph [ref=e229]: 1 QR par site. 1 scan = 1 pointage instantané. Imprimable, infalsifiable.
+          - generic [ref=e235]:
+            - heading "Interface web" [level=3] [ref=e236]
+            - paragraph [ref=e237]: Depuis n'importe quel PC et navigateur. Même expérience, même simplicité.
+      - generic [ref=e239]:
+        - generic [ref=e240]:
+          - generic [ref=e241]: Ils nous font confiance
+          - heading "Des PME belges qui pointent au quotidien" [level=2] [ref=e244]: Des PME belges qui pointentau quotidien
+        - generic [ref=e245]:
+          - generic [ref=e246]:
+            - paragraph [ref=e258]: "“Avant on notait les heures sur papier. Maintenant c'est automatique. Mes employés pointent sur la tablette à l'entrée, j'exporte le récap le vendredi. Setup : 10 minutes.”"
+            - generic [ref=e259]:
+              - generic [ref=e260]: MR
+              - generic [ref=e261]:
+                - paragraph [ref=e262]: Marie Renard
+                - paragraph [ref=e263]: Gérante · Boulangerie Renard · Liège
+              - generic [ref=e264]: Plan Starter
+          - generic [ref=e265]:
+            - paragraph [ref=e277]: “On cherchait une solution conforme loi 2027 sans GPS ni tracking. Pointon coche toutes les cases. L'audit trail immuable nous rassure pour les contrôles sociaux.”
+            - generic [ref=e278]:
+              - generic [ref=e279]: TH
+              - generic [ref=e280]:
+                - paragraph [ref=e281]: Thomas Henrard
+                - paragraph [ref=e282]: Directeur technique · DataBridge SPRL · Bruxelles
+              - generic [ref=e283]: Plan Team
+          - generic [ref=e284]:
+            - paragraph [ref=e296]: “Mes techniciens sont rarement au bureau. Avec le kiosque tablette au dépôt et l'appli mobile pour les déplacements, tout le monde pointe facilement.”
+            - generic [ref=e297]:
+              - generic [ref=e298]: SP
+              - generic [ref=e299]:
+                - paragraph [ref=e300]: Sébastien Pirard
+                - paragraph [ref=e301]: Dirigeant · Pirard Installations · Namur
+              - generic [ref=e302]: Plan Starter
+          - generic [ref=e303]:
+            - paragraph [ref=e315]: “Votre témoignage ici — partagez votre expérience avec Pointon.”
+            - generic [ref=e321]:
+              - paragraph [ref=e322]: Votre entreprise
+              - paragraph [ref=e323]: Belgique
+            - link "Nous contacter" [ref=e324] [cursor=pointer]:
+              - /url: mailto:contact@pointon.be
+        - paragraph [ref=e327]: Ces témoignages sont représentatifs de cas d'usage réels.
+        - paragraph [ref=e328]: Zéro GPS · Aucune géolocalisation · RGPD compliant · CCT 68 Belgique
+      - generic [ref=e329]:
+        - generic: HOW
+        - generic [ref=e331]:
+          - generic [ref=e332]:
+            - generic [ref=e333]: Comment ça marche
+            - heading "Opérationnel en 5 minutes" [level=2] [ref=e336]: Opérationnelen 5 minutes
+            - paragraph [ref=e337]: Pas de formation, pas d'intégration complexe. Votre équipe pointe dès le premier jour.
+            - link "Essayer gratuitement →" [ref=e338] [cursor=pointer]:
+              - /url: /fr/login
+              - generic [ref=e339]: Essayer gratuitement
+              - generic [ref=e340]: →
+          - generic [ref=e341]:
+            - generic [ref=e343]:
+              - generic [ref=e344]: "01"
+              - generic [ref=e347]:
+                - heading "Créez votre compte" [level=3] [ref=e352]
+                - paragraph [ref=e353]: Inscrivez-vous en 2 minutes. Pas de carte bancaire requise pour le plan gratuit.
+            - generic [ref=e355]:
+              - generic [ref=e356]: "02"
+              - generic [ref=e359]:
+                - heading "Invitez vos employés" [level=3] [ref=e366]
+                - paragraph [ref=e367]: Ajoutez vos équipes et assignez les sites. Chaque membre reçoit accès immédiatement.
+            - generic [ref=e369]:
+              - generic [ref=e370]: "03"
+              - generic [ref=e372]:
+                - heading "Pointez & exportez" [level=3] [ref=e377]
+                - paragraph [ref=e378]: Vos employés pointent sur téléphone, tablette ou ordinateur. Vous exportez les rapports en un clic.
+      - generic [ref=e380]:
+        - generic [ref=e381]:
+          - generic [ref=e382]: Tarifs
+          - heading "Tarifs transparents" [level=2] [ref=e385]
+          - paragraph [ref=e386]: Commencez gratuitement. Payez seulement quand vous grandissez.
+          - paragraph [ref=e387]: Tous les prix sont indiqués hors TVA (21 %).
+          - generic [ref=e389]:
+            - button "Mensuel" [ref=e391] [cursor=pointer]
+            - button "Annuel −17%" [ref=e392] [cursor=pointer]:
+              - text: Annuel
+              - generic [ref=e393]: −17%
+        - generic [ref=e394]:
+          - generic [ref=e395]:
+            - generic [ref=e396]:
+              - heading "Free" [level=3] [ref=e398]
+              - generic [ref=e399]: Gratuit
+              - paragraph [ref=e400]: 3 utilisateurs inclus
+            - link [ref=e402] [cursor=pointer]:
+              - /url: /login
+              - button "Commencer gratuitement" [ref=e403]
+            - generic [ref=e404]:
+              - list [ref=e405]:
+                - listitem [ref=e406]: Pointage mobile (PWA)
+                - listitem [ref=e410]: Export CSV (30 jours)
+                - listitem [ref=e414]: Rapports basiques
+              - generic [ref=e418]:
+                - paragraph [ref=e419]: "Inclus :"
+                - list [ref=e420]:
+                  - listitem [ref=e421]: Audit trail immuable
+                  - listitem [ref=e424]: Multi-appareils
+                  - listitem [ref=e427]: Auth sécurisée
+          - generic [ref=e430]:
+            - generic [ref=e431]:
+              - heading "Starter" [level=3] [ref=e433]
+              - generic [ref=e435]:
+                - generic [ref=e436]: 19,90€
+                - generic [ref=e437]: /mois HTVA
+              - paragraph [ref=e438]: 5 utilisateurs inclus
+              - paragraph [ref=e439]: +2.9€/siège supplémentaire
+            - link [ref=e441] [cursor=pointer]:
+              - /url: /api/stripe/checkout?plan=starter&billing=monthly
+              - button "Choisir Starter" [ref=e442]
+            - generic [ref=e443]:
+              - list [ref=e444]:
+                - listitem [ref=e445]: Mode kiosque tablette
+                - listitem [ref=e449]: QR code par site (1 scan = pointage)
+                - listitem [ref=e453]: Export CSV/PDF illimité
+              - generic [ref=e457]:
+                - paragraph [ref=e458]: "Tout Free inclus :"
+                - list [ref=e459]:
+                  - listitem [ref=e460]: Support email
+                  - listitem [ref=e463]: Heures supp automatiques
+                  - listitem [ref=e466]: Congés & Récupération
+          - generic [ref=e469]:
+            - generic [ref=e471]:
+              - generic [ref=e472]:
+                - heading "Team" [level=3] [ref=e473]
+                - generic [ref=e474]: POPULAIRE
+              - generic [ref=e476]:
+                - generic [ref=e477]: 44,90€
+                - generic [ref=e478]: /mois HTVA
+              - paragraph [ref=e479]: 15 utilisateurs inclus
+              - paragraph [ref=e480]: +2.6€/siège supplémentaire
+            - link [ref=e482] [cursor=pointer]:
+              - /url: /api/stripe/checkout?plan=team&billing=monthly
+              - button "Choisir Team" [ref=e483]
+            - generic [ref=e484]:
+              - list [ref=e485]:
+                - listitem [ref=e486]: Planning & congés avancés
+                - listitem [ref=e490]: Rôle Manager
+                - listitem [ref=e494]: Exports planifiés
+              - generic [ref=e498]:
+                - paragraph [ref=e499]: "Tout Starter inclus :"
+                - list [ref=e500]:
+                  - listitem [ref=e501]: Support prioritaire
+                  - listitem [ref=e504]: Multi-sites
+                  - listitem [ref=e507]: Dashboard manager
+          - generic [ref=e510]:
+            - generic [ref=e511]:
+              - heading "Business" [level=3] [ref=e513]
+              - generic [ref=e515]:
+                - generic [ref=e516]: 69,90€
+                - generic [ref=e517]: /mois HTVA
+              - paragraph [ref=e518]: 30 utilisateurs inclus
+              - paragraph [ref=e519]: +2.2€/siège supplémentaire
+            - link [ref=e521] [cursor=pointer]:
+              - /url: /api/stripe/checkout?plan=business&billing=monthly
+              - button "Choisir Business" [ref=e522]
+            - generic [ref=e523]:
+              - list [ref=e524]:
+                - listitem [ref=e525]: API & intégrations
+                - listitem [ref=e529]: Rapports avancés
+                - listitem [ref=e533]: Multi-sociétés
+              - generic [ref=e537]:
+                - paragraph [ref=e538]: "Tout Team inclus :"
+                - list [ref=e539]:
+                  - listitem [ref=e540]: SLA 99.9%
+                  - listitem [ref=e543]: Onboarding dédié
+                  - listitem [ref=e546]: Facturation personnalisée
+          - generic [ref=e549]:
+            - generic [ref=e550]:
+              - heading "Enterprise" [level=3] [ref=e552]
+              - generic [ref=e553]: Devis
+              - paragraph [ref=e554]: Utilisateurs illimités
+            - link [ref=e556] [cursor=pointer]:
+              - /url: mailto:contact@pointon.be
+              - button "Nous contacter" [ref=e557]
+            - generic [ref=e558]:
+              - list [ref=e559]:
+                - listitem [ref=e560]: Managers illimités
+                - listitem [ref=e564]: Export planifié hebdo
+                - listitem [ref=e568]: SLA garanti
+              - generic [ref=e572]:
+                - paragraph [ref=e573]: "Tout Business inclus :"
+                - list [ref=e574]:
+                  - listitem [ref=e575]: Support dédié
+                  - listitem [ref=e578]: Onboarding personnalisé
+                  - listitem [ref=e581]: Contrat sur mesure
+        - paragraph [ref=e584]:
+          - text: 💡 Passez à la facturation annuelle et
+          - button "économisez 17% (2 mois offerts)" [ref=e585] [cursor=pointer]
+      - generic [ref=e588]:
+        - generic [ref=e589]:
+          - generic [ref=e590]: FAQ
+          - heading "Questions fréquentes" [level=2] [ref=e593]: Questionsfréquentes
+          - paragraph [ref=e594]: Vous ne trouvez pas votre réponse ? Contactez-nous directement.
+          - link "Nous écrire" [ref=e595] [cursor=pointer]:
+            - /url: mailto:contact@pointon.be
+        - generic [ref=e598]:
+          - generic [ref=e599]:
+            - button "01 La solution est-elle conforme à la loi belge 2027?" [ref=e600] [cursor=pointer]:
+              - generic [ref=e601]: "01"
+              - generic [ref=e602]: La solution est-elle conforme à la loi belge 2027?
+            - generic: "Oui. Pointon respecte toutes les exigences légales belges et CJUE : enregistrement objectif, audit trail immuable, export certifié."
+          - generic [ref=e607]:
+            - button "02 Comment sont stockées les données?" [ref=e608] [cursor=pointer]:
+              - generic [ref=e609]: "02"
+              - generic [ref=e610]: Comment sont stockées les données?
+            - generic: Données hébergées en EU (Vercel Postgres ou serveur auto-hébergé). Chiffrement HTTPS. RGPD compliant.
+          - generic [ref=e615]:
+            - button "03 Puis-je exporter les données?" [ref=e616] [cursor=pointer]:
+              - generic [ref=e617]: "03"
+              - generic [ref=e618]: Puis-je exporter les données?
+            - generic: Oui. Export CSV/PDF signé numériquement pour inspection légale. Disponible sur tous les plans.
+          - generic [ref=e623]:
+            - button "04 Quel est le délai de mise en place?" [ref=e624] [cursor=pointer]:
+              - generic [ref=e625]: "04"
+              - generic [ref=e626]: Quel est le délai de mise en place?
+            - generic: "Setup en 5 minutes. Intégration : 15 min. Pointage immédiat après création de compte."
+          - generic [ref=e631]:
+            - button "05 Y a-t-il une période d'essai?" [ref=e632] [cursor=pointer]:
+              - generic [ref=e633]: "05"
+              - generic [ref=e634]: Y a-t-il une période d'essai?
+            - generic: Plan Free illimité sans engagement. Essayez gratuitement, aucune carte requise.
+          - generic [ref=e639]:
+            - button "06 Que se passe-t-il si je pointe hors ligne?" [ref=e640] [cursor=pointer]:
+              - generic [ref=e641]: "06"
+              - generic [ref=e642]: Que se passe-t-il si je pointe hors ligne?
+            - generic: Votre pointage est sauvegardé localement et marqué "⏳ en attente de sync". Dès reconnexion, il synchronise automatiquement au serveur et devient officiel. Le tableau de présence ne compte que les pointages synchronisés.
+      - generic [ref=e648]:
+        - generic [ref=e649]: La loi belge entre en vigueur le 1er janvier 2027
+        - generic [ref=e653]:
+          - generic [ref=e654]:
+            - generic [ref=e655]: "000"
+            - generic [ref=e656]: jours
+          - generic [ref=e657]: ":"
+          - generic [ref=e658]:
+            - generic [ref=e659]: "00"
+            - generic [ref=e660]: heures
+          - generic [ref=e661]: ":"
+          - generic [ref=e662]:
+            - generic [ref=e663]: "00"
+            - generic [ref=e664]: minutes
+          - generic [ref=e665]: ":"
+          - generic [ref=e666]:
+            - generic [ref=e667]: "00"
+            - generic [ref=e668]: secondes
+        - generic [ref=e672]:
+          - generic [ref=e673]: "2024"
+          - generic [ref=e674]: "2027"
+        - heading "Votre système est-il prêt ?" [level=2] [ref=e675]
+        - paragraph [ref=e676]: Aucune carte requise. Setup en 2 minutes. Conforme dès le premier pointage.
+        - generic [ref=e677]:
+          - link [ref=e678] [cursor=pointer]:
+            - /url: /fr/login
+            - button "Créer mon compte gratuit" [ref=e679]
+          - link [ref=e680] [cursor=pointer]:
+            - /url: mailto:contact@pointon.be
+            - button "Parler à un expert" [ref=e681]
+    - contentinfo [ref=e682]:
+      - generic [ref=e683]:
+        - generic [ref=e684]:
+          - generic [ref=e685]:
+            - img "Pointon" [ref=e688]
+            - paragraph [ref=e689]: La pointeuse légale belge pour les PME. Simple, mobile-first, conforme 2027.
+          - generic [ref=e690]:
+            - heading "Produit" [level=3] [ref=e691]
+            - list [ref=e692]:
+              - listitem [ref=e693]:
+                - link "Fonctionnalités" [ref=e694] [cursor=pointer]:
+                  - /url: "#features"
+              - listitem [ref=e695]:
+                - link "Tarifs" [ref=e696] [cursor=pointer]:
+                  - /url: "#pricing"
+              - listitem [ref=e697]:
+                - link "FAQ" [ref=e698] [cursor=pointer]:
+                  - /url: "#faq"
+          - generic [ref=e699]:
+            - heading "Légal" [level=3] [ref=e700]
+            - list [ref=e701]:
+              - listitem [ref=e702]:
+                - link "Confidentialité" [ref=e703] [cursor=pointer]:
+                  - /url: /fr/legal/privacy
+              - listitem [ref=e704]:
+                - link "Conditions" [ref=e705] [cursor=pointer]:
+                  - /url: /fr/legal/terms
+              - listitem [ref=e706]:
+                - link "Conformité" [ref=e707] [cursor=pointer]:
+                  - /url: /fr/legal/compliance
+              - listitem [ref=e708]:
+                - link "Sécurité" [ref=e709] [cursor=pointer]:
+                  - /url: /fr/legal/security
+          - generic [ref=e710]:
+            - heading "Ressources" [level=3] [ref=e711]
+            - list [ref=e712]:
+              - listitem [ref=e713]:
+                - link "Support" [ref=e714] [cursor=pointer]:
+                  - /url: mailto:support@pointon.be
+              - listitem [ref=e715]:
+                - link "Contact" [ref=e716] [cursor=pointer]:
+                  - /url: mailto:contact@pointon.be
+        - generic [ref=e717]:
+          - generic [ref=e718]: © 2026 Pointon · Ced-IT · Belgique
+          - generic [ref=e719]: Conforme Belgique 2027 · RGPD · HTTPS
+  - alert [ref=e720]

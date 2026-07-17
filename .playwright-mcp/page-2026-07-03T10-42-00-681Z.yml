@@ -1,0 +1,157 @@
+- generic [active] [ref=f11e1]:
+  - generic [ref=f11e2]:
+    - complementary [ref=f11e3]:
+      - generic [ref=f11e4]:
+        - generic [ref=f11e5]:
+          - img [ref=f11e7]
+          - img "Pointon" [ref=f11e11]
+        - button "Réduire le menu" [ref=f11e12] [cursor=pointer]:
+          - img [ref=f11e13]
+      - navigation [ref=f11e15]:
+        - button "Pointage" [ref=f11e16] [cursor=pointer]:
+          - generic [ref=f11e17]: Pointage
+          - img [ref=f11e19]
+        - generic [ref=f11e21]:
+          - link "Pointage" [ref=f11e22] [cursor=pointer]:
+            - /url: /fr/app/clock
+            - img [ref=f11e24]
+            - text: Pointage
+          - link "Congés" [ref=f11e27] [cursor=pointer]:
+            - /url: /fr/app/time-off
+            - img [ref=f11e29]
+            - text: Congés
+          - link "Récupération" [ref=f11e31] [cursor=pointer]:
+            - /url: /fr/app/rtt
+            - img [ref=f11e33]
+            - text: Récupération
+          - link "Rapports" [ref=f11e35] [cursor=pointer]:
+            - /url: /fr/app/reports
+            - img [ref=f11e37]
+            - text: Rapports
+          - link "Présences" [ref=f11e38] [cursor=pointer]:
+            - /url: /fr/app/presence
+            - img [ref=f11e40]
+            - text: Présences
+        - button "Admin" [ref=f11e45] [cursor=pointer]:
+          - generic [ref=f11e46]:
+            - img [ref=f11e47]
+            - generic [ref=f11e50]: Admin
+          - img [ref=f11e52]
+        - generic [ref=f11e54]:
+          - link "Tableau de bord" [ref=f11e55] [cursor=pointer]:
+            - /url: /fr/admin/dashboard
+            - img [ref=f11e56]
+            - generic [ref=f11e59]: Tableau de bord
+          - link "Heures Sup." [ref=f11e60] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/overtimes
+            - img [ref=f11e61]
+            - generic [ref=f11e66]: Heures Sup.
+          - link "Congés" [ref=f11e67] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/timeoffs
+            - img [ref=f11e68]
+            - generic [ref=f11e70]: Congés
+          - link "Récupération" [ref=f11e71] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/rtts
+            - img [ref=f11e72]
+            - generic [ref=f11e74]: Récupération
+          - link "Horaires" [ref=f11e75] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/schedules
+            - img [ref=f11e76]
+            - generic [ref=f11e78]: Horaires
+          - link "Équipes" [ref=f11e79] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/teams
+            - img [ref=f11e80]
+            - generic [ref=f11e85]: Équipes
+          - link "Planning" [ref=f11e86] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/planning
+            - img [ref=f11e87]
+            - generic [ref=f11e89]: Planning
+          - link "Présences" [ref=f11e90] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/presence
+            - img [ref=f11e91]
+            - generic [ref=f11e95]: Présences
+          - link "Utilisateurs" [ref=f11e96] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/users
+            - img [ref=f11e97]
+            - generic [ref=f11e102]: Utilisateurs
+          - link "Invitations" [ref=f11e103] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/invitations
+            - img [ref=f11e104]
+            - generic [ref=f11e107]: Invitations
+          - link "Sites" [ref=f11e108] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/sites
+            - img [ref=f11e109]
+            - generic [ref=f11e112]: Sites
+          - link "Audit Trail" [ref=f11e113] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/audit
+            - img [ref=f11e114]
+            - generic [ref=f11e117]: Audit Trail
+          - link "Rapports" [ref=f11e118] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/reports
+            - img [ref=f11e119]
+            - generic [ref=f11e120]: Rapports
+          - link "Kiosque" [ref=f11e121] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/kiosk
+            - img [ref=f11e122]
+            - generic [ref=f11e124]: Kiosque
+          - link "Paramètres" [ref=f11e125] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/settings
+            - img [ref=f11e126]
+            - generic [ref=f11e129]: Paramètres
+          - link "Intégrations" [ref=f11e130] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/settings/integrations
+            - img [ref=f11e131]
+            - generic [ref=f11e133]: Intégrations
+      - generic [ref=f11e134]:
+        - button "Mode sombre" [ref=f11e135] [cursor=pointer]:
+          - img [ref=f11e136]
+          - text: Mode sombre
+        - button "🇧🇪 Français" [ref=f11e139] [cursor=pointer]:
+          - img [ref=f11e140]
+          - generic [ref=f11e143]: 🇧🇪 Français
+          - img [ref=f11e144]
+        - generic [ref=f11e146]:
+          - generic [ref=f11e148]: AD
+          - generic [ref=f11e149]:
+            - paragraph [ref=f11e150]: Admin User
+            - paragraph [ref=f11e151]: admin@pointon.be
+        - button "Se déconnecter" [ref=f11e152] [cursor=pointer]:
+          - img [ref=f11e153]
+          - text: Se déconnecter
+    - main [ref=f11e156]:
+      - generic [ref=f11e157]:
+        - generic [ref=f11e158]:
+          - heading "Mode Kiosque" [level=1] [ref=f11e159]
+          - paragraph [ref=f11e160]: Créez des terminaux de pointage pour tablettes — accès par PIN ou enregistrement visiteur.
+        - generic [ref=f11e161]:
+          - heading "Créer un nouveau terminal" [level=2] [ref=f11e162]
+          - generic [ref=f11e163]:
+            - generic [ref=f11e164]:
+              - generic [ref=f11e165]: Libellé (optionnel)
+              - 'textbox "ex: Accueil RDC" [ref=f11e166]'
+            - button "+ Créer" [ref=f11e167] [cursor=pointer]
+        - generic [ref=f11e168]:
+          - heading "Terminaux actifs" [level=2] [ref=f11e169]
+          - paragraph [ref=f11e170]: Chargement…
+        - generic [ref=f11e171]:
+          - heading "Comment configurer le kiosque" [level=2] [ref=f11e172]
+          - list [ref=f11e173]:
+            - listitem [ref=f11e174]:
+              - generic [ref=f11e175]: "1"
+              - text: Créez un terminal ci-dessus et copiez son URL.
+            - listitem [ref=f11e176]:
+              - generic [ref=f11e177]: "2"
+              - text: Sur la tablette, ouvrez l’URL en mode plein écran (navigateur kiosque ou PWA).
+            - listitem [ref=f11e178]:
+              - generic [ref=f11e179]: "3"
+              - generic [ref=f11e180]:
+                - text: Assignez un PIN à 4 chiffres à chaque employé dans
+                - link "Utilisateurs" [ref=f11e181] [cursor=pointer]:
+                  - /url: /fr/admin/dashboard/users
+                - text: (bouton « PIN Kiosque »).
+            - listitem [ref=f11e182]:
+              - generic [ref=f11e183]: "4"
+              - text: Les employés tapent leur PIN pour pointer. Les visiteurs peuvent s’enregistrer et un email est envoyé à leur hôte.
+    - button "Aide" [ref=f11e184] [cursor=pointer]: ❓
+  - button "Open Next.js Dev Tools" [ref=f11e190] [cursor=pointer]:
+    - img [ref=f11e191]

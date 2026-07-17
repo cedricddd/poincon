@@ -1,0 +1,122 @@
+================================================================================
+  COMMANDES SERVEUR OVH — Pointon
+  Serveur : OVH KS-5-A · LXC 106 · IP 141.94.102.226 · pointon.be
+================================================================================
+
+--------------------------------------------------------------------------------
+  DIAGNOSTIC / VÉRIFICATIONS
+--------------------------------------------------------------------------------
+
+# Espace disque du LXC
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'df -h /'"
+
+# Utilisation Docker (images, volumes, build cache)
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'docker system df'"
+
+# État des containers
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'docker ps -a'"
+
+# Logs de l'app Pointon (100 dernières lignes)
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'docker logs pointon-app-1 --tail 100'"
+
+# Logs en temps réel
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'docker logs pointon-app-1 -f'"
+
+# Uptime et charge CPU/RAM du LXC
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'uptime && free -h'"
+
+# Version Docker installée
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'docker --version'"
+
+--------------------------------------------------------------------------------
+  NETTOYAGE DOCKER
+--------------------------------------------------------------------------------
+
+# Nettoyage complet (images inutilisées + build cache + volumes non attachés)
+# ⚠️  Ne touche PAS aux containers en cours d'exécution
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'docker system prune -af --volumes'"
+
+# Nettoyage du build cache uniquement
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'docker builder prune -af'"
+
+# Nettoyage images non utilisées seulement (sans toucher aux volumes)
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'docker image prune -af'"
+
+# Diagnostic + nettoyage en une seule commande (avant/après)
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'df -h / && docker system df && docker system prune -af --volumes && echo --- APRÈS --- && df -h / && docker system df'"
+
+--------------------------------------------------------------------------------
+  DÉPLOIEMENT
+--------------------------------------------------------------------------------
+
+# Deploy standard (git pull + rebuild + restart app)
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && git pull origin main && docker compose up -d --build app'"
+
+# Pull uniquement (sans rebuild)
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && git pull origin main'"
+
+# Rebuild + restart app sans pull (utile si seul le Docker a changé)
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker compose up -d --build app'"
+
+# Restart app sans rebuild (rechargement rapide)
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker compose restart app'"
+
+# Restart tous les services
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker compose restart'"
+
+# Stop tous les services
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker compose down'"
+
+# Start tous les services
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker compose up -d'"
+
+--------------------------------------------------------------------------------
+  PRISMA / BASE DE DONNÉES
+--------------------------------------------------------------------------------
+
+# ⚠️  OBLIGATOIRE après chaque changement de schema.prisma en prod
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker compose run --rm app sh -c \"npx prisma db push\"'"
+
+# Seed des plans (après fresh deploy — table Plan vide par défaut)
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker compose run --rm app sh -c \"npx prisma db seed\"'"
+
+# Ouvrir Prisma Studio (interface web DB — port 5555)
+# /!\ Déconseillé en prod, utiliser uniquement en debug ponctuel
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker compose run --rm -p 5555:5555 app sh -c \"npx prisma studio\"'"
+
+--------------------------------------------------------------------------------
+  MISE À JOUR DOCKER ENGINE (sur le LXC)
+--------------------------------------------------------------------------------
+
+# Mettre à jour Docker sur le LXC Debian/Ubuntu
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'apt-get update && apt-get upgrade docker-ce docker-ce-cli containerd.io -y'"
+
+# Vérifier la version après mise à jour
+ssh root@141.94.102.226 "pct exec 106 -- bash -c 'docker --version && docker compose version'"
+
+--------------------------------------------------------------------------------
+  ACCÈS DIRECT AU LXC
+--------------------------------------------------------------------------------
+
+# Shell direct dans le LXC 106
+ssh root@141.94.102.226 "pct exec 106 -- bash"
+
+# Ou via SSH direct sur le LXC (si IP interne connue)
+# ssh root@141.94.102.226 -p 22 (Proxmox host)
+
+================================================================================
+  RAPPELS IMPORTANTS
+================================================================================
+
+  - Ne JAMAIS faire docker system prune sans vérifier d'abord docker ps
+    que tous les containers critiques sont UP (not Exited)
+
+  - Après un changement de prisma/schema.prisma → toujours faire db push
+    sinon tables manquantes → erreur P2021 silencieuse → UI vide
+
+  - Le .env en prod est dans /opt/pointon/.env (pas .env.local)
+
+  - CI/CD GitHub Actions est actif → un push sur main déclenche le deploy auto
+    Ces commandes SSH sont utiles pour forcer/debugger manuellement
+
+================================================================================

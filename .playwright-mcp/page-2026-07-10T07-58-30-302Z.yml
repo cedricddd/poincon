@@ -1,0 +1,69 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e3]:
+    - generic [ref=f2e4]:
+      - link "Pointon — accueil" [ref=f2e5] [cursor=pointer]:
+        - /url: /fr
+        - img "Pointon" [ref=f2e7]
+      - paragraph [ref=f2e8]: Créez votre compte administrateur — c’est gratuit
+    - generic [ref=f2e9]:
+      - generic [ref=f2e10]:
+        - generic [ref=f2e11]:
+          - heading "Informations personnelles" [level=3] [ref=f2e12]
+          - generic [ref=f2e13]:
+            - generic [ref=f2e14]:
+              - generic [ref=f2e15]: Prénom *
+              - textbox "Prénom *" [ref=f2e16]:
+                - /placeholder: Jean
+            - generic [ref=f2e17]:
+              - generic [ref=f2e18]: Nom *
+              - textbox "Nom *" [ref=f2e19]:
+                - /placeholder: Dupont
+          - generic [ref=f2e20]:
+            - generic [ref=f2e21]:
+              - generic [ref=f2e22]: Email *
+              - textbox "Email *" [ref=f2e23]:
+                - /placeholder: vous@entreprise.be
+            - generic [ref=f2e24]:
+              - generic [ref=f2e25]: Téléphone *
+              - textbox "Téléphone *" [ref=f2e26]:
+                - /placeholder: +32 470 00 00 00
+          - generic [ref=f2e27]:
+            - generic [ref=f2e28]:
+              - generic [ref=f2e29]: Mot de passe *
+              - textbox "Mot de passe *" [ref=f2e30]:
+                - /placeholder: ••••••••
+              - paragraph [ref=f2e31]: Minimum 8 caractères
+            - generic [ref=f2e32]:
+              - generic [ref=f2e33]: Confirmer le mot de passe *
+              - textbox "Confirmer le mot de passe *" [ref=f2e34]:
+                - /placeholder: ••••••••
+        - generic [ref=f2e35]:
+          - heading "Informations société" [level=3] [ref=f2e36]
+          - generic [ref=f2e37]:
+            - generic [ref=f2e38]:
+              - generic [ref=f2e39]: Nom de la société *
+              - textbox "Nom de la société *" [ref=f2e40]:
+                - /placeholder: Acme SA
+            - generic [ref=f2e41]:
+              - generic [ref=f2e42]: Numéro de TVA *
+              - textbox "Numéro de TVA *" [ref=f2e43]:
+                - /placeholder: BE0123456789
+              - paragraph [ref=f2e44]: "Format : BE + 10 chiffres"
+            - generic [ref=f2e45]:
+              - generic [ref=f2e46]: Adresse *
+              - textbox "Adresse *" [ref=f2e47]:
+                - /placeholder: Rue Example 123, 1000 Bruxelles
+        - button "Créer mon compte gratuitement" [ref=f2e48] [cursor=pointer]
+        - paragraph [ref=f2e49]:
+          - text: En vous inscrivant, vous acceptez nos
+          - link "conditions d’utilisation" [ref=f2e50] [cursor=pointer]:
+            - /url: /fr/legal/terms
+          - text: et notre
+          - link "politique de confidentialité" [ref=f2e51] [cursor=pointer]:
+            - /url: /fr/legal/privacy
+          - text: .
+      - generic [ref=f2e52]:
+        - text: Vous avez déjà un compte ?
+        - link "Se connecter" [ref=f2e53] [cursor=pointer]:
+          - /url: /fr/login
+  - alert [ref=f2e54]

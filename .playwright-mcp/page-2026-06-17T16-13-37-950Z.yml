@@ -1,0 +1,524 @@
+- generic [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#page-container"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - navigation [ref=e5]:
+        - link "Home Help Center home page" [ref=e6] [cursor=pointer]:
+          - /url: /hc/en-us
+          - img "Home Help Center home page" [ref=e7]
+        - generic [ref=e8]:
+          - button "English (United States)" [ref=e10]:
+            - img [ref=e11]
+            - generic [ref=e13]: English (United States)
+          - link "Discover Brevo" [ref=e14] [cursor=pointer]:
+            - /url: https://www.brevo.com
+          - link "Log in" [ref=e15] [cursor=pointer]:
+            - /url: https://login.brevo.com/?target=https://account-app.brevo.com/account/zendesk-support?target=https://account-app.brevo.com/account/zendesk-helpcenter
+          - link "Sign up free" [ref=e16] [cursor=pointer]:
+            - /url: https://onboarding.brevo.com/account/register
+    - main [ref=e17]:
+      - generic [ref=e22]:
+        - navigation "Breadcrumb" [ref=e25]:
+          - list [ref=e26]:
+            - listitem [ref=e27]:
+              - link "Home" [ref=e28] [cursor=pointer]:
+                - /url: /hc/en-us
+            - listitem [ref=e29]:
+              - text: /
+              - link "My account" [ref=e30] [cursor=pointer]:
+                - /url: /hc/en-us/categories/201033209-My-account
+            - listitem [ref=e31]:
+              - text: /
+              - link "My account" [ref=e32] [cursor=pointer]:
+                - /url: /hc/en-us/sections/18476178527762-My-account
+            - listitem [ref=e33]:
+              - text: /
+              - link "Pricing Plans" [ref=e34] [cursor=pointer]:
+                - /url: /hc/en-us/sections/4412559563922-Pricing-Plans
+        - generic [ref=e36]:
+          - heading "Search" [level=2] [ref=e37]
+          - search [ref=e38]:
+            - combobox "Search" [ref=e39]
+            - button "Search" [ref=e40] [cursor=pointer]
+          - img [ref=e41]
+      - generic [ref=e44]:
+        - article [ref=e45]:
+          - heading "Customize your plan with add-ons" [level=1] [ref=e47]
+          - generic [ref=e48]:
+            - paragraph [ref=e49]:
+              - text: Customize your plan with optional add-ons, such as sales tools or extra message credits. Add-ons are billed separately and help you
+              - strong [ref=e50]: adapt Brevo to your needs
+              - text: .
+            - paragraph [ref=e51]:
+              - text: ➡️ To learn more about our pricing and available plans, check our dedicated article
+              - link "About Brevo pricing and plans" [ref=e52] [cursor=pointer]:
+                - /url: /hc/en-us/articles/208589409
+              - text: .
+            - heading "💼 Sales tools and packages" [level=1] [ref=e53]
+            - paragraph [ref=e54]: "By default, all plans include free sales features to help you manage leads and customer relationships:"
+            - figure [ref=e55]:
+              - table [ref=e56]:
+                - rowgroup [ref=e60]:
+                  - row "50 open deals and 1 sales pipeline Automated meeting scheduling Live chat Revenue, sales cycle, and team performance reports Forecasting Task management and reminders 1 connected calendar and mailbox Conversations mobile app AI Conversations agent And all features described on our pricing page" [ref=e61]:
+                    - cell "50 open deals and 1 sales pipeline Automated meeting scheduling Live chat Revenue, sales cycle, and team performance reports Forecasting" [ref=e62]:
+                      - list [ref=e63]:
+                        - listitem [ref=e64]:
+                          - link "50 open deals and 1 sales pipeline" [ref=e65] [cursor=pointer]:
+                            - /url: /hc/en-us/articles/360019084619
+                        - listitem [ref=e66]:
+                          - link "Automated meeting scheduling" [ref=e67] [cursor=pointer]:
+                            - /url: /hc/en-us/articles/6966401493778
+                        - listitem [ref=e68]:
+                          - link "Live chat" [ref=e69] [cursor=pointer]:
+                            - /url: /hc/en-us/articles/6214223669138
+                        - listitem [ref=e70]:
+                          - link "Revenue, sales cycle, and team performance reports" [ref=e71] [cursor=pointer]:
+                            - /url: /hc/en-us/articles/9664360658962
+                        - listitem [ref=e72]:
+                          - link "Forecasting" [ref=e73] [cursor=pointer]:
+                            - /url: /hc/en-us/articles/360019089760
+                    - cell "Task management and reminders 1 connected calendar and mailbox Conversations mobile app AI Conversations agent And all features described on our pricing page" [ref=e74]:
+                      - list [ref=e75]:
+                        - listitem [ref=e76]:
+                          - link "Task management and reminders" [ref=e77] [cursor=pointer]:
+                            - /url: /hc/en-us/articles/9444082470546
+                        - listitem [ref=e78]:
+                          - link "1 connected calendar" [ref=e79] [cursor=pointer]:
+                            - /url: /hc/en-us/articles/6979087992594
+                          - text: and
+                          - link "mailbox" [ref=e80] [cursor=pointer]:
+                            - /url: /hc/en-us/articles/10668659564818
+                        - listitem [ref=e81]:
+                          - link "Conversations mobile app" [ref=e82] [cursor=pointer]:
+                            - /url: /hc/en-us/articles/5744139225106
+                        - listitem [ref=e83]:
+                          - link "AI Conversations agent" [ref=e84] [cursor=pointer]:
+                            - /url: /hc/en-us/articles/16735684091026
+                        - listitem [ref=e85]:
+                          - text: And all features described on
+                          - link "our pricing page" [ref=e86] [cursor=pointer]:
+                            - /url: https://www.brevo.com/pricing/
+            - paragraph [ref=e87]:
+              - text: If you need more advanced tools, you can
+              - strong [ref=e88]: upgrade with one of our Sales packages
+              - text: ":"
+            - generic [ref=e89]:
+              - tablist [ref=e90]:
+                - tab "🎯 Sales Essentials" [selected] [ref=e91] [cursor=pointer]
+                - tab "💎 Sales Advanced" [ref=e92] [cursor=pointer]
+              - tabpanel "🎯 Sales Essentials" [ref=e93]:
+                - generic [ref=e95]:
+                  - generic [ref=e96]: ✅ Plan availability
+                  - text: The Sales Essentials package is available as an add-on on the
+                  - strong [ref=e97]: Starter
+                  - text: ","
+                  - strong [ref=e98]: Standard
+                  - text: ","
+                  - strong [ref=e99]: Professional
+                  - text: ", and"
+                  - strong [ref=e100]: Enterprise
+                  - text: plans.
+                - paragraph [ref=e101]: "Boost your team's productivity with essential sales tools. Sales Essentials includes all free sales features, plus:"
+                - figure [ref=e102]:
+                  - table [ref=e103]:
+                    - rowgroup [ref=e107]:
+                      - row "Multi-user access (on Standard, Professional, and Enterprise plans) Unlimited open deals and sales pipelines Sales automation workflows Chatbot scenarios and saved replies Pipeline stage rules AI contact and company enrichment Unlimited connected calendars and mailboxes Instagram DMs and Facebook Messenger No Brevo logo on chat Live visitor insights Conversations analytics And all features described on our pricing page" [ref=e108]:
+                        - cell "Multi-user access (on Standard, Professional, and Enterprise plans) Unlimited open deals and sales pipelines Sales automation workflows Chatbot scenarios and saved replies Pipeline stage rules AI contact and company enrichment" [ref=e109]:
+                          - list [ref=e110]:
+                            - listitem [ref=e111]:
+                              - link "Multi-user access" [ref=e112] [cursor=pointer]:
+                                - /url: /hc/en-us/articles/360001079439
+                              - text: (on Standard, Professional, and Enterprise plans)
+                            - listitem [ref=e113]:
+                              - link "Unlimited open deals and sales pipelines" [ref=e114] [cursor=pointer]:
+                                - /url: /hc/en-us/articles/360019084619
+                            - listitem [ref=e115]:
+                              - link "Sales automation workflows" [ref=e116] [cursor=pointer]:
+                                - /url: /hc/en-us/articles/17288494587922
+                            - listitem [ref=e117]:
+                              - link "Chatbot scenarios" [ref=e118] [cursor=pointer]:
+                                - /url: /hc/en-us/articles/4414431425170
+                              - text: and
+                              - link "saved replies" [ref=e119] [cursor=pointer]:
+                                - /url: /hc/en-us/articles/4414345584274
+                            - listitem [ref=e120]:
+                              - link "Pipeline stage rules" [ref=e121] [cursor=pointer]:
+                                - /url: /hc/en-us/articles/360019003659
+                            - listitem [ref=e122]:
+                              - link "AI contact and company enrichment" [ref=e123] [cursor=pointer]:
+                                - /url: /hc/en-us/articles/25951005963666
+                        - cell "Unlimited connected calendars and mailboxes Instagram DMs and Facebook Messenger No Brevo logo on chat Live visitor insights Conversations analytics And all features described on our pricing page" [ref=e124]:
+                          - list [ref=e125]:
+                            - listitem [ref=e126]:
+                              - link "Unlimited connected calendars" [ref=e127] [cursor=pointer]:
+                                - /url: /hc/en-us/articles/6979087992594
+                              - text: and
+                              - link "mailboxes" [ref=e128] [cursor=pointer]:
+                                - /url: /hc/en-us/articles/10668659564818
+                            - listitem [ref=e129]:
+                              - link "Instagram DMs" [ref=e130] [cursor=pointer]:
+                                - /url: /hc/en-us/articles/4416263637906
+                              - text: and
+                              - link "Facebook Messenger" [ref=e131] [cursor=pointer]:
+                                - /url: /hc/en-us/articles/4416263556242
+                            - listitem [ref=e132]: No Brevo logo on chat
+                            - listitem [ref=e133]:
+                              - link "Live visitor insights" [ref=e134] [cursor=pointer]:
+                                - /url: /hc/en-us/articles/4608779872018
+                            - listitem [ref=e135]:
+                              - link "Conversations analytics" [ref=e136] [cursor=pointer]:
+                                - /url: /hc/en-us/articles/4851027925522
+                            - listitem [ref=e137]:
+                              - text: And all features described on
+                              - link "our pricing page" [ref=e138] [cursor=pointer]:
+                                - /url: https://www.brevo.com/pricing/
+            - heading "❓ FAQs" [level=2] [ref=e139]
+            - generic [ref=e140]:
+              - button "How much do the Sales packages cost?" [ref=e142] [cursor=pointer]
+              - button "How will I be charged for a Sales package?" [ref=e144] [cursor=pointer]
+              - button "How to purchase a Sales package?" [ref=e146] [cursor=pointer]
+              - button "Can I add additional sales seats to my Sales package?" [ref=e148] [cursor=pointer]
+              - button "Can I upgrade from Sales Essentials to Sales Advanced?" [ref=e150] [cursor=pointer]
+            - heading "✉️ Prepaid email credits" [level=1] [ref=e151]
+            - generic [ref=e153]:
+              - generic [ref=e154]: ✅ Plan availability
+              - text: Prepaid email credits are available as an add-on on
+              - strong [ref=e155]: all plans
+              - text: . They can be used for both marketing and transactional emails.
+            - paragraph [ref=e156]:
+              - text: If you only send emails occasionally or need extra credits for a specific campaign, prepaid email credits are a flexible option. Prepaid credits
+              - strong [ref=e157]: never expire
+              - text: and can be used at any time.
+            - paragraph [ref=e158]:
+              - text: Prepaid email credits give you access to all
+              - link "Starter plan" [ref=e159] [cursor=pointer]:
+                - /url: /hc/en-us/articles/208589409#h_01K5GYZXNMC1EM1BQF5JNR445E
+                - strong [ref=e160]: Starter plan
+              - text: features and the
+              - strong [ref=e161]: Remove Brevo logo
+              - text: add-on. The limit of 2,000 contacts in automations also applies.
+            - paragraph [ref=e162]:
+              - text: 💰 Prepaid credits can be purchased in packs ranging from 5,000 to 1 million emails. One credit equals one email sent to one contact. Prices vary based on the number of credits purchased. For detailed pricing, visit
+              - link "your Brevo account" [ref=e163] [cursor=pointer]:
+                - /url: https://app.brevo.com/billing/account/plans/subscriptions
+              - text: or
+              - link "our pricing page" [ref=e164] [cursor=pointer]:
+                - /url: https://www.brevo.com/pricing/
+              - text: .
+            - heading "❓ FAQs" [level=2] [ref=e165]
+            - generic [ref=e166]:
+              - button "How much do prepaid email credits cost?" [ref=e168] [cursor=pointer]
+              - button "How are prepaid email credits charged?" [ref=e170] [cursor=pointer]
+              - button "How to purchase prepaid email credits?" [ref=e172] [cursor=pointer]
+              - button "Can I use prepaid email credits to send both marketing and transactional emails?" [ref=e174] [cursor=pointer]
+              - button "How do prepaid email credits work with my plan emails?" [ref=e176] [cursor=pointer]
+            - heading "💬 Prepaid message credits (SMS and WhatsApp)" [level=1] [ref=e177]
+            - generic [ref=e179]:
+              - generic [ref=e180]: ✅ Plan availability
+              - strong [ref=e181]: Prepaid SMS credits
+              - text: are available as an add-on with
+              - strong [ref=e182]: all plans
+              - text: ", while"
+              - strong [ref=e183]: prepaid WhatsApp credits
+              - text: are available as an add-on with the
+              - strong [ref=e184]: Professional
+              - text: and
+              - strong [ref=e185]: Enterprise
+              - text: plans.
+            - paragraph [ref=e186]:
+              - text: You can purchase prepaid message credits to send
+              - link "SMS" [ref=e187] [cursor=pointer]:
+                - /url: https://help.brevo.com/hc/en-us/sections/18478501015826-SMS
+                - strong [ref=e188]: SMS
+              - text: and
+              - link "WhatsApp" [ref=e189] [cursor=pointer]:
+                - /url: https://help.brevo.com/hc/en-us/sections/18478639569170-WhatsApp
+                - strong [ref=e190]: WhatsApp
+              - text: messages, starting from 100 credits. Prepaid credits
+              - strong [ref=e191]: never expire
+              - text: and can be used at any time.
+            - heading "❓ FAQs" [level=2] [ref=e192]
+            - generic [ref=e193]:
+              - button "How much do prepaid message credits cost?" [ref=e195] [cursor=pointer]
+              - button "How will I be charged for prepaid message credits?" [ref=e197] [cursor=pointer]
+              - button "How to purchase prepaid message credits for SMS and/or WhatsApp?" [ref=e199] [cursor=pointer]
+              - button "Can I use my message credits to send both SMS and WhatsApp messages?" [ref=e201] [cursor=pointer]
+            - heading "📝 Remove Brevo logo" [level=1] [ref=e202]
+            - generic [ref=e204]:
+              - generic [ref=e205]: ✅ Plan availability
+              - text: The
+              - strong [ref=e206]: Remove Brevo logo
+              - text: add-on is available on the
+              - strong [ref=e207]: Starter
+              - text: plan. The logo is not displayed on the Standard, Professional, and Enterprise plans.
+            - paragraph [ref=e208]:
+              - text: To remove the
+              - strong [ref=e209]: Sent with Brevo
+              - text: sticker on emails sent from the
+              - strong [ref=e210]: Starter
+              - text: plan, you can purchase the
+              - strong [ref=e211]: Remove Brevo logo
+              - text: add-on.
+            - heading "❓ FAQs" [level=2] [ref=e212]
+            - generic [ref=e213]:
+              - button "How much does the Remove Brevo logo add-on cost?" [ref=e215] [cursor=pointer]
+              - button "How will I be charged for the Remove Brevo logo add-on?" [ref=e217] [cursor=pointer]
+              - button "Can I remove the Brevo logo from my emails on the Free plan?" [ref=e219] [cursor=pointer]
+              - button "How to purchase the Remove Brevo logo add-on?" [ref=e221] [cursor=pointer]
+            - heading "🔒 SAML SSO" [level=1] [ref=e222]
+            - generic [ref=e224]:
+              - generic [ref=e225]: ✅ Plan availability
+              - text: SAML SSO is available as an add-on on the
+              - strong [ref=e226]: Professional
+              - text: plan and included with the
+              - strong [ref=e227]: Enterprise
+              - text: plan.
+            - paragraph [ref=e228]:
+              - text: On the
+              - strong [ref=e229]: Professional
+              - text: plan, you can purchase the
+              - strong [ref=e230]: SAML SSO
+              - text: add-on to log in to Brevo via Single Sign-On (SSO). This allows you to access your Brevo account using your organization's existing identity provider, such as Okta, Azure AD, or Google Workspace, instead of a separate password. Once SSO is set up, users can securely log in without needing to remember a separate password, making access faster and more secure.
+            - paragraph [ref=e231]:
+              - text: ➡️ To learn more, check our dedicated article
+              - link "Set up SAML SSO in Brevo" [ref=e232] [cursor=pointer]:
+                - /url: /hc/en-us/articles/26603296222226
+              - text: .
+            - heading "❓ FAQs" [level=2] [ref=e233]
+            - generic [ref=e234]:
+              - button "How much does the SAML SSO add-on cost?" [ref=e236] [cursor=pointer]
+              - button "How will I be charged for the SAML SSO add-on?" [ref=e238] [cursor=pointer]
+            - heading "👥 Additional marketing seats" [level=1] [ref=e239]
+            - generic [ref=e241]:
+              - generic [ref=e242]: ✅ Plan availability
+              - text: Additional marketing seats are available as an add-on with the
+              - strong [ref=e243]: Standard
+              - text: plan (up to 3). The
+              - strong [ref=e244]: Professional
+              - text: plan includes 10 marketing seats, and the
+              - strong [ref=e245]: Enterprise
+              - text: plan offers unlimited seats.
+            - paragraph [ref=e246]: If your team is growing and you need more users to collaborate on campaigns, access marketing tools, or manage contacts, you can purchase additional marketing seats directly in your Brevo account.
+            - heading "❓ FAQs" [level=2] [ref=e247]
+            - generic [ref=e248]:
+              - button "How much do additional marketing seats cost?" [ref=e250] [cursor=pointer]
+              - button "How will I be charged for additional marketing seats?" [ref=e252] [cursor=pointer]
+              - button "How to purchase additional marketing seats?" [ref=e254] [cursor=pointer]
+              - button "How to assign a marketing seat to a user?" [ref=e256] [cursor=pointer]
+              - button "How many marketing seats are included in each plan?" [ref=e258] [cursor=pointer]
+              - button "I've reached the maximum number of marketing seats for my plan. Can I add more?" [ref=e260] [cursor=pointer]
+            - heading "🔔 Additional web and mobile push subscribers" [level=1] [ref=e261]
+            - generic [ref=e263]:
+              - generic [ref=e264]: ✅ Plan availability
+              - text: Additional web and mobile push subscribers are available as an add-on on the
+              - strong [ref=e265]: Professional
+              - text: and
+              - strong [ref=e266]: Enterprise
+              - text: plans.
+            - paragraph [ref=e267]:
+              - text: The number of subscribers you can target per
+              - link "web and mobile push campaign" [ref=e268] [cursor=pointer]:
+                - /url: /hc/en-us/articles/4604359025682
+              - text: "depends on your plan:"
+            - list [ref=e269]:
+              - listitem [ref=e270]:
+                - strong [ref=e271]: "Starter plan:"
+                - text: up to 1,000 contacts per campaign
+              - listitem [ref=e272]:
+                - strong [ref=e273]: "Standard plan:"
+                - text: up to 10,000 contacts per campaign
+              - listitem [ref=e274]:
+                - strong [ref=e275]: "Professional plan:"
+                - text: up to 20,000 contacts per campaign
+              - listitem [ref=e276]:
+                - strong [ref=e277]: "Enterprise plan:"
+                - text: up to 40,000 contacts per campaign
+            - paragraph [ref=e278]:
+              - text: If you're on the
+              - strong [ref=e279]: Professional
+              - text: or
+              - strong [ref=e280]: Enterprise
+              - text: plan, you can increase these limits by purchasing an optional add-on.
+            - heading "❓ FAQs" [level=2] [ref=e281]
+            - generic [ref=e282]:
+              - button "How much do additional push subscribers cost?" [ref=e284] [cursor=pointer]
+              - button "How will I be charged for additional push subscribers?" [ref=e286] [cursor=pointer]
+              - button "How to purchase additional push subscribers?" [ref=e288] [cursor=pointer]
+            - heading "🌐 Dedicated IPs" [level=1] [ref=e289]
+            - generic [ref=e291]:
+              - generic [ref=e292]: ✅ Plan availability
+              - text: Dedicated IPs are only available as add-ons on the
+              - strong [ref=e293]: Professional
+              - text: and
+              - strong [ref=e294]: Enterprise
+              - text: plans. One dedicated IP is included in the
+              - strong [ref=e295]: Enterprise
+              - text: plan by default.
+            - paragraph [ref=e296]:
+              - text: If you regularly send a large volume of emails and want
+              - strong [ref=e297]: full control over your sending reputation
+              - text: ", you can purchase a"
+              - link "dedicated IP" [ref=e298] [cursor=pointer]:
+                - /url: /hc/en-us/articles/208835449
+              - text: . Unlike a shared IP, a dedicated IP is used by only one organization, so your IP reputation depends entirely on your own sending practices.
+            - heading "❓ FAQs" [level=2] [ref=e299]
+            - generic [ref=e300]:
+              - button "Who should use a dedicated IP?" [ref=e302] [cursor=pointer]
+              - button "How much does a dedicated IP cost?" [ref=e304] [cursor=pointer]
+              - button "How will I be charged for a dedicated IP?" [ref=e306] [cursor=pointer]
+              - button "How to purchase a dedicated IP?" [ref=e308] [cursor=pointer]
+            - heading "⏭️ What's next?" [level=1] [ref=e309]
+            - list [ref=e310]:
+              - listitem [ref=e311]:
+                - link "About Brevo's pricing plans" [ref=e312] [cursor=pointer]:
+                  - /url: /hc/en-us/articles/208589409
+            - heading "🤔 Have a question?" [level=1] [ref=e313]
+            - paragraph [ref=e314]:
+              - text: If you have a question, feel free to contact our support team
+              - link "by creating a ticket from your account" [ref=e315] [cursor=pointer]:
+                - /url: https://login.brevo.com/?target=https://account-app.brevo.com/account/zendesk-support
+              - text: . If you don't have an account yet, you can
+              - link "contact us here" [ref=e316] [cursor=pointer]:
+                - /url: https://www.brevo.com/contact/
+              - text: .
+            - paragraph [ref=e317]:
+              - text: If you’re looking for help with a project using Brevo, we can match you with the right certified
+              - link "Brevo Agency partner" [ref=e318] [cursor=pointer]:
+                - /url: https://www.brevo.com/expert-directory/matchmaking/?utm_medium=partnerships&utm_source=expert-program&utm_campaign=help-center-contact-block
+              - text: .
+          - generic [ref=e319]:
+            - heading "💬 Was this article helpful?" [level=1] [ref=e320]
+            - radiogroup [ref=e321]:
+              - button "This article was helpful" [ref=e322] [cursor=pointer]: "Yes"
+              - button "This article was not helpful" [ref=e323] [cursor=pointer]: "No"
+            - generic [ref=e324]: 32 out of 76 found this helpful
+        - complementary [ref=e325]:
+          - generic [ref=e327]:
+            - heading "In this article" [level=3] [ref=e328]
+            - list [ref=e329]:
+              - listitem [ref=e330]:
+                - link "💼 Sales tools and packages" [ref=e331] [cursor=pointer]:
+                  - /url: "#h_01K60DQD0X2VXSQ71QQDK0BC6P"
+              - listitem [ref=e332]:
+                - link "✉️ Prepaid email credits" [ref=e333] [cursor=pointer]:
+                  - /url: "#h_01K604D4F9YCNTDCRCRHX824F0"
+              - listitem [ref=e334]:
+                - link "💬 Prepaid message credits (SMS and WhatsApp)" [ref=e335] [cursor=pointer]:
+                  - /url: "#h_01K62HTBQXP314W7ATKTKXXFWT"
+              - listitem [ref=e336]:
+                - link "📝 Remove Brevo logo" [ref=e337] [cursor=pointer]:
+                  - /url: "#h_01K60DJH2FMQK63QTFEPAAWZYZ"
+              - listitem [ref=e338]:
+                - link "🔒 SAML SSO" [ref=e339] [cursor=pointer]:
+                  - /url: "#h_01K60DQD0XJJ33J575KGCJTV2G"
+              - listitem [ref=e340]:
+                - link "👥 Additional marketing seats" [ref=e341] [cursor=pointer]:
+                  - /url: "#h_01KC6GJYA55VGC5J313TV5065H"
+              - listitem [ref=e342]:
+                - link "🔔 Additional web and mobile push subscribers" [ref=e343] [cursor=pointer]:
+                  - /url: "#h_01K60DQD0X3M6M6QQVK2STG5FK"
+              - listitem [ref=e344]:
+                - link "🌐 Dedicated IPs" [ref=e345] [cursor=pointer]:
+                  - /url: "#h_01K60DQD0XKRWPE6D9KVVKZNKV"
+              - listitem [ref=e346]:
+                - link "⏭️ What's next?" [ref=e347] [cursor=pointer]:
+                  - /url: "#h_01H9G7HMACC46HZZQDA024Q8DH"
+              - listitem [ref=e348]:
+                - link "🤔 Have a question?" [ref=e349] [cursor=pointer]:
+                  - /url: "#heading-10"
+    - contentinfo [ref=e350]:
+      - generic [ref=e351]:
+        - generic [ref=e352]:
+          - link [ref=e353] [cursor=pointer]:
+            - /url: https://www.brevo.com
+          - navigation [ref=e354]:
+            - link [ref=e355] [cursor=pointer]:
+              - /url: https://twitter.com/brevo_official
+              - img [ref=e356]
+            - link [ref=e358] [cursor=pointer]:
+              - /url: https://www.linkedin.com/company/brevo/
+              - img [ref=e359]
+            - link [ref=e361] [cursor=pointer]:
+              - /url: http://instagram.com/brevo
+              - img [ref=e362]
+            - link [ref=e366] [cursor=pointer]:
+              - /url: https://www.youtube.com/@brevo_official
+              - img [ref=e367]
+            - link [ref=e369] [cursor=pointer]:
+              - /url: http://facebook.com/brevo.official
+              - img [ref=e370]
+        - generic [ref=e372]:
+          - generic [ref=e375]:
+            - heading "About us" [level=4] [ref=e376]
+            - navigation [ref=e377]:
+              - link "Brevo Careers" [ref=e378] [cursor=pointer]:
+                - /url: https://jobs.brevo.com/en/
+              - link "Press Room" [ref=e379] [cursor=pointer]:
+                - /url: https://www.brevo.com/press-room/
+              - link "Carbon Footprint" [ref=e380] [cursor=pointer]:
+                - /url: https://www.brevo.com/carbon-footprint/
+              - link "GDPR" [ref=e381] [cursor=pointer]:
+                - /url: https://www.brevo.com/gdpr/
+              - link "Security" [ref=e382] [cursor=pointer]:
+                - /url: https://www.brevo.com/security/
+          - generic [ref=e383]:
+            - heading "Products" [level=4] [ref=e384]
+            - navigation [ref=e385]:
+              - link "Marketing Platform" [ref=e386] [cursor=pointer]:
+                - /url: https://www.brevo.com/products/marketing-platform/
+              - link "Conversations Platform" [ref=e387] [cursor=pointer]:
+                - /url: https://www.brevo.com/products/conversations/
+              - link "Sales Platform" [ref=e388] [cursor=pointer]:
+                - /url: https://www.brevo.com/products/sales-platform/
+              - link "Messaging API" [ref=e389] [cursor=pointer]:
+                - /url: https://www.brevo.com/products/transactional-email/
+              - link "Enterprise Solution" [ref=e390] [cursor=pointer]:
+                - /url: https://www.brevo.com/plus/
+          - generic [ref=e391]:
+            - heading "Community" [level=4] [ref=e392]
+            - navigation [ref=e393]:
+              - link "Blog" [ref=e394] [cursor=pointer]:
+                - /url: https://www.brevo.com/blog
+              - link "Events" [ref=e395] [cursor=pointer]:
+                - /url: https://www.brevo.com/events/
+              - link "Partners" [ref=e396] [cursor=pointer]:
+                - /url: https://www.brevo.com/partners
+              - link "Customer stories" [ref=e397] [cursor=pointer]:
+                - /url: https://www.brevo.com/success-stories/
+              - link "Community Forum" [ref=e398] [cursor=pointer]:
+                - /url: https://community.brevo.com/
+          - generic [ref=e399]:
+            - heading "Support" [level=4] [ref=e400]
+            - navigation [ref=e401]:
+              - link "Help Center" [ref=e402] [cursor=pointer]:
+                - /url: https://help.brevo.com/hc/en-us
+              - link "Contact us" [ref=e403] [cursor=pointer]:
+                - /url: https://www.brevo.com/contact/
+              - link "Brevo API" [ref=e404] [cursor=pointer]:
+                - /url: https://developers.brevo.com/
+              - link "Platform status" [ref=e405] [cursor=pointer]:
+                - /url: https://status.brevo.com/
+              - link "Product updates" [ref=e406] [cursor=pointer]:
+                - /url: https://releases.brevo.com/
+              - link "Integrations" [ref=e407] [cursor=pointer]:
+                - /url: https://www.brevo.com/plugins/
+        - generic [ref=e408]:
+          - navigation [ref=e409]:
+            - link "Anti-Spam" [ref=e410] [cursor=pointer]:
+              - /url: https://www.brevo.com/legal/antispampolicy/
+            - link "Privacy" [ref=e411] [cursor=pointer]:
+              - /url: https://www.brevo.com/legal/privacypolicy/
+            - link "User agreement" [ref=e412] [cursor=pointer]:
+              - /url: https://www.brevo.com/legal/termsofuse/
+            - link "Legal Notice" [ref=e413] [cursor=pointer]:
+              - /url: https://www.brevo.com/legal/notice/
+          - paragraph [ref=e414]: © Brevo 2023. All rights reserved
+  - region "Cookie banner" [ref=e415]:
+    - alertdialog "Confidentialité" [ref=e416]:
+      - generic [ref=e418]:
+        - paragraph [ref=e421]: En cliquant sur "Accepter tous les cookies", vous autorisez la conservation de cookies dans votre navigateur pour l'amélioration de la navigation, l'analyse du trafic et le partage d'informations avec nos partenaires pour l'analyse et la personnalisation des publicités.
+        - generic [ref=e423]:
+          - button "Paramètres des cookies" [active] [ref=e424] [cursor=pointer]
+          - button "Tout refuser" [ref=e425] [cursor=pointer]
+          - button "Autoriser tous les cookies" [ref=e426] [cursor=pointer]

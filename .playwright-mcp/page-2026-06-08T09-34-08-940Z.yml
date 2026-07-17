@@ -1,0 +1,163 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "Pointon — accueil" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - img "Pointon" [ref=e6]
+        - navigation [ref=e7]:
+          - link "Fonctionnalités" [ref=e8] [cursor=pointer]:
+            - /url: "#features"
+          - link "Comment ça marche" [ref=e9] [cursor=pointer]:
+            - /url: "#how"
+          - link "Tarifs" [ref=e10] [cursor=pointer]:
+            - /url: "#pricing"
+          - link "FAQ" [ref=e11] [cursor=pointer]:
+            - /url: "#faq"
+        - generic [ref=e12]:
+          - button "Mode clair" [ref=e13] [cursor=pointer]:
+            - img [ref=e14]
+          - link "Connexion" [ref=e17] [cursor=pointer]:
+            - /url: /login
+          - link "Commencer" [ref=e18] [cursor=pointer]:
+            - /url: /login
+            - button "Commencer" [ref=e19]
+    - main [ref=e20]:
+      - generic [ref=e21]:
+        - navigation [ref=e22]:
+          - link "Accueil" [ref=e23] [cursor=pointer]:
+            - /url: /
+          - text: ›Légal›Conformité
+        - generic [ref=e24]:
+          - generic [ref=e25]:
+            - img [ref=e26]
+            - text: Conforme Belgique 2027
+          - heading "Conformité légale" [level=1] [ref=e28]
+          - paragraph [ref=e29]: "Dernière mise à jour : 25 mai 2026"
+          - paragraph [ref=e30]: Pointon est conçu spécifiquement pour respecter la législation belge sur l'enregistrement du temps de travail, l'arrêt CJUE de 2019, et le RGPD. Cette page détaille les obligations légales et comment Pointon y répond.
+        - button "Télécharger le certificat PDF" [ref=e32] [cursor=pointer]:
+          - img [ref=e33]
+          - text: Télécharger le certificat PDF
+        - generic [ref=e36]:
+          - heading "Bases légales" [level=2] [ref=e37]
+          - generic [ref=e39]:
+            - generic [ref=e41]: BE
+            - generic [ref=e42]:
+              - heading "CCT n°129 — Enregistrement du temps de travail" [level=3] [ref=e43]
+              - paragraph [ref=e44]: La Convention Collective de Travail n°129 du Conseil National du Travail (CNT) impose depuis 2023 l'enregistrement électronique du temps de travail pour certains secteurs. La généralisation à toutes les entreprises belges est prévue progressivement jusqu'en 2027. Pointon répond à toutes les exigences techniques de cette CCT.
+          - generic [ref=e46]:
+            - generic [ref=e48]: EU
+            - generic [ref=e49]:
+              - heading "Arrêt CJUE C-55/18 (2019) — Deutsche Bank" [level=3] [ref=e50]
+              - paragraph [ref=e51]: "La Cour de Justice de l'Union Européenne a établi en 2019 que les employeurs sont tenus de mettre en place un système objectif, fiable et accessible permettant de mesurer la durée du temps de travail journalier effectué par chaque travailleur. Pointon fournit exactement ce système : enregistrement automatique, immuable et exportable."
+          - generic [ref=e53]:
+            - generic [ref=e55]: RGPD
+            - generic [ref=e56]:
+              - heading "RGPD — Règlement (UE) 2016/679" [level=3] [ref=e57]
+              - paragraph [ref=e58]: Les données de pointage sont des données personnelles au sens du RGPD. Pointon traite ces données avec les bases légales appropriées (obligation légale pour le temps de travail, contrat pour la gestion des comptes), dans le respect des principes de minimisation, limitation de conservation et sécurité des données.
+        - generic [ref=e59]:
+          - heading "Checklist de conformité" [level=2] [ref=e60]
+          - generic [ref=e61]:
+            - generic [ref=e62]:
+              - heading "Enregistrement du temps de travail" [level=3] [ref=e63]
+              - list [ref=e64]:
+                - listitem [ref=e65]:
+                  - img [ref=e66]
+                  - generic [ref=e68]: Enregistrement électronique de l'heure d'arrivée et de départ
+                - listitem [ref=e69]:
+                  - img [ref=e70]
+                  - generic [ref=e72]: Données immuables — aucune modification possible sans trace d'audit
+                - listitem [ref=e73]:
+                  - img [ref=e74]
+                  - generic [ref=e76]: Horodatage automatique (serveur, pas client)
+                - listitem [ref=e77]:
+                  - img [ref=e78]
+                  - generic [ref=e80]: Conservation minimale 5 ans (obligation légale belge)
+            - generic [ref=e81]:
+              - heading "Audit trail & traçabilité" [level=3] [ref=e82]
+              - list [ref=e83]:
+                - listitem [ref=e84]:
+                  - img [ref=e85]
+                  - generic [ref=e87]: Toutes les actions admin sont enregistrées (AuditLog)
+                - listitem [ref=e88]:
+                  - img [ref=e89]
+                  - generic [ref=e91]: Qui a fait quoi, quand — traçabilité complète
+                - listitem [ref=e92]:
+                  - img [ref=e93]
+                  - generic [ref=e95]: Export CSV des logs d'audit disponible
+                - listitem [ref=e96]:
+                  - img [ref=e97]
+                  - generic [ref=e99]: Impossible de supprimer un pointage sans trace
+            - generic [ref=e100]:
+              - heading "RGPD & protection des données" [level=3] [ref=e101]
+              - list [ref=e102]:
+                - listitem [ref=e103]:
+                  - img [ref=e104]
+                  - generic [ref=e106]: Base légale définie pour chaque traitement
+                - listitem [ref=e107]:
+                  - img [ref=e108]
+                  - generic [ref=e110]: Durées de conservation documentées
+                - listitem [ref=e111]:
+                  - img [ref=e112]
+                  - generic [ref=e114]: Droits des personnes concernées respectés
+                - listitem [ref=e115]:
+                  - img [ref=e116]
+                  - generic [ref=e118]: Pseudo-anonymisation des données après la période légale
+                - listitem [ref=e119]:
+                  - img [ref=e120]
+                  - generic [ref=e122]: Sous-traitants conformes RGPD (Brevo, Stripe, Hostinger)
+            - generic [ref=e123]:
+              - heading "Sécurité & confidentialité" [level=3] [ref=e124]
+              - list [ref=e125]:
+                - listitem [ref=e126]:
+                  - img [ref=e127]
+                  - generic [ref=e129]: Chiffrement HTTPS/TLS 1.3 en transit
+                - listitem [ref=e130]:
+                  - img [ref=e131]
+                  - generic [ref=e133]: Mots de passe hashés bcrypt (cost factor 12)
+                - listitem [ref=e134]:
+                  - img [ref=e135]
+                  - generic [ref=e137]: Isolation des données par entreprise (multi-tenancy)
+                - listitem [ref=e138]:
+                  - img [ref=e139]
+                  - generic [ref=e141]: Sessions sécurisées (expiration, token rotation)
+                - listitem [ref=e142]:
+                  - img [ref=e143]
+                  - generic [ref=e145]: Audit des accès et des modifications sensibles
+        - generic [ref=e146]:
+          - heading "Conservation & anonymisation" [level=2] [ref=e147]
+          - generic [ref=e148]:
+            - paragraph [ref=e149]:
+              - text: Le droit belge impose la conservation des données de temps de travail pendant
+              - strong [ref=e150]: 5 ans minimum
+              - text: ". Pointon applique cette obligation automatiquement : les données de pointage ne peuvent pas être supprimées manuellement avant l'échéance légale."
+            - paragraph [ref=e151]:
+              - text: Après la période de conservation légale, les données sont
+              - strong [ref=e152]: pseudo-anonymisées
+              - text: ": les identifiants personnels (nom, email) sont remplacés par des identifiants anonymes, tout en conservant les agrégats statistiques nécessaires aux obligations comptables."
+            - paragraph [ref=e153]: Les exports CSV et PDF sont disponibles à tout moment pour les audits des organes sociaux (inspection du travail, ONSS, SPF Emploi).
+        - generic [ref=e154]:
+          - heading "Questions de conformité" [level=2] [ref=e155]
+          - generic [ref=e156]:
+            - paragraph [ref=e157]: "Pour toute question relative à la conformité légale de Pointon dans votre entreprise, ou pour obtenir une attestation de conformité :"
+            - generic [ref=e158]:
+              - strong [ref=e159]: "Email :"
+              - link "contact@ced-it.be" [ref=e160] [cursor=pointer]:
+                - /url: mailto:contact@ced-it.be
+    - contentinfo [ref=e161]:
+      - generic [ref=e162]:
+        - link "← Retour à l'accueil" [ref=e163] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e164]:
+          - link "Confidentialité" [ref=e165] [cursor=pointer]:
+            - /url: /legal/privacy
+          - link "Conditions" [ref=e166] [cursor=pointer]:
+            - /url: /legal/terms
+          - link "Conformité" [ref=e167] [cursor=pointer]:
+            - /url: /legal/compliance
+          - link "Sécurité" [ref=e168] [cursor=pointer]:
+            - /url: /legal/security
+        - generic [ref=e169]: © 2026 Pointon · Ced-IT
+  - button "Open Next.js Dev Tools" [ref=e175] [cursor=pointer]:
+    - img [ref=e176]
+  - alert [ref=e179]

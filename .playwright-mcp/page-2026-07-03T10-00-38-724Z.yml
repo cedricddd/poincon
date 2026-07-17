@@ -1,0 +1,173 @@
+- generic [active] [ref=f27e1]:
+  - generic [ref=f27e2]:
+    - complementary [ref=f27e3]:
+      - generic [ref=f27e4]:
+        - generic [ref=f27e5]:
+          - img [ref=f27e7]
+          - img "Pointon" [ref=f27e11]
+        - button "Réduire le menu" [ref=f27e12] [cursor=pointer]:
+          - img [ref=f27e13]
+      - navigation [ref=f27e15]:
+        - button "Pointage" [ref=f27e16] [cursor=pointer]:
+          - generic [ref=f27e17]: Pointage
+          - img [ref=f27e19]
+        - generic [ref=f27e21]:
+          - link "Pointage" [ref=f27e22] [cursor=pointer]:
+            - /url: /fr/app/clock
+            - img [ref=f27e24]
+            - text: Pointage
+          - link "Congés" [ref=f27e27] [cursor=pointer]:
+            - /url: /fr/app/time-off
+            - img [ref=f27e29]
+            - text: Congés
+          - link "Récupération" [ref=f27e31] [cursor=pointer]:
+            - /url: /fr/app/rtt
+            - img [ref=f27e33]
+            - text: Récupération
+          - link "Rapports" [ref=f27e35] [cursor=pointer]:
+            - /url: /fr/app/reports
+            - img [ref=f27e37]
+            - text: Rapports
+          - link "Présences" [ref=f27e38] [cursor=pointer]:
+            - /url: /fr/app/presence
+            - img [ref=f27e40]
+            - text: Présences
+        - button "Admin" [ref=f27e45] [cursor=pointer]:
+          - generic [ref=f27e46]:
+            - img [ref=f27e47]
+            - generic [ref=f27e50]: Admin
+          - img [ref=f27e52]
+        - generic [ref=f27e54]:
+          - link "Tableau de bord" [ref=f27e55] [cursor=pointer]:
+            - /url: /fr/admin/dashboard
+            - img [ref=f27e56]
+            - generic [ref=f27e59]: Tableau de bord
+          - link "Heures Sup." [ref=f27e60] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/overtimes
+            - img [ref=f27e61]
+            - generic [ref=f27e66]: Heures Sup.
+          - link "Congés" [ref=f27e67] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/timeoffs
+            - img [ref=f27e68]
+            - generic [ref=f27e70]: Congés
+          - link "Récupération" [ref=f27e71] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/rtts
+            - img [ref=f27e72]
+            - generic [ref=f27e74]: Récupération
+          - link "Horaires" [ref=f27e75] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/schedules
+            - img [ref=f27e76]
+            - generic [ref=f27e78]: Horaires
+          - link "Équipes" [ref=f27e79] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/teams
+            - img [ref=f27e80]
+            - generic [ref=f27e85]: Équipes
+          - link "Planning" [ref=f27e86] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/planning
+            - img [ref=f27e87]
+            - generic [ref=f27e89]: Planning
+          - link "Présences" [ref=f27e90] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/presence
+            - img [ref=f27e91]
+            - generic [ref=f27e95]: Présences
+          - link "Utilisateurs" [ref=f27e96] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/users
+            - img [ref=f27e97]
+            - generic [ref=f27e102]: Utilisateurs
+          - link "Invitations" [ref=f27e103] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/invitations
+            - img [ref=f27e104]
+            - generic [ref=f27e107]: Invitations
+          - link "Sites" [ref=f27e108] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/sites
+            - img [ref=f27e109]
+            - generic [ref=f27e112]: Sites
+          - link "Audit Trail" [ref=f27e113] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/audit
+            - img [ref=f27e114]
+            - generic [ref=f27e117]: Audit Trail
+          - link "Rapports" [ref=f27e118] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/reports
+            - img [ref=f27e119]
+            - generic [ref=f27e120]: Rapports
+          - link "Kiosque" [ref=f27e121] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/kiosk
+            - img [ref=f27e122]
+            - generic [ref=f27e124]: Kiosque
+          - link "Paramètres" [ref=f27e125] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/settings
+            - img [ref=f27e126]
+            - generic [ref=f27e129]: Paramètres
+          - link "Intégrations" [ref=f27e130] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/settings/integrations
+            - img [ref=f27e131]
+            - generic [ref=f27e133]: Intégrations
+      - generic [ref=f27e134]:
+        - button "Mode clair" [ref=f27e135] [cursor=pointer]:
+          - img [ref=f27e136]
+          - text: Mode clair
+        - button "🇧🇪 Français" [ref=f27e143] [cursor=pointer]:
+          - img [ref=f27e144]
+          - generic [ref=f27e147]: 🇧🇪 Français
+          - img [ref=f27e148]
+        - generic [ref=f27e150]:
+          - generic [ref=f27e152]: AD
+          - generic [ref=f27e153]:
+            - paragraph [ref=f27e154]: Admin User
+            - paragraph [ref=f27e155]: admin@pointon.be
+        - button "Se déconnecter" [ref=f27e156] [cursor=pointer]:
+          - img [ref=f27e157]
+          - text: Se déconnecter
+    - main [ref=f27e160]:
+      - generic [ref=f27e161]:
+        - generic [ref=f27e162]:
+          - heading "Mode Kiosque" [level=1] [ref=f27e163]
+          - paragraph [ref=f27e164]: Créez des terminaux de pointage pour tablettes — accès par PIN ou enregistrement visiteur.
+        - generic [ref=f27e201]: Terminal créé avec succès.
+        - generic [ref=f27e165]:
+          - heading "Créer un nouveau terminal" [level=2] [ref=f27e166]
+          - generic [ref=f27e167]:
+            - generic [ref=f27e168]:
+              - generic [ref=f27e169]: Libellé (optionnel)
+              - 'textbox "ex: Accueil RDC" [ref=f27e170]'
+            - button "+ Créer" [ref=f27e171] [cursor=pointer]
+        - generic [ref=f27e172]:
+          - heading "Terminaux actifs(1)" [level=2] [ref=f27e202]:
+            - text: Terminaux actifs
+            - generic [ref=f27e203]: (1)
+          - generic [ref=f27e206]:
+            - generic [ref=f27e207]:
+              - generic [ref=f27e209]: Terminal kiosque
+              - paragraph [ref=f27e210]: http://localhost:3000/kiosk/p9mhIoT9RWnetx9v9fJonAOKCzmhyDe9
+              - paragraph [ref=f27e211]: Créé le 3 juillet 2026
+            - generic [ref=f27e212]:
+              - button "👤 Visiteurs" [ref=f27e213] [cursor=pointer]
+              - button "🌑 Sombre" [ref=f27e214] [cursor=pointer]
+              - button "Copier URL" [ref=f27e215] [cursor=pointer]
+              - link "Ouvrir" [ref=f27e216] [cursor=pointer]:
+                - /url: http://localhost:3000/kiosk/p9mhIoT9RWnetx9v9fJonAOKCzmhyDe9
+                - button "Ouvrir" [ref=f27e217]
+              - button "Supprimer" [ref=f27e218] [cursor=pointer]
+        - generic [ref=f27e177]:
+          - heading "Comment configurer le kiosque" [level=2] [ref=f27e178]
+          - list [ref=f27e179]:
+            - listitem [ref=f27e180]:
+              - generic [ref=f27e181]: "1"
+              - text: Créez un terminal ci-dessus et copiez son URL.
+            - listitem [ref=f27e182]:
+              - generic [ref=f27e183]: "2"
+              - text: Sur la tablette, ouvrez l’URL en mode plein écran (navigateur kiosque ou PWA).
+            - listitem [ref=f27e184]:
+              - generic [ref=f27e185]: "3"
+              - generic [ref=f27e186]:
+                - text: Assignez un PIN à 4 chiffres à chaque employé dans
+                - link "Utilisateurs" [ref=f27e187] [cursor=pointer]:
+                  - /url: /fr/admin/dashboard/users
+                - text: (bouton « PIN Kiosque »).
+            - listitem [ref=f27e188]:
+              - generic [ref=f27e189]: "4"
+              - text: Les employés tapent leur PIN pour pointer. Les visiteurs peuvent s’enregistrer et un email est envoyé à leur hôte.
+    - button "Aide" [ref=f27e190] [cursor=pointer]: ❓
+  - button "Open Next.js Dev Tools" [ref=f27e196] [cursor=pointer]:
+    - img [ref=f27e197]
+  - alert [ref=f27e200]

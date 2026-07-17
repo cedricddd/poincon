@@ -1,0 +1,290 @@
+- generic [active] [ref=e1]:
+  - button "🖨 Imprimer / Sauver en PDF" [ref=e3] [cursor=pointer]
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: Pointon
+      - generic [ref=e7]: Gestion du temps & présence
+      - generic [ref=e8]:
+        - text: Guide de configuration
+        - text: Tablette Kiosque
+      - generic [ref=e9]: Transformer une tablette Android en borne de pointage autonome pour votre accueil
+      - generic [ref=e10]: 📱 FreeKiosk - Kiosk Browser · v1.2.19
+      - generic [ref=e11]: Application gratuite open-source (MIT) · freekiosk.app · Android 8+
+      - generic [ref=e12]:
+        - generic [ref=e13]:
+          - generic [ref=e14]: ⏱
+          - generic [ref=e15]: Pointage PIN
+          - generic [ref=e16]: Employés — 4 chiffres
+        - generic [ref=e17]:
+          - generic [ref=e18]: 🪪
+          - generic [ref=e19]: Visiteurs
+          - generic [ref=e20]: Email + confirmation
+        - generic [ref=e21]:
+          - generic [ref=e22]: 🔒
+          - generic [ref=e23]: Mode verrouillé
+          - generic [ref=e24]: Tablette dédiée accueil
+        - generic [ref=e25]:
+          - generic [ref=e26]: 🔄
+          - generic [ref=e27]: Auto-restart
+          - generic [ref=e28]: Rechargement sur erreur
+      - generic [ref=e29]: Document préparé le 15 juin 2026 — pointon.be · support@pointon.be
+    - generic [ref=e30]:
+      - generic [ref=e31]: Pointon — Guide Tablette Kiosque
+      - generic [ref=e32]: Page 1 / 3
+  - generic [ref=e33]:
+    - generic [ref=e34]:
+      - generic [ref=e35]: Pointon
+      - generic [ref=e36]:
+        - text: Guide Tablette Kiosque
+        - text: Installation & Configuration
+    - heading "Installation et configuration" [level=1] [ref=e37]
+    - list [ref=e38]:
+      - listitem [ref=e39]:
+        - generic [ref=e40]: "1"
+        - generic [ref=e41]:
+          - generic [ref=e42]: Récupérer votre URL de borne dans Pointon
+          - generic [ref=e43]:
+            - text: Connectez-vous sur
+            - strong [ref=e44]: pointon.be
+            - text: →
+            - strong [ref=e45]: Administration → Kiosque
+            - text: . Copiez l'URL unique générée pour votre tablette.
+          - generic [ref=e46]:
+            - generic [ref=e47]: Votre URL de borne Pointon
+            - generic [ref=e48]:
+              - text: https://pointon.be/kiosk/
+              - emphasis [ref=e49]: "[votre-token]"
+            - generic [ref=e50]: Chaque borne a sa propre URL — un token par tablette physique
+      - listitem [ref=e51]:
+        - generic [ref=e52]: "2"
+        - generic [ref=e53]:
+          - generic [ref=e54]: Installer FreeKiosk sur la tablette Android
+          - generic [ref=e55]: "Deux méthodes disponibles — choisissez selon votre niveau technique :"
+          - generic [ref=e56]:
+            - generic [ref=e57]:
+              - generic [ref=e58]: 🏪 Via Google Play Store
+              - generic [ref=e59]:
+                - text: Recherchez
+                - strong [ref=e60]: "\"FreeKiosk\""
+                - text: (développeur Rushb) et installez. Méthode la plus simple.
+            - generic [ref=e61]:
+              - generic [ref=e62]: 📦 Via APK officiel (recommandé)
+              - generic [ref=e63]:
+                - text: Téléchargez l'APK sur
+                - strong [ref=e64]: freekiosk.app
+                - text: → Releases. Transférez sur la tablette (USB ou email) et installez en activant "Sources inconnues".
+      - listitem [ref=e65]:
+        - generic [ref=e66]: "3"
+        - generic [ref=e67]:
+          - generic [ref=e68]: Configurer l'application
+          - generic [ref=e69]:
+            - text: Au premier lancement, l'écran
+            - strong [ref=e70]: Configuration Kiosque
+            - text: "s'affiche. Renseignez tous les paramètres :"
+          - generic [ref=e71]:
+            - generic [ref=e72]:
+              - img "Écran de configuration FreeKiosk" [ref=e73]
+              - generic [ref=e74]: Écran de configuration
+            - table [ref=e76]:
+              - rowgroup [ref=e77]:
+                - row "Paramètre Valeur recommandée" [ref=e78]:
+                  - columnheader "Paramètre" [ref=e79]
+                  - columnheader "Valeur recommandée" [ref=e80]
+              - rowgroup [ref=e81]:
+                - row "🌐 URL à afficher https://pointon.be/kiosk/[token]" [ref=e82]:
+                  - cell "🌐 URL à afficher" [ref=e83]:
+                    - strong [ref=e84]: 🌐 URL à afficher
+                  - cell "https://pointon.be/kiosk/[token]" [ref=e85]:
+                    - code [ref=e86]: https://pointon.be/kiosk/[token]
+                - row "🔒 Code PIN 4–6 chiffres de votre choix Notez-le ! PIN admin de la tablette" [ref=e87]:
+                  - cell "🔒 Code PIN" [ref=e88]:
+                    - strong [ref=e89]: 🔒 Code PIN
+                  - cell "4–6 chiffres de votre choix Notez-le ! PIN admin de la tablette" [ref=e90]:
+                    - text: 4–6 chiffres de votre choix
+                    - text: Notez-le ! PIN admin de la tablette
+                - row "🔄 Rechargement auto ✓ Activé Relance si connexion perdue" [ref=e91]:
+                  - cell "🔄 Rechargement auto" [ref=e92]:
+                    - strong [ref=e93]: 🔄 Rechargement auto
+                  - cell "✓ Activé Relance si connexion perdue" [ref=e94]:
+                    - text: ✓ Activé
+                    - text: Relance si connexion perdue
+                - row "📺 Plein écran ✓ Activé" [ref=e95]:
+                  - cell "📺 Plein écran" [ref=e96]:
+                    - strong [ref=e97]: 📺 Plein écran
+                  - cell "✓ Activé" [ref=e98]
+                - row "🚀 Démarrage auto ✓ Activé Relance après coupure de courant" [ref=e99]:
+                  - cell "🚀 Démarrage auto" [ref=e100]:
+                    - strong [ref=e101]: 🚀 Démarrage auto
+                  - cell "✓ Activé Relance après coupure de courant" [ref=e102]:
+                    - text: ✓ Activé
+                    - text: Relance après coupure de courant
+                - row "📊 Barre de statut ✗ Masquée" [ref=e103]:
+                  - cell "📊 Barre de statut" [ref=e104]:
+                    - strong [ref=e105]: 📊 Barre de statut
+                  - cell "✗ Masquée" [ref=e106]
+                - row "💡 Délai écran Jamais (ou économiseur d'écran)" [ref=e107]:
+                  - cell "💡 Délai écran" [ref=e108]:
+                    - strong [ref=e109]: 💡 Délai écran
+                  - cell "Jamais (ou économiseur d'écran)" [ref=e110]
+                - row "☀️ Luminosité 50–70 % recommandé" [ref=e111]:
+                  - cell "☀️ Luminosité" [ref=e112]:
+                    - strong [ref=e113]: ☀️ Luminosité
+                  - cell "50–70 % recommandé" [ref=e114]
+      - listitem [ref=e115]:
+        - generic [ref=e116]: "4"
+        - generic [ref=e117]:
+          - generic [ref=e118]: Sauvegarder et activer le mode kiosque
+          - generic [ref=e119]:
+            - text: Appuyez sur
+            - strong [ref=e120]: 💾 Sauvegarder
+            - text: . La tablette bascule sur Pointon en plein écran.
+          - generic [ref=e121]:
+            - generic [ref=e122]: ✅
+            - generic [ref=e123]:
+              - generic [ref=e124]: La borne est opérationnelle !
+              - text: Employés → code PIN Pointon 4 chiffres · Visiteurs → formulaire email
+    - generic [ref=e125]:
+      - generic [ref=e126]: 📝
+      - generic [ref=e127]:
+        - generic [ref=e128]: À noter et conserver précieusement
+        - generic [ref=e129]: _ _ _ _
+        - generic [ref=e130]: Votre code PIN FreeKiosk (accès aux paramètres de la tablette — différent du PIN employé)
+    - generic [ref=e131]:
+      - generic [ref=e132]: Pointon — Guide Tablette Kiosque
+      - generic [ref=e133]: Page 2 / 3
+  - generic [ref=e134]:
+    - generic [ref=e135]:
+      - generic [ref=e136]: Pointon
+      - generic [ref=e137]:
+        - text: Guide Tablette Kiosque
+        - text: Gestion & Mode Avancé
+    - heading "Gestion quotidienne & mode avancé" [level=1] [ref=e138]
+    - generic [ref=e139]:
+      - generic [ref=e140]:
+        - heading "🔧 Accéder aux paramètres" [level=2] [ref=e141]
+        - list [ref=e142]:
+          - listitem [ref=e143]:
+            - generic [ref=e144]: "1"
+            - generic [ref=e146]:
+              - strong [ref=e147]: Appuyez 5 fois rapidement
+              - text: dans le coin
+              - strong [ref=e148]: bas-droit
+              - text: de l'écran
+          - listitem [ref=e149]:
+            - generic [ref=e150]: "2"
+            - generic [ref=e152]:
+              - text: Saisissez votre
+              - strong [ref=e153]: code PIN
+              - text: FreeKiosk
+          - listitem [ref=e154]:
+            - generic [ref=e155]: "3"
+            - generic [ref=e157]:
+              - text: Appuyez
+              - strong [ref=e158]: Valider
+              - text: → paramètres accessibles
+        - generic [ref=e160]:
+          - img "Écran PIN" [ref=e161]
+          - generic [ref=e162]: Saisie du PIN admin
+      - generic [ref=e163]:
+        - heading "🚪 Quitter / Retour kiosque" [level=2] [ref=e164]
+        - paragraph [ref=e165]: "Depuis les paramètres (après saisie du PIN) :"
+        - list [ref=e166]:
+          - listitem [ref=e167]: Retour au Kiosque → revient à la borne sans fermer l'app
+          - listitem [ref=e168]: Quitter le Mode Kiosque → sortie complète, Android accessible
+          - listitem [ref=e169]: "PIN par défaut : 1234 → à changer impérativement"
+        - generic [ref=e170]:
+          - generic [ref=e171]: ⚠️
+          - generic [ref=e172]:
+            - strong [ref=e173]: PIN Pointon ≠ PIN FreeKiosk
+            - text: Le PIN employé (pointage) est géré dans
+            - emphasis [ref=e174]: Pointon → Employés
+            - text: . Le PIN FreeKiosk est réservé à l'admin de la tablette.
+    - heading "🛡 Mode Propriétaire (verrouillage complet — optionnel)" [level=2] [ref=e175]
+    - paragraph [ref=e176]: Pour une borne d'accueil professionnelle, ce mode supprime complètement la barre de statut, les notifications et les boutons de navigation Android.
+    - generic [ref=e177]:
+      - generic [ref=e178]:
+        - generic [ref=e179]:
+          - generic [ref=e180]: Standard
+          - text: Play Store / APK simple
+        - list [ref=e181]:
+          - listitem [ref=e182]: ✅ Installation rapide, 2 minutes
+          - listitem [ref=e183]: ✅ Aucun outil requis
+          - listitem [ref=e184]: ⚠️ Barre navigation partiellement visible
+          - listitem [ref=e185]: ⚠️ Notifications peuvent apparaître
+      - generic [ref=e186]:
+        - generic [ref=e187]:
+          - generic [ref=e188]: Recommandé prod
+          - text: Mode Device Owner
+        - list [ref=e189]:
+          - listitem [ref=e190]: ✅ Verrouillage total — zéro échappatoire
+          - listitem [ref=e191]: ✅ Pas de barre de statut, pas de notifs
+          - listitem [ref=e192]: ⚠️ Nécessite réinitialisation usine + ADB
+          - listitem [ref=e193]: ⚠️ À faire une seule fois par tablette
+    - heading "Procédure Device Owner (une fois par tablette)" [level=3] [ref=e194]
+    - list [ref=e195]:
+      - listitem [ref=e196]:
+        - generic [ref=e197]: "1"
+        - generic [ref=e199]:
+          - strong [ref=e200]: Réinitialiser la tablette en usine
+          - text: — sans associer de compte Google pendant la configuration initiale
+      - listitem [ref=e201]:
+        - generic [ref=e202]: "2"
+        - generic [ref=e204]:
+          - strong [ref=e205]: Installer FreeKiosk
+          - text: (APK), activer les options développeur (7 taps sur "Numéro de version"), activer le débogage USB
+      - listitem [ref=e206]:
+        - generic [ref=e207]: "3"
+        - generic [ref=e208]:
+          - generic [ref=e209]:
+            - strong [ref=e210]: Depuis un PC
+            - text: "avec ADB installé, exécuter la commande :"
+          - generic [ref=e211]:
+            - text: "# Connecter la tablette en USB, puis :"
+            - text: adb shell dpm set-device-owner com.freekiosk/.DeviceAdminReceiver
+          - generic [ref=e212]: ADB disponible sur developer.android.com/tools/releases/platform-tools
+    - heading "🆘 Dépannage rapide" [level=2] [ref=e213]
+    - table [ref=e214]:
+      - rowgroup [ref=e215]:
+        - row "Problème Solution" [ref=e216]:
+          - columnheader "Problème" [ref=e217]
+          - columnheader "Solution" [ref=e218]
+      - rowgroup [ref=e219]:
+        - 'row "Page blanche / erreur réseau Le rechargement automatique relance. Sinon : 5 taps → PIN → Retour au Kiosque" [ref=e220]':
+          - cell "Page blanche / erreur réseau" [ref=e221]:
+            - strong [ref=e222]: Page blanche / erreur réseau
+          - 'cell "Le rechargement automatique relance. Sinon : 5 taps → PIN → Retour au Kiosque" [ref=e223]':
+            - text: "Le rechargement automatique relance. Sinon : 5 taps → PIN →"
+            - emphasis [ref=e224]: Retour au Kiosque
+        - row "Impossible de quitter 5 taps rapides dans le coin bas-droit → PIN → Quitter le Mode Kiosque" [ref=e225]:
+          - cell "Impossible de quitter" [ref=e226]:
+            - strong [ref=e227]: Impossible de quitter
+          - cell "5 taps rapides dans le coin bas-droit → PIN → Quitter le Mode Kiosque" [ref=e228]:
+            - text: 5 taps rapides dans le
+            - strong [ref=e229]: coin bas-droit
+            - text: → PIN →
+            - emphasis [ref=e230]: Quitter le Mode Kiosque
+        - row "Commande Device Owner échoue Vérifier que la tablette a bien été réinitialisée sans compte Google associé" [ref=e231]:
+          - cell "Commande Device Owner échoue" [ref=e232]:
+            - strong [ref=e233]: Commande Device Owner échoue
+          - cell "Vérifier que la tablette a bien été réinitialisée sans compte Google associé" [ref=e234]:
+            - text: Vérifier que la tablette a bien été réinitialisée
+            - emphasis [ref=e235]: sans
+            - text: compte Google associé
+        - row "Tablette complètement bloquée Maintenir le bouton Power 10 secondes → redémarrage forcé → FreeKiosk relance automatiquement" [ref=e236]:
+          - cell "Tablette complètement bloquée" [ref=e237]:
+            - strong [ref=e238]: Tablette complètement bloquée
+          - cell "Maintenir le bouton Power 10 secondes → redémarrage forcé → FreeKiosk relance automatiquement" [ref=e239]
+        - row "Écran s'éteint trop vite Paramètres FreeKiosk → Délai d'écran → Jamais" [ref=e240]:
+          - cell "Écran s'éteint trop vite" [ref=e241]:
+            - strong [ref=e242]: Écran s'éteint trop vite
+          - cell "Paramètres FreeKiosk → Délai d'écran → Jamais" [ref=e243]:
+            - text: Paramètres FreeKiosk → Délai d'écran →
+            - emphasis [ref=e244]: Jamais
+    - generic [ref=e245]:
+      - generic [ref=e246]: 📚
+      - generic [ref=e247]:
+        - generic [ref=e248]: Documentation complète FreeKiosk
+        - text: freekiosk.app/docs/ · github.com/rushb-fr/freekiosk · contact@rushb.fr
+    - generic [ref=e249]:
+      - generic [ref=e250]: Pointon — Guide Tablette Kiosque
+      - generic [ref=e251]: Page 3 / 3 · support@pointon.be · pointon.be

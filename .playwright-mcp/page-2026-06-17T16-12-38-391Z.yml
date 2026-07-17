@@ -1,0 +1,705 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e3]:
+    - navigation [ref=e4]:
+      - link "Brevo" [ref=e6] [cursor=pointer]:
+        - /url: https://www.brevo.com/fr
+        - img [ref=e8]
+      - list [ref=e10]:
+        - listitem [ref=e11]:
+          - link "Plateforme" [ref=e12] [cursor=pointer]:
+            - /url: "#"
+            - generic [ref=e13]: Plateforme
+            - img [ref=e14]
+          - generic:
+            - generic:
+              - navigation "Product navigation menu":
+                - generic:
+                  - list:
+                    - listitem:
+                      - generic:
+                        - generic: Fonctionnalités
+                      - generic:
+                        - generic:
+                          - link "Campagnes et automatisation img Campagnes et automatisation Boostez vos conversions grâce à des parcours clients multicanaux automatisés.":
+                            - /url: https://www.brevo.com/fr/products/marketing-platform/
+                            - generic:
+                              - img "Campagnes et automatisation img"
+                            - generic:
+                              - generic:
+                                - generic: Campagnes et automatisation
+                              - paragraph: Boostez vos conversions grâce à des parcours clients multicanaux automatisés.
+                      - generic:
+                        - generic:
+                          - link "Messages transactionnels img Messages transactionnels Envoyez des e-mails, SMS et messages WhatsApp en temps réel déclenchés via relais SMTP et API.":
+                            - /url: https://www.brevo.com/fr/products/transactional-email/
+                            - generic:
+                              - img "Messages transactionnels img"
+                            - generic:
+                              - generic:
+                                - generic: Messages transactionnels
+                              - paragraph: Envoyez des e-mails, SMS et messages WhatsApp en temps réel déclenchés via relais SMTP et API.
+                      - generic:
+                        - generic:
+                          - link "Gestion des ventes img Gestion des ventes Accélérez vos ventes avec des pipelines personnalisés, l’automatisation des ventes, le chat, etc.":
+                            - /url: https://www.brevo.com/fr/products/sales-platform/
+                            - generic:
+                              - img "Gestion des ventes img"
+                            - generic:
+                              - generic:
+                                - generic: Gestion des ventes
+                              - paragraph: Accélérez vos ventes avec des pipelines personnalisés, l’automatisation des ventes, le chat, etc.
+                      - generic:
+                        - generic:
+                          - link "Brevo Data Platform img Brevo Data Platform Unifiez et activez vos données pour un marketing plus intelligent et une valeur créée plus vite.":
+                            - /url: https://www.brevo.com/fr/products/customer-data-platform/
+                            - generic:
+                              - img "Brevo Data Platform img"
+                            - generic:
+                              - generic:
+                                - generic: Brevo Data Platform
+                              - paragraph: Unifiez et activez vos données pour un marketing plus intelligent et une valeur créée plus vite.
+                      - generic:
+                        - generic:
+                          - link "Fidélité clients img Fidélité clients Renforcez la fidélité de vos clients grâce à un programme de récompenses intégré.":
+                            - /url: https://www.brevo.com/fr/products/loyalty-wallet-platform
+                            - generic:
+                              - img "Fidélité clients img"
+                            - generic:
+                              - generic:
+                                - generic: Fidélité clients
+                              - paragraph: Renforcez la fidélité de vos clients grâce à un programme de récompenses intégré.
+                      - generic:
+                        - generic:
+                          - link "Intégrations img Intégrations Connectez Brevo à plus de 150 outils numériques comme Shopify, WordPress, Stripe, Zapier, etc.":
+                            - /url: https://www.brevo.com/fr/integrations/
+                            - generic:
+                              - img "Intégrations img"
+                            - generic:
+                              - generic:
+                                - generic: Intégrations
+                              - paragraph: Connectez Brevo à plus de 150 outils numériques comme Shopify, WordPress, Stripe, Zapier, etc.
+                - generic:
+                  - list:
+                    - listitem:
+                      - generic:
+                        - generic: Canaux
+                      - generic:
+                        - generic:
+                          - link "Email img Email":
+                            - /url: https://www.brevo.com/fr/features/email-marketing/
+                            - generic:
+                              - img "Email img"
+                            - generic:
+                              - generic:
+                                - generic: Email
+                      - generic:
+                        - generic:
+                          - link "SMS img SMS":
+                            - /url: https://www.brevo.com/fr/features/sms-marketing/
+                            - generic:
+                              - img "SMS img"
+                            - generic:
+                              - generic:
+                                - generic: SMS
+                      - generic:
+                        - generic:
+                          - link "WhatsApp img WhatsApp":
+                            - /url: https://www.brevo.com/fr/features/whatsapp-campaigns/
+                            - generic:
+                              - img "WhatsApp img"
+                            - generic:
+                              - generic:
+                                - generic: WhatsApp
+                      - generic:
+                        - generic:
+                          - link "Notifications push web & mobile img Notifications push web & mobile":
+                            - /url: https://www.brevo.com/fr/features/push/
+                            - generic:
+                              - img "Notifications push web & mobile img"
+                            - generic:
+                              - generic:
+                                - generic: Notifications push web & mobile
+                      - generic:
+                        - generic:
+                          - link "Chat en direct img Chat en direct":
+                            - /url: https://www.brevo.com/fr/features/live-chat/
+                            - generic:
+                              - img "Chat en direct img"
+                            - generic:
+                              - generic:
+                                - generic: Chat en direct
+                      - generic:
+                        - generic:
+                          - link "Chatbot img Chatbot":
+                            - /url: https://www.brevo.com/fr/features/chatbot/
+                            - generic:
+                              - img "Chatbot img"
+                            - generic:
+                              - generic:
+                                - generic: Chatbot
+                      - generic:
+                        - generic:
+                          - link "Wallet img Wallet":
+                            - /url: https://www.brevo.com/fr/features/wallet/
+                            - generic:
+                              - img "Wallet img"
+                            - generic:
+                              - generic:
+                                - generic: Wallet
+                      - generic:
+                        - generic:
+                          - link "Téléphone img Téléphone":
+                            - /url: https://www.brevo.com/fr/features/phone/
+                            - generic:
+                              - img "Téléphone img"
+                            - generic:
+                              - generic:
+                                - generic: Téléphone
+        - listitem [ref=e17]:
+          - link "Solutions" [ref=e18] [cursor=pointer]:
+            - /url: "#"
+            - generic [ref=e19]: Solutions
+            - img [ref=e20]
+          - generic:
+            - generic:
+              - navigation "Product navigation menu":
+                - generic:
+                  - list:
+                    - listitem:
+                      - generic:
+                        - link "Entrepreneurs & PME img Entrepreneurs & PME Lancez des campagnes, automatisez votre marketing et gérez facilement vos contacts.":
+                          - /url: https://www.brevo.com/fr/solutions/small-business/
+                          - generic:
+                            - img "Entrepreneurs & PME img"
+                          - generic:
+                            - generic:
+                              - generic: Entrepreneurs & PME
+                            - paragraph: Lancez des campagnes, automatisez votre marketing et gérez facilement vos contacts.
+                - generic:
+                  - list:
+                    - listitem:
+                      - generic:
+                        - link "ETI & grandes entreprises img ETI & grandes entreprises Solutions & onboarding sur mesure, contrôle des données et sécurité de niveau entreprise.":
+                          - /url: https://www.brevo.com/fr/solutions/enterprise/
+                          - generic:
+                            - img "ETI & grandes entreprises img"
+                          - generic:
+                            - generic:
+                              - generic: ETI & grandes entreprises
+                            - paragraph: Solutions & onboarding sur mesure, contrôle des données et sécurité de niveau entreprise.
+                - generic:
+                  - list:
+                    - listitem:
+                      - generic:
+                        - link "Ecommerce & retail img Ecommerce & retail Récupérez les paniers abandonnés, personnalisez les offres et boostez la fidélité.":
+                          - /url: https://www.brevo.com/fr/solutions/retail-and-ecommerce/
+                          - generic:
+                            - img "Ecommerce & retail img"
+                          - generic:
+                            - generic:
+                              - generic: Ecommerce & retail
+                            - paragraph: Récupérez les paniers abandonnés, personnalisez les offres et boostez la fidélité.
+                - generic:
+                  - list:
+                    - listitem:
+                      - generic:
+                        - link "Développeurs img Développeurs Créez des solutions sur mesure avec les guides développeur Brevo, l’API ouverte, les SDK et nos exemples de code.":
+                          - /url: https://developers.brevo.com/
+                          - generic:
+                            - img "Développeurs img"
+                          - generic:
+                            - generic:
+                              - generic: Développeurs
+                            - paragraph: Créez des solutions sur mesure avec les guides développeur Brevo, l’API ouverte, les SDK et nos exemples de code.
+        - listitem [ref=e23]:
+          - link "Tarifs" [ref=e24] [cursor=pointer]:
+            - /url: https://www.brevo.com/fr/pricing/
+            - generic [ref=e25]: Tarifs
+        - listitem [ref=e27]:
+          - link "Ressources" [ref=e28] [cursor=pointer]:
+            - /url: https://www.brevo.com/fr/resources/
+            - generic [ref=e29]: Ressources
+            - img [ref=e30]
+          - generic:
+            - generic:
+              - navigation "Product navigation menu":
+                - generic:
+                  - generic:
+                    - generic: Centre de ressources
+                  - list:
+                    - listitem:
+                      - generic:
+                        - link "Blog img Blog":
+                          - /url: https://www.brevo.com/fr/blog/
+                          - generic:
+                            - img "Blog img"
+                          - generic:
+                            - generic:
+                              - generic: Blog
+                    - listitem:
+                      - generic:
+                        - link "Ebooks img Ebooks":
+                          - /url: https://www.brevo.com/fr/resources/?selected=ebook
+                          - generic:
+                            - img "Ebooks img"
+                          - generic:
+                            - generic:
+                              - generic: Ebooks
+                    - listitem:
+                      - generic:
+                        - link "Témoignages clients img Témoignages clients":
+                          - /url: https://www.brevo.com/fr/success-stories/
+                          - generic:
+                            - img "Témoignages clients img"
+                          - generic:
+                            - generic:
+                              - generic: Témoignages clients
+                    - listitem:
+                      - generic:
+                        - link "Templates emailing img Templates emailing":
+                          - /url: https://www.brevo.com/fr/features/email-templates/
+                          - generic:
+                            - img "Templates emailing img"
+                          - generic:
+                            - generic:
+                              - generic: Templates emailing
+                    - listitem:
+                      - generic:
+                        - link "Logiciel emailing img Logiciel emailing":
+                          - /url: https://www.brevo.com/fr/blog/logiciel-emailing/
+                          - generic:
+                            - img "Logiciel emailing img"
+                          - generic:
+                            - generic:
+                              - generic: Logiciel emailing
+                    - listitem:
+                      - generic:
+                        - link "Créer une newsletter img Créer une newsletter":
+                          - /url: https://www.brevo.com/fr/blog/creer-une-newsletter/
+                          - generic:
+                            - img "Créer une newsletter img"
+                          - generic:
+                            - generic:
+                              - generic: Créer une newsletter
+                    - listitem:
+                      - generic:
+                        - link "Outils marketing gratuits img Outils marketing gratuits":
+                          - /url: https://www.brevo.com/fr/tools/
+                          - generic:
+                            - img "Outils marketing gratuits img"
+                          - generic:
+                            - generic:
+                              - generic: Outils marketing gratuits
+                - generic:
+                  - generic:
+                    - generic: Ecosystème
+                  - list:
+                    - listitem:
+                      - generic:
+                        - link "Intégrations img Intégrations":
+                          - /url: https://www.brevo.com/fr/integrations/
+                          - generic:
+                            - img "Intégrations img"
+                          - generic:
+                            - generic:
+                              - generic: Intégrations
+                    - listitem:
+                      - generic:
+                        - link "Nouveautés produits img Nouveautés produits":
+                          - /url: https://www.brevo.com/fr/releases/
+                          - generic:
+                            - img "Nouveautés produits img"
+                          - generic:
+                            - generic:
+                              - generic: Nouveautés produits
+                    - listitem:
+                      - generic:
+                        - link "Communauté img Communauté":
+                          - /url: https://community.brevo.com/
+                          - generic:
+                            - img "Communauté img"
+                          - generic:
+                            - generic:
+                              - generic: Communauté
+                    - listitem:
+                      - generic:
+                        - link "Événements img Événements":
+                          - /url: https://www.brevo.com/fr/events/
+                          - generic:
+                            - img "Événements img"
+                          - generic:
+                            - generic:
+                              - generic: Événements
+                    - listitem:
+                      - generic:
+                        - link "Partenaires img Partenaires":
+                          - /url: https://www.brevo.com/fr/partners/
+                          - generic:
+                            - img "Partenaires img"
+                          - generic:
+                            - generic:
+                              - generic: Partenaires
+                    - listitem:
+                      - generic:
+                        - link "Engager un expert img Engager un expert":
+                          - /url: https://www.brevo.com/expert-directory/
+                          - generic:
+                            - img "Engager un expert img"
+                          - generic:
+                            - generic:
+                              - generic: Engager un expert
+                - generic:
+                  - generic:
+                    - generic: Support
+                  - list:
+                    - listitem:
+                      - generic:
+                        - link "Centre d'aide img Centre d'aide":
+                          - /url: https://help.brevo.com/hc/fr
+                          - generic:
+                            - img "Centre d'aide img"
+                          - generic:
+                            - generic:
+                              - generic: Centre d'aide
+                    - listitem:
+                      - generic:
+                        - link "Nous contacter img Nous contacter":
+                          - /url: https://www.brevo.com/fr/contact/
+                          - generic:
+                            - img "Nous contacter img"
+                          - generic:
+                            - generic:
+                              - generic: Nous contacter
+                    - listitem:
+                      - generic:
+                        - link "Documentation API img Documentation API":
+                          - /url: https://developers.brevo.com/
+                          - generic:
+                            - img "Documentation API img"
+                          - generic:
+                            - generic:
+                              - generic: Documentation API
+                    - listitem:
+                      - generic:
+                        - link "État du service img État du service":
+                          - /url: https://status.brevo.com/
+                          - generic:
+                            - img "État du service img"
+                          - generic:
+                            - generic:
+                              - generic: État du service
+      - list:
+        - listitem
+  - main [ref=e33]:
+    - generic [ref=e34]:
+      - generic:
+        - paragraph
+      - generic [ref=e36]:
+        - 'region "Promotional offer: Free plan" [ref=e38]':
+          - generic [ref=e39]:
+            - generic [ref=e40]:
+              - heading "Gratuit pour toujours, pas de carte bleue requise" [level=2] [ref=e41]
+              - generic [ref=e42]: Idéal pour les particuliers et entrepreneurs qui souhaitent bâtir leur présence en ligne.
+            - generic [ref=e43]:
+              - button "Inscrivez-vous gratuitement" [ref=e44] [cursor=pointer]:
+                - generic [ref=e45]: Inscrivez-vous gratuitement
+                - img [ref=e46]
+              - link "Voir toutes les fonctionnalités" [ref=e48] [cursor=pointer]:
+                - /url: "#"
+                - generic [ref=e49]: Voir toutes les fonctionnalités
+                - img [ref=e50]
+          - img [ref=e53]
+        - generic [ref=e56]:
+          - generic [ref=e57]:
+            - generic [ref=e60]:
+              - switch "Mensuel" [ref=e62] [cursor=pointer]:
+                - generic [ref=e63]: Mensuel
+              - switch "Annuel (-10%)" [checked] [ref=e64] [cursor=pointer]:
+                - generic [ref=e65]: Annuel (-10%)
+            - generic [ref=e66]: Loading content...
+            - generic [ref=e67]: ‌
+          - generic [ref=e68]:
+            - generic [ref=e69]:
+              - generic [ref=e70]:
+                - generic [ref=e71]:
+                  - heading "Starter" [level=3] [ref=e72]
+                  - text: Idéal pour des utilisateurs qui débutent en email et marketing multicanal.
+                - generic [ref=e73]:
+                  - generic [ref=e76]: ‌
+                  - button "S'inscrire" [ref=e77] [cursor=pointer]:
+                    - generic [ref=e78]: S'inscrire
+                    - img [ref=e79]
+              - generic [ref=e82]:
+                - generic [ref=e83]:
+                  - generic [ref=e84]: "Fonctionnalités incluses dans Starter :"
+                  - list [ref=e85]:
+                    - listitem [ref=e86]:
+                      - generic [ref=e87]:
+                        - img [ref=e88]
+                        - generic [ref=e90]: À partir de 5 000 emails/mois
+                    - listitem [ref=e91]:
+                      - img [ref=e93]
+                    - listitem [ref=e95]:
+                      - img [ref=e97]
+                    - listitem [ref=e99]:
+                      - img [ref=e101]
+                    - listitem [ref=e103]:
+                      - img [ref=e105]
+                    - listitem [ref=e113]:
+                      - img [ref=e115]
+                    - listitem [ref=e117]:
+                      - img [ref=e119]
+                    - listitem [ref=e121]:
+                      - img [ref=e123]
+                    - listitem [ref=e125]:
+                      - img [ref=e127]
+                  - list [ref=e129]:
+                    - listitem [ref=e130]:
+                      - generic [ref=e131]:
+                        - img [ref=e132]
+                        - generic [ref=e135]: Sans logo Brevo
+                      - generic [ref=e136]: par mois
+                    - listitem [ref=e137]:
+                      - generic [ref=e138]:
+                        - img [ref=e139]
+                        - generic [ref=e141]:
+                          - generic [ref=e142]: Sales Essentials
+                          - button "Tooltip info" [ref=e143] [cursor=pointer]:
+                            - img "Tooltip info" [ref=e144]
+                      - generic [ref=e147]: par mois
+                - link "Voir toutes les fonctionnalités" [ref=e148] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e149]: Voir toutes les fonctionnalités
+                  - img [ref=e150]
+            - generic [ref=e152]:
+              - generic [ref=e154]: Le plus populaire
+              - generic [ref=e155]:
+                - generic [ref=e156]:
+                  - heading "Standard" [level=3] [ref=e157]
+                  - text: Idéal pour les PME prêtes à automatiser et à tester campagnes.
+                - generic [ref=e158]:
+                  - generic [ref=e161]: ‌
+                  - button "S'inscrire" [ref=e162] [cursor=pointer]:
+                    - generic [ref=e163]: S'inscrire
+                    - img [ref=e164]
+              - generic [ref=e167]:
+                - generic [ref=e168]:
+                  - generic [ref=e169]: "Toutes les fonctionnalités de Starter, plus :"
+                  - list [ref=e170]:
+                    - listitem [ref=e171]:
+                      - img [ref=e173]
+                    - listitem [ref=e175]:
+                      - img [ref=e177]
+                    - listitem [ref=e179]:
+                      - img [ref=e181]
+                      - generic [ref=e183]: Heatmaps de clics, rapports géo & appareils
+                    - listitem [ref=e184]:
+                      - img [ref=e186]
+                    - listitem [ref=e194]:
+                      - img [ref=e196]
+                    - listitem [ref=e198]:
+                      - img [ref=e200]
+                      - generic [ref=e202]: 1 landing page incluse
+                    - listitem [ref=e203]:
+                      - img [ref=e205]
+                  - list [ref=e207]:
+                    - listitem [ref=e208]:
+                      - generic [ref=e209]:
+                        - img [ref=e210]
+                        - generic [ref=e212]:
+                          - generic [ref=e213]: Sales Essentials
+                          - button "Tooltip info" [ref=e214] [cursor=pointer]:
+                            - img "Tooltip info" [ref=e215]
+                      - generic [ref=e218]: par mois
+                - link "Voir toutes les fonctionnalités" [ref=e219] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e220]: Voir toutes les fonctionnalités
+                  - img [ref=e221]
+            - generic [ref=e223]:
+              - generic [ref=e224]:
+                - generic [ref=e225]:
+                  - heading "Pro" [level=3] [ref=e226]
+                  - text: Idéal pour les équipes data & IA qui stimulent la croissance multicanale.
+                - generic [ref=e227]:
+                  - generic [ref=e230]: ‌
+                  - button "Démo" [ref=e231] [cursor=pointer]:
+                    - generic [ref=e232]: Démo
+                    - img [ref=e233]
+                  - button "S'inscrire" [ref=e236] [cursor=pointer]:
+                    - generic [ref=e237]: S'inscrire
+                    - img [ref=e238]
+              - generic [ref=e240]:
+                - generic [ref=e241]:
+                  - generic [ref=e242]: "Toutes les fonctionnalités de Standard, plus :"
+                  - list [ref=e243]:
+                    - listitem [ref=e244]:
+                      - generic [ref=e245]:
+                        - img [ref=e246]
+                        - generic [ref=e248]: À partir de 150 000 emails/mois
+                    - listitem [ref=e249]:
+                      - generic [ref=e250]:
+                        - img [ref=e251]
+                        - generic [ref=e253]: Canaux marketing additionnels
+                      - generic [ref=e254]: WhatsApp, Pop-ups, Push mobile & web
+                    - listitem [ref=e255]:
+                      - generic [ref=e256]:
+                        - img [ref=e257]
+                        - generic [ref=e259]: Accès multi-utilisateurs
+                      - generic [ref=e260]: 10 utilisateurs inclus
+                    - listitem [ref=e261]:
+                      - img [ref=e263]
+                    - listitem [ref=e265]:
+                      - img [ref=e267]
+                    - listitem [ref=e269]:
+                      - img [ref=e271]
+                    - listitem [ref=e279]:
+                      - img [ref=e281]
+                    - listitem [ref=e289]:
+                      - img [ref=e291]
+                    - listitem [ref=e293]:
+                      - img [ref=e295]
+                  - list [ref=e297]:
+                    - listitem [ref=e298]:
+                      - generic [ref=e299]:
+                        - img [ref=e300]
+                        - generic [ref=e302]:
+                          - generic [ref=e303]: Sales Advanced
+                          - button "Tooltip info" [ref=e304] [cursor=pointer]:
+                            - img "Tooltip info" [ref=e305]
+                      - generic [ref=e308]: par mois par utilisateur
+                - link "Voir toutes les fonctionnalités" [ref=e309] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e310]: Voir toutes les fonctionnalités
+                  - img [ref=e311]
+            - generic [ref=e313]:
+              - generic [ref=e314]:
+                - generic [ref=e315]:
+                  - heading "Entreprise" [level=3] [ref=e316]
+                  - text: "Idéal pour entreprises 1M+ contacts : offre sur mesure & maîtrise des données."
+                - generic [ref=e317]:
+                  - heading "Sur devis" [level=4] [ref=e319]
+                  - button "Démo" [ref=e320] [cursor=pointer]:
+                    - generic [ref=e321]: Démo
+                    - img [ref=e322]
+              - generic [ref=e325]:
+                - generic [ref=e326]:
+                  - generic [ref=e327]: "Toutes les fonctionnalités de Pro, plus :"
+                  - list [ref=e328]:
+                    - listitem [ref=e329]:
+                      - img [ref=e331]
+                    - listitem [ref=e333]:
+                      - img [ref=e335]
+                    - listitem [ref=e337]:
+                      - img [ref=e339]
+                    - listitem [ref=e341]:
+                      - img [ref=e343]
+                    - listitem [ref=e345]:
+                      - img [ref=e347]
+                    - listitem [ref=e349]:
+                      - img [ref=e351]
+                    - listitem [ref=e353]:
+                      - img [ref=e355]
+                    - listitem [ref=e357]:
+                      - img [ref=e359]
+                    - listitem [ref=e361]:
+                      - img [ref=e363]
+                  - list [ref=e365]:
+                    - listitem [ref=e366]:
+                      - generic [ref=e367]:
+                        - img [ref=e368]
+                        - generic [ref=e370]:
+                          - generic [ref=e371]: Sales Advanced
+                          - button "Tooltip info" [ref=e372] [cursor=pointer]:
+                            - img "Tooltip info" [ref=e373]
+                - link "Voir toutes les fonctionnalités" [ref=e376] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e377]: Voir toutes les fonctionnalités
+                  - img [ref=e378]
+          - generic [ref=e380]:
+            - generic [ref=e381]: Loading content...
+            - generic [ref=e382]: ‌
+    - generic [ref=e385]:
+      - heading "Plus de 600 000 clients du monde entier font confiance à Brevo" [level=2] [ref=e386]
+      - generic [ref=e388]:
+        - generic [ref=e389]:
+          - img "Clientlogo-decathlon" [ref=e390]
+          - img "Clientlogo-ouest-france" [ref=e391]
+          - img "Clientlogo-montblanc" [ref=e392]
+          - img "Clientlogo-michelin" [ref=e393]
+          - img "Clientlogo-louis-vuitton" [ref=e394]
+          - img "Clientlogo-doctolib" [ref=e395]
+          - img "Clientlogo-feu-vert" [ref=e396]
+          - img "Clientlogo-ebay" [ref=e397]
+          - img "Clientlogo-Carrefour" [ref=e398]
+          - img "Clientlogo-trusted-shops" [ref=e399]
+          - img "Clientlogo-arte" [ref=e400]
+          - img "Clientlogo-amnesty" [ref=e401]
+          - img "Clientlogo-ringover" [ref=e402]
+          - img "Clientlogo-palais-des-thes" [ref=e403]
+          - img "Clientlogo-la-montagne" [ref=e404]
+          - img "Clientlogo-kpmg" [ref=e405]
+          - img "Clientlogo-figaro-classi" [ref=e406]
+          - img "Clientlogo-devred" [ref=e407]
+        - generic [ref=e408]:
+          - img "Clientlogo-decathlon" [ref=e409]
+          - img "Clientlogo-ouest-france" [ref=e410]
+          - img "Clientlogo-montblanc" [ref=e411]
+          - img "Clientlogo-michelin" [ref=e412]
+          - img "Clientlogo-louis-vuitton" [ref=e413]
+          - img "Clientlogo-doctolib" [ref=e414]
+          - img "Clientlogo-feu-vert" [ref=e415]
+          - img "Clientlogo-ebay" [ref=e416]
+          - img "Clientlogo-Carrefour" [ref=e417]
+          - img "Clientlogo-trusted-shops" [ref=e418]
+          - img "Clientlogo-arte" [ref=e419]
+          - img "Clientlogo-amnesty" [ref=e420]
+          - img "Clientlogo-ringover" [ref=e421]
+          - img "Clientlogo-palais-des-thes" [ref=e422]
+          - img "Clientlogo-la-montagne" [ref=e423]
+          - img "Clientlogo-kpmg" [ref=e424]
+          - img "Clientlogo-figaro-classi" [ref=e425]
+          - img "Clientlogo-devred" [ref=e426]
+    - generic [ref=e429]:
+      - generic "Nos distinctions" [ref=e432]:
+        - generic [ref=e433]:
+          - heading "Nos distinctions" [level=2] [ref=e434]
+          - generic [ref=e435]:
+            - img "Planificationderendez-vousenligne_LeaderenMomentum_Leader 1_2x" [ref=e436]
+            - img "Publicitésurlesréseauxsociaux_Performantélevé_France_HighPerformer 1_2x" [ref=e437]
+            - img "Personnalisation_Leader_Marchéintermédiaire_Leader 1_2x" [ref=e438]
+            - img "Personnalisation_LePlusImplémentable_Total 1_2x" [ref=e439]
+            - img "E-mailtransactionnel_Meilleurefacilitéd'utilisation_Petiteentreprise_Total 1_2x" [ref=e440]
+            - img "Chatbots_Leader_Petiteentreprise_Europe_Leader 1_2x" [ref=e441]
+      - generic [ref=e443]:
+        - heading "Brevo - la plateforme marketing 100% française" [level=2] [ref=e444]
+        - list [ref=e445]:
+          - listitem [ref=e446]:
+            - link "read reviews" [ref=e447] [cursor=pointer]:
+              - /url: https://www.g2.com/sellers/brevo
+              - img "Plus de 2 500 avis rating" [ref=e448]
+            - generic [ref=e449]:
+              - generic [ref=e450]: Plus de 2 500 avis
+              - img [ref=e452]
+          - listitem [ref=e455]:
+            - link "read reviews" [ref=e456] [cursor=pointer]:
+              - /url: https://www.capterra.com/p/132996/brevo/
+              - img "Plus de 3 300 avis rating" [ref=e457]
+            - generic [ref=e458]:
+              - generic [ref=e459]: Plus de 3 300 avis
+              - img [ref=e461]
+          - listitem [ref=e464]:
+            - link "read reviews" [ref=e465] [cursor=pointer]:
+              - /url: https://www.gartner.com/reviews/product/brevo-marketing-platform
+              - img "Plus de 170 avis rating" [ref=e466]
+            - generic [ref=e467]:
+              - generic [ref=e468]: Plus de 170 avis
+              - img [ref=e470]
+    - region [ref=e478]:
+      - generic [ref=e479]:
+        - generic [ref=e480]:
+          - heading "Vous avez une autre question ?" [level=2] [ref=e481]
+          - generic [ref=e482]: Contactez-nous ici et nous serons heureux de répondre à toutes vos questions supplémentaires.
+        - button "Nous contacter" [ref=e485] [cursor=pointer]:
+          - generic [ref=e486]: Nous contacter
+          - img [ref=e487]
+  - alert [ref=e489]

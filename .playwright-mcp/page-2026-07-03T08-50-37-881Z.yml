@@ -1,0 +1,87 @@
+- generic [ref=f3e2]:
+  - complementary [ref=f3e3]:
+    - generic [ref=f3e4]:
+      - generic [ref=f3e5]:
+        - img [ref=f3e7]
+        - img "Pointon" [ref=f3e11]
+      - button "Réduire le menu" [ref=f3e12] [cursor=pointer]:
+        - img [ref=f3e13]
+    - navigation [ref=f3e15]:
+      - button "Pointage" [ref=f3e16] [cursor=pointer]:
+        - generic [ref=f3e17]: Pointage
+        - img [ref=f3e19]
+      - generic [ref=f3e21]:
+        - link "Pointage" [ref=f3e22] [cursor=pointer]:
+          - /url: /fr/app/clock
+          - img [ref=f3e24]
+          - text: Pointage
+        - link "Congés" [ref=f3e27] [cursor=pointer]:
+          - /url: /fr/app/time-off
+          - img [ref=f3e29]
+          - text: Congés
+        - link "Récupération" [ref=f3e31] [cursor=pointer]:
+          - /url: /fr/app/rtt
+          - img [ref=f3e33]
+          - text: Récupération
+        - link "Rapports" [ref=f3e35] [cursor=pointer]:
+          - /url: /fr/app/reports
+          - img [ref=f3e37]
+          - text: Rapports
+        - link "Présences" [ref=f3e38] [cursor=pointer]:
+          - /url: /fr/app/presence
+          - img [ref=f3e40]
+          - text: Présences
+    - generic [ref=f3e44]:
+      - button "Mode sombre" [ref=f3e45] [cursor=pointer]:
+        - img [ref=f3e46]
+        - text: Mode sombre
+      - button "🇧🇪 Français" [ref=f3e49] [cursor=pointer]:
+        - img [ref=f3e50]
+        - generic [ref=f3e53]: 🇧🇪 Français
+        - img [ref=f3e54]
+      - generic [ref=f3e56]:
+        - generic [ref=f3e58]: TE
+        - generic [ref=f3e59]:
+          - paragraph [ref=f3e60]: Test Employee
+          - paragraph [ref=f3e61]: employee-test@pointon.be
+      - link "Mon profil" [ref=f3e62] [cursor=pointer]:
+        - /url: /fr/app/profile
+        - img [ref=f3e63]
+        - text: Mon profil
+      - button "Se déconnecter" [ref=f3e66] [cursor=pointer]:
+        - img [ref=f3e67]
+        - text: Se déconnecter
+  - main [ref=f3e70]:
+    - generic [ref=f3e71]:
+      - heading "Mon profil" [level=1] [ref=f3e72]
+      - generic [ref=f3e73]:
+        - generic [ref=f3e74]:
+          - paragraph [ref=f3e75]: Compte connecté
+          - paragraph [ref=f3e76]: Test Employee
+          - paragraph [ref=f3e77]: employee-test@pointon.be
+          - generic [ref=f3e78]: Employé
+        - generic [ref=f3e79]:
+          - heading "Changer le mot de passe" [level=2] [ref=f3e80]
+          - generic [ref=f3e81]:
+            - generic [ref=f3e82]: Mot de passe actuel
+            - textbox "••••••••" [ref=f3e83]
+          - generic [ref=f3e84]:
+            - generic [ref=f3e85]: Nouveau mot de passe
+            - textbox "••••••••" [ref=f3e86]
+            - paragraph [ref=f3e87]: Minimum 8 caractères
+          - generic [ref=f3e88]:
+            - generic [ref=f3e89]: Confirmer le nouveau mot de passe
+            - textbox "••••••••" [ref=f3e90]
+          - button "Mettre à jour le mot de passe" [ref=f3e91] [cursor=pointer]
+      - generic [ref=f3e93]:
+        - heading "Langue des emails" [level=2] [ref=f3e94]
+        - generic [ref=f3e95]:
+          - generic [ref=f3e96]: Langue de réception des emails
+          - combobox [ref=f3e97]:
+            - option "Français" [selected]
+            - option "Nederlands"
+            - option "English"
+            - option "Deutsch"
+        - button "Enregistrer" [ref=f3e98] [cursor=pointer]
+  - button "Notifications" [ref=f3e101] [cursor=pointer]: 🔔
+  - button "Aide" [ref=f3e102] [cursor=pointer]: ❓

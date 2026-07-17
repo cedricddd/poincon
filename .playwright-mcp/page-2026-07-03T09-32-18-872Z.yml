@@ -1,0 +1,36 @@
+- generic [active] [ref=f16e1]:
+  - generic [ref=f16e2]:
+    - button "🇧🇪 Français" [ref=f16e5] [cursor=pointer]:
+      - img [ref=f16e6]
+      - generic [ref=f16e9]: 🇧🇪 Français
+      - img [ref=f16e10]
+    - generic [ref=f16e12]:
+      - generic [ref=f16e13]:
+        - link "Pointon — accueil" [ref=f16e14] [cursor=pointer]:
+          - /url: /fr
+          - img "Pointon" [ref=f16e16]
+        - paragraph [ref=f16e17]: Connexion à votre compte
+      - generic [ref=f16e18]:
+        - generic [ref=f16e19]:
+          - generic [ref=f16e20]:
+            - generic [ref=f16e21]: Email
+            - textbox "Email" [ref=f16e22]:
+              - /placeholder: vous@entreprise.be
+          - generic [ref=f16e23]:
+            - generic [ref=f16e24]: Mot de passe
+            - textbox "Mot de passe" [ref=f16e25]:
+              - /placeholder: ••••••••
+          - generic [ref=f16e26]:
+            - checkbox "Se souvenir de moi" [ref=f16e27]
+            - generic [ref=f16e28]: Se souvenir de moi
+          - button "Se connecter" [ref=f16e29] [cursor=pointer]
+          - link "Mot de passe oublié ?" [ref=f16e31] [cursor=pointer]:
+            - /url: /fr/forgot-password
+        - generic [ref=f16e32]:
+          - text: Pas de compte ?
+          - link "S'inscrire gratuitement" [ref=f16e33] [cursor=pointer]:
+            - /url: /fr/signup
+      - link "← Retour à l'accueil" [ref=f16e35] [cursor=pointer]:
+        - /url: /fr
+  - button "Open Next.js Dev Tools" [ref=f16e41] [cursor=pointer]:
+    - img [ref=f16e42]

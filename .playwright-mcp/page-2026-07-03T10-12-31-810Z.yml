@@ -1,0 +1,13 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e3]:
+    - generic [ref=f1e5]:
+      - generic [ref=f1e6]: 🏢
+      - heading "…" [level=1] [ref=f1e7]
+    - paragraph [ref=f1e9]: Bienvenue
+    - button "Je suis employé Pointer mon arrivée · départ" [ref=f1e12] [cursor=pointer]:
+      - img [ref=f1e14]
+      - generic [ref=f1e17]: Je suis employé
+      - generic [ref=f1e18]: Pointer mon arrivée · départ
+    - paragraph [ref=f1e20]: Pointon
+  - button "Open Next.js Dev Tools" [ref=f1e26] [cursor=pointer]:
+    - img [ref=f1e27]

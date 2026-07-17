@@ -1,0 +1,198 @@
+- generic [active] [ref=f25e1]:
+  - generic [ref=f25e2]:
+    - complementary [ref=f25e3]:
+      - generic [ref=f25e4]:
+        - generic [ref=f25e5]:
+          - img [ref=f25e7]
+          - img "Pointon" [ref=f25e11]
+        - button "Réduire le menu" [ref=f25e12] [cursor=pointer]:
+          - img [ref=f25e13]
+      - navigation [ref=f25e15]:
+        - button "Pointage" [ref=f25e16] [cursor=pointer]:
+          - generic [ref=f25e17]: Pointage
+          - img [ref=f25e19]
+        - generic [ref=f25e21]:
+          - link "Pointage" [ref=f25e22] [cursor=pointer]:
+            - /url: /fr/app/clock
+            - img [ref=f25e24]
+            - text: Pointage
+          - link "Congés" [ref=f25e27] [cursor=pointer]:
+            - /url: /fr/app/time-off
+            - img [ref=f25e29]
+            - text: Congés
+          - link "Récupération" [ref=f25e31] [cursor=pointer]:
+            - /url: /fr/app/rtt
+            - img [ref=f25e33]
+            - text: Récupération
+          - link "Rapports" [ref=f25e35] [cursor=pointer]:
+            - /url: /fr/app/reports
+            - img [ref=f25e37]
+            - text: Rapports
+          - link "Présences" [ref=f25e38] [cursor=pointer]:
+            - /url: /fr/app/presence
+            - img [ref=f25e40]
+            - text: Présences
+        - button "Admin" [ref=f25e45] [cursor=pointer]:
+          - generic [ref=f25e46]:
+            - img [ref=f25e47]
+            - generic [ref=f25e50]: Admin
+          - img [ref=f25e52]
+        - generic [ref=f25e54]:
+          - link "Tableau de bord" [ref=f25e55] [cursor=pointer]:
+            - /url: /fr/admin/dashboard
+            - img [ref=f25e56]
+            - generic [ref=f25e59]: Tableau de bord
+          - link "Heures Sup." [ref=f25e60] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/overtimes
+            - img [ref=f25e61]
+            - generic [ref=f25e66]: Heures Sup.
+          - link "Congés" [ref=f25e67] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/timeoffs
+            - img [ref=f25e68]
+            - generic [ref=f25e70]: Congés
+          - link "Récupération" [ref=f25e71] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/rtts
+            - img [ref=f25e72]
+            - generic [ref=f25e74]: Récupération
+          - link "Horaires" [ref=f25e75] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/schedules
+            - img [ref=f25e76]
+            - generic [ref=f25e78]: Horaires
+          - link "Équipes" [ref=f25e79] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/teams
+            - img [ref=f25e80]
+            - generic [ref=f25e85]: Équipes
+          - link "Planning" [ref=f25e86] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/planning
+            - img [ref=f25e87]
+            - generic [ref=f25e89]: Planning
+          - link "Présences" [ref=f25e90] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/presence
+            - img [ref=f25e91]
+            - generic [ref=f25e95]: Présences
+          - link "Utilisateurs" [ref=f25e96] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/users
+            - img [ref=f25e97]
+            - generic [ref=f25e102]: Utilisateurs
+          - link "Invitations" [ref=f25e103] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/invitations
+            - img [ref=f25e104]
+            - generic [ref=f25e107]: Invitations
+          - link "Sites" [ref=f25e108] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/sites
+            - img [ref=f25e109]
+            - generic [ref=f25e112]: Sites
+          - link "Audit Trail" [ref=f25e113] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/audit
+            - img [ref=f25e114]
+            - generic [ref=f25e117]: Audit Trail
+          - link "Rapports" [ref=f25e118] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/reports
+            - img [ref=f25e119]
+            - generic [ref=f25e120]: Rapports
+          - link "Kiosque" [ref=f25e121] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/kiosk
+            - img [ref=f25e122]
+            - generic [ref=f25e124]: Kiosque
+          - link "Paramètres" [ref=f25e125] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/settings
+            - img [ref=f25e126]
+            - generic [ref=f25e129]: Paramètres
+          - link "Intégrations" [ref=f25e130] [cursor=pointer]:
+            - /url: /fr/admin/dashboard/settings/integrations
+            - img [ref=f25e131]
+            - generic [ref=f25e133]: Intégrations
+      - generic [ref=f25e134]:
+        - button "Mode clair" [ref=f25e135] [cursor=pointer]:
+          - img [ref=f25e136]
+          - text: Mode clair
+        - button "🇧🇪 Français" [ref=f25e143] [cursor=pointer]:
+          - img [ref=f25e144]
+          - generic [ref=f25e147]: 🇧🇪 Français
+          - img [ref=f25e148]
+        - generic [ref=f25e150]:
+          - generic [ref=f25e152]: AD
+          - generic [ref=f25e153]:
+            - paragraph [ref=f25e154]: Admin User
+            - paragraph [ref=f25e155]: admin@pointon.be
+        - button "Se déconnecter" [ref=f25e156] [cursor=pointer]:
+          - img [ref=f25e157]
+          - text: Se déconnecter
+    - main [ref=f25e160]:
+      - generic [ref=f25e161]:
+        - generic [ref=f25e162]:
+          - heading "Intégrations & Add-ons" [level=1] [ref=f25e163]
+          - paragraph [ref=f25e164]: Options payantes, clés API et webhooks pour connecter Pointon à vos outils.
+        - generic [ref=f25e165]:
+          - button "Options" [ref=f25e166] [cursor=pointer]
+          - button "Clés API" [ref=f25e167] [cursor=pointer]
+          - button "Webhooks" [ref=f25e168] [cursor=pointer]
+        - generic [ref=f25e169]:
+          - generic [ref=f25e170]:
+            - generic [ref=f25e171]:
+              - generic [ref=f25e172]:
+                - generic [ref=f25e173]:
+                  - text: Accès API
+                  - paragraph [ref=f25e174]: Clés API REST pour intégrations tierces
+                - generic [ref=f25e175]: Actif
+              - generic [ref=f25e176]:
+                - generic [ref=f25e177]: 29€ / mois
+                - button "Désactiver" [ref=f25e178] [cursor=pointer]
+            - generic [ref=f25e179]:
+              - generic [ref=f25e180]:
+                - generic [ref=f25e181]:
+                  - text: Webhooks sortants
+                  - paragraph [ref=f25e182]: Notifications push vers vos systèmes externes
+                - generic [ref=f25e183]: Actif
+              - generic [ref=f25e184]:
+                - generic [ref=f25e185]: 19€ / mois
+                - button "Désactiver" [ref=f25e186] [cursor=pointer]
+            - generic [ref=f25e187]:
+              - generic [ref=f25e188]:
+                - generic [ref=f25e189]:
+                  - text: Kiosk avancé
+                  - paragraph [ref=f25e190]: Multi-sites, logo custom, QR code rotatif
+                - generic [ref=f25e191]: Inactif
+              - generic [ref=f25e192]:
+                - generic [ref=f25e193]: 19€ / mois
+                - button "Activer" [ref=f25e194] [cursor=pointer]
+            - generic [ref=f25e195]:
+              - generic [ref=f25e196]:
+                - generic [ref=f25e197]:
+                  - text: Export RGPD
+                  - paragraph [ref=f25e198]: Export anonymisé et purge planifiée des données
+                - generic [ref=f25e199]: Actif
+              - generic [ref=f25e200]:
+                - generic [ref=f25e201]: 15€ / mois
+                - button "Désactiver" [ref=f25e202] [cursor=pointer]
+            - generic [ref=f25e203]:
+              - generic [ref=f25e204]:
+                - generic [ref=f25e205]:
+                  - text: Rapports custom
+                  - paragraph [ref=f25e206]: Builder de rapports par filtres et exports avancés
+                - generic [ref=f25e207]: Inactif
+              - generic [ref=f25e208]:
+                - generic [ref=f25e209]: 15€ / mois
+                - button "Activer" [ref=f25e210] [cursor=pointer]
+          - generic [ref=f25e211]:
+            - heading "Export RGPD" [level=3] [ref=f25e212]
+            - generic [ref=f25e213]:
+              - button "Exporter en PDF" [ref=f25e214] [cursor=pointer]
+              - button "Exporter en JSON" [ref=f25e215] [cursor=pointer]
+            - generic [ref=f25e216]:
+              - generic [ref=f25e217]: "Rétention des journaux d'audit :"
+              - combobox [ref=f25e218]:
+                - option "1 ans"
+                - option "2 ans"
+                - option "3 ans" [selected]
+                - option "4 ans"
+                - option "5 ans"
+                - option "6 ans"
+                - option "7 ans"
+                - option "8 ans"
+                - option "9 ans"
+                - option "10 ans"
+    - button "Aide" [ref=f25e219] [cursor=pointer]: ❓
+  - button "Open Next.js Dev Tools" [ref=f25e225] [cursor=pointer]:
+    - img [ref=f25e226]
+  - alert [ref=f25e229]

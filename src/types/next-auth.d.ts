@@ -24,3 +24,14 @@ declare module 'next-auth/jwt' {
     twoFactorVerified?: boolean
   }
 }
+
+// next-auth/jwt re-exports JWT from @auth/core/jwt via `export *`, which doesn't
+// merge module augmentations — the callback signature actually uses @auth/core/jwt's JWT.
+declare module '@auth/core/jwt' {
+  interface JWT {
+    role: string
+    sessionExpiry?: number
+    twoFactorEnabled?: boolean
+    twoFactorVerified?: boolean
+  }
+}

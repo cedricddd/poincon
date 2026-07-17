@@ -1,0 +1,296 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "PulseTime, accueil" [ref=e5] [cursor=pointer]:
+          - /url: /fr
+          - img "Logo PulseTime" [ref=e6]
+          - generic [ref=e7]: PulseTime
+        - navigation [ref=e8]:
+          - link "Fonctionnalités" [ref=e9] [cursor=pointer]:
+            - /url: /fr/fonctionnalites
+          - link "La loi 2027" [ref=e10] [cursor=pointer]:
+            - /url: /fr/loi-pointage-belgique-2027
+          - link "Pour qui ?" [ref=e11] [cursor=pointer]:
+            - /url: /fr/pour-qui
+          - link "Tarifs" [ref=e12] [cursor=pointer]:
+            - /url: /fr/tarifs
+          - link "À propos" [ref=e13] [cursor=pointer]:
+            - /url: /fr/a-propos
+        - generic [ref=e14]:
+          - button "Changer de langue" [ref=e16]:
+            - img [ref=e17]
+            - generic [ref=e20]: FR
+          - link "Se connecter" [ref=e21] [cursor=pointer]:
+            - /url: https://app.pulsetime.be/login
+          - link "Essai gratuit" [ref=e22] [cursor=pointer]:
+            - /url: https://app.pulsetime.be/register
+    - main [ref=e23]:
+      - generic [ref=e25]:
+        - heading "Toutes les fonctionnalités de pointage" [level=1] [ref=e26]
+        - paragraph [ref=e27]: Trois méthodes de pointage, un dashboard temps réel et une application prête pour la loi belge 2027. Tout ce qu'il faut pour les PME belges.
+      - generic [ref=e29]:
+        - heading "3 méthodes de pointage" [level=2] [ref=e30]
+        - paragraph [ref=e31]: "Smartphone, QR code ou tablette : vos collaborateurs choisissent la méthode qui leur convient."
+        - generic [ref=e32]:
+          - generic [ref=e33]:
+            - img "Ouvrier pointant sur son smartphone avec PulseTime sur un chantier de construction" [ref=e35]
+            - generic [ref=e36]:
+              - img [ref=e38]
+              - heading "Pointage smartphone et web" [level=3] [ref=e40]
+              - paragraph [ref=e41]: Vos collaborateurs reçoivent un lien d'accès personnel et pointent en un tap depuis leur téléphone, ou depuis leur PC via la même interface web. Sur smartphone, la position GPS est capturée automatiquement pour confirmer la présence sur site.
+              - list [ref=e42]:
+                - listitem [ref=e43]:
+                  - img [ref=e45]
+                  - text: Lien personnel envoyé par e-mail ou SMS, aucune appli à installer
+                - listitem [ref=e47]:
+                  - img [ref=e49]
+                  - text: Géolocalisation GPS sur smartphone (rayon configurable par lieu)
+                - listitem [ref=e51]:
+                  - img [ref=e53]
+                  - text: Interface web sur PC pour les bureaux et le télétravail
+                - listitem [ref=e55]:
+                  - img [ref=e57]
+                  - text: Chronomètre de session en temps réel sur iPhone, Android, Windows et Mac
+          - generic [ref=e59]:
+            - img "Serveur scannant un QR code PulseTime à l'entrée de la cuisine d'un restaurant" [ref=e61]
+            - generic [ref=e62]:
+              - img [ref=e64]
+              - heading "QR code à scanner sur site" [level=3] [ref=e70]
+              - paragraph [ref=e71]: "Imprimez un QR code par lieu et affichez-le à l'entrée. Vos collaborateurs le scannent depuis leur smartphone pour pointer : preuve de présence physique, sans matériel sur site."
+              - list [ref=e72]:
+                - listitem [ref=e73]:
+                  - img [ref=e75]
+                  - text: QR code unique par lieu de travail, prêt à imprimer en PDF A4
+                - listitem [ref=e77]:
+                  - img [ref=e79]
+                  - text: Scan depuis le scanner intégré de l'app ou l'appareil photo
+                - listitem [ref=e81]:
+                  - img [ref=e83]
+                  - text: Le lieu est reconnu automatiquement (pas besoin de le choisir)
+                - listitem [ref=e85]:
+                  - img [ref=e87]
+                  - text: Couplable au GPS pour double vérification de présence
+          - generic [ref=e89]:
+            - img "Employée pointant sur une tablette murale PulseTime à l'entrée d'un bureau" [ref=e91]
+            - generic [ref=e92]:
+              - img [ref=e94]
+              - heading "Tablette de pointage à l'entrée" [level=3] [ref=e97]
+              - paragraph [ref=e98]: Installez une tablette (iPad ou Android) à l'accueil. Chaque collaborateur sélectionne son nom et entre son code PIN à 4 chiffres. Idéal pour les équipes sans smartphone professionnel.
+              - list [ref=e99]:
+                - listitem [ref=e100]:
+                  - img [ref=e102]
+                  - text: Fonctionne sur n'importe quelle tablette (iPad, Android)
+                - listitem [ref=e104]:
+                  - img [ref=e106]
+                  - text: Code PIN à 4 chiffres unique par collaborateur
+                - listitem [ref=e108]:
+                  - img [ref=e110]
+                  - text: Liste visuelle avec statut (présent / absent) en temps réel
+                - listitem [ref=e112]:
+                  - img [ref=e114]
+                  - text: Interface plein écran, pensée pour usage rapide à l'entrée
+      - generic [ref=e117]:
+        - paragraph [ref=e118]: Essayez PulseTime gratuitement pendant 15 jours.
+        - link "Démarrer l'essai gratuit" [ref=e119] [cursor=pointer]:
+          - /url: https://app.pulsetime.be/register
+      - generic [ref=e121]:
+        - heading "Suivi, exports et anticipation" [level=2] [ref=e122]
+        - paragraph [ref=e123]: Tout ce dont vous avez besoin pour suivre les présences et préparer la loi 2027.
+        - generic [ref=e124]:
+          - generic [ref=e125]:
+            - generic [ref=e126]:
+              - img [ref=e128]
+              - heading "Dashboard temps réel" [level=3] [ref=e130]
+            - paragraph [ref=e131]: Voyez en un coup d'œil qui est présent, absent ou en pause. Le tableau de bord et son planning visuel des présences se mettent à jour automatiquement.
+            - list [ref=e132]:
+              - listitem [ref=e133]:
+                - img [ref=e135]
+                - text: Vue en temps réel des présences
+              - listitem [ref=e137]:
+                - img [ref=e139]
+                - text: Planning visuel par collaborateur, à la minute près
+              - listitem [ref=e141]:
+                - img [ref=e143]
+                - text: Historique complet par jour, semaine ou mois
+              - listitem [ref=e145]:
+                - img [ref=e147]
+                - text: Accessible depuis n'importe quel navigateur
+          - generic [ref=e149]:
+            - generic [ref=e150]:
+              - img [ref=e152]
+              - heading "Rapports & exports" [level=3] [ref=e155]
+            - paragraph [ref=e156]: Consultez les heures prestées par collaborateur et exportez-les dans le format de votre choix pour votre secrétariat social.
+            - list [ref=e157]:
+              - listitem [ref=e158]:
+                - img [ref=e160]
+                - text: Rapports par jour, semaine et mois
+              - listitem [ref=e162]:
+                - img [ref=e164]
+                - text: Export CSV, PDF, XLSX et TXT
+              - listitem [ref=e166]:
+                - img [ref=e168]
+                - text: Filtrage par collaborateur ou par site
+              - listitem [ref=e170]:
+                - img [ref=e172]
+                - text: Calcul automatique des heures et pauses
+          - generic [ref=e174]:
+            - generic [ref=e175]:
+              - img [ref=e177]
+              - heading "Prêt pour la loi 2027" [level=3] [ref=e180]
+            - paragraph [ref=e181]: Chaque pointage est horodaté précisément. Toute modification est tracée dans un journal d'audit infalsifiable, conformément aux exigences attendues de la loi belge.
+            - list [ref=e182]:
+              - listitem [ref=e183]:
+                - img [ref=e185]
+                - text: Horodatage précis et infalsifiable
+              - listitem [ref=e187]:
+                - img [ref=e189]
+                - text: Journal d'audit complet et exportable
+              - listitem [ref=e191]:
+                - img [ref=e193]
+                - text: Corrections tracées avec historique avant / après
+              - listitem [ref=e195]:
+                - img [ref=e197]
+                - text: Identification unique de chaque collaborateur
+              - listitem [ref=e199]:
+                - img [ref=e201]
+                - text: Données hébergées dans l'Union européenne
+            - link "En savoir plus sur la loi 2027→" [ref=e203] [cursor=pointer]:
+              - /url: /fr/loi-pointage-belgique-2027
+          - generic [ref=e204]:
+            - generic [ref=e205]:
+              - img [ref=e207]
+              - heading "Corrections & validations" [level=3] [ref=e211]
+            - paragraph [ref=e212]: Les collaborateurs peuvent demander une correction d'horaire. L'administrateur valide ou refuse en un clic, avec traçabilité complète.
+            - list [ref=e213]:
+              - listitem [ref=e214]:
+                - img [ref=e216]
+                - text: Demande de correction par le collaborateur
+              - listitem [ref=e218]:
+                - img [ref=e220]
+                - text: Validation ou refus par l'administrateur
+              - listitem [ref=e222]:
+                - img [ref=e224]
+                - text: Historique avant/après conservé
+              - listitem [ref=e226]:
+                - img [ref=e228]
+                - text: Motif obligatoire pour chaque demande
+          - generic [ref=e230]:
+            - generic [ref=e231]:
+              - img [ref=e233]
+              - heading "Interface multilingue" [level=3] [ref=e236]
+            - paragraph [ref=e237]: Chaque collaborateur choisit sa langue. L'application s'adapte aux trois langues nationales belges (français, néerlandais, allemand) et à l'anglais.
+            - list [ref=e238]:
+              - listitem [ref=e239]:
+                - img [ref=e241]
+                - text: Français, néerlandais, anglais et allemand
+              - listitem [ref=e243]:
+                - img [ref=e245]
+                - text: Changement de langue instantané
+              - listitem [ref=e247]:
+                - img [ref=e249]
+                - text: Préférence individuelle par collaborateur
+              - listitem [ref=e251]:
+                - img [ref=e253]
+                - text: Préférence par entreprise configurable
+          - generic [ref=e255]:
+            - generic [ref=e256]:
+              - img [ref=e258]
+              - heading "Gestion multi-sites" [level=3] [ref=e262]
+            - paragraph [ref=e263]: Gérez plusieurs lieux de travail depuis un seul compte. Chaque site a son propre QR code et rayon GPS.
+            - list [ref=e264]:
+              - listitem [ref=e265]:
+                - img [ref=e267]
+                - text: Nombre de sites illimité
+              - listitem [ref=e269]:
+                - img [ref=e271]
+                - text: QR code unique par site
+              - listitem [ref=e273]:
+                - img [ref=e275]
+                - text: Rayon GPS configurable par lieu
+              - listitem [ref=e277]:
+                - img [ref=e279]
+                - text: Rapports filtrables par site
+      - generic [ref=e282]:
+        - heading "Prêt à simplifier le pointage ?" [level=2] [ref=e283]
+        - paragraph [ref=e284]: Créez votre compte en 2 minutes. Essai gratuit 15 jours, sans engagement.
+        - generic [ref=e285]:
+          - link "Démarrer gratuitement" [ref=e286] [cursor=pointer]:
+            - /url: https://app.pulsetime.be/register
+          - link "Voir les tarifs" [ref=e287] [cursor=pointer]:
+            - /url: /fr/tarifs
+    - contentinfo [ref=e288]:
+      - generic [ref=e289]:
+        - generic [ref=e290]:
+          - generic [ref=e291]:
+            - link "PulseTime, accueil" [ref=e292] [cursor=pointer]:
+              - /url: /fr
+              - img "Logo PulseTime" [ref=e293]
+              - generic [ref=e294]: PulseTime
+            - paragraph [ref=e295]: Pointage smartphone simple et conforme pour les PME belges.
+          - generic [ref=e296]:
+            - heading "Produit" [level=3] [ref=e297]
+            - list [ref=e298]:
+              - listitem [ref=e299]:
+                - link "Fonctionnalités" [ref=e300] [cursor=pointer]:
+                  - /url: /fr/fonctionnalites
+              - listitem [ref=e301]:
+                - link "Tarifs" [ref=e302] [cursor=pointer]:
+                  - /url: /fr/tarifs
+              - listitem [ref=e303]:
+                - link "Pour qui ?" [ref=e304] [cursor=pointer]:
+                  - /url: /fr/pour-qui
+          - generic [ref=e305]:
+            - heading "Légal" [level=3] [ref=e306]
+            - list [ref=e307]:
+              - listitem [ref=e308]:
+                - link "La loi 2027" [ref=e309] [cursor=pointer]:
+                  - /url: /fr/loi-pointage-belgique-2027
+              - listitem [ref=e310]:
+                - link "Mentions légales" [ref=e311] [cursor=pointer]:
+                  - /url: /fr/legal/mentions
+              - listitem [ref=e312]:
+                - link "Conditions d'utilisation" [ref=e313] [cursor=pointer]:
+                  - /url: /fr/legal/cgu
+              - listitem [ref=e314]:
+                - link "Conditions générales de vente" [ref=e315] [cursor=pointer]:
+                  - /url: /fr/legal/cgv
+              - listitem [ref=e316]:
+                - link "Confidentialité" [ref=e317] [cursor=pointer]:
+                  - /url: /fr/legal/confidentialite
+              - listitem [ref=e318]:
+                - link "Cookies" [ref=e319] [cursor=pointer]:
+                  - /url: /fr/legal/cookies
+              - listitem [ref=e320]:
+                - button "Préférences cookies" [ref=e321]
+          - generic [ref=e322]:
+            - heading "Contact" [level=3] [ref=e323]
+            - list [ref=e324]:
+              - listitem [ref=e325]:
+                - link "À propos" [ref=e326] [cursor=pointer]:
+                  - /url: /fr/a-propos
+              - listitem [ref=e327]:
+                - link "info@pulsetime.be" [ref=e328] [cursor=pointer]:
+                  - /url: mailto:info@pulsetime.be
+              - listitem [ref=e329]:
+                - link "081 / 24 39 80" [ref=e330] [cursor=pointer]:
+                  - /url: tel:+3281243980
+            - generic [ref=e331]:
+              - text: PulseTime
+              - text: Parc Scientifique Créalys
+              - text: Rue Léon Morel 4
+              - text: 5032 Isnes, Belgique
+        - generic [ref=e332]:
+          - paragraph [ref=e333]: © 2026 PulseTime. Prêt pour la loi belge d'enregistrement du temps de travail 2027.
+          - paragraph [ref=e334]: Fait avec passion en Belgique
+    - dialog "Tout accepter" [ref=e335]:
+      - generic [ref=e336]:
+        - paragraph [ref=e337]:
+          - text: Nous utilisons des cookies pour mesurer l'efficacité de nos publicités. Vous pouvez les refuser à tout moment.
+          - link "En savoir plus" [ref=e338] [cursor=pointer]:
+            - /url: /fr/legal/cookies
+          - text: .
+        - generic [ref=e339]:
+          - button "Tout refuser" [ref=e340]
+          - button "Tout accepter" [ref=e341]
+  - alert [ref=e342]

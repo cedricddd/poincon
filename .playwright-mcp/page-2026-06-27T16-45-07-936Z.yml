@@ -1,0 +1,46 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e40] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e41]:
+      - img [ref=e42]
+    - generic [ref=e59]:
+      - button "Open issues overlay" [ref=e60]:
+        - generic [ref=e61]:
+          - generic [ref=e62]: "0"
+          - generic [ref=e63]: "1"
+        - generic [ref=e64]: Issue
+      - button "Collapse issues badge" [ref=e65]:
+        - img [ref=e66]
+  - alert [ref=e45]
+  - generic [ref=e68]:
+    - button "🇬🇧 English" [ref=e71] [cursor=pointer]:
+      - img [ref=e72]
+      - generic [ref=e75]: 🇬🇧 English
+      - img [ref=e76]
+    - generic [ref=e78]:
+      - generic [ref=e79]:
+        - link "Pointon — accueil" [ref=e80] [cursor=pointer]:
+          - /url: /en
+          - img "Pointon" [ref=e82]
+        - paragraph [ref=e83]: Sign in to your account
+      - generic [ref=e84]:
+        - generic [ref=e85]:
+          - generic [ref=e86]:
+            - generic [ref=e87]: Email
+            - textbox "Email" [ref=e88]:
+              - /placeholder: you@company.be
+          - generic [ref=e89]:
+            - generic [ref=e90]: Password
+            - textbox "Password" [ref=e91]:
+              - /placeholder: ••••••••
+          - generic [ref=e92]:
+            - checkbox "Remember me" [ref=e93]
+            - generic [ref=e94]: Remember me
+          - button "Sign in" [ref=e95] [cursor=pointer]
+          - link "Forgot password?" [ref=e97] [cursor=pointer]:
+            - /url: /en/forgot-password
+        - generic [ref=e98]:
+          - text: No account?
+          - link "Sign up for free" [ref=e99] [cursor=pointer]:
+            - /url: /en/signup
+      - link "← Back to home" [ref=e101] [cursor=pointer]:
+        - /url: /en

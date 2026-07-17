@@ -1,0 +1,35 @@
+- generic [active] [ref=f10e1]:
+  - generic [ref=f10e2]:
+    - button "🇧🇪 Français" [ref=f10e5] [cursor=pointer]:
+      - img [ref=f10e6]
+      - generic [ref=f10e9]: 🇧🇪 Français
+      - img [ref=f10e10]
+    - generic [ref=f10e12]:
+      - generic [ref=f10e13]:
+        - link "Pointon — accueil" [ref=f10e14] [cursor=pointer]:
+          - /url: /fr
+          - img "Pointon" [ref=f10e16]
+        - paragraph [ref=f10e17]: Connexion à votre compte
+      - generic [ref=f10e18]:
+        - generic [ref=f10e19]:
+          - generic [ref=f10e20]:
+            - generic [ref=f10e21]: Email
+            - textbox "Email" [ref=f10e22]:
+              - /placeholder: vous@entreprise.be
+          - generic [ref=f10e23]:
+            - generic [ref=f10e24]: Mot de passe
+            - textbox "Mot de passe" [ref=f10e25]:
+              - /placeholder: ••••••••
+          - generic [ref=f10e26]:
+            - checkbox "Se souvenir de moi" [ref=f10e27]
+            - generic [ref=f10e28]: Se souvenir de moi
+          - button "Se connecter" [ref=f10e29] [cursor=pointer]
+          - link "Mot de passe oublié ?" [ref=f10e31] [cursor=pointer]:
+            - /url: /fr/forgot-password
+        - generic [ref=f10e32]:
+          - text: Pas de compte ?
+          - link "S'inscrire gratuitement" [ref=f10e33] [cursor=pointer]:
+            - /url: /fr/signup
+      - link "← Retour à l'accueil" [ref=f10e35] [cursor=pointer]:
+        - /url: /fr
+  - alert [ref=f10e36]
