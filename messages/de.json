@@ -1610,7 +1610,9 @@
     "nameOptional": "Name (optional)",
     "nameHint": "Der Mitarbeiter kann ihn bei der Registrierung ändern.",
     "sending": "Senden…",
-    "sendInvite": "Einladung senden"
+    "sendInvite": "Einladung senden",
+    "seatEstimateWithinPlan": "{count}/{max} Plätze nach dieser Einladung genutzt — im Plan enthalten, keine Zusatzkosten.",
+    "seatEstimateExtraCost": "{count}/{max} Plätze nach dieser Einladung genutzt — dieser zusätzliche Platz wird berechnet: +{price} € zzgl. MwSt.{period}."
   },
   "userDetail": {
     "add": "+ Hinzufügen",

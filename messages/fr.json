@@ -1611,7 +1611,9 @@
     "nameOptional": "Nom (optionnel)",
     "nameHint": "Lʼemployé pourra le modifier lors de son inscription.",
     "sending": "Envoi…",
-    "sendInvite": "Envoyer lʼinvitation"
+    "sendInvite": "Envoyer lʼinvitation",
+    "seatEstimateWithinPlan": "{count}/{max} sièges utilisés après cette invitation — inclus dans le plan, aucun coût supplémentaire.",
+    "seatEstimateExtraCost": "{count}/{max} sièges utilisés après cette invitation — ce siège supplémentaire sera facturé +{price} € HTVA{period}."
   },
   "userDetail": {
     "add": "+ Ajouter",

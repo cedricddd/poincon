@@ -1610,7 +1610,9 @@
     "nameOptional": "Naam (optioneel)",
     "nameHint": "De werknemer kan dit aanpassen bij de registratie.",
     "sending": "Verzenden…",
-    "sendInvite": "Uitnodiging verzenden"
+    "sendInvite": "Uitnodiging verzenden",
+    "seatEstimateWithinPlan": "{count}/{max} zetels gebruikt na deze uitnodiging — inbegrepen in het plan, geen extra kosten.",
+    "seatEstimateExtraCost": "{count}/{max} zetels gebruikt na deze uitnodiging — deze extra zetel wordt gefactureerd: +{price} € excl. btw{period}."
   },
   "userDetail": {
     "add": "+ Toevoegen",

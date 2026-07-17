@@ -1,20 +1,40 @@
 'use client'
 
 export const dynamic = 'force-dynamic'
-import { useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useState, useEffect } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import { useRouter } from '@/i18n/navigation'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 
+const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
+
+interface SeatUsage {
+  activeMembers: number
+  includedSeats: number
+  pricePerSeatCents: number
+  cycle: string
+}
+
 export default function InviteUserPage() {
   const t = useTranslations('usersForm')
   const tc = useTranslations('common')
+  const tSettings = useTranslations('settings')
+  const locale = useLocale()
+  const bcp = BCP47[locale] ?? 'fr-BE'
   const router = useRouter()
   const [form, setForm] = useState({ email: '', name: '', role: 'EMPLOYEE' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [seatUsage, setSeatUsage] = useState<SeatUsage | null>(null)
+
+  useEffect(() => {
+    fetch('/api/admin/company/settings')
+      .then(res => (res.ok ? res.json() : null))
+      .then(data => { if (data?.seatUsage) setSeatUsage(data.seatUsage) })
+      .catch(() => {})
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -97,6 +117,30 @@ export default function InviteUserPage() {
               <option value="ADMIN">{tc('roleAdmin')}</option>
             </select>
           </div>
+
+          {seatUsage && (() => {
+            const projectedMembers = seatUsage.activeMembers + 1
+            const projectedExtra = Math.max(0, projectedMembers - seatUsage.includedSeats)
+            const willCost = projectedExtra > 0
+            const euros = (cents: number) => (cents / 100).toLocaleString(bcp, { minimumFractionDigits: 2 })
+            const per = seatUsage.cycle === 'yearly' ? tSettings('perYear') : tSettings('perMonth')
+            return (
+              <div className={`p-3 rounded-lg border text-sm ${
+                willCost
+                  ? 'bg-[#7c3aed]/5 border-[#7c3aed]/20 text-[#7c3aed]'
+                  : 'bg-[var(--pp-bg)] border-[var(--pp-line)] text-[var(--pp-muted)]'
+              }`}>
+                {willCost
+                  ? t('seatEstimateExtraCost', {
+                      count: projectedMembers,
+                      max: seatUsage.includedSeats,
+                      price: euros(seatUsage.pricePerSeatCents),
+                      period: per,
+                    })
+                  : t('seatEstimateWithinPlan', { count: projectedMembers, max: seatUsage.includedSeats })}
+              </div>
+            )
+          })()}
 
           <div className="flex gap-3 pt-2">
             <Button type="submit" disabled={loading || success} size="md">

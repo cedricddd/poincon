@@ -1610,7 +1610,9 @@
     "nameOptional": "Name (optional)",
     "nameHint": "The employee can change it during sign-up.",
     "sending": "Sending…",
-    "sendInvite": "Send invitation"
+    "sendInvite": "Send invitation",
+    "seatEstimateWithinPlan": "{count}/{max} seats used after this invitation — included in your plan, no extra cost.",
+    "seatEstimateExtraCost": "{count}/{max} seats used after this invitation — this extra seat will be billed +{price} € excl. VAT{period}."
   },
   "userDetail": {
     "add": "+ Add",
