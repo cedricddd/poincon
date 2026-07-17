@@ -73,6 +73,31 @@ export const STRIPE_PLAN_CONFIG: Record<string, {
 // Legacy alias — used by existing webhook code
 export const STRIPE_PRICES = STRIPE_PLAN_CONFIG
 
+/**
+ * Resolve a plan name from a Stripe Subscription's line-item prices.
+ *
+ * This is the reliable source of truth for "what plan is this subscription on" —
+ * `subscription.metadata` is only set by our own Checkout Sessions and is never
+ * populated when a customer switches plans through the Stripe Customer Portal,
+ * so matching on the actual billed price avoids silently missing those changes.
+ */
+export function resolvePlanNameFromSubscription(sub: {
+  items?: { data?: ({ price?: { id?: string | null } | null } | null)[] | null } | null
+}): string | null {
+  const priceIds = new Set(
+    (sub.items?.data ?? []).map(item => item?.price?.id).filter((id): id is string => !!id)
+  )
+  for (const [planName, config] of Object.entries(STRIPE_PLAN_CONFIG)) {
+    if (
+      (config.stripePriceIdMonthly && priceIds.has(config.stripePriceIdMonthly)) ||
+      (config.stripePriceIdYearly && priceIds.has(config.stripePriceIdYearly))
+    ) {
+      return planName
+    }
+  }
+  return null
+}
+
 // Add-on pricing (HTVA, cents). Kept in sync with ADDON_INFO.price in src/lib/plan.ts —
 // that file is the human-facing display source, this one is the Stripe billing source.
 export const STRIPE_ADDON_CONFIG: Record<string, {

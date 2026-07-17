@@ -2,6 +2,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 import { logAudit } from '@/lib/audit'
+import { syncSeatQuantitySafe } from '@/lib/billing'
 
 export async function PATCH(
   req: NextRequest,
@@ -55,6 +56,10 @@ export async function PATCH(
       data: { planId: newPlan.id, ...enterpriseData },
       include: { plan: true, admin: { select: { email: true } } },
     })
+
+    // Si la company a une souscription Stripe active, l'item siège doit refléter
+    // le nouveau plan (price différent) — no-op sinon (FREE/Enterprise/pas d'abonnement).
+    syncSeatQuantitySafe(id)
 
     await prisma.planHistory.create({
       data: {

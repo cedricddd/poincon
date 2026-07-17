@@ -24,6 +24,7 @@ export async function syncSeatQuantity(companyId: string): Promise<void> {
     select: {
       stripeSubscriptionId: true,
       stripeSeatItemId: true,
+      stripeSeatPriceId: true,
       stripeSubscriptionBillingCycle: true,
       billedSeats: true,
       plan: { select: { name: true } },
@@ -45,21 +46,29 @@ export async function syncSeatQuantity(companyId: string): Promise<void> {
   const members = await getActiveMemberCount(companyId)
   const seats = Math.max(0, members - config.baseIncludedSeats)
 
-  // Already in sync (and item state consistent) → avoid redundant Stripe calls
-  if (seats === company.billedSeats && (seats > 0) === !!company.stripeSeatItemId) return
+  // A plan change (e.g. STARTER→TEAM) leaves the existing item on the OLD plan's
+  // seat price — quantity alone can't fix that, the item must be recreated below.
+  // Require a known (non-null) stripeSeatPriceId: right after the column is introduced,
+  // every pre-existing company has it null, which must NOT be treated as a mismatch —
+  // that would delete+recreate every paid company's seat item for no real reason.
+  const priceMismatch =
+    seats > 0 && !!company.stripeSeatItemId && !!company.stripeSeatPriceId && company.stripeSeatPriceId !== seatPriceId
+
+  // Already in sync (quantity, presence AND price all consistent) → avoid redundant Stripe calls
+  if (!priceMismatch && seats === company.billedSeats && (seats > 0) === !!company.stripeSeatItemId) return
 
   const stripe = getStripe()
   const proration_behavior = isYearly ? 'always_invoice' : 'create_prorations'
   let seatItemId = company.stripeSeatItemId
 
-  if (seatItemId) {
-    if (seats === 0) {
-      await stripe.subscriptionItems.del(seatItemId, { proration_behavior })
-      seatItemId = null
-    } else {
-      await stripe.subscriptionItems.update(seatItemId, { quantity: seats, proration_behavior })
-    }
-  } else if (seats > 0) {
+  if (seatItemId && (seats === 0 || priceMismatch)) {
+    await stripe.subscriptionItems.del(seatItemId, { proration_behavior })
+    seatItemId = null
+  }
+
+  if (seatItemId && seats > 0) {
+    await stripe.subscriptionItems.update(seatItemId, { quantity: seats, proration_behavior })
+  } else if (!seatItemId && seats > 0) {
     // Guard against a duplicate item if a previous sync pushed to Stripe but lost the id
     const existing = await stripe.subscriptionItems.list({ subscription: company.stripeSubscriptionId })
     const found = existing.data.find(i => i.price.id === seatPriceId)
@@ -79,9 +88,13 @@ export async function syncSeatQuantity(companyId: string): Promise<void> {
 
   await prisma.company.update({
     where: { id: companyId },
-    data: { stripeSeatItemId: seatItemId, billedSeats: seats },
+    data: {
+      stripeSeatItemId: seatItemId,
+      stripeSeatPriceId: seatItemId ? seatPriceId : null,
+      billedSeats: seats,
+    },
   })
-  console.log('[billing] seats synced for company', companyId, '→', seats, 'extra seat(s)')
+  console.log('[billing] seats synced for company', companyId, '→', seats, 'extra seat(s)', priceMismatch ? '(price mismatch → recreated)' : '')
 }
 
 /**

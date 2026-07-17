@@ -407,17 +407,35 @@ PHASE A — LANCEMENT PRODUCTION · Juillet 2026 · ~2 sessions
 ================================================================================
 Objectif : premier vrai client peut s'inscrire et payer
 
-[ ] ⚠️ Changement de plan (upgrade/downgrade) : le prix/siege differe par plan
-    ├─ Si plan change et item siege existe avec l'ANCIEN price → supprimer + recréer au bon price
-    └─ Durcir syncSeatQuantity (détecter price mismatch), tester STARTER→TEAM
+✓ Changement de plan — syncSeatQuantity durci — DONE 2026-07-17
+    ├─ Company.stripeSeatPriceId ajouté (Prisma) — track quel price est facturé sur l'item siège
+    ├─ syncSeatQuantity détecte le price mismatch (ancien plan) → delete l'item + recrée au bon price
+    ├─ Appelé après changement de plan : webhook customer.subscription.updated + route super-admin plan
+    ├─ Tests unitaires étendus (STARTER→TEAM + reuse item trouvé + no-op si price déjà correct)
+    └─ ⚠️ RESTE : db push dev (Docker pas lancé cette session) puis prod après déploiement
+✓ Resync sieges sur customer.subscription.updated — DONE 2026-07-17
+    ├─ BUG TROUVÉ : sub.metadata?.plan était TOUJOURS vide → planRecord toujours null → le plan
+    │  n'était jamais resync via ce webhook (donc jamais via le portail Stripe, seul chemin de
+    │  changement de plan self-service existant — /api/stripe/checkout ne met le metadata que sur
+    │  la Checkout Session, jamais sur la Subscription elle-même)
+    ├─ Fix : resolvePlanNameFromSubscription() (src/lib/stripe.ts) — dérive le plan depuis le price
+    │  réel des line items de la subscription (source de vérité), fallback sur metadata en legacy
+    ├─ Webhook mis à jour + syncSeatQuantitySafe() appelé juste après (corrige aussi le price mismatch)
+    ├─ Tests unitaires ajoutés (src/lib/stripe.test.ts, 5 cas : monthly/yearly/multi-items/no-match/items manquants)
+    └─ ⚠️ RESTE : pas testé en conditions réelles contre le portail Stripe (voir chemin annuel ci-dessous)
 [ ] Tester le chemin ANNUEL (always_invoice) — on n'a validé que le mensuel
     └─ Créer une sub annuelle test, ajouter un siege → vérifier facture prorata immédiate
-[ ] Resync sieges sur customer.subscription.updated (si l'admin change via portail Stripe)
+[ ] Tester en conditions réelles un changement de plan via le portail Stripe (STARTER→TEAM)
+    └─ Valider bout-en-bout : planId + billedSeats + stripeSeatPriceId corrects après webhook
 [ ] Validation UI bout-en-bout des triggers : inviter un membre qui dépasse le seuil
     └─ voir badge "+1 siege" + panneau cout + item siege dans Stripe
 ✓ Décision : l'admin compte comme un siege — getActiveMemberCount inclut tous les roles (voulu)
 [ ] (UX) Estimation du cout AVANT d'inviter, dans le modal d'invitation
-[ ] (Qualité) Test unitaire syncSeatQuantity (mock Stripe) — add / update / remove / no-op
+✓ Test unitaire syncSeatQuantity (mock Stripe) — DONE 2026-07-17
+    └─ Vitest ajouté (src/lib/billing.test.ts, npm run test:unit), 10 cas :
+       no-op (pas de sub, plan illimité, price id manquant, déjà sync),
+       add (création + réutilisation item existant + cycle annuel/always_invoice),
+       update (changement de quantité), remove (retour sous le seuil inclus)
 
 ✓ Bascule Stripe LIVE — DONE 2026-07-06
     ├─ Déclenchée en urgence : ALUNION a tenté de payer STARTER pendant que la prod était encore en clés TEST

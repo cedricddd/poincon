@@ -1,7 +1,8 @@
-import { getStripe, STRIPE_PLAN_CONFIG, STRIPE_ADDON_CONFIG } from '@/lib/stripe'
+import { getStripe, STRIPE_PLAN_CONFIG, STRIPE_ADDON_CONFIG, resolvePlanNameFromSubscription } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
 import { isOdooConfigured, syncInvoiceToOdoo } from '@/lib/odoo'
 import { sendInternalInvoiceAlert } from '@/lib/mail'
+import { syncSeatQuantitySafe } from '@/lib/billing'
 import { ADDON_FLAGS } from '@/lib/plan'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -124,7 +125,9 @@ export async function POST(req: NextRequest) {
       const company = await resolveCompany(sub.customer)
       if (!company) break
 
-      const planName = sub.metadata?.plan?.toUpperCase()
+      // Price on the subscription's line items is the source of truth — sub.metadata.plan
+      // is only ever set by our own Checkout Sessions, never by a Stripe Portal price switch.
+      const planName = resolvePlanNameFromSubscription(sub) ?? sub.metadata?.plan?.toUpperCase() ?? null
       const planRecord = planName ? await getPlanByName(planName) : null
       const billingCycle = getBillingCycle(sub)
 
@@ -140,6 +143,10 @@ export async function POST(req: NextRequest) {
           ...(planRecord ? { planId: planRecord.id } : {}),
         },
       })
+
+      // Plan (et donc le price du siège) peut avoir changé — resync immédiat plutôt
+      // que d'attendre le cron nocturne (sinon jusqu'à 24h de mauvais price sur l'item siège).
+      if (planRecord) syncSeatQuantitySafe(company.id)
 
       // Réconciliation défensive : un item d'add-on retiré manuellement côté Dashboard
       // Stripe (ou par dunning) ne doit pas laisser le flag actif en DB.
