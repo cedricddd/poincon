@@ -26,6 +26,11 @@ function fmtTime(iso: Date) {
   return iso.toLocaleTimeString('fr-BE', { hour: 'numeric', minute: '2-digit', timeZone: 'Europe/Brussels' })
 }
 
+// Brussels-local YYYY-MM-DD — safe grouping key for real event timestamps (never use toISOString() here, see commit 32e2016)
+function dayKey(iso: Date) {
+  return iso.toLocaleDateString('en-CA', { timeZone: 'Europe/Brussels' })
+}
+
 const LEAVE_TAGS: Record<string, string> = {
   ANNUAL: 'Congé',
   SICK: 'Maladie',
@@ -33,7 +38,20 @@ const LEAVE_TAGS: Record<string, string> = {
   ECONOMIC_UNEMPLOYMENT: 'Chômage économique',
 }
 
-interface ExportRow { userId: string; date: Date; cells: string[] }
+interface DayAggregate {
+  firstArrival: Date | null
+  lastDeparture: Date | null
+  hasOpenRecord: boolean
+  totalDuration: number
+  pauseMinutes: number
+  locations: Set<string>
+  sites: Set<string>
+  tag: string
+}
+
+function emptyAggregate(): DayAggregate {
+  return { firstArrival: null, lastDeparture: null, hasOpenRecord: false, totalDuration: 0, pauseMinutes: 0, locations: new Set(), sites: new Set(), tag: '' }
+}
 
 export async function GET(req: NextRequest) {
   const session = await requireAdmin()
@@ -68,98 +86,116 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // FREE without filter: cap to last 30 days automatically
-  const effectiveFrom = maxDays !== -1 && !from
-    ? new Date(Date.now() - maxDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-    : from
+  // La grille jour-par-jour doit rester bornée — 30 jours par défaut si aucune plage n'est précisée
+  const today = new Date().toISOString().slice(0, 10)
+  const defaultFrom = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+  const effectiveFrom = from ?? defaultFrom
+  const effectiveTo = to ?? today
 
-  const where = {
-    user: { companyId: adminUser.companyId },
-    ...(userId ? { userId } : {}),
-    ...(siteId ? { siteId } : {}),
-    ...((effectiveFrom || to) ? {
-      date: {
-        ...(effectiveFrom ? { gte: new Date(effectiveFrom) } : {}),
-        ...(to ? { lte: new Date(to + 'T23:59:59') } : {}),
-      },
-    } : {}),
-  }
-
-  const records = await prisma.clockRecord.findMany({
-    where,
-    include: {
-      user: { select: { name: true, email: true } },
-      site: { select: { name: true } },
-      breaks: { where: { endedAt: { not: null } }, select: { startedAt: true, endedAt: true } },
+  const companyUsers = await prisma.user.findMany({
+    where: {
+      companyId: adminUser.companyId,
+      deletedAt: null,
+      ...(userId ? { id: userId } : {}),
     },
-    orderBy: [{ userId: 'asc' }, { date: 'desc' }],
+    select: { id: true, name: true, email: true },
+    orderBy: [{ name: 'asc' }, { email: 'asc' }],
   })
+  if (companyUsers.length === 0) {
+    return new NextResponse('﻿', { headers: { 'Content-Type': 'text/csv; charset=utf-8' } })
+  }
+  const allowedIds = companyUsers.map(u => u.id)
 
-  const header = ['Employé', 'Email', 'Date', 'Arrivée', 'Départ', 'Pause (min)', 'Durée', 'Lieu', 'Site', 'Tag']
+  const rangeStart = new Date(effectiveFrom + 'T00:00:00Z')
+  const rangeEnd = new Date(effectiveTo + 'T23:59:59Z')
 
-  const workedRows: ExportRow[] = records.map(r => {
-    const pauseMinutes = r.breaks.reduce((sum, b) => sum + Math.round((b.endedAt!.getTime() - b.startedAt.getTime()) / 60000), 0)
-    return {
-      userId: r.userId,
-      date: r.date,
-      cells: [
-        r.user.name ?? '',
-        r.user.email,
-        fmtDate(r.date),
-        fmtTime(r.arrivalTime),
-        r.departureTime ? fmtTime(r.departureTime) : 'Non pointé',
-        String(pauseMinutes),
-        r.duration != null ? fmt(r.duration) : '',
-        r.location,
-        r.site?.name ?? '',
-        '',
-      ],
-    }
-  })
-
-  // Fusion des absences approuvées chevauchant la plage — skip si filtre par site (les absences n'ont pas de site)
-  const absenceRows: ExportRow[] = []
-  if (!siteId) {
-    const rangeFromDate = effectiveFrom ? new Date(effectiveFrom) : null
-    const rangeToDate = to ? new Date(to + 'T23:59:59') : null
-
-    const timeOffRequests = await prisma.timeOffRequest.findMany({
+  const [clockRecords, timeOffRequests] = await Promise.all([
+    prisma.clockRecord.findMany({
+      where: {
+        userId: { in: allowedIds },
+        date: { gte: rangeStart, lte: rangeEnd },
+        ...(siteId ? { siteId } : {}),
+      },
+      include: {
+        site: { select: { name: true } },
+        breaks: { where: { endedAt: { not: null } }, select: { startedAt: true, endedAt: true } },
+      },
+    }),
+    prisma.timeOffRequest.findMany({
       where: {
         status: 'APPROVED',
-        user: { companyId: adminUser.companyId },
-        ...(userId ? { userId } : {}),
-        ...(rangeFromDate ? { endDate: { gte: rangeFromDate } } : {}),
-        ...(rangeToDate ? { startDate: { lte: rangeToDate } } : {}),
+        userId: { in: allowedIds },
+        startDate: { lte: rangeEnd },
+        endDate: { gte: rangeStart },
       },
-      include: { user: { select: { name: true, email: true } } },
-    })
+      select: { userId: true, startDate: true, endDate: true, leaveType: true },
+    }),
+  ])
 
-    for (const tor of timeOffRequests) {
-      const clampStart = rangeFromDate && rangeFromDate > tor.startDate ? rangeFromDate : tor.startDate
-      const clampEnd = rangeToDate && rangeToDate < tor.endDate ? rangeToDate : tor.endDate
-      const tag = LEAVE_TAGS[tor.leaveType] ?? tor.leaveType
+  // userId -> dayKey -> aggregate
+  const grid = new Map<string, Map<string, DayAggregate>>()
+  const getCell = (uid: string, key: string): DayAggregate => {
+    if (!grid.has(uid)) grid.set(uid, new Map())
+    const userGrid = grid.get(uid)!
+    if (!userGrid.has(key)) userGrid.set(key, emptyAggregate())
+    return userGrid.get(key)!
+  }
 
-      const cur = new Date(clampStart)
-      cur.setHours(0, 0, 0, 0)
-      const endBound = new Date(clampEnd)
-      endBound.setHours(0, 0, 0, 0)
-      while (cur <= endBound) {
-        const dow = cur.getDay()
-        if (dow >= 1 && dow <= 5) {
-          absenceRows.push({
-            userId: tor.userId,
-            date: new Date(cur),
-            cells: [tor.user.name ?? '', tor.user.email, fmtDate(cur), '', '', '', '', '', '', tag],
-          })
-        }
-        cur.setDate(cur.getDate() + 1)
-      }
+  for (const r of clockRecords) {
+    const cell = getCell(r.userId, dayKey(r.date))
+    if (!cell.firstArrival || r.arrivalTime < cell.firstArrival) cell.firstArrival = r.arrivalTime
+    if (r.departureTime) {
+      if (!cell.lastDeparture || r.departureTime > cell.lastDeparture) cell.lastDeparture = r.departureTime
+    } else {
+      cell.hasOpenRecord = true
+    }
+    if (r.duration != null) cell.totalDuration += r.duration
+    cell.pauseMinutes += r.breaks.reduce((sum, b) => sum + Math.round((b.endedAt!.getTime() - b.startedAt.getTime()) / 60000), 0)
+    cell.locations.add(r.location)
+    if (r.site?.name) cell.sites.add(r.site.name)
+  }
+
+  for (const tor of timeOffRequests) {
+    const tag = LEAVE_TAGS[tor.leaveType] ?? tor.leaveType
+    const clampStart = tor.startDate < rangeStart ? rangeStart : tor.startDate
+    const clampEnd = tor.endDate > rangeEnd ? rangeEnd : tor.endDate
+    const cur = new Date(clampStart)
+    cur.setUTCHours(12, 0, 0, 0) // midi UTC : marge de sécurité contre tout décalage de fuseau lors de l'itération
+    const endBound = new Date(clampEnd)
+    endBound.setUTCHours(12, 0, 0, 0)
+    while (cur <= endBound) {
+      getCell(tor.userId, dayKey(cur)).tag = tag
+      cur.setUTCDate(cur.getUTCDate() + 1)
     }
   }
 
-  const rows = [...workedRows, ...absenceRows]
-    .sort((a, b) => (a.userId !== b.userId ? (a.userId < b.userId ? -1 : 1) : b.date.getTime() - a.date.getTime()))
-    .map(r => r.cells)
+  const header = ['Employé', 'Email', 'Date', 'Arrivée', 'Départ', 'Pause (min)', 'Durée', 'Lieu', 'Site', 'Tag']
+  const rows: string[][] = []
+
+  for (const user of companyUsers) {
+    const userGrid = grid.get(user.id)
+    const cur = new Date(rangeStart)
+    cur.setUTCHours(12, 0, 0, 0)
+    const endBound = new Date(rangeEnd)
+    endBound.setUTCHours(12, 0, 0, 0)
+    while (cur <= endBound) {
+      const key = dayKey(cur)
+      const cell = userGrid?.get(key)
+      rows.push([
+        user.name ?? '',
+        user.email,
+        fmtDate(cur),
+        cell?.firstArrival ? fmtTime(cell.firstArrival) : '',
+        cell?.lastDeparture ? fmtTime(cell.lastDeparture) : (cell?.hasOpenRecord ? 'Non pointé' : ''),
+        cell?.firstArrival ? String(cell.pauseMinutes) : '',
+        cell && (cell.totalDuration > 0 || cell.firstArrival) ? fmt(cell.totalDuration) : '',
+        cell ? [...cell.locations].join(', ') : '',
+        cell ? [...cell.sites].join(', ') : '',
+        cell?.tag ?? '',
+      ])
+      cur.setUTCDate(cur.getUTCDate() + 1)
+    }
+  }
 
   const safeCell = (v: string) => {
     const s = String(v)
