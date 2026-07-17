@@ -1,8 +1,0 @@
-- generic [ref=e6]:
-  - img [ref=e8]
-  - generic [ref=e18]:
-    - paragraph [ref=e19]:
-      - text: Loading a
-      - generic [ref=e20]: $#!% $#!%
-      - text: "-ton of JavaScript…"
-    - paragraph [ref=e21]: You may need to disable adblocking extensions to load Sentry.
