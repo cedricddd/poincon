@@ -421,12 +421,18 @@ Objectif : premier vrai client peut s'inscrire et payer
     ├─ Fix : resolvePlanNameFromSubscription() (src/lib/stripe.ts) — dérive le plan depuis le price
     │  réel des line items de la subscription (source de vérité), fallback sur metadata en legacy
     ├─ Webhook mis à jour + syncSeatQuantitySafe() appelé juste après (corrige aussi le price mismatch)
-    ├─ Tests unitaires ajoutés (src/lib/stripe.test.ts, 5 cas : monthly/yearly/multi-items/no-match/items manquants)
-    └─ ⚠️ RESTE : pas testé en conditions réelles contre le portail Stripe (voir chemin annuel ci-dessous)
-[ ] Tester le chemin ANNUEL (always_invoice) — on n'a validé que le mensuel
-    └─ Créer une sub annuelle test, ajouter un siege → vérifier facture prorata immédiate
-[ ] Tester en conditions réelles un changement de plan via le portail Stripe (STARTER→TEAM)
-    └─ Valider bout-en-bout : planId + billedSeats + stripeSeatPriceId corrects après webhook
+    └─ Tests unitaires ajoutés (src/lib/stripe.test.ts, 5 cas : monthly/yearly/multi-items/no-match/items manquants)
+✓ Testé en conditions réelles (Stripe test mode, tunnel stripe listen) — DONE 2026-07-17
+    ├─ Chemin ANNUEL : checkout réel STARTER yearly → invoice immédiate confirmée
+    │  (in_1Tu76EQq4wq0wwDQ1GWLhKEB, billing_reason=subscription_update, 35,09€ payés à l'instant
+    │  = 29€ prix siège annuel + TVA 21%, always_invoice validé bout-en-bout)
+    ├─ Changement de plan STARTER→TEAM (simulé via stripe subscriptions update, équivalent portail) :
+    │  webhook a résolu TEAM correctement (preuve que le fix metadata fonctionne), syncSeatQuantitySafe
+    │  a immédiatement supprimé l'ancien item siège (6 membres ≤ 15 inclus TEAM → 0 facturé)
+    └─ 🐛 BUG DE PROD TROUVÉ ET CORRIGÉ EN ROUTE : /api/stripe/checkout plantait (500) pour TOUT
+       client ayant déjà un stripeCustomerId (donc tout client qui re-checkout après un 1er abonnement) —
+       Stripe exige customer_update.name='auto' en plus de address='auto' quand tax_id_collection est
+       actif sur un customer existant. Fix : src/app/api/stripe/checkout/route.ts:107
 [ ] Validation UI bout-en-bout des triggers : inviter un membre qui dépasse le seuil
     └─ voir badge "+1 siege" + panneau cout + item siege dans Stripe
 ✓ Décision : l'admin compte comme un siege — getActiveMemberCount inclut tous les roles (voulu)

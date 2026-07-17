@@ -104,7 +104,7 @@ export async function GET(req: NextRequest) {
       ...(stripeTaxEnabled ? {
         automatic_tax: { enabled: true },
         billing_address_collection: 'required',
-        customer_update: company?.stripeCustomerId ? { address: 'auto' } : undefined,
+        customer_update: company?.stripeCustomerId ? { address: 'auto', name: 'auto' } : undefined,
         tax_id_collection: { enabled: true },
       } : {}),
       metadata: {
