@@ -1,7 +1,7 @@
 'use client'
 
 export const dynamic = 'force-dynamic'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Card } from '@/components/Card'
 import { Button } from '@/components/Button'
@@ -32,24 +32,52 @@ export default function SuperAdminAccounts() {
   const [planFilter, setPlanFilter] = useState(searchParams.get('plan') || 'ALL')
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '')
   const [showInternal, setShowInternal] = useState(false)
+  const [demoEmail, setDemoEmail] = useState('')
+  const [demoName, setDemoName] = useState('')
+  const [demoSubmitting, setDemoSubmitting] = useState(false)
+  const [demoError, setDemoError] = useState('')
+  const [demoSuccess, setDemoSuccess] = useState('')
+
+  const loadAccounts = useCallback(async () => {
+    const params = new URLSearchParams()
+    if (planFilter !== 'ALL') params.append('plan', planFilter)
+    if (statusFilter) params.append('status', statusFilter)
+    if (showInternal) params.append('internal', 'true')
+
+    const res = await fetch(`/api/super-admin/accounts?${params}`)
+    if (res.ok) {
+      const data = await res.json()
+      setAccounts(data)
+    }
+    setLoading(false)
+  }, [planFilter, statusFilter, showInternal])
 
   useEffect(() => {
-    const loadAccounts = async () => {
-      const params = new URLSearchParams()
-      if (planFilter !== 'ALL') params.append('plan', planFilter)
-      if (statusFilter) params.append('status', statusFilter)
-      if (showInternal) params.append('internal', 'true')
-
-      const res = await fetch(`/api/super-admin/accounts?${params}`)
-      if (res.ok) {
-        const data = await res.json()
-        setAccounts(data)
-      }
-      setLoading(false)
-    }
-
     loadAccounts()
-  }, [planFilter, statusFilter, showInternal])
+  }, [loadAccounts])
+
+  const handleCreateDemo = async () => {
+    setDemoError('')
+    setDemoSuccess('')
+    setDemoSubmitting(true)
+
+    const res = await fetch('/api/super-admin/demo-accounts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: demoEmail, name: demoName }),
+    })
+
+    if (res.ok) {
+      setDemoSuccess(`Compte démo créé et email envoyé à ${demoEmail}`)
+      setDemoEmail('')
+      setDemoName('')
+      await loadAccounts()
+    } else {
+      const data = await res.json().catch(() => ({}))
+      setDemoError(data.error || `Erreur ${res.status}`)
+    }
+    setDemoSubmitting(false)
+  }
 
   const formatDate = (date: string | null) => {
     if (!date) return '—'
@@ -62,6 +90,49 @@ export default function SuperAdminAccounts() {
         <h1 className="text-3xl font-bold text-[var(--pp-ink)]">Comptes Clients</h1>
         <p className="text-[var(--pp-muted)] mt-1">Gestion et monitoring de tous les comptes</p>
       </div>
+
+      <Card>
+        <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-1">Créer un compte démo</h2>
+        <p className="text-xs text-[var(--pp-muted)] mb-4">
+          Instance isolée avec données belges préremplies, envoyée par email, auto-supprimée après 15 jours
+        </p>
+        <div className="flex gap-4 flex-wrap items-end">
+          <div>
+            <label className="text-xs font-semibold text-[var(--pp-muted)] block mb-2">Nom</label>
+            <input
+              type="text"
+              value={demoName}
+              onChange={(e) => setDemoName(e.target.value)}
+              placeholder="Jean Dupont"
+              className="px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-[var(--pp-muted)] block mb-2">Email</label>
+            <input
+              type="email"
+              value={demoEmail}
+              onChange={(e) => setDemoEmail(e.target.value)}
+              placeholder="jean.dupont@fiduciaire.be"
+              className="px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm"
+            />
+          </div>
+          <Button
+            variant="primary"
+            size="sm"
+            disabled={demoSubmitting || !demoEmail || !demoName}
+            onClick={handleCreateDemo}
+          >
+            {demoSubmitting ? 'Création...' : 'Créer et envoyer'}
+          </Button>
+        </div>
+        {demoError && (
+          <p className="mt-3 text-xs text-[#ef4444] bg-[#ef444415] px-2 py-1 rounded inline-block">{demoError}</p>
+        )}
+        {demoSuccess && (
+          <p className="mt-3 text-xs text-[#22c55e] bg-[#22c55e15] px-2 py-1 rounded inline-block">{demoSuccess}</p>
+        )}
+      </Card>
 
       <Card>
         <div className="flex gap-4 flex-wrap">

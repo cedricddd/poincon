@@ -56,6 +56,7 @@ export async function GET(req: NextRequest) {
         billingCycle: company.stripeSubscriptionBillingCycle,
         isInternal: company.isInternal,
         isDemo: company.isDemo,
+        demoExpiresAt: company.demoExpiresAt,
         activeMembers,
         maxEmployees,
         isOverQuota,

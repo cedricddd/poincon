@@ -673,6 +673,14 @@
       "installStep3Chrome": "Wählen Sie <strong>'Zum Startbildschirm hinzufügen'</strong>",
       "installStep4Chrome": "Bestätigen Sie mit <strong>'Hinzufügen'</strong>"
     },
+    "demoAccount": {
+      "subject": "🎭 Ihre persönliche Pointon-Demo ist bereit",
+      "body": "Ihre Pointon-Demoinstanz wurde mit realistischen belgischen Beispieldaten erstellt. Sie ist isoliert und ausschließlich für Ihre Nutzung bestimmt.",
+      "emailLabel": "Anmelde-E-Mail",
+      "passwordLabel": "Passwort",
+      "button": "Zu meiner Demo →",
+      "validity": "⏱ Dieses Konto ist temporär und wird automatisch in 15 Tagen gelöscht."
+    },
     "passwordReset": {
       "subject": "🔑 Ihr Pointon-Passwort zurücksetzen",
       "body": "Sie haben das Zurücksetzen Ihres Passworts angefordert.",

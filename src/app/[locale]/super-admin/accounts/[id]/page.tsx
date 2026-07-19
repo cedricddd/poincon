@@ -19,6 +19,7 @@ interface CompanyDetail {
   marketingConsent: boolean
   isInternal: boolean
   isDemo: boolean
+  demoExpiresAt?: string | null
   plan: string
   billingCycle?: string
   activeMembers: number
@@ -175,6 +176,18 @@ export default function AccountDetail() {
                 Démo
               </span>
             )}
+            {company.isDemo && company.demoExpiresAt && (() => {
+              const daysLeft = Math.ceil((new Date(company.demoExpiresAt).getTime() - Date.now()) / 86400000)
+              return (
+                <span className={`px-2 py-0.5 text-xs font-mono border rounded-full ${
+                  daysLeft <= 0
+                    ? 'bg-[#ef444420] text-[#ef4444] border-[#ef444440]'
+                    : 'bg-[#f59e0b20] text-[#f59e0b] border-[#f59e0b40]'
+                }`}>
+                  {daysLeft <= 0 ? 'Démo expirée' : `Démo — expire dans ${daysLeft} jour${daysLeft > 1 ? 's' : ''}`}
+                </span>
+              )
+            })()}
           </div>
           <p className="text-[var(--pp-muted)] mt-1">
             Créé {new Date(company.createdAt).toLocaleDateString('fr-BE')}

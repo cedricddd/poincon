@@ -169,6 +169,53 @@ export async function sendInvitationEmail(params: {
   await transporter.sendMail({ from: FROM, to, subject: t('invitation.subject', { company: companyName }), html })
 }
 
+export async function sendDemoAccountEmail(params: {
+  to: string
+  name: string | null
+  password: string
+  locale?: string
+}) {
+  if (!process.env.BREVO_SMTP_KEY) return
+
+  const { to, name, password, locale = 'fr' } = params
+  const t = await getTranslations({ locale, namespace: 'emails' })
+  const appUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
+  const link = `${appUrl}/${locale}/login`
+  const greeting = name ? t('greeting', { name }) : t('greetingGeneric')
+
+  const html = `
+    <div style="font-family:system-ui,sans-serif;max-width:580px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
+      <div style="background:#ffffff;border-radius:12px;padding:32px;border:1px solid #e2e8f0;">
+        <img src="${appUrl}/images/logo-email.png" alt="Pointon" width="160" style="display:block;height:auto;margin:0 0 20px;">
+        <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 24px;">
+
+        <p style="color:#334155;margin:0 0 12px;">${greeting}</p>
+        <p style="color:#334155;margin:0 0 24px;">${t('demoAccount.body')}</p>
+
+        <div style="background:#f1f5f9;border-radius:8px;padding:16px;margin-bottom:24px;">
+          <p style="margin:0 0 6px;font-size:13px;color:#64748b;">${t('demoAccount.emailLabel')}</p>
+          <p style="margin:0 0 12px;font-size:15px;color:#0f172a;font-weight:600;">${to}</p>
+          <p style="margin:0 0 6px;font-size:13px;color:#64748b;">${t('demoAccount.passwordLabel')}</p>
+          <p style="margin:0;font-size:15px;color:#0f172a;font-weight:600;font-family:monospace;">${password}</p>
+        </div>
+
+        <a href="${link}"
+           style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:13px 28px;border-radius:8px;font-weight:600;font-size:15px;margin-bottom:24px;">
+          ${t('demoAccount.button')}
+        </a>
+
+        <div style="background:#fef3c7;border-radius:8px;padding:12px 16px;margin-bottom:24px;border-left:3px solid #f59e0b;">
+          <p style="margin:0;color:#92400e;font-size:13px;">${t('demoAccount.validity')}</p>
+        </div>
+
+        <p style="color:#94a3b8;font-size:12px;margin:0;">${t('footer', { year: String(new Date().getFullYear()) })}</p>
+      </div>
+    </div>
+  `
+
+  await transporter.sendMail({ from: FROM, to, subject: t('demoAccount.subject'), html })
+}
+
 export async function sendPasswordResetEmail(params: {
   to: string
   name: string | null

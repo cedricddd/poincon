@@ -673,6 +673,14 @@
       "installStep3Chrome": "Sélectionnez <strong>« Ajouter à l'écran d'accueil »</strong>",
       "installStep4Chrome": "Confirmez avec <strong>« Ajouter »</strong>"
     },
+    "demoAccount": {
+      "subject": "🎭 Votre démo Pointon personnalisée est prête",
+      "body": "Votre instance de démonstration Pointon a été créée avec des données belges réalistes préremplies. Elle est isolée et réservée à votre usage exclusif.",
+      "emailLabel": "Adresse de connexion",
+      "passwordLabel": "Mot de passe",
+      "button": "Accéder à ma démo →",
+      "validity": "⏱ Ce compte est temporaire et sera automatiquement supprimé dans 15 jours."
+    },
     "passwordReset": {
       "subject": "🔑 Réinitialisation de votre mot de passe Pointon",
       "body": "Vous avez demandé la réinitialisation de votre mot de passe.",

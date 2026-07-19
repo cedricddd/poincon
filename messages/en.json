@@ -673,6 +673,14 @@
       "installStep3Chrome": "Select <strong>'Add to Home screen'</strong>",
       "installStep4Chrome": "Confirm with <strong>'Add'</strong>"
     },
+    "demoAccount": {
+      "subject": "🎭 Your personalized Pointon demo is ready",
+      "body": "Your Pointon demo instance has been created with realistic Belgian sample data. It is isolated and reserved exclusively for your use.",
+      "emailLabel": "Login email",
+      "passwordLabel": "Password",
+      "button": "Access my demo →",
+      "validity": "⏱ This account is temporary and will be automatically deleted in 15 days."
+    },
     "passwordReset": {
       "subject": "🔑 Reset your Pointon password",
       "body": "You have requested a password reset.",

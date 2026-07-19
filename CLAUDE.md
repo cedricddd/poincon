@@ -60,7 +60,7 @@ ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker comp
 ## Crons (busybox crond Docker prod)
 
 - `0 15 * * 1-5` reminder · `0 5 * * 1` Enterprise weekly · `0 5 1 * *` Team monthly
-- `0 3 1 1 *` anonymize RGPD · Auth: `x-cron-secret` header → `/pointon-cron`
+- `0 3 1 1 *` anonymize RGPD · `0 4 * * *` delete-expired-demos (démos prospects >15j) · Auth: `x-cron-secret` header → `/pointon-cron`
 
 ## Deploy
 
