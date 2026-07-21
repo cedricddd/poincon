@@ -17,11 +17,11 @@ function buildCSP(nonce: string): string {
     "default-src 'self'",
     isDev
       ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
-      : `script-src 'self' 'nonce-${nonce}'`,
+      : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://www.googletagmanager.com`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob:",
+    "img-src 'self' data: blob: https://www.googletagmanager.com https://www.google-analytics.com https://*.g.doubleclick.net",
     "font-src 'self'",
-    "connect-src 'self' https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.de.sentry.io",
+    "connect-src 'self' https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.de.sentry.io https://www.googletagmanager.com https://www.google-analytics.com https://*.google.com https://*.g.doubleclick.net",
     "frame-ancestors 'self'",
   ].join('; ')
 }

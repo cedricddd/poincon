@@ -8,6 +8,7 @@ import { routing } from '@/i18n/routing'
 import { Providers } from '../providers'
 import { auth } from '@/auth'
 import { CookieBanner } from '@/components/CookieBanner'
+import { GoogleAdsTag } from '@/components/GoogleAdsTag'
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration'
 import '../globals.css'
 
@@ -173,6 +174,7 @@ export default async function LocaleLayout({
             {children}
           </Providers>
           <CookieBanner />
+          <GoogleAdsTag nonce={nonce} />
           <ServiceWorkerRegistration />
         </NextIntlClientProvider>
       </body>

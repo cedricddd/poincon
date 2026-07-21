@@ -15,6 +15,7 @@ export function CookieBanner() {
 
   function handleChoice(value: 'accepted' | 'refused') {
     localStorage.setItem(STORAGE_KEY, value)
+    window.dispatchEvent(new Event('pp-cookie-consent-changed'))
     setVisible(false)
   }
 
