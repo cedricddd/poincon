@@ -2,7 +2,7 @@
                     POINTON - TODO LIST (MISE À JOUR 2026-06-28)
 ================================================================================
 
-Dernière mise à jour: 2026-07-17
+Dernière mise à jour: 2026-07-21
 Version: 0.8.4
 État: PHASE A (facturation par siège) TERMINÉE le 2026-07-17 — changement de
       plan durci + testé réel (annuel always_invoice + STARTER→TEAM + invitation
@@ -521,6 +521,10 @@ Objectif : etre visible quand les entreprises cherchent une solution avant 2027
 [ ] Programme beta fondateurs — plan STARTER à vie à 50% pour les 20 premieres entreprises
 [ ] Démarcher 1-2 comptables/secrétariats sociaux — acces Enterprise gratuit contre témoignage signé
     └─ Cibles : Liantis, Securex, Partena, consultant RH indépendant
+    └─ Premier contact réel initié (2026-07-21) : Didier Pirard, Bureau Brant / EasyPay
+       Group (secrétariat social), via référence de Michel Fettweis (comptable de Cédric,
+       pas un client Pointon lui-même). Email envoyé depuis cedric@pointon.be, en attente
+       de réponse.
 
 [ ] Surveiller publication loi 2027 au Moniteur belge (externe, aucun code)
     ├─ Des publication : niveau CPS exact + montants amendes officiels
@@ -593,7 +597,13 @@ BLOQUEURS EXTERNES RÉSOLUS
 ================================================================================
 
 ✓ Contact email landing — contact@pointon.be (ced-it.be supprimé)
-✓ Loi 2027 — landing conforme, montants exacts à confirmer après publication Moniteur
+✓ Loi 2027 — wording site-wide corrigé (2026-07-21, commit beaa073) : "conforme loi 2027"
+    → "prêt pour l'obligation 2027" partout (landing 4 langues, SEO metadata, CGU,
+    confidentialité, page compliance, chatbot, comparaison), aligné sur Acerta/Securex
+    qui confirment que le texte n'est pas encore voté. Référence "CCT n°129" invérifiable
+    retirée des CGU/confidentialité/compliance (remplacée par la vraie base : arrêt CJUE
+    C-55/18 2019 + décision gouv. du 25/11/2025). Montants amendes exacts toujours à
+    confirmer après publication Moniteur.
 ✓ Email domain SPF/DKIM/DMARC — validés 2026-07-10 (XML rapport agrégé Microsoft :
     dkim=pass, spf=pass, policy quarantine/pct=100). BREVO_FROM_EMAIL en noreply@pointon.be
     côté code (commit 6ea8017).
