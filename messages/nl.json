@@ -718,7 +718,7 @@
     }
   },
   "landing": {
-    "badge": "Conformiteit België 2027",
+    "badge": "Klaar voor de verplichting 2027",
     "hero": {
       "line1": "Klok in.",
       "line2": "Conform.",
@@ -763,7 +763,7 @@
           "description": "IN / UIT met één gebaar. Werkt op smartphone, tablet en pc zonder opleiding."
         },
         {
-          "title": "Conform wet 2027",
+          "title": "Klaar voor de verplichting 2027",
           "description": "Objectieve registratie, onveranderbaar audit trail en gecertificeerde export. Klaar voor wettelijke inspectie."
         },
         {
@@ -821,7 +821,7 @@
           "role": "Zaakvoerder"
         },
         {
-          "quote": "We zochten een oplossing conform de wet 2027 zonder GPS of tracking. Pointon vinkt alle vakjes aan. Het onveranderbare audit trail stelt ons gerust bij sociale controles.",
+          "quote": "We zochten een oplossing die klaar is voor de verplichting 2027 zonder GPS of tracking. Pointon vinkt alle vakjes aan. Het onveranderbare audit trail stelt ons gerust bij sociale controles.",
           "role": "Technisch directeur"
         },
         {
@@ -961,8 +961,8 @@
       "cta": "Schrijf ons",
       "items": [
         {
-          "q": "Is de oplossing conform de Belgische wet 2027?",
-          "a": "Ja. Pointon voldoet aan alle Belgische en HVJEU wettelijke vereisten: objectieve registratie, onveranderbaar audit trail, gecertificeerde export."
+          "q": "Is Pointon klaar voor de verplichting tijdsregistratie 2027?",
+          "a": "De definitieve wettekst is nog niet gestemd, maar Pointon voldoet nu al aan de bekende vereisten (HvJEU-arrest van 14 mei 2019): objectieve registratie, onveranderbaar audit trail, gecertificeerde export."
         },
         {
           "q": "Hoe worden de gegevens opgeslagen?",
@@ -987,7 +987,7 @@
       ]
     },
     "ctaSection": {
-      "lawLabel": "De Belgische wet treedt in werking op 1 januari 2027",
+      "lawLabel": "Door de Belgische regering geplande verplichting tijdsregistratie vanaf 1 januari 2027",
       "unitDays": "dagen",
       "unitHours": "uren",
       "unitMinutes": "minuten",
@@ -998,7 +998,7 @@
       "ctaSecondary": "Praat met een expert"
     },
     "footer": {
-      "tagline": "De Belgische wettelijke prikklok voor kmo’s. Eenvoudig, mobile-first, conform 2027.",
+      "tagline": "De Belgische prikklok voor kmo’s. Eenvoudig, mobile-first, klaar voor de verplichting 2027.",
       "colProduct": "Product",
       "colLegal": "Juridisch",
       "colResources": "Bronnen",
@@ -1012,7 +1012,7 @@
       "linkSupport": "Ondersteuning",
       "linkContact": "Contact",
       "copyright": "© 2026 Pointon · Ced-IT · België",
-      "compliance": "Conform België 2027 · GDPR · HTTPS"
+      "compliance": "Klaar voor de verplichting 2027 · GDPR · HTTPS"
     }
   },
   "pricing": {

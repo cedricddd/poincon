@@ -116,7 +116,7 @@ export default function PrivacyPage() {
               </thead>
               <tbody className="text-[var(--pp-muted)]">
                 {[
-                  ['Enregistrement du temps de travail', 'Obligation légale (CCT n°129, droit belge)'],
+                  ['Enregistrement du temps de travail', 'Intérêt légitime (anticipation de l\'obligation légale prévue en 2027)'],
                   ['Gestion des comptes utilisateurs', 'Exécution du contrat'],
                   ["Envoi d'emails transactionnels", 'Exécution du contrat'],
                   ['Facturation et TVA', 'Obligation légale'],

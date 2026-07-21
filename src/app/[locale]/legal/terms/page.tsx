@@ -66,8 +66,9 @@ export default function TermsPage() {
           <h2 className="font-display text-xl font-bold mb-4 text-[var(--pp-ink)]">1. Objet du service</h2>
           <p className="text-[var(--pp-muted)]">
             Pointon est un logiciel de gestion du temps de travail (SaaS) conçu pour les entreprises belges,
-            permettant l'enregistrement électronique du temps de travail conformément à la CCT n°129 et aux
-            exigences légales belges en vigueur. Le service comprend : le pointage (arrivée/départ),
+            permettant l'enregistrement électronique du temps de travail dans le respect du RGPD et de
+            l'arrêt de la Cour de Justice de l'Union Européenne du 14 mai 2019, en anticipation de
+            l'obligation belge de suivi du temps de travail prévue par le gouvernement pour 2027. Le service comprend : le pointage (arrivée/départ),
             la gestion des congés et récupérations, les rapports d'heures, la gestion multi-sites et multi-équipes,
             ainsi que les exports comptables.
           </p>

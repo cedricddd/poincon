@@ -24,7 +24,7 @@ const competitors = [
       enterprise: 'Illimité',
     },
     features: {
-      'Conforme loi belge 2027': true,
+      'Prêt pour l\'obligation 2027': true,
       'Mobile-first PWA': true,
       'Offline-first': true,
       'Audit trail immuable': true,
@@ -54,7 +54,7 @@ const competitors = [
       enterprise: 'Illimité',
     },
     features: {
-      'Conforme loi belge 2027': true,
+      'Prêt pour l\'obligation 2027': true,
       'Mobile-first PWA': false,
       'Offline-first': false,
       'Audit trail immuable': true,
@@ -84,7 +84,7 @@ const competitors = [
       enterprise: 'Illimité',
     },
     features: {
-      'Conforme loi belge 2027': false,
+      'Prêt pour l\'obligation 2027': false,
       'Mobile-first PWA': true,
       'Offline-first': false,
       'Audit trail immuable': false,
@@ -114,7 +114,7 @@ const competitors = [
       enterprise: 'Illimité',
     },
     features: {
-      'Conforme loi belge 2027': false,
+      'Prêt pour l\'obligation 2027': false,
       'Mobile-first PWA': true,
       'Offline-first': true,
       'Audit trail immuable': false,
@@ -144,7 +144,7 @@ const competitors = [
       enterprise: 'Illimité',
     },
     features: {
-      'Conforme loi belge 2027': false,
+      'Prêt pour l\'obligation 2027': false,
       'Mobile-first PWA': true,
       'Offline-first': false,
       'Audit trail immuable': false,
@@ -161,8 +161,8 @@ const competitors = [
 const differentiators = [
   {
     icon: '⚖️',
-    title: 'Conforme légalement',
-    description: 'Unique sur le marché : Pointon est certifié pour la loi belge 2027. Pas de risque juridique.',
+    title: 'Prêt pour l\'obligation légale',
+    description: 'Pointon répond dès aujourd\'hui aux exigences connues de l\'obligation de pointage prévue en 2027 : audit trail immuable, export certifié.',
   },
   {
     icon: '📱',
@@ -520,7 +520,7 @@ export default function ComparaisonPage() {
         <div className="mx-auto max-w-6xl px-4 text-center text-xs text-[var(--pp-muted)]">
           <p>
             Tarifs concurrents mis à jour en mai 2026. Contactez-nous pour corriger une info.
-            <br />© 2026 Pointon · Belgique · Conforme 2027
+            <br />© 2026 Pointon · Belgique · Prêt pour l'obligation 2027
           </p>
         </div>
       </footer>

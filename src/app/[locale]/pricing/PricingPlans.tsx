@@ -384,7 +384,7 @@ export function PricingPlans({ isAuthenticated }: { isAuthenticated: boolean }) 
             <svg className="w-3.5 h-3.5 text-[var(--pp-pos)]" viewBox="0 0 16 16" fill="none">
               <path d="M3 8l3.5 3.5 6.5-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            Conforme loi belge 2027
+            Prêt pour l'obligation 2027
           </span>
           <span className="flex items-center gap-1.5">
             <svg className="w-3.5 h-3.5 text-[var(--pp-pos)]" viewBox="0 0 16 16" fill="none">

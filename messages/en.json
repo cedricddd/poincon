@@ -718,7 +718,7 @@
     }
   },
   "landing": {
-    "badge": "Belgium Compliance 2027",
+    "badge": "Ready for the 2027 obligation",
     "hero": {
       "line1": "Clock in.",
       "line2": "Compliant.",
@@ -763,7 +763,7 @@
           "description": "IN / OUT in a single gesture. Works on smartphone, tablet and PC with no training."
         },
         {
-          "title": "Compliant with 2027 law",
+          "title": "Ready for the 2027 obligation",
           "description": "Objective recording, immutable audit trail and certified export. Ready for legal inspection."
         },
         {
@@ -821,7 +821,7 @@
           "role": "Manager"
         },
         {
-          "quote": "We were looking for a solution compliant with the 2027 law without GPS or tracking. Pointon ticks every box. The immutable audit trail reassures us for social inspections.",
+          "quote": "We were looking for a solution ready for the 2027 obligation without GPS or tracking. Pointon ticks every box. The immutable audit trail reassures us for social inspections.",
           "role": "Technical Director"
         },
         {
@@ -961,8 +961,8 @@
       "cta": "Write to us",
       "items": [
         {
-          "q": "Is the solution compliant with the Belgian 2027 law?",
-          "a": "Yes. Pointon meets all Belgian and CJEU legal requirements: objective recording, immutable audit trail, certified export."
+          "q": "Is Pointon ready for the 2027 time-tracking obligation?",
+          "a": "The final law text has not been passed yet, but Pointon already meets the known requirements (CJEU ruling of 14 May 2019): objective recording, immutable audit trail, certified export."
         },
         {
           "q": "How is the data stored?",
@@ -987,7 +987,7 @@
       ]
     },
     "ctaSection": {
-      "lawLabel": "The Belgian law comes into force on 1 January 2027",
+      "lawLabel": "Time-tracking obligation planned by the Belgian government for 1 January 2027",
       "unitDays": "days",
       "unitHours": "hours",
       "unitMinutes": "minutes",
@@ -998,7 +998,7 @@
       "ctaSecondary": "Talk to an expert"
     },
     "footer": {
-      "tagline": "The Belgian legal time clock for SMEs. Simple, mobile-first, 2027 compliant.",
+      "tagline": "The Belgian time clock for SMEs. Simple, mobile-first, ready for the 2027 obligation.",
       "colProduct": "Product",
       "colLegal": "Legal",
       "colResources": "Resources",
@@ -1012,7 +1012,7 @@
       "linkSupport": "Support",
       "linkContact": "Contact",
       "copyright": "© 2026 Pointon · Ced-IT · Belgium",
-      "compliance": "Belgium 2027 compliant · GDPR · HTTPS"
+      "compliance": "Ready for the 2027 obligation · GDPR · HTTPS"
     }
   },
   "pricing": {

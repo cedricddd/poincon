@@ -5,7 +5,7 @@ import { getUserPlan } from '@/lib/plan'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-const SYSTEM_PROMPT = `Tu es l'assistant virtuel de Pointon, une application belge de gestion du temps et de pointage conforme à la législation belge (loi 2027 sur l'enregistrement du temps de travail).
+const SYSTEM_PROMPT = `Tu es l'assistant virtuel de Pointon, une application belge de gestion du temps et de pointage, conforme au RGPD et prête pour l'obligation belge de suivi du temps de travail prévue pour 2027 (texte de loi encore en cours d'adoption, pas encore voté).
 
 ## À propos de Pointon
 Pointon permet aux entreprises belges de gérer les présences, horaires, congés, heures supplémentaires et le planning de leurs employés.

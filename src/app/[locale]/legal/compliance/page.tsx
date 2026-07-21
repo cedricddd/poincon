@@ -3,8 +3,8 @@ import Link from 'next/link'
 import CompliancePdfButton from '@/components/CompliancePdfButton'
 
 export const metadata: Metadata = {
-  title: 'Conformité légale CJUE & loi belge 2027',
-  description: 'Pointon est conforme à la législation belge sur le temps de travail, à l\'arrêt CJUE 2019 et au RGPD.',
+  title: 'Conformité légale — arrêt CJUE 2019 & obligation 2027',
+  description: 'Pointon répond à l\'arrêt CJUE 2019 et au RGPD, et anticipe l\'obligation belge de suivi du temps de travail prévue pour 2027 (texte encore en cours d\'adoption).',
 }
 
 function CheckIcon() {
@@ -72,18 +72,18 @@ export default function CompliancePage() {
       <div className="mb-12">
         <div className="inline-flex items-center gap-2 bg-[var(--pp-pos-btn)]/10 text-[var(--pp-pos)] text-xs font-semibold px-3 py-1 rounded-full mb-4">
           <CheckIcon />
-          Conforme Belgique 2027
+          Prêt pour l'obligation 2027
         </div>
         <h1 className="font-display text-4xl font-bold text-[var(--pp-ink)] mb-3">
           Conformité légale
         </h1>
         <p className="text-[var(--pp-muted)] text-sm">
-          Dernière mise à jour : 25 mai 2026
+          Dernière mise à jour : 21 juillet 2026
         </p>
         <p className="text-[var(--pp-muted)] mt-3 leading-relaxed">
-          Pointon est conçu spécifiquement pour respecter la législation belge sur l'enregistrement
-          du temps de travail, l'arrêt CJUE de 2019, et le RGPD. Cette page détaille les obligations
-          légales et comment Pointon y répond.
+          Pointon est conçu pour répondre à l'arrêt CJUE de 2019 et au RGPD, et pour anticiper
+          l'obligation belge de suivi du temps de travail que le gouvernement prévoit d'introduire
+          à partir de 2027. Cette page détaille ces bases légales et comment Pointon y répond.
         </p>
       </div>
 
@@ -102,12 +102,14 @@ export default function CompliancePage() {
               <span className="text-[var(--pp-info)] font-bold text-sm">BE</span>
             </div>
             <div>
-              <h3 className="font-semibold text-[var(--pp-ink)] mb-1">CCT n°129 — Enregistrement du temps de travail</h3>
+              <h3 className="font-semibold text-[var(--pp-ink)] mb-1">Obligation belge de suivi du temps de travail (dès 2027)</h3>
               <p className="text-sm text-[var(--pp-muted)] leading-relaxed">
-                La Convention Collective de Travail n°129 du Conseil National du Travail (CNT) impose
-                depuis 2023 l'enregistrement électronique du temps de travail pour certains secteurs.
-                La généralisation à toutes les entreprises belges est prévue progressivement jusqu'en 2027.
-                Pointon répond à toutes les exigences techniques de cette CCT.
+                Le gouvernement belge a décidé le 25 novembre 2025, dans le cadre de l'accord budgétaire,
+                d'introduire une obligation générale d'enregistrement du temps de travail à partir du
+                1er janvier 2027, en application de l'arrêt de la Cour de Justice de l'Union Européenne
+                (voir ci-dessous). Le texte de loi définitif est encore en cours d'examen (Conseil National
+                du Travail, puis Parlement) et n'est pas encore voté ni publié au Moniteur belge. Pointon
+                répond déjà aux exigences connues à ce jour : système objectif, fiable et accessible.
               </p>
             </div>
           </div>

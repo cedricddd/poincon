@@ -31,15 +31,15 @@ export async function generateMetadata({
   return {
     metadataBase: new URL('https://pointon.be'),
     title: {
-      default: 'Pointon — Pointeuse Légale Belgique 2027',
+      default: 'Pointon — Pointeuse Belge, Prête pour 2027',
       template: '%s | Pointon',
     },
     description:
-      'Pointeuse légale pour PME belges. Enregistrez le temps de travail conformément à la loi belge et CJUE 2027. Setup en 2 minutes, audit trail immuable, export certifié.',
+      'Pointeuse pour PME belges. Enregistrez le temps de travail selon l\'arrêt CJUE 2019, prêt pour l\'obligation légale prévue en 2027. Setup en 2 minutes, audit trail immuable, export certifié.',
     keywords: [
       'pointeuse belgique',
       'pointage temps travail',
-      'loi 2027 belgique',
+      'obligation pointage 2027',
       'enregistrement temps travail PME',
       'CJUE conformité',
       'logiciel RH belge',
@@ -53,9 +53,9 @@ export async function generateMetadata({
       locale: OG_LOCALES[locale] ?? 'fr_BE',
       url: `https://pointon.be/${locale}`,
       siteName: 'Pointon',
-      title: 'Pointon — Pointeuse Légale Belgique 2027',
+      title: 'Pointon — Pointeuse Belge, Prête pour 2027',
       description:
-        'Enregistrez le temps de travail légalement en Belgique. En 1 tap. Audit trail immuable. Conforme CJUE 2027.',
+        'Enregistrez le temps de travail en Belgique. En 1 tap. Audit trail immuable. Prêt pour l\'obligation 2027.',
       images: [
         {
           url: '/images/hero-main.png',
@@ -67,9 +67,9 @@ export async function generateMetadata({
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'Pointon — Pointeuse Légale Belgique 2027',
+      title: 'Pointon — Pointeuse Belge, Prête pour 2027',
       description:
-        'Enregistrez le temps de travail légalement en Belgique. En 1 tap. Audit trail immuable.',
+        'Enregistrez le temps de travail en Belgique. En 1 tap. Audit trail immuable.',
       images: ['/images/hero-main.png'],
     },
     robots: {
@@ -153,7 +153,7 @@ export default async function LocaleLayout({
               '@type': 'SoftwareApplication',
               name: 'Pointon',
               description:
-                'Pointeuse légale pour PME belges. Enregistrement objectif du temps de travail conforme à la loi belge et CJUE 2027.',
+                'Pointeuse pour PME belges. Enregistrement objectif du temps de travail selon l\'arrêt CJUE 2019, prêt pour l\'obligation légale prévue en 2027.',
               url: 'https://pointon.be',
               applicationCategory: 'BusinessApplication',
               operatingSystem: 'Web, iOS, Android, Windows',

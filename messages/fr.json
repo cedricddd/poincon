@@ -718,7 +718,7 @@
     }
   },
   "landing": {
-    "badge": "Conformité Belgique 2027",
+    "badge": "Prêt pour l'obligation 2027",
     "hero": {
       "line1": "Pointez.",
       "line2": "Conforme.",
@@ -763,7 +763,7 @@
           "description": "ARRIVÉE / DÉPART en un geste. Fonctionne sur smartphone, tablette et PC sans formation."
         },
         {
-          "title": "Conforme loi 2027",
+          "title": "Prêt pour l'obligation 2027",
           "description": "Enregistrement objectif, audit trail immuable et export certifié. Prêt pour inspection légale."
         },
         {
@@ -821,7 +821,7 @@
           "role": "Gérante"
         },
         {
-          "quote": "On cherchait une solution conforme loi 2027 sans GPS ni tracking. Pointon coche toutes les cases. L'audit trail immuable nous rassure pour les contrôles sociaux.",
+          "quote": "On cherchait une solution prête pour l'obligation 2027 sans GPS ni tracking. Pointon coche toutes les cases. L'audit trail immuable nous rassure pour les contrôles sociaux.",
           "role": "Directeur technique"
         },
         {
@@ -961,8 +961,8 @@
       "cta": "Nous écrire",
       "items": [
         {
-          "q": "La solution est-elle conforme à la loi belge 2027?",
-          "a": "Oui. Pointon respecte toutes les exigences légales belges et CJUE : enregistrement objectif, audit trail immuable, export certifié."
+          "q": "Pointon est-il prêt pour l'obligation de pointage 2027?",
+          "a": "Le texte de loi définitif n'est pas encore voté, mais Pointon répond déjà aux exigences connues (arrêt CJUE du 14 mai 2019) : enregistrement objectif, audit trail immuable, export certifié."
         },
         {
           "q": "Comment sont stockées les données?",
@@ -987,7 +987,7 @@
       ]
     },
     "ctaSection": {
-      "lawLabel": "La loi belge entre en vigueur le 1er janvier 2027",
+      "lawLabel": "Obligation de pointage prévue par le gouvernement belge au 1er janvier 2027",
       "unitDays": "jours",
       "unitHours": "heures",
       "unitMinutes": "minutes",
@@ -998,7 +998,7 @@
       "ctaSecondary": "Parler à un expert"
     },
     "footer": {
-      "tagline": "La pointeuse légale belge pour les PME. Simple, mobile-first, conforme 2027.",
+      "tagline": "La pointeuse belge pour les PME. Simple, mobile-first, prête pour l'obligation 2027.",
       "colProduct": "Produit",
       "colLegal": "Légal",
       "colResources": "Ressources",
@@ -1012,7 +1012,7 @@
       "linkSupport": "Support",
       "linkContact": "Contact",
       "copyright": "© 2026 Pointon · Ced-IT · Belgique",
-      "compliance": "Conforme Belgique 2027 · RGPD · HTTPS"
+      "compliance": "Prêt pour l'obligation 2027 · RGPD · HTTPS"
     }
   },
   "pricing": {

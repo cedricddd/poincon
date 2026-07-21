@@ -718,7 +718,7 @@
     }
   },
   "landing": {
-    "badge": "Belgien-Konformität 2027",
+    "badge": "Bereit für die Pflicht 2027",
     "hero": {
       "line1": "Stempeln.",
       "line2": "Konform.",
@@ -763,7 +763,7 @@
           "description": "KOMMEN / GEHEN mit einer Geste. Funktioniert auf Smartphone, Tablet und PC ohne Schulung."
         },
         {
-          "title": "Konform mit Gesetz 2027",
+          "title": "Bereit für die Pflicht 2027",
           "description": "Objektive Erfassung, unveränderbarer Audit-Trail und zertifizierter Export. Bereit für die behördliche Prüfung."
         },
         {
@@ -821,7 +821,7 @@
           "role": "Geschäftsführerin"
         },
         {
-          "quote": "Wir suchten eine Lösung konform mit dem Gesetz 2027 ohne GPS oder Tracking. Pointon erfüllt alle Kriterien. Der unveränderbare Audit-Trail gibt uns Sicherheit bei Sozialkontrollen.",
+          "quote": "Wir suchten eine Lösung, die für die Pflicht 2027 bereit ist, ohne GPS oder Tracking. Pointon erfüllt alle Kriterien. Der unveränderbare Audit-Trail gibt uns Sicherheit bei Sozialkontrollen.",
           "role": "Technischer Direktor"
         },
         {
@@ -961,8 +961,8 @@
       "cta": "Schreiben Sie uns",
       "items": [
         {
-          "q": "Ist die Lösung konform mit dem belgischen Gesetz 2027?",
-          "a": "Ja. Pointon erfüllt alle belgischen und EuGH-rechtlichen Anforderungen: objektive Erfassung, unveränderbarer Audit-Trail, zertifizierter Export."
+          "q": "Ist Pointon bereit für die Zeiterfassungspflicht 2027?",
+          "a": "Der endgültige Gesetzestext ist noch nicht verabschiedet, aber Pointon erfüllt bereits die bekannten Anforderungen (EuGH-Urteil vom 14. Mai 2019): objektive Erfassung, unveränderbarer Audit-Trail, zertifizierter Export."
         },
         {
           "q": "Wie werden die Daten gespeichert?",
@@ -987,7 +987,7 @@
       ]
     },
     "ctaSection": {
-      "lawLabel": "Das belgische Gesetz tritt am 1. Januar 2027 in Kraft",
+      "lawLabel": "Von der belgischen Regierung geplante Zeiterfassungspflicht ab 1. Januar 2027",
       "unitDays": "Tage",
       "unitHours": "Stunden",
       "unitMinutes": "Minuten",
@@ -998,7 +998,7 @@
       "ctaSecondary": "Mit einem Experten sprechen"
     },
     "footer": {
-      "tagline": "Die belgische rechtskonforme Stempeluhr für KMU. Einfach, mobile-first, konform 2027.",
+      "tagline": "Die belgische Stempeluhr für KMU. Einfach, mobile-first, bereit für die Pflicht 2027.",
       "colProduct": "Produkt",
       "colLegal": "Rechtliches",
       "colResources": "Ressourcen",
@@ -1012,7 +1012,7 @@
       "linkSupport": "Support",
       "linkContact": "Kontakt",
       "copyright": "© 2026 Pointon · Ced-IT · Belgien",
-      "compliance": "Konform Belgien 2027 · DSGVO · HTTPS"
+      "compliance": "Bereit für die Pflicht 2027 · DSGVO · HTTPS"
     }
   },
   "pricing": {

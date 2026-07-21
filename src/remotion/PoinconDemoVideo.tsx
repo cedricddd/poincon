@@ -144,7 +144,7 @@ const SceneIntro: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) =>
         <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.green,
           boxShadow: `0 0 12px ${C.green}` }} />
         <span style={{ fontSize: 18, fontWeight: 700, color: C.green, fontFamily: C.font, letterSpacing: 1 }}>
-          Conforme Belgique 2027
+          Prêt pour l'obligation 2027
         </span>
       </div>
 
@@ -739,7 +739,7 @@ const SceneCTA: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
       }}>
         <span style={{ color: C.green, fontWeight: 700 }}>pointon.ced-it.be</span>
         <span>·</span>
-        <span>Conforme Belgique 2027</span>
+        <span>Prêt pour l'obligation 2027</span>
         <span>·</span>
         <span>RGPD</span>
       </div>
