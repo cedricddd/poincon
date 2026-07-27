@@ -7,6 +7,7 @@ import { signIn } from 'next-auth/react'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 import { Logo } from '@/components/Logo'
+import { fireSignupConversion } from '@/components/GoogleAdsTag'
 
 export default function SignupPage() {
   const t = useTranslations('auth.signup')
@@ -66,6 +67,7 @@ export default function SignupPage() {
         return
       }
 
+      fireSignupConversion(data.companyId)
       setSuccess(t('success'))
 
       const signInResult = await signIn('credentials', {
