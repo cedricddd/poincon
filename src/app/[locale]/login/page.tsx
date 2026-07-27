@@ -77,6 +77,7 @@ export default function LoginPage() {
         } else {
           localStorage.removeItem('rememberedEmail')
         }
+        router.refresh()
         router.push('/app/clock')
       }
     } catch {

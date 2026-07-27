@@ -77,6 +77,7 @@ export default function SignupPage() {
       })
 
       if (signInResult?.ok) {
+        router.refresh()
         router.push('/admin/dashboard')
       } else {
         router.push('/login')
