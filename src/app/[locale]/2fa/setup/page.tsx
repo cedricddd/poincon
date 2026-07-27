@@ -59,8 +59,9 @@ export default function TwoFactorSetupPage() {
 
       // Mark session as 2FA verified + enabled
       await update({ twoFactorVerified: true, twoFactorEnabled: true })
-      router.refresh()
-      router.replace('/admin/dashboard')
+      // Hard navigation: a soft router.replace can land back on this page, since the
+      // Next.js router cache/refresh targets the route we're leaving, not the destination.
+      window.location.href = '/admin/dashboard'
     } catch {
       setError(t('networkError'))
     } finally {

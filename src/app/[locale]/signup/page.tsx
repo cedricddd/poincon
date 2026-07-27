@@ -77,8 +77,8 @@ export default function SignupPage() {
       })
 
       if (signInResult?.ok) {
-        router.refresh()
-        router.push('/admin/dashboard')
+        // Hard navigation: avoids the Next.js router cache serving the pre-auth state.
+        window.location.href = '/admin/dashboard'
       } else {
         router.push('/login')
       }

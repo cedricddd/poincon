@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { signIn } from 'next-auth/react'
 import Image from 'next/image'
-import { Link, useRouter } from '@/i18n/navigation'
+import { Link } from '@/i18n/navigation'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 import { Logo } from '@/components/Logo'
@@ -17,7 +17,6 @@ interface CompanyInfo {
 
 export default function LoginPage() {
   const t = useTranslations('auth.login')
-  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
@@ -77,8 +76,8 @@ export default function LoginPage() {
         } else {
           localStorage.removeItem('rememberedEmail')
         }
-        router.refresh()
-        router.push('/app/clock')
+        // Hard navigation: avoids the Next.js router cache serving the pre-auth state.
+        window.location.href = '/app/clock'
       }
     } catch {
       setError(t('errorNetwork'))
