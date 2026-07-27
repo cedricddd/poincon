@@ -59,6 +59,7 @@ export default function TwoFactorSetupPage() {
 
       // Mark session as 2FA verified + enabled
       await update({ twoFactorVerified: true, twoFactorEnabled: true })
+      router.refresh()
       router.replace('/admin/dashboard')
     } catch {
       setError(t('networkError'))

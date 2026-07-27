@@ -43,6 +43,7 @@ export default function TwoFactorChallengePage() {
       }
 
       await update({ twoFactorVerified: true })
+      router.refresh()
       router.replace('/admin/dashboard')
     } catch {
       setError(t('networkError'))
