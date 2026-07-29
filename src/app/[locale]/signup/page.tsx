@@ -67,7 +67,7 @@ export default function SignupPage() {
         return
       }
 
-      fireSignupConversion(data.companyId)
+      await fireSignupConversion(data.companyId)
       setSuccess(t('success'))
 
       const signInResult = await signIn('credentials', {

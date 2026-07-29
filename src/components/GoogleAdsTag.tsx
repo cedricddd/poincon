@@ -13,13 +13,29 @@ declare global {
   }
 }
 
-// No-op if the visitor hasn't accepted cookies yet (gtag never loaded) — consistent
-// with the consent gating in GoogleAdsTag below.
-export function fireSignupConversion(transactionId: string) {
-  if (typeof window === 'undefined' || typeof window.gtag !== 'function') return
-  window.gtag('event', 'conversion', {
-    send_to: SIGNUP_CONVERSION_LABEL,
-    transaction_id: transactionId,
+// Resolves once gtag confirms the hit was sent (event_callback), or after a
+// short timeout — callers that navigate right after must await this, otherwise
+// the beacon can be aborted mid-flight by the page unload before it reaches Google.
+export function fireSignupConversion(transactionId: string): Promise<void> {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined' || typeof window.gtag !== 'function') {
+      resolve()
+      return
+    }
+
+    let settled = false
+    const finish = () => {
+      if (settled) return
+      settled = true
+      resolve()
+    }
+
+    window.gtag('event', 'conversion', {
+      send_to: SIGNUP_CONVERSION_LABEL,
+      transaction_id: transactionId,
+      event_callback: finish,
+    })
+    setTimeout(finish, 500)
   })
 }
 
