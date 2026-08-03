@@ -67,6 +67,19 @@ export default function InvitationsPage() {
     setActing(null)
   }
 
+  const remove = async (id: string) => {
+    if (!confirm(t('confirmDelete'))) return
+    setActing(id)
+    const res = await fetch(`/api/admin/invitations?id=${id}`, { method: 'DELETE' })
+    if (res.ok) {
+      showToast(t('toastDeleted'), 'success')
+      setInvitations(prev => prev.filter(i => i.id !== id))
+    } else {
+      showToast(t('toastError'), 'error')
+    }
+    setActing(null)
+  }
+
   const resend = async (id: string) => {
     setActing(id)
     const res = await fetch(`/api/admin/invitations?id=${id}`, { method: 'PATCH' })
@@ -166,6 +179,16 @@ export default function InvitationsPage() {
                           {t('cancel')}
                         </button>
                       </>
+                    )}
+                    {status === 'used' && (
+                      <button
+                        onClick={() => remove(inv.id)}
+                        disabled={isActing}
+                        title={t('titleDelete')}
+                        className="px-3 py-1.5 text-xs bg-[var(--pp-bg)] border border-[var(--pp-line)] text-[var(--pp-muted)] rounded-lg hover:text-red-600 hover:border-red-200 disabled:opacity-50 transition-colors"
+                      >
+                        {t('delete')}
+                      </button>
                     )}
                   </div>
                 </div>
