@@ -124,7 +124,7 @@ const stepsConfig = [
 ]
 
 const pricingConfig = [
-  { name: 'Free', monthlyPrice: 0, annualPrice: 0, annualTotal: 0, annualSavings: 0, buttonHref: '/login', buttonHrefAnnual: '/login', highlight: false, extraSeat: null as number | null },
+  { name: 'Free', monthlyPrice: 0, annualPrice: 0, annualTotal: 0, annualSavings: 0, buttonHref: '/signup', buttonHrefAnnual: '/signup', highlight: false, extraSeat: null as number | null },
   { name: 'Starter', monthlyPrice: 19.90, annualPrice: 16.58, annualTotal: 199, annualSavings: 40, buttonHref: '/api/stripe/checkout?plan=starter&billing=monthly', buttonHrefAnnual: '/api/stripe/checkout?plan=starter&billing=yearly', highlight: false, extraSeat: 2.90 as number | null },
   { name: 'Team', monthlyPrice: 44.90, annualPrice: 37.42, annualTotal: 449, annualSavings: 90, buttonHref: '/api/stripe/checkout?plan=team&billing=monthly', buttonHrefAnnual: '/api/stripe/checkout?plan=team&billing=yearly', highlight: true, extraSeat: 2.60 as number | null },
   { name: 'Business', monthlyPrice: 69.90, annualPrice: 58.25, annualTotal: 699, annualSavings: 140, buttonHref: '/api/stripe/checkout?plan=business&billing=monthly', buttonHrefAnnual: '/api/stripe/checkout?plan=business&billing=yearly', highlight: false, extraSeat: 2.20 as number | null },
@@ -1010,7 +1010,7 @@ function CtaCountdown() {
 
         {/* Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link href="/login">
+          <Link href="/signup">
             <Button size="lg">{t('ctaPrimary')}</Button>
           </Link>
           <a href="mailto:contact@pointon.be">
@@ -1258,7 +1258,7 @@ export default function Home() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 mb-10">
-                <Link href="/login">
+                <Link href="/signup">
                   <Button size="lg" className="w-full sm:w-auto">{t('hero.ctaPrimary')}</Button>
                 </Link>
                 <a href="#how">
@@ -1442,7 +1442,7 @@ export default function Home() {
                 {t('how.intro')}
               </p>
               <Link
-                href="/login"
+                href="/signup"
                 className="inline-flex items-center gap-2 text-sm font-bold text-[#10b981] group"
               >
                 <span>{t('how.cta')}</span>

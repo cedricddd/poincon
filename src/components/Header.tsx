@@ -111,7 +111,7 @@ export function Header() {
           <Link href="/login" className={`text-sm font-medium transition-colors ${linkCls}`}>
             {t('login')}
           </Link>
-          <Link href="/login">
+          <Link href="/signup">
             <Button size="sm">{t('start')}</Button>
           </Link>
         </div>
@@ -165,7 +165,7 @@ export function Header() {
             <Link href="/login" onClick={() => setMenuOpen(false)}>
               <Button variant="outline" size="md" className="w-full">{t('login')}</Button>
             </Link>
-            <Link href="/login" onClick={() => setMenuOpen(false)}>
+            <Link href="/signup" onClick={() => setMenuOpen(false)}>
               <Button size="md" className="w-full">{t('startFree')}</Button>
             </Link>
           </div>
