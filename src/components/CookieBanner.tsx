@@ -5,12 +5,23 @@ import Link from 'next/link'
 
 const STORAGE_KEY = 'pp_cookie_consent'
 
+const MOBILE_QUERY = '(max-width: 639px)'
+
 export function CookieBanner() {
   const [visible, setVisible] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (!stored) setVisible(true)
+  }, [])
+
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_QUERY)
+    setIsMobile(mq.matches)
+    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
   }, [])
 
   function handleChoice(value: 'accepted' | 'refused') {
@@ -25,11 +36,13 @@ export function CookieBanner() {
     <div
       style={{
         position: 'fixed',
-        bottom: '1.5rem',
-        left: '50%',
-        transform: 'translateX(-50%)',
+        // Bottom-center on desktop; on mobile a bottom banner lands in the
+        // same band as hero CTAs on short viewports and can cover them
+        // almost entirely, so it anchors below the header instead.
+        ...(isMobile
+          ? { top: '5rem', left: '1rem', right: '1rem' }
+          : { bottom: '1.5rem', left: '50%', transform: 'translateX(-50%)', width: 'min(92vw, 640px)' }),
         zIndex: 9999,
-        width: 'min(92vw, 640px)',
         background: 'var(--pp-bg2)',
         border: '1px solid var(--pp-line)',
         borderRadius: '0.75rem',
