@@ -47,9 +47,8 @@ export default function ClockPage() {
   const t = useTranslations('clock')
   const locale = useLocale()
   const bcp = BCP47[locale] ?? 'fr-BE'
-  const { savePendingAction, getPendingActions } = useOfflineSync()
+  const { savePendingAction, pendingCount } = useOfflineSync()
   const [isClockedIn, setIsClockedIn] = useState(false)
-  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set())
   const [currentTime, setCurrentTime] = useState<Date | null>(null)
   const [location, setLocation] = useState('Sur site')
   const [dailyHours, setDailyHours] = useState(0)
@@ -79,20 +78,6 @@ export default function ClockPage() {
   const [breakStartedAt, setBreakStartedAt] = useState<Date | null>(null)
   const [totalBreakSeconds, setTotalBreakSeconds] = useState(0)
   const [breakLoading, setBreakLoading] = useState(false)
-
-  // Load pending actions
-  useEffect(() => {
-    const loadPending = async () => {
-      const pending = await getPendingActions()
-      setPendingIds(new Set(pending.map(p => {
-        const dataStr = JSON.stringify(p.data)
-        return dataStr.includes('arrivalTime') ? `arrival-${p.timestamp}` : `departure-${p.timestamp}`
-      })))
-    }
-    loadPending()
-    const interval = setInterval(loadPending, 1000)
-    return () => clearInterval(interval)
-  }, [getPendingActions])
 
   // Load sites — pre-select from QR param if present
   useEffect(() => {
@@ -557,9 +542,9 @@ export default function ClockPage() {
                     <div className="text-3xl font-bold text-[var(--pp-ink)]">
                       {Math.floor(dailyHours)}h{String(Math.round((dailyHours % 1) * 60)).padStart(2, '0')}
                     </div>
-                    {pendingIds.size > 0 && (
+                    {pendingCount > 0 && (
                       <span className="text-xs px-2 py-1 rounded-full font-semibold bg-amber-100 text-amber-700">
-                        {t('pendingCount', { count: pendingIds.size })}
+                        {t('pendingCount', { count: pendingCount })}
                       </span>
                     )}
                   </div>

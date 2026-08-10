@@ -5,7 +5,7 @@
 L'approche prioritaire **sécurité légale** :
 - ✅ Essayer synchroniser **immédiatement** (timeout 5s)
 - ✅ Si échec → sauvegarder localement avec statut **PENDING**
-- ✅ Retry automatiquement **toutes les 3 secondes**
+- ✅ Retry automatiquement **toutes les 5 secondes tant qu'il reste des pointages en attente**
 - ✅ Tableau de présence n'affiche que les pointages **SYNCED** (fiables)
 - ✅ Pointages PENDING affichent badge **"⏳ en attente de sync"**
 
@@ -22,12 +22,15 @@ L'approche prioritaire **sécurité légale** :
 - **Cleanup**: Supprime anciennes versions de cache
 
 ### ✅ Synchronisation Agressive (`src/hooks/useOfflineSync.ts`)
-- **Timeout court** : 5 secondes pour chaque sync
-- **Retry automatique** : toutes les 3 secondes
-- **Statuts** : `pending` | `syncing` | `synced` | `failed`
-- **Max retries** : 5 tentatives avant marquer comme échoué
-- **IndexedDB** : stockage local des pointages en attente
-- **Backoff** : augmente délai entre retries
+- **Timeout court** : 5 secondes pour chaque sync (`AbortController`)
+- **Déclencheurs** : pointage mis en file, retour d'onglet, événement `online`, timer 5s
+- **Aucun timer quand la file est vide** — zéro transaction IndexedDB au repos
+- **Statuts** : `pending` | `failed`
+- **Max retries** : 5 tentatives, puis `failed` (jamais supprimé silencieusement — l'employé le vide via ×)
+- **IndexedDB** : une seule connexion partagée par page, rouverte à la demande
+- **iOS Safari** : connexion fermée quand l'onglet passe en arrière-plan, sync suspendue tant que
+  `document.hidden` — un handle suspendu par WebKit renvoie sinon
+  `UnknownError: Attempt to get records from database without an in-progress transaction`
 
 ### ✅ UI avec Statuts PENDING
 - **OfflineIndicator** : badge "Synchronisation en cours..." ou "N pointage(s) en attente"
@@ -40,7 +43,7 @@ L'approche prioritaire **sécurité légale** :
 - Affiche "en attente de sync" si sync échoue
 - UI update immédiat (optimistic)
 - Badge visible du statut PENDING
-- Auto-sync chaque 3 secondes
+- Auto-sync tant qu'il reste des pointages en file
 
 ### ✅ PWA Metadata Complet
 - `manifest.json` : app name, icônes, standalone mode
@@ -72,7 +75,7 @@ Save to IndexedDB with status: "pending"
   ↓
 Toast : "Arrivée enregistrée à 09:42 (⏳ en attente de sync)"
   ↓
-Auto-retry loop : toutes les 3 secondes
+Auto-retry loop : toutes les 5 secondes (arrêt dès que la file est vide)
 ```
 
 ### Scénario Reconnexion
@@ -107,7 +110,7 @@ Après sync : badge disparaît
 1. DevTools → Application → Service Workers
 2. Check "Offline"
 3. Click "ARRIVÉE" → badge "⏳ en attente"
-4. Uncheck "Offline" → auto-sync en 3s
+4. Uncheck "Offline" → auto-sync immédiat (événement `online`)
 
 ### Real Network
 ```bash

@@ -61,7 +61,7 @@ test.describe('Offline Behavior', () => {
 
     const pendingCount = await page.evaluate(() => {
       return new Promise((resolve) => {
-        const request = indexedDB.open('PoinconDB')
+        const request = indexedDB.open('PointonDB')
         request.onsuccess = () => {
           const db = request.result
           const txn = db.transaction(['pendingActions'])
