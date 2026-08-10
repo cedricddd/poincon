@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 import { sendWelcomeEmail, sendNewCompanyNotification } from '@/lib/mail'
 import { rateLimit } from '@/lib/rateLimit'
+import { normalizeVat, isValidBelgianVat } from '@/lib/vat'
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { firstName, lastName, email, password, phone, companyName, companyAddress, companyVAT } = body
 
-    if (!firstName || !lastName || !email || !password || !phone || !companyName || !companyAddress || !companyVAT) {
+    if (!firstName || !lastName || !email || !password || !companyName) {
       return NextResponse.json(
         { error: 'Tous les champs obligatoires doivent être remplis' },
         { status: 400 }
@@ -37,7 +38,11 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    if (!/^BE\d{10}$/.test(companyVAT)) {
+    // TVA, adresse et téléphone sont facultatifs à l'inscription : ils ne servent qu'à
+    // la facturation, donc ils sont réclamés au checkout. Les colonnes restent non-null
+    // en base (chaîne vide) pour ne rien casser côté Stripe/Odoo/factures qui les lisent.
+    const normalizedVAT = companyVAT?.trim() ? normalizeVat(companyVAT) : ''
+    if (normalizedVAT && !isValidBelgianVat(normalizedVAT)) {
       return NextResponse.json(
         { error: 'Numéro de TVA invalide (format: BE + 10 chiffres)' },
         { status: 400 }
@@ -70,9 +75,9 @@ export async function POST(req: NextRequest) {
       const company = await tx.company.create({
         data: {
           name: companyName,
-          address: companyAddress,
-          phone,
-          vatNumber: companyVAT,
+          address: companyAddress?.trim() ?? '',
+          phone: phone?.trim() ?? '',
+          vatNumber: normalizedVAT,
           contactEmail: email,
           adminId: user.id,
           planId: freePlan?.id ?? null,
@@ -94,7 +99,7 @@ export async function POST(req: NextRequest) {
         companyName,
         adminName: fullName,
         adminEmail: email,
-        vatNumber: companyVAT,
+        vatNumber: normalizedVAT,
         companyId: company.id,
       }),
     ]).catch((err) => console.error('Registration email error:', err))

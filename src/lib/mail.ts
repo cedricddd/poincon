@@ -343,7 +343,7 @@ export async function sendNewCompanyNotification(params: {
           <tr><td style="padding:8px 0;color:#64748b;width:140px;">Société</td><td style="padding:8px 0;color:#0f172a;font-weight:600;">${companyName}</td></tr>
           <tr><td style="padding:8px 0;color:#64748b;">Administrateur</td><td style="padding:8px 0;color:#0f172a;">${adminName}</td></tr>
           <tr><td style="padding:8px 0;color:#64748b;">Email</td><td style="padding:8px 0;color:#0f172a;">${adminEmail}</td></tr>
-          <tr><td style="padding:8px 0;color:#64748b;">TVA</td><td style="padding:8px 0;color:#0f172a;">${vatNumber}</td></tr>
+          <tr><td style="padding:8px 0;color:#64748b;">TVA</td><td style="padding:8px 0;color:#0f172a;">${vatNumber || 'non renseignée'}</td></tr>
           <tr><td style="padding:8px 0;color:#64748b;">Date</td><td style="padding:8px 0;color:#0f172a;">${date}</td></tr>
           <tr><td style="padding:8px 0;color:#64748b;">Plan</td><td style="padding:8px 0;"><span style="background:#e0f2fe;color:#0369a1;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;">FREE</span></td></tr>
         </table>

@@ -230,6 +230,17 @@ export async function POST(req: NextRequest) {
       const planName = companyFull?.plan?.name ?? null
       const billingCycle = companyFull?.stripeSubscriptionBillingCycle ?? 'monthly'
 
+      // TVA/adresse sont facultatives à l'inscription : Stripe Checkout les collecte
+      // (tax_id_collection + billing_address_collection). On les rapatrie ici, sinon
+      // la fiche société resterait vide alors que le client les a bien fournies.
+      const collectedVat = invoice.customer_tax_ids?.[0]?.value ?? null
+      if (collectedVat && !companyFull?.vatNumber) {
+        await prisma.company.update({
+          where: { id: company.id },
+          data: { vatNumber: collectedVat },
+        }).catch((err) => console.error('[webhook] VAT backfill failed:', err))
+      }
+
       // Record in DB (reuse existing record on retry)
       const record = existing ?? await prisma.stripeInvoice.create({
         data: {
@@ -249,8 +260,11 @@ export async function POST(req: NextRequest) {
           // Pointon Company data is the authoritative source for billing identity.
           // Stripe's customer_name is just the cardholder (often the email) and its
           // address may be missing, so we prefer our own DB and fall back to Stripe.
+          // NB: these Company columns are non-null but can hold an empty string —
+          // TVA/adresse/téléphone are optional at signup and only collected by Stripe
+          // at checkout. So fall back on truthiness, not on ?? (which keeps '').
           const stripeVat = invoice.customer_tax_ids?.[0]?.value ?? null
-          const vatNumber = companyFull?.vatNumber ?? stripeVat ?? null
+          const vatNumber = companyFull?.vatNumber || stripeVat || null
           const invoiceDate = new Date(invoice.created * 1000).toISOString().split('T')[0]
           // subtotal = HTVA (before tax, before credits)
           const amountHtva = invoice.subtotal ?? invoice.amount_paid
@@ -271,7 +285,7 @@ export async function POST(req: NextRequest) {
             billingCycle,
             invoiceDate,
             billingAddress,
-            customerPhone: companyFull?.phone ?? invoice.customer_phone ?? null,
+            customerPhone: companyFull?.phone || invoice.customer_phone || null,
           })
 
           await prisma.stripeInvoice.update({

@@ -8,6 +8,7 @@ import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 import { Logo } from '@/components/Logo'
 import { fireSignupConversion } from '@/components/GoogleAdsTag'
+import { normalizeVat, isValidBelgianVat } from '@/lib/vat'
 
 export default function SignupPage() {
   const t = useTranslations('auth.signup')
@@ -37,7 +38,10 @@ export default function SignupPage() {
       return
     }
 
-    if (!companyVAT.match(/^BE\d{10}$/)) {
+    // TVA facultative à l'inscription — validée seulement si l'utilisateur l'a remplie,
+    // et exigée plus tard au checkout (Stripe Tax / facturation).
+    const normalizedVAT = companyVAT.trim() ? normalizeVat(companyVAT) : ''
+    if (normalizedVAT && !isValidBelgianVat(normalizedVAT)) {
       setError(t('invalidVat'))
       setLoading(false)
       return
@@ -55,7 +59,7 @@ export default function SignupPage() {
           password,
           companyName,
           companyAddress,
-          companyVAT,
+          companyVAT: normalizedVAT,
         }),
       })
 
@@ -125,6 +129,7 @@ export default function SignupPage() {
                   <input
                     id="firstName"
                     type="text"
+                    autoComplete="given-name"
                     value={firstName}
                     onChange={e => setFirstName(e.target.value)}
                     placeholder={t('phFirstName')}
@@ -140,6 +145,7 @@ export default function SignupPage() {
                   <input
                     id="lastName"
                     type="text"
+                    autoComplete="family-name"
                     value={lastName}
                     onChange={e => setLastName(e.target.value)}
                     placeholder={t('phLastName')}
@@ -157,6 +163,7 @@ export default function SignupPage() {
                   <input
                     id="email"
                     type="email"
+                    autoComplete="email"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder={t('phEmail')}
@@ -172,7 +179,7 @@ export default function SignupPage() {
                   <input
                     id="phone"
                     type="tel"
-                    required
+                    autoComplete="tel"
                     value={phone}
                     onChange={e => setPhone(e.target.value)}
                     placeholder={t('phPhone')}
@@ -189,6 +196,7 @@ export default function SignupPage() {
                   <input
                     id="password"
                     type="password"
+                    autoComplete="new-password"
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     placeholder="••••••••"
@@ -205,6 +213,7 @@ export default function SignupPage() {
                   <input
                     id="confirmPassword"
                     type="password"
+                    autoComplete="new-password"
                     value={confirmPassword}
                     onChange={e => setConfirmPassword(e.target.value)}
                     placeholder="••••••••"
@@ -227,6 +236,7 @@ export default function SignupPage() {
                   <input
                     id="companyName"
                     type="text"
+                    autoComplete="organization"
                     value={companyName}
                     onChange={e => setCompanyName(e.target.value)}
                     placeholder={t('phCompany')}
@@ -245,7 +255,6 @@ export default function SignupPage() {
                     value={companyVAT}
                     onChange={e => setCompanyVAT(e.target.value.toUpperCase())}
                     placeholder="BE0123456789"
-                    required
                     className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
                   />
                   <p className="text-xs text-[var(--pp-muted)] mt-1">{t('vatFormat')}</p>
@@ -258,7 +267,7 @@ export default function SignupPage() {
                   <input
                     id="companyAddress"
                     type="text"
-                    required
+                    autoComplete="street-address"
                     value={companyAddress}
                     onChange={e => setCompanyAddress(e.target.value)}
                     placeholder={t('phAddress')}
