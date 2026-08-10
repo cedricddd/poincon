@@ -18,7 +18,10 @@ export async function GET() {
   const otpAuthUrl = keyUri(session.user.email ?? session.user.id, secret)
   const qrCodeDataUrl = await QRCode.toDataURL(otpAuthUrl)
 
-  return NextResponse.json({ secret, qrCodeDataUrl })
+  // otpAuthUrl is returned as well: on mobile the QR code is unusable (you cannot
+  // scan a code displayed on the very phone you would scan it with), so the client
+  // offers it as a tap-to-open link into the authenticator app.
+  return NextResponse.json({ secret, qrCodeDataUrl, otpAuthUrl })
 }
 
 // POST — verify TOTP code and save secret to DB

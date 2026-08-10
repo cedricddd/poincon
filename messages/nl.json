@@ -185,7 +185,11 @@
       "step1": "Installeer <b>Google Authenticator</b>, <b>Authy</b> of een andere TOTP-app.",
       "step2": "Scan de QR-code hieronder met de app.",
       "step3": "Voer de gegenereerde 6-cijferige code in om de configuratie te bevestigen.",
+      "openInApp": "Openen in mijn authenticator-app",
+      "orScanFromAnother": "of scan deze QR-code met een ander apparaat",
       "showManualKey": "Handmatige sleutel tonen",
+      "copyKey": "Sleutel kopiëren",
+      "copied": "Sleutel gekopieerd",
       "verificationCode": "Verificatiecode",
       "enable": "2FA activeren"
     }

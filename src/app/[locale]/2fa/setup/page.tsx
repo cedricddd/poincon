@@ -15,7 +15,9 @@ export default function TwoFactorSetupPage() {
   const router = useRouter()
 
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null)
+  const [otpAuthUrl, setOtpAuthUrl] = useState<string | null>(null)
   const [secret, setSecret] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
   const [code, setCode] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -25,9 +27,10 @@ export default function TwoFactorSetupPage() {
     if (!session?.user) return
     fetch('/api/auth/2fa/setup')
       .then((r) => r.json())
-      .then((data: { secret: string; qrCodeDataUrl: string }) => {
+      .then((data: { secret: string; qrCodeDataUrl: string; otpAuthUrl: string }) => {
         setSecret(data.secret)
         setQrCodeDataUrl(data.qrCodeDataUrl)
+        setOtpAuthUrl(data.otpAuthUrl)
       })
   }, [session?.user?.id])
 
@@ -105,6 +108,20 @@ export default function TwoFactorSetupPage() {
 
             {qrCodeDataUrl ? (
               <div className="flex flex-col items-center gap-3">
+                {/* Mobile-first: tapping the otpauth:// link hands the account straight
+                    to the authenticator app. Scanning is impossible when the QR code is
+                    displayed on the same phone, so the link comes before the QR code. */}
+                {otpAuthUrl && (
+                  <a
+                    href={otpAuthUrl}
+                    className="sm:hidden w-full text-center px-4 py-3 rounded-lg bg-[var(--pp-info)] text-white font-medium"
+                  >
+                    {t('openInApp')}
+                  </a>
+                )}
+
+                <p className="sm:hidden text-xs text-[var(--pp-muted)]">{t('orScanFromAnother')}</p>
+
                 <div className="p-3 bg-white rounded-xl border border-[var(--pp-line)] shadow-sm">
                   <Image
                     src={qrCodeDataUrl}
@@ -122,9 +139,22 @@ export default function TwoFactorSetupPage() {
                   {t('showManualKey')}
                 </button>
                 {showManualKey && secret && (
-                  <code className="text-xs bg-[var(--pp-bg)] border border-[var(--pp-line)] rounded px-3 py-2 tracking-widest select-all">
-                    {secret}
-                  </code>
+                  <div className="flex flex-col items-center gap-2">
+                    <code className="text-xs bg-[var(--pp-bg)] border border-[var(--pp-line)] rounded px-3 py-2 tracking-widest select-all">
+                      {secret}
+                    </code>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(secret)
+                        setCopied(true)
+                        setTimeout(() => setCopied(false), 2000)
+                      }}
+                      className="text-xs text-[var(--pp-info)] underline"
+                    >
+                      {copied ? t('copied') : t('copyKey')}
+                    </button>
+                  </div>
                 )}
               </div>
             ) : (

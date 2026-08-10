@@ -185,7 +185,11 @@
       "step1": "Installez <b>Google Authenticator</b>, <b>Authy</b> ou toute application TOTP.",
       "step2": "Scannez le QR code ci-dessous avec l’application.",
       "step3": "Entrez le code à 6 chiffres généré pour confirmer la configuration.",
+      "openInApp": "Ouvrir dans mon application d’authentification",
+      "orScanFromAnother": "ou scannez ce QR code depuis un autre appareil",
       "showManualKey": "Afficher la clé manuelle",
+      "copyKey": "Copier la clé",
+      "copied": "Clé copiée",
       "verificationCode": "Code de vérification",
       "enable": "Activer la 2FA"
     }
