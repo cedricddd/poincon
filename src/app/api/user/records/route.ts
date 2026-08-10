@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
     prisma.clockRecord.count({ where }),
     prisma.clockRecord.findMany({
       where,
+      include: { editor: { select: { name: true, email: true } } },
       orderBy: { date: 'desc' },
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,

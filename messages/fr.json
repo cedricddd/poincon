@@ -229,7 +229,8 @@
     "se_deconnecter": "Se déconnecter",
     "ouvrir_menu": "Ouvrir le menu",
     "fermer_menu": "Fermer le menu",
-    "reduire_menu": "Réduire le menu"
+    "reduire_menu": "Réduire le menu",
+    "corrections": "Corrections"
   },
   "dashboard": {
     "title": "Tableau de bord",
@@ -1255,7 +1256,31 @@
     "empty": "Aucun pointage sur cette période.",
     "pageInfo": "Page {page} / {pages} — {total} pointages",
     "prev": "← Précédent",
-    "next": "Suivant →"
+    "next": "Suivant →",
+    "actions": "Actions",
+    "reason": "Motif",
+    "editedBadge": "Modifié",
+    "reasonForgotIn": "Oubli de pointage (arrivée)",
+    "reasonForgotOut": "Oubli de pointage (départ)",
+    "reasonCorrection": "Correction d’erreur",
+    "reasonEmployeeRequest": "Demande de l’employé",
+    "reasonManualCreate": "Encodage manuel",
+    "reasonOther": "Autre",
+    "statusPending": "En attente",
+    "statusApproved": "Approuvé",
+    "statusRejected": "Refusé",
+    "correctionsTitle": "Corrections d’heures",
+    "correctionsHint": "Un oubli de pointage ? Signalez-le : votre responsable valide la correction.",
+    "reportButton": "Signaler un oubli",
+    "reportTitle": "Signaler un oubli de pointage",
+    "reportHint": "Indiquez les heures réelles. La demande doit être validée par votre responsable.",
+    "reportNotePlaceholder": "Remarque (facultative)…",
+    "reportSubmit": "Envoyer",
+    "reportFailed": "Envoi impossible",
+    "reportDateRequired": "La date est requise.",
+    "reportTimeRequired": "Indiquez au moins une heure à corriger.",
+    "reportNoteRequired": "Une remarque est requise pour le motif « Autre ».",
+    "cancel": "Annuler"
   },
   "adminRequests": {
     "colType": "Type",
@@ -1326,7 +1351,17 @@
     "toastUpdated": "Congé modifié",
     "toastUpdateError": "Erreur lors de la modification",
     "toastDeleted": "Congé supprimé",
-    "toastDeleteError": "Erreur lors de la suppression"
+    "toastDeleteError": "Erreur lors de la suppression",
+    "correctionsTitle": "Corrections d’heures",
+    "correctionsHint": "Signalements d’oubli de pointage. L’approbation corrige le pointage et laisse une trace dans l’audit trail et dans l’export.",
+    "typeCorrection": "Correction",
+    "emptyCorrections": "Aucune demande de correction",
+    "correctionCurrent": "actuellement {current}",
+    "correctionNoRecord": "aucun pointage ce jour-là",
+    "reasonForgotIn": "Oubli de pointage (arrivée)",
+    "reasonForgotOut": "Oubli de pointage (départ)",
+    "reasonCorrection": "Correction d’erreur",
+    "reasonOther": "Autre"
   },
   "schedules": {
     "title": "Horaires de travail",
@@ -1734,7 +1769,14 @@
     "apply": "Appliquer",
     "thWorked": "Travaillé",
     "thStandard": "Standard",
-    "noOvertimes": "Aucune heure sup détectée."
+    "noOvertimes": "Aucune heure sup détectée.",
+    "reasonEmployeeRequest": "Demande de l’employé",
+    "reasonManualCreate": "Encodage manuel",
+    "editedBadge": "Modifié",
+    "notePlaceholder": "Remarque (facultative)…",
+    "noteRequired": "Une remarque est requise pour le motif « Autre ».",
+    "noteRequiredHint": "Remarque obligatoire pour ce motif.",
+    "noteExportHint": "La remarque apparaît dans l’export et dans l’audit trail."
   },
   "integrations": {
     "loading": "Chargement...",
@@ -1809,7 +1851,9 @@
     "whCreated": "Webhook créé",
     "whDeleted": "Webhook supprimé",
     "confirmDeleteWebhook": "Supprimer ce webhook ?",
-    "lastDelivery": "Dernière livraison : {event} — {code} — {date}"
+    "lastDelivery": "Dernière livraison : {event} — {code} — {date}",
+    "evCorrectionApproved": "Correction d’heures approuvée",
+    "evCorrectionRejected": "Correction d’heures refusée"
   },
   "audit": {
     "title": "Audit Trail",

@@ -14,6 +14,8 @@ export type WebhookEventType =
   | 'clockrecord.created'
   | 'clockrecord.departed'
   | 'rtt.approved'
+  | 'clockcorrection.approved'
+  | 'clockcorrection.rejected'
 
 export const WEBHOOK_EVENT_LABELS: Record<WebhookEventType, string> = {
   'shift.created':       'Shift créé',
@@ -27,6 +29,8 @@ export const WEBHOOK_EVENT_LABELS: Record<WebhookEventType, string> = {
   'clockrecord.created': 'Pointage enregistré',
   'clockrecord.departed': 'Départ enregistré',
   'rtt.approved':        'RTT approuvé',
+  'clockcorrection.approved': 'Correction d\'heures approuvée',
+  'clockcorrection.rejected': 'Correction d\'heures refusée',
 }
 
 export function generateWebhookSecret(): string {

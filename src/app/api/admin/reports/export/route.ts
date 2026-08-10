@@ -38,6 +38,15 @@ const LEAVE_TAGS: Record<string, string> = {
   ECONOMIC_UNEMPLOYMENT: 'Chômage économique',
 }
 
+const EDIT_REASON_LABELS: Record<string, string> = {
+  forgot_clockin: 'Oubli de pointage (entrée)',
+  forgot_clockout: 'Oubli de pointage (sortie)',
+  correction: 'Correction',
+  employee_request: 'Demande de l\'employé',
+  manual_create: 'Encodage manuel',
+  other: 'Autre',
+}
+
 interface DayAggregate {
   firstArrival: Date | null
   lastDeparture: Date | null
@@ -47,10 +56,12 @@ interface DayAggregate {
   locations: Set<string>
   sites: Set<string>
   tag: string
+  editors: Set<string>
+  editNotes: string[]
 }
 
 function emptyAggregate(): DayAggregate {
-  return { firstArrival: null, lastDeparture: null, hasOpenRecord: false, totalDuration: 0, pauseMinutes: 0, locations: new Set(), sites: new Set(), tag: '' }
+  return { firstArrival: null, lastDeparture: null, hasOpenRecord: false, totalDuration: 0, pauseMinutes: 0, locations: new Set(), sites: new Set(), tag: '', editors: new Set(), editNotes: [] }
 }
 
 export async function GET(req: NextRequest) {
@@ -119,6 +130,7 @@ export async function GET(req: NextRequest) {
       include: {
         site: { select: { name: true } },
         breaks: { where: { endedAt: { not: null } }, select: { startedAt: true, endedAt: true } },
+        editor: { select: { name: true, email: true } },
       },
     }),
     prisma.timeOffRequest.findMany({
@@ -153,6 +165,11 @@ export async function GET(req: NextRequest) {
     cell.pauseMinutes += r.breaks.reduce((sum, b) => sum + Math.round((b.endedAt!.getTime() - b.startedAt.getTime()) / 60000), 0)
     cell.locations.add(r.location)
     if (r.site?.name) cell.sites.add(r.site.name)
+    if (r.editedAt) {
+      cell.editors.add(r.editor?.name ?? r.editor?.email ?? 'Administrateur')
+      const label = EDIT_REASON_LABELS[r.editReason ?? ''] ?? r.editReason ?? 'Correction'
+      cell.editNotes.push(r.editNote ? `${label} : ${r.editNote}` : label)
+    }
   }
 
   for (const tor of timeOffRequests) {
@@ -169,7 +186,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  const header = ['Employé', 'Email', 'Date', 'Arrivée', 'Départ', 'Pause (min)', 'Durée', 'Lieu', 'Site', 'Tag']
+  const header = ['Employé', 'Email', 'Date', 'Arrivée', 'Départ', 'Pause (min)', 'Durée', 'Lieu', 'Site', 'Tag', 'Corrigé par', 'Motif / remarque']
   const rows: string[][] = []
 
   for (const user of companyUsers) {
@@ -192,6 +209,8 @@ export async function GET(req: NextRequest) {
         cell ? [...cell.locations].join(', ') : '',
         cell ? [...cell.sites].join(', ') : '',
         cell?.tag ?? '',
+        cell ? [...cell.editors].join(', ') : '',
+        cell ? cell.editNotes.join(' | ') : '',
       ])
       cur.setUTCDate(cur.getUTCDate() + 1)
     }

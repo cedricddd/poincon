@@ -34,6 +34,9 @@ model User {
   approvedDetectedOvertimes DetectedOvertime[] @relation("ApprovedDetectedOvertimes")
   rttRequests           RTTRequest[] @relation("RTTRequests")
   approvedRTTs          RTTRequest[] @relation("ApprovedRTTs")
+  editedClockRecords    ClockRecord[] @relation("EditedClockRecords")
+  clockCorrections      ClockCorrectionRequest[] @relation("ClockCorrections")
+  reviewedClockCorrections ClockCorrectionRequest[] @relation("ReviewedClockCorrections")
   notifications         Notification[]
   company               Company?        @relation("CompanyAdmin")
   companyId             String?
@@ -377,16 +380,25 @@ model ClockRecord {
   date                  DateTime        @default(now())
   createdAt             DateTime        @default(now())
 
+  // Traçabilité des corrections manuelles (oubli de pointage, régularisation)
+  editedById            String?
+  editedAt              DateTime?
+  editReason            String?         // forgot_clockin | forgot_clockout | correction | employee_request | manual_create | other
+  editNote              String?
+
   siteId                String?
   site                  Site?           @relation(fields: [siteId], references: [id])
   user                  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  editor                User?           @relation("EditedClockRecords", fields: [editedById], references: [id])
   breaks                BreakEntry[]
+  corrections           ClockCorrectionRequest[]
 
   @@index([userId])
   @@index([date])
   @@index([siteId])
   @@index([userId, date])       // requêtes mensuelles par employé
   @@index([userId, departureTime]) // détection pointages ouverts
+  @@index([editedById])
 }
 
 model BreakEntry {
@@ -543,6 +555,32 @@ model RTTRequest {
   @@index([date])
   @@index([approvedBy])
   @@index([userId, status])     // calcul solde : approved RTTs par user
+}
+
+model ClockCorrectionRequest {
+  id                    String          @id @default(cuid())
+  userId                String
+  clockRecordId         String?         // null = oubli total : aucun pointage existant à corriger
+  date                  DateTime
+  requestedArrival      DateTime?
+  requestedDeparture    DateTime?
+  reason                String          // forgot_clockin | forgot_clockout | correction | other
+  note                  String?
+  status                String          @default("PENDING") // PENDING, APPROVED, REJECTED
+  reviewedBy            String?
+  reviewedAt            DateTime?
+  rejectionReason       String?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  user                  User            @relation("ClockCorrections", fields: [userId], references: [id], onDelete: Cascade)
+  reviewer              User?           @relation("ReviewedClockCorrections", fields: [reviewedBy], references: [id])
+  clockRecord           ClockRecord?    @relation(fields: [clockRecordId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@index([userId, status])     // demandes en attente d'un employé
+  @@index([clockRecordId])
 }
 
 model Notification {

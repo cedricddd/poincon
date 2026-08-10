@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
     const [
       user, clockRecords, timeOffRequests, rttRequests, detectedOvertimes,
       shifts, userSchedule, userConsents, notifications, teamMemberships,
+      clockCorrectionRequests,
     ] = await Promise.all([
       prisma.user.findUnique({
         where: { id: userId },
@@ -66,6 +67,10 @@ export async function GET(req: NextRequest) {
         where: { userId },
         include: { team: { select: { name: true } } },
       }),
+      prisma.clockCorrectionRequest.findMany({
+        where: { userId },
+        orderBy: { date: 'asc' },
+      }),
     ])
 
     if (!user) {
@@ -85,6 +90,7 @@ export async function GET(req: NextRequest) {
       userConsents,
       notifications,
       teamMemberships,
+      clockCorrectionRequests,
       exportedAt: new Date().toISOString(),
     }
 

@@ -229,7 +229,8 @@
     "se_deconnecter": "Sign out",
     "ouvrir_menu": "Open menu",
     "fermer_menu": "Close menu",
-    "reduire_menu": "Collapse menu"
+    "reduire_menu": "Collapse menu",
+    "corrections": "Corrections"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -1255,7 +1256,31 @@
     "empty": "No clock-ins in this period.",
     "pageInfo": "Page {page} / {pages} — {total} clock-ins",
     "prev": "← Previous",
-    "next": "Next →"
+    "next": "Next →",
+    "actions": "Actions",
+    "reason": "Reason",
+    "editedBadge": "Edited",
+    "reasonForgotIn": "Missed clock-in",
+    "reasonForgotOut": "Missed clock-out",
+    "reasonCorrection": "Error correction",
+    "reasonEmployeeRequest": "Employee request",
+    "reasonManualCreate": "Manual entry",
+    "reasonOther": "Other",
+    "statusPending": "Pending",
+    "statusApproved": "Approved",
+    "statusRejected": "Rejected",
+    "correctionsTitle": "Time corrections",
+    "correctionsHint": "Forgot to clock in or out? Report it and your manager will approve the fix.",
+    "reportButton": "Report a missed entry",
+    "reportTitle": "Report a missed clock entry",
+    "reportHint": "Enter the actual hours. Your manager has to approve the request.",
+    "reportNotePlaceholder": "Note (optional)…",
+    "reportSubmit": "Send",
+    "reportFailed": "Could not send",
+    "reportDateRequired": "The date is required.",
+    "reportTimeRequired": "Enter at least one time to correct.",
+    "reportNoteRequired": "A note is required for the reason “Other”.",
+    "cancel": "Cancel"
   },
   "adminRequests": {
     "colType": "Type",
@@ -1326,7 +1351,17 @@
     "toastUpdated": "Leave updated",
     "toastUpdateError": "Error while updating",
     "toastDeleted": "Leave deleted",
-    "toastDeleteError": "Error while deleting"
+    "toastDeleteError": "Error while deleting",
+    "correctionsTitle": "Time corrections",
+    "correctionsHint": "Reported missed clock-ins and clock-outs. Approving fixes the record and leaves a trace in the audit trail and in the export.",
+    "typeCorrection": "Correction",
+    "emptyCorrections": "No correction requests",
+    "correctionCurrent": "currently {current}",
+    "correctionNoRecord": "no record that day",
+    "reasonForgotIn": "Missed clock-in",
+    "reasonForgotOut": "Missed clock-out",
+    "reasonCorrection": "Error correction",
+    "reasonOther": "Other"
   },
   "schedules": {
     "title": "Work schedules",
@@ -1733,7 +1768,14 @@
     "apply": "Apply",
     "thWorked": "Worked",
     "thStandard": "Standard",
-    "noOvertimes": "No overtime detected."
+    "noOvertimes": "No overtime detected.",
+    "reasonEmployeeRequest": "Employee request",
+    "reasonManualCreate": "Manual entry",
+    "editedBadge": "Edited",
+    "notePlaceholder": "Note (optional)…",
+    "noteRequired": "A note is required for the reason “Other”.",
+    "noteRequiredHint": "Note required for this reason.",
+    "noteExportHint": "The note appears in the export and in the audit trail."
   },
   "integrations": {
     "loading": "Loading...",
@@ -1808,7 +1850,9 @@
     "whCreated": "Webhook created",
     "whDeleted": "Webhook deleted",
     "confirmDeleteWebhook": "Delete this webhook?",
-    "lastDelivery": "Last delivery: {event} — {code} — {date}"
+    "lastDelivery": "Last delivery: {event} — {code} — {date}",
+    "evCorrectionApproved": "Time correction approved",
+    "evCorrectionRejected": "Time correction rejected"
   },
   "audit": {
     "title": "Audit Trail",

@@ -1,6 +1,7 @@
 import { requireAdminWithCompany, forbiddenError } from '@/lib/admin-security'
 import { prisma } from '@/lib/prisma'
 import { logAudit } from '@/lib/audit'
+import { applyClockCorrection, isValidEditReason, fmtBrussels, fmtDateBrussels } from '@/lib/clock-record'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET() {
@@ -26,34 +27,23 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'Champs requis manquants' }, { status: 400 })
   }
 
-  const existing = await prisma.clockRecord.findFirst({
-    where: { id, user: { companyId: authData.admin.companyId } },
-    include: { breaks: { where: { endedAt: { not: null } } } },
-  })
-  if (!existing) return NextResponse.json({ error: 'Pointage introuvable' }, { status: 404 })
-
-  const arrival = new Date(arrivalTime)
-  const departure = departureTime ? new Date(departureTime) : null
-
-  let newDuration: number | null = null
-  if (departure) {
-    const totalMinutes = Math.round((departure.getTime() - arrival.getTime()) / 60000)
-    const breakMinutes = existing.breaks.reduce((sum, b) => {
-      return sum + Math.round((b.endedAt!.getTime() - b.startedAt.getTime()) / 60000)
-    }, 0)
-    newDuration = Math.max(0, totalMinutes - breakMinutes)
+  const editReason = isValidEditReason(reason) ? reason : 'correction'
+  if (editReason === 'other' && !note?.trim()) {
+    return NextResponse.json({ error: 'Une remarque est requise pour le motif « autre »' }, { status: 400 })
   }
 
-  const updated = await prisma.clockRecord.update({
-    where: { id },
-    data: {
-      date: new Date(date),
-      arrivalTime: arrival,
-      departureTime: departure,
-      location: location ?? existing.location,
-      duration: newDuration,
-    },
+  const result = await applyClockCorrection({
+    companyId: authData.admin.companyId,
+    recordId: id,
+    date: new Date(date),
+    arrival: new Date(arrivalTime),
+    departure: departureTime ? new Date(departureTime) : null,
+    location,
+    editedById: authData.admin.id,
+    editReason,
+    editNote: note,
   })
+  if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status })
 
   await logAudit({
     userId: authData.admin.id,
@@ -61,22 +51,10 @@ export async function PATCH(req: NextRequest) {
     resource: 'clockRecord',
     resourceId: id,
     changes: {
-      reason: reason ?? 'other',
+      reason: editReason,
       note: note ?? null,
-      before: {
-        date: fmtDateBrussels(existing.date),
-        arrivalTime: fmtBrussels(existing.arrivalTime),
-        departureTime: fmtBrussels(existing.departureTime),
-        location: existing.location,
-        duration: existing.duration,
-      },
-      after: {
-        date: fmtDateBrussels(updated.date),
-        arrivalTime: fmtBrussels(updated.arrivalTime),
-        departureTime: fmtBrussels(updated.departureTime),
-        location: updated.location,
-        duration: updated.duration,
-      },
+      before: result.before,
+      after: result.after,
     },
     ipAddress: req.headers.get('x-forwarded-for') ?? undefined,
   })
@@ -84,64 +62,49 @@ export async function PATCH(req: NextRequest) {
   return NextResponse.json({ ok: true })
 }
 
-function fmtBrussels(d: Date | null | undefined): string | null {
-  if (!d) return null
-  return d.toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Brussels' })
-}
-
-function fmtDateBrussels(d: Date): string {
-  return d.toLocaleDateString('fr-BE', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Europe/Brussels' })
-}
-
 export async function POST(req: NextRequest) {
   const authData = await requireAdminWithCompany()
   if (!authData) return forbiddenError()
 
   const body = await req.json()
-  const { userId, date, arrivalTime, departureTime, location } = body
+  const { userId, date, arrivalTime, departureTime, location, reason, note } = body
 
   if (!userId || !date || !arrivalTime) {
     return NextResponse.json({ error: 'Champs requis manquants' }, { status: 400 })
   }
 
-  const user = await prisma.user.findFirst({
-    where: { id: userId, companyId: authData.admin.companyId },
-  })
-  if (!user) return NextResponse.json({ error: 'Utilisateur introuvable' }, { status: 404 })
+  const editReason = isValidEditReason(reason) ? reason : 'manual_create'
+  if (editReason === 'other' && !note?.trim()) {
+    return NextResponse.json({ error: 'Une remarque est requise pour le motif « autre »' }, { status: 400 })
+  }
 
-  const arrival = new Date(arrivalTime)
-  const departure = departureTime ? new Date(departureTime) : null
-  const duration = departure
-    ? Math.round((departure.getTime() - arrival.getTime()) / 60000)
-    : null
-
-  const record = await prisma.clockRecord.create({
-    data: {
-      userId,
-      date: new Date(date),
-      arrivalTime: arrival,
-      departureTime: departure,
-      location: location ?? 'Sur site',
-      duration,
-    },
+  const result = await applyClockCorrection({
+    companyId: authData.admin.companyId,
+    userId,
+    date: new Date(date),
+    arrival: new Date(arrivalTime),
+    departure: departureTime ? new Date(departureTime) : null,
+    location,
+    editedById: authData.admin.id,
+    editReason,
+    editNote: note,
   })
+  if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status })
 
   await logAudit({
     userId: authData.admin.id,
     action: 'admin_create',
     resource: 'clockRecord',
-    resourceId: record.id,
+    resourceId: result.recordId,
     changes: {
-      reason: 'manual_create',
-      date: fmtDateBrussels(arrival),
-      arrivalTime: fmtBrussels(arrival),
-      departureTime: fmtBrussels(departure),
-      location: location ?? 'Sur site',
+      reason: editReason,
+      note: note ?? null,
+      after: result.after,
     },
     ipAddress: req.headers.get('x-forwarded-for') ?? undefined,
   })
 
-  return NextResponse.json({ ok: true, id: record.id })
+  return NextResponse.json({ ok: true, id: result.recordId })
 }
 
 export async function DELETE(req: NextRequest) {
@@ -174,4 +137,3 @@ export async function DELETE(req: NextRequest) {
 
   return NextResponse.json({ ok: true })
 }
-

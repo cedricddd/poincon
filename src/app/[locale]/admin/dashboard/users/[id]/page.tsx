@@ -10,6 +10,8 @@ import { Button } from '@/components/Button'
 
 type ClockRecord = {
   id: string; date: string; arrivalTime: string; departureTime: string | null; duration: number | null; location: string
+  editedAt: string | null; editReason: string | null; editNote: string | null
+  editor: { name: string | null; email: string } | null
 }
 type TimeOff = {
   id: string; startDate: string; endDate: string; reason: string | null; status: string; createdAt: string
@@ -98,6 +100,40 @@ const EDIT_REASONS: { value: string; key: string }[] = [
   { value: 'other', key: 'reasonOther' },
 ]
 
+// Inclut les motifs posés par le système, jamais proposés dans le select
+const REASON_KEY: Record<string, string> = {
+  forgot_clockin: 'reasonForgotIn',
+  forgot_clockout: 'reasonForgotOut',
+  correction: 'reasonCorrection',
+  employee_request: 'reasonEmployeeRequest',
+  manual_create: 'reasonManualCreate',
+  other: 'reasonOther',
+}
+
+/** Pastille signalant un pointage encodé ou corrigé à la main, avec sa justification au survol. */
+function EditedBadge({ record }: { record: ClockRecord }) {
+  const t = useTranslations('userDetail')
+  const locale = useLocale()
+  if (!record.editedAt) return null
+
+  const label = record.editReason ? t(REASON_KEY[record.editReason] ?? 'reasonCorrection') : t('reasonCorrection')
+  const who = record.editor?.name ?? record.editor?.email ?? ''
+  const title = [
+    `${label} — ${who}`,
+    `${fmtDate(record.editedAt, locale)} ${fmtTime(record.editedAt, locale)}`,
+    record.editNote,
+  ].filter(Boolean).join('\n')
+
+  return (
+    <span
+      title={title}
+      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--pp-peach)]/10 text-[var(--pp-peach)] cursor-help"
+    >
+      ✎ {t('editedBadge')}
+    </span>
+  )
+}
+
 // ── Clock Records Tab ─────────────────────────────────────────────────────────
 function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; userId: string; onRefresh: () => void }) {
   const t = useTranslations('userDetail')
@@ -108,7 +144,8 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
   const [addData, setAddData] = useState({ date: '', arrival: '', departure: '', location: 'Sur site' })
   const [saving, setSaving] = useState(false)
   const [err, setErr] = useState('')
-  const [reasonStep, setReasonStep] = useState(false)
+  // 'edit' = correction d'un pointage existant, 'add' = encodage manuel — même modale de motif
+  const [reasonStep, setReasonStep] = useState<null | 'edit' | 'add'>(null)
   const [reason, setReason] = useState('forgot_clockin')
   const [reasonNote, setReasonNote] = useState('')
 
@@ -121,7 +158,7 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
       location: r.location,
     })
     setErr('')
-    setReasonStep(false)
+    setReasonStep(null)
     setReason('forgot_clockin')
     setReasonNote('')
   }
@@ -129,10 +166,11 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
   const saveEdit = () => {
     if (!editData.date || !editData.arrival) { setErr(t('arrivalDepartureRequired')); return }
     setErr('')
-    setReasonStep(true)
+    setReasonStep('edit')
   }
 
   const confirmSave = async () => {
+    if (reason === 'other' && !reasonNote.trim()) { setErr(t('noteRequired')); return }
     setSaving(true)
     // Build ISO strings client-side so the browser's local timezone is used,
     // preventing the UTC+2 shift when the API runs in a UTC Docker container.
@@ -150,11 +188,11 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
         departureTime: departureISO,
         location: editData.location,
         reason,
-        note: reason === 'other' ? reasonNote : undefined,
+        note: reasonNote.trim() || undefined,
       }),
     })
     setSaving(false)
-    setReasonStep(false)
+    setReasonStep(null)
     if (!res.ok) { setErr((await res.json()).error); return }
     setEditId(null)
     onRefresh()
@@ -167,8 +205,16 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
     onRefresh()
   }
 
-  const add = async () => {
+  const startAdd = () => {
     if (!addData.date || !addData.arrival) { setErr(t('arrivalDepartureRequired')); return }
+    setErr('')
+    setReason('forgot_clockin')
+    setReasonNote('')
+    setReasonStep('add')
+  }
+
+  const confirmAdd = async () => {
+    if (reason === 'other' && !reasonNote.trim()) { setErr(t('noteRequired')); return }
     setSaving(true); setErr('')
     const arrivalISO = new Date(`${addData.date}T${addData.arrival}:00`).toISOString()
     const departureISO = addData.departure
@@ -183,9 +229,12 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
         arrivalTime: arrivalISO,
         departureTime: departureISO,
         location: addData.location,
+        reason,
+        note: reasonNote.trim() || undefined,
       }),
     })
     setSaving(false)
+    setReasonStep(null)
     if (!res.ok) { setErr((await res.json()).error); return }
     setShowAdd(false)
     setAddData({ date: '', arrival: '', departure: '', location: 'Sur site' })
@@ -196,25 +245,30 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
     <Card>
       {/* Reason modal overlay */}
       {reasonStep && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setReasonStep(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setReasonStep(null)}>
           <div className="bg-[var(--pp-bg)] rounded-xl border border-[var(--pp-line)] shadow-2xl p-6 w-80" onClick={e => e.stopPropagation()}>
             <p className="text-sm font-semibold text-[var(--pp-ink)] mb-1">{t('editReasonTitle')}</p>
             <p className="text-xs text-[var(--pp-muted)] mb-4">{t('editReasonHint')}</p>
             <select value={reason} onChange={e => setReason(e.target.value)} className={`${inp} w-full mb-3`}>
               {EDIT_REASONS.map(r => <option key={r.value} value={r.value}>{t(r.key)}</option>)}
             </select>
-            {reason === 'other' && (
-              <input
-                value={reasonNote}
-                onChange={e => setReasonNote(e.target.value)}
-                placeholder={t('specifyReason')}
-                className={`${inp} w-full mb-3`}
-                autoFocus
-              />
-            )}
+            <textarea
+              value={reasonNote}
+              onChange={e => setReasonNote(e.target.value)}
+              placeholder={reason === 'other' ? t('specifyReason') : t('notePlaceholder')}
+              rows={2}
+              className={`${inp} w-full mb-1 resize-none`}
+              autoFocus
+            />
+            <p className="text-xs text-[var(--pp-muted)] mb-3">
+              {reason === 'other' ? t('noteRequiredHint') : t('noteExportHint')}
+            </p>
+            {err && <p className="text-xs text-[var(--pp-neg)] mb-2">{err}</p>}
             <div className="flex gap-2 mt-1">
-              <Button size="sm" onClick={confirmSave} disabled={saving}>{saving ? '…' : t('confirm')}</Button>
-              <Button size="sm" variant="outline" onClick={() => setReasonStep(false)}>{t('cancel')}</Button>
+              <Button size="sm" onClick={reasonStep === 'add' ? confirmAdd : confirmSave} disabled={saving}>
+                {saving ? '…' : t('confirm')}
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setReasonStep(null)}>{t('cancel')}</Button>
             </div>
           </div>
         </div>
@@ -245,7 +299,7 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
             <label className="block text-xs text-[var(--pp-muted)] mb-0.5">{t('location')}</label>
             <LocationSelect value={addData.location} onChange={v => setAddData(p => ({ ...p, location: v }))} />
           </div>
-          <Button size="sm" onClick={add} disabled={saving}>{saving ? '…' : t('create')}</Button>
+          <Button size="sm" onClick={startAdd} disabled={saving}>{saving ? '…' : t('create')}</Button>
           <Button size="sm" variant="outline" onClick={() => { setShowAdd(false); setErr('') }}>{t('cancel')}</Button>
         </div>
       )}
@@ -284,7 +338,12 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
                   </>
                 ) : (
                   <>
-                    <td className="py-3 pr-4 text-[var(--pp-ink)]">{fmtDate(r.date, locale)}</td>
+                    <td className="py-3 pr-4 text-[var(--pp-ink)]">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {fmtDate(r.date, locale)}
+                        <EditedBadge record={r} />
+                      </div>
+                    </td>
                     <td className="py-3 pr-4 text-[var(--pp-ink)]">{fmtTime(r.arrivalTime, locale)}</td>
                     <td className="py-3 pr-4">
                       {r.departureTime

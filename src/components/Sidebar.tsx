@@ -65,6 +65,9 @@ function IconHome() {
 function IconMail() {
   return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
 }
+function IconEdit() {
+  return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+}
 function IconTablet() {
   return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
 }
@@ -93,6 +96,7 @@ export function Sidebar() {
     { href: '/admin/dashboard/overtimes',             label: t('heures_sup'),      Icon: IconTimer,     color: '#fb923c' },
     { href: '/admin/dashboard/timeoffs',              label: t('conges'),          Icon: IconCalendar,  color: '#0ea5e9' },
     { href: '/admin/dashboard/rtts',                  label: t('recuperation'),    Icon: IconZap,       color: '#fb923c' },
+    { href: '/admin/dashboard/corrections',           label: t('corrections'),     Icon: IconEdit,      color: '#fb923c' },
     { href: '/admin/dashboard/schedules',             label: t('horaires'),        Icon: IconActivity,  color: '#10b981' },
     { href: '/admin/dashboard/teams',                 label: t('equipes'),         Icon: IconUsers,     color: '#ec4899' },
     { href: '/admin/dashboard/planning',              label: t('planning'),        Icon: IconCalendar,  color: '#6366f1' },

@@ -229,7 +229,8 @@
     "se_deconnecter": "Afmelden",
     "ouvrir_menu": "Menu openen",
     "fermer_menu": "Menu sluiten",
-    "reduire_menu": "Menu inklappen"
+    "reduire_menu": "Menu inklappen",
+    "corrections": "Correcties"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -1255,7 +1256,31 @@
     "empty": "Geen registraties in deze periode.",
     "pageInfo": "Pagina {page} / {pages} — {total} registraties",
     "prev": "← Vorige",
-    "next": "Volgende →"
+    "next": "Volgende →",
+    "actions": "Acties",
+    "reason": "Reden",
+    "editedBadge": "Gewijzigd",
+    "reasonForgotIn": "Vergeten in te klokken",
+    "reasonForgotOut": "Vergeten uit te klokken",
+    "reasonCorrection": "Foutcorrectie",
+    "reasonEmployeeRequest": "Aanvraag van de werknemer",
+    "reasonManualCreate": "Handmatige invoer",
+    "reasonOther": "Andere",
+    "statusPending": "In afwachting",
+    "statusApproved": "Goedgekeurd",
+    "statusRejected": "Geweigerd",
+    "correctionsTitle": "Urencorrecties",
+    "correctionsHint": "Vergeten te klokken? Meld het: uw leidinggevende keurt de correctie goed.",
+    "reportButton": "Vergeten registratie melden",
+    "reportTitle": "Vergeten registratie melden",
+    "reportHint": "Geef de werkelijke uren op. Uw leidinggevende moet de aanvraag goedkeuren.",
+    "reportNotePlaceholder": "Opmerking (optioneel)…",
+    "reportSubmit": "Versturen",
+    "reportFailed": "Versturen mislukt",
+    "reportDateRequired": "De datum is verplicht.",
+    "reportTimeRequired": "Geef minstens één uur op om te corrigeren.",
+    "reportNoteRequired": "Een opmerking is verplicht bij de reden « Andere ».",
+    "cancel": "Annuleren"
   },
   "adminRequests": {
     "colType": "Type",
@@ -1326,7 +1351,17 @@
     "toastUpdated": "Verlof bijgewerkt",
     "toastUpdateError": "Fout bij het bijwerken",
     "toastDeleted": "Verlof verwijderd",
-    "toastDeleteError": "Fout bij het verwijderen"
+    "toastDeleteError": "Fout bij het verwijderen",
+    "correctionsTitle": "Urencorrecties",
+    "correctionsHint": "Meldingen van vergeten registraties. Bij goedkeuring wordt de registratie gecorrigeerd en blijft een spoor in de audit trail en in de export.",
+    "typeCorrection": "Correctie",
+    "emptyCorrections": "Geen correctieaanvragen",
+    "correctionCurrent": "nu {current}",
+    "correctionNoRecord": "geen registratie die dag",
+    "reasonForgotIn": "Vergeten in te klokken",
+    "reasonForgotOut": "Vergeten uit te klokken",
+    "reasonCorrection": "Foutcorrectie",
+    "reasonOther": "Andere"
   },
   "schedules": {
     "title": "Werkroosters",
@@ -1733,7 +1768,14 @@
     "apply": "Toepassen",
     "thWorked": "Gewerkt",
     "thStandard": "Standaard",
-    "noOvertimes": "Geen overuren gedetecteerd."
+    "noOvertimes": "Geen overuren gedetecteerd.",
+    "reasonEmployeeRequest": "Aanvraag van de werknemer",
+    "reasonManualCreate": "Handmatige invoer",
+    "editedBadge": "Gewijzigd",
+    "notePlaceholder": "Opmerking (optioneel)…",
+    "noteRequired": "Een opmerking is verplicht bij de reden « Andere ».",
+    "noteRequiredHint": "Opmerking verplicht bij deze reden.",
+    "noteExportHint": "De opmerking verschijnt in de export en in de audit trail."
   },
   "integrations": {
     "loading": "Laden...",
@@ -1808,7 +1850,9 @@
     "whCreated": "Webhook aangemaakt",
     "whDeleted": "Webhook verwijderd",
     "confirmDeleteWebhook": "Deze webhook verwijderen?",
-    "lastDelivery": "Laatste levering: {event} — {code} — {date}"
+    "lastDelivery": "Laatste levering: {event} — {code} — {date}",
+    "evCorrectionApproved": "Urencorrectie goedgekeurd",
+    "evCorrectionRejected": "Urencorrectie geweigerd"
   },
   "audit": {
     "title": "Audit Trail",

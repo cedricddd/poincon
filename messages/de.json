@@ -229,7 +229,8 @@
     "se_deconnecter": "Abmelden",
     "ouvrir_menu": "Menü öffnen",
     "fermer_menu": "Menü schließen",
-    "reduire_menu": "Menü einklappen"
+    "reduire_menu": "Menü einklappen",
+    "corrections": "Korrekturen"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -1255,7 +1256,31 @@
     "empty": "Keine Stempelungen in diesem Zeitraum.",
     "pageInfo": "Seite {page} / {pages} — {total} Stempelungen",
     "prev": "← Zurück",
-    "next": "Weiter →"
+    "next": "Weiter →",
+    "actions": "Aktionen",
+    "reason": "Grund",
+    "editedBadge": "Geändert",
+    "reasonForgotIn": "Kommen vergessen",
+    "reasonForgotOut": "Gehen vergessen",
+    "reasonCorrection": "Fehlerkorrektur",
+    "reasonEmployeeRequest": "Antrag des Mitarbeiters",
+    "reasonManualCreate": "Manuelle Erfassung",
+    "reasonOther": "Sonstiges",
+    "statusPending": "Ausstehend",
+    "statusApproved": "Genehmigt",
+    "statusRejected": "Abgelehnt",
+    "correctionsTitle": "Zeitkorrekturen",
+    "correctionsHint": "Buchung vergessen? Melden Sie es – Ihre Führungskraft genehmigt die Korrektur.",
+    "reportButton": "Vergessene Buchung melden",
+    "reportTitle": "Vergessene Buchung melden",
+    "reportHint": "Geben Sie die tatsächlichen Zeiten an. Ihre Führungskraft muss den Antrag genehmigen.",
+    "reportNotePlaceholder": "Bemerkung (optional)…",
+    "reportSubmit": "Senden",
+    "reportFailed": "Senden fehlgeschlagen",
+    "reportDateRequired": "Das Datum ist erforderlich.",
+    "reportTimeRequired": "Geben Sie mindestens eine zu korrigierende Zeit an.",
+    "reportNoteRequired": "Für den Grund „Sonstiges“ ist eine Bemerkung erforderlich.",
+    "cancel": "Abbrechen"
   },
   "adminRequests": {
     "colType": "Typ",
@@ -1326,7 +1351,17 @@
     "toastUpdated": "Urlaub aktualisiert",
     "toastUpdateError": "Fehler bei der Aktualisierung",
     "toastDeleted": "Urlaub gelöscht",
-    "toastDeleteError": "Fehler beim Löschen"
+    "toastDeleteError": "Fehler beim Löschen",
+    "correctionsTitle": "Zeitkorrekturen",
+    "correctionsHint": "Gemeldete vergessene Buchungen. Die Genehmigung korrigiert die Buchung und hinterlässt eine Spur im Audit Trail und im Export.",
+    "typeCorrection": "Korrektur",
+    "emptyCorrections": "Keine Korrekturanträge",
+    "correctionCurrent": "aktuell {current}",
+    "correctionNoRecord": "keine Buchung an diesem Tag",
+    "reasonForgotIn": "Kommen vergessen",
+    "reasonForgotOut": "Gehen vergessen",
+    "reasonCorrection": "Fehlerkorrektur",
+    "reasonOther": "Sonstiges"
   },
   "schedules": {
     "title": "Arbeitspläne",
@@ -1733,7 +1768,14 @@
     "apply": "Anwenden",
     "thWorked": "Gearbeitet",
     "thStandard": "Standard",
-    "noOvertimes": "Keine Überstunden erkannt."
+    "noOvertimes": "Keine Überstunden erkannt.",
+    "reasonEmployeeRequest": "Antrag des Mitarbeiters",
+    "reasonManualCreate": "Manuelle Erfassung",
+    "editedBadge": "Geändert",
+    "notePlaceholder": "Bemerkung (optional)…",
+    "noteRequired": "Für den Grund „Sonstiges“ ist eine Bemerkung erforderlich.",
+    "noteRequiredHint": "Bemerkung für diesen Grund erforderlich.",
+    "noteExportHint": "Die Bemerkung erscheint im Export und im Audit Trail."
   },
   "integrations": {
     "loading": "Laden...",
@@ -1808,7 +1850,9 @@
     "whCreated": "Webhook erstellt",
     "whDeleted": "Webhook gelöscht",
     "confirmDeleteWebhook": "Diesen Webhook löschen?",
-    "lastDelivery": "Letzte Zustellung: {event} — {code} — {date}"
+    "lastDelivery": "Letzte Zustellung: {event} — {code} — {date}",
+    "evCorrectionApproved": "Zeitkorrektur genehmigt",
+    "evCorrectionRejected": "Zeitkorrektur abgelehnt"
   },
   "audit": {
     "title": "Audit Trail",
