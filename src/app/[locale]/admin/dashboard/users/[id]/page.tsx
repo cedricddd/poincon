@@ -704,12 +704,13 @@ export default function UserDetailPage() {
     fetch(`/api/admin/users/${id}`)
       .then(r => r.json())
       .then(d => setData(d))
+      .catch(() => {})
       .finally(() => setLoading(false))
   }, [id])
 
   useEffect(() => { load() }, [load])
   useEffect(() => {
-    fetch('/api/admin/sites').then(r => r.json()).then(setSites)
+    fetch('/api/admin/sites').then(r => r.json()).then(setSites).catch(() => {})
   }, [])
   useEffect(() => {
     if (data?.user) setSiteId(data.user.defaultSiteId ?? '')

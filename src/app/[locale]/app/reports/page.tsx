@@ -136,7 +136,7 @@ export default function ReportsPage() {
   })
 
   useEffect(() => {
-    fetch('/api/user/balance').then(r => r.json()).then(setBalance)
+    fetch('/api/user/balance').then(r => r.json()).then(setBalance).catch(() => {})
   }, [])
 
   const fetchCorrections = useCallback(() => {
@@ -200,6 +200,7 @@ export default function ReportsPage() {
         setTotal(d.total ?? 0)
         setPages(d.pages ?? 1)
       })
+      .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
 
