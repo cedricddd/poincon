@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { isAdminRole } from '@/lib/roles'
 import { getUserPlan, planCanAccess, planCsvExportMaxDays } from '@/lib/plan'
 import { brusselsDateKey, brusselsDayOffset, brusselsMidnightFromDateString } from '@/lib/clock'
+import { LEAVE_TYPE_LABEL_FR } from '@/lib/leaveTypes'
 import { NextRequest, NextResponse } from 'next/server'
 
 
@@ -32,12 +33,7 @@ function dayKey(iso: Date) {
   return iso.toLocaleDateString('en-CA', { timeZone: 'Europe/Brussels' })
 }
 
-const LEAVE_TAGS: Record<string, string> = {
-  ANNUAL: 'Congé',
-  SICK: 'Maladie',
-  MATERNITY: 'Maternité',
-  ECONOMIC_UNEMPLOYMENT: 'Chômage économique',
-}
+const LEAVE_TAGS: Record<string, string> = LEAVE_TYPE_LABEL_FR
 
 const EDIT_REASON_LABELS: Record<string, string> = {
   forgot_clockin: 'Oubli de pointage (entrée)',

@@ -1,8 +1,7 @@
 import { requireAdminWithCompany, canAccessUser, forbiddenError } from '@/lib/admin-security'
 import { prisma } from '@/lib/prisma'
+import { isValidLeaveType } from '@/lib/leaveTypes'
 import { NextRequest, NextResponse } from 'next/server'
-
-export const validLeaveTypes = ['ANNUAL', 'SICK', 'MATERNITY', 'ECONOMIC_UNEMPLOYMENT']
 
 export async function GET(req: NextRequest) {
   const auth = await requireAdminWithCompany()
@@ -28,7 +27,7 @@ export async function POST(req: NextRequest) {
       userId,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
-      leaveType: validLeaveTypes.includes(leaveType) ? leaveType : 'ANNUAL',
+      leaveType: isValidLeaveType(leaveType) ? leaveType : 'ANNUAL',
       reason: reason ?? null,
       status: status ?? 'APPROVED',
       approvedBy: auth.session.user.id,
@@ -36,6 +35,6 @@ export async function POST(req: NextRequest) {
     },
   })
   await prisma.notification.create({ data: { userId, message: 'Congé enregistré', type: 'info' } })
-  await prisma.auditLog.create({ data: { userId: auth.session.user.id, action: 'admin_create', resource: 'timeOff', resourceId: record.id, changes: JSON.stringify({ targetUserId: userId, startDate, endDate, leaveType: validLeaveTypes.includes(leaveType) ? leaveType : 'ANNUAL', reason: reason ?? null, status: status ?? 'APPROVED' }) } })
+  await prisma.auditLog.create({ data: { userId: auth.session.user.id, action: 'admin_create', resource: 'timeOff', resourceId: record.id, changes: JSON.stringify({ targetUserId: userId, startDate, endDate, leaveType: isValidLeaveType(leaveType) ? leaveType : 'ANNUAL', reason: reason ?? null, status: status ?? 'APPROVED' }) } })
   return NextResponse.json({ record })
 }

@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { brusselsDateParts, brusselsMidnightFromDateString, brusselsDayOffset } from '@/lib/clock'
+import { BALANCE_NEUTRAL_LEAVE_TYPES, type LeaveType } from '@/lib/leaveTypes'
 
 export type ReportGroupBy = 'employee' | 'team' | 'week' | 'month'
 
@@ -68,7 +69,7 @@ export async function runReportAnalysis(params: {
       startDate: { lt: toInstantExclusive },
       endDate: { gte: fromInstant },
     },
-    select: { userId: true, startDate: true, endDate: true },
+    select: { userId: true, startDate: true, endDate: true, leaveType: true },
   })
 
   const userMap = Object.fromEntries(companyUsers.map(u => [u.id, u]))
@@ -107,6 +108,9 @@ export async function runReportAnalysis(params: {
   }
 
   for (const toff of timeOffs) {
+    // Un jour férié (ou son jour de remplacement) est distinct des congés payés en
+    // droit belge — il ne doit pas compter comme un jour de congé pris.
+    if (BALANCE_NEUTRAL_LEAVE_TYPES.includes(toff.leaveType as LeaveType)) continue
     const start = new Date(toff.startDate)
     const end = new Date(toff.endDate)
     const fromD = new Date(from)

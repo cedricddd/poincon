@@ -1,6 +1,8 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+import { LEAVE_TYPE_KEY_LEAVE_PREFIX } from '@/lib/leaveTypes'
+import { LeaveTypeIcon } from '@/components/LeaveTypeIcon'
 
 interface Shift {
   id: string
@@ -69,6 +71,12 @@ const LEAVE_CONFIG: Record<string, { bg: string; text: string; labelKey: string;
         <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
       </svg>
     ),
+  },
+  PUBLIC_HOLIDAY: {
+    bg: 'bg-purple-500/10 border border-purple-500/25',
+    text: 'text-purple-600 dark:text-purple-400',
+    labelKey: LEAVE_TYPE_KEY_LEAVE_PREFIX.PUBLIC_HOLIDAY,
+    icon: <LeaveTypeIcon type="PUBLIC_HOLIDAY" size={14} />,
   },
 }
 

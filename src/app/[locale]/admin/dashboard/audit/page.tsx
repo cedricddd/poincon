@@ -188,7 +188,7 @@ export default function AuditPage() {
       const parts: string[] = []
 
       // Time-off / leave events
-      const leaveTypeLabels: Record<string, string> = { ANNUAL: t('leaveAnnual'), SICK: t('leaveSick'), MATERNITY: t('leaveMaternity'), ECONOMIC_UNEMPLOYMENT: t('leaveEconomicUnemployment') }
+      const leaveTypeLabels: Record<string, string> = { ANNUAL: t('leaveAnnual'), SICK: t('leaveSick'), MATERNITY: t('leaveMaternity'), ECONOMIC_UNEMPLOYMENT: t('leaveEconomicUnemployment'), PUBLIC_HOLIDAY: t('leavePublicHoliday') }
       if (c.leaveType) parts.push(`${t('lblType')}: ${leaveTypeLabels[c.leaveType] ?? c.leaveType}`)
       if (c.startDate) parts.push(`${t('lblFrom')}: ${new Date(c.startDate).toLocaleDateString(bcp)}`)
       if (c.endDate) parts.push(`${t('lblTo')}: ${new Date(c.endDate).toLocaleDateString(bcp)}`)

@@ -1,3 +1,5 @@
+import { LEAVE_TYPE_LABEL_FR } from '@/lib/leaveTypes'
+
 type JsPDFCtor = typeof import('jspdf').default
 type JsPDFInstance = InstanceType<JsPDFCtor>
 type AutoTableFn = typeof import('jspdf-autotable').default
@@ -18,7 +20,7 @@ interface EmployeeData {
     location: string
     duration: number | null
   }[]
-  timeOffRequests: { startDate: string; endDate: string; status: string; type?: string }[]
+  timeOffRequests: { startDate: string; endDate: string; status: string; leaveType?: string }[]
   rttRequests: { date: string; status: string }[]
   detectedOvertimes: { date: string; minutes: number }[]
   shifts: { date: string; startTime: string; endTime: string; shiftType: string }[]
@@ -98,7 +100,10 @@ function renderEmployeeSection(doc: JsPDFInstance, autoTable: AutoTableFn, emplo
     autoTable(doc, {
       startY: y,
       head: [['Demandes de congé', 'Du', 'Au', 'Statut']],
-      body: employee.timeOffRequests.map(r => [r.type ?? '—', fmtDate(r.startDate), fmtDate(r.endDate), r.status]),
+      body: employee.timeOffRequests.map(r => [
+        (r.leaveType && LEAVE_TYPE_LABEL_FR[r.leaveType as keyof typeof LEAVE_TYPE_LABEL_FR]) ?? r.leaveType ?? '—',
+        fmtDate(r.startDate), fmtDate(r.endDate), r.status,
+      ]),
       styles: tableStyles,
       headStyles,
       alternateRowStyles,

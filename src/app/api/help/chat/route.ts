@@ -37,7 +37,7 @@ Affiche la liste des collègues actuellement pointés, groupés par site, avec l
 Affiche l'historique des pointages de l'employé avec statistiques : total heures, moyenne par jour, pointages incomplets. Filtrage par date. Affiche aussi le solde (heures supp, RTT consommées, jours de congé, bilan net).
 
 ### Congés (/app/time-off)
-Permet de soumettre une demande de congé avec type (Congé annuel / Congé maladie / Congé maternité), dates de début et fin, et raison optionnelle. Affiche la liste des demandes avec leur statut (En attente / Approuvé / Refusé).
+Permet de soumettre une demande de congé avec type (Congé annuel / Congé maladie / Congé maternité / Chômage économique / Jour férié), dates de début et fin, et raison optionnelle. Affiche la liste des demandes avec leur statut (En attente / Approuvé / Refusé).
 
 ### RTT (/app/rtt)
 Permet de demander une récupération (RTT) avec une date, le nombre d'heures à récupérer (0,5 à 8h) et une raison optionnelle. Affiche les demandes avec statut.

@@ -1,8 +1,8 @@
 import { requireAdminWithCompany, forbiddenError } from '@/lib/admin-security'
 import { prisma } from '@/lib/prisma'
 import { logAudit } from '@/lib/audit'
+import { isValidLeaveType } from '@/lib/leaveTypes'
 import { NextRequest, NextResponse } from 'next/server'
-import { validLeaveTypes } from '../route'
 
 async function findScopedRequest(id: string, companyId: string) {
   const record = await prisma.timeOffRequest.findUnique({
@@ -24,7 +24,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const { startDate, endDate, reason, leaveType } = await req.json()
   if (!startDate || !endDate) return NextResponse.json({ error: 'Champs requis' }, { status: 400 })
 
-  const resolvedLeaveType = validLeaveTypes.includes(leaveType) ? leaveType : record.leaveType
+  const resolvedLeaveType = isValidLeaveType(leaveType) ? leaveType : record.leaveType
   const updated = await prisma.timeOffRequest.update({
     where: { id },
     data: {

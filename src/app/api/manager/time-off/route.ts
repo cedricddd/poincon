@@ -2,6 +2,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { getUserPlan, planCanAccess } from '@/lib/plan'
 import { logAudit } from '@/lib/audit'
+import { isValidLeaveType } from '@/lib/leaveTypes'
 import { NextRequest, NextResponse } from 'next/server'
 
 async function requireManagerScope(sessionUserId: string) {
@@ -41,8 +42,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const validLeaveTypes = ['ANNUAL', 'SICK', 'MATERNITY', 'ECONOMIC_UNEMPLOYMENT']
-  const resolvedLeaveType = validLeaveTypes.includes(leaveType) ? leaveType : 'ANNUAL'
+  const resolvedLeaveType = isValidLeaveType(leaveType) ? leaveType : 'ANNUAL'
   const record = await prisma.timeOffRequest.create({
     data: {
       userId,

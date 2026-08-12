@@ -2,6 +2,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { logAudit } from '@/lib/audit'
 import { dispatchWebhookSafe } from '@/lib/webhook'
+import { isValidLeaveType } from '@/lib/leaveTypes'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
@@ -42,8 +43,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const validLeaveTypes = ['ANNUAL', 'SICK', 'MATERNITY', 'ECONOMIC_UNEMPLOYMENT']
-    const resolvedLeaveType = validLeaveTypes.includes(leaveType) ? leaveType : 'ANNUAL'
+    const resolvedLeaveType = isValidLeaveType(leaveType) ? leaveType : 'ANNUAL'
     const request = await prisma.timeOffRequest.create({
       data: {
         userId: session.user.id,
