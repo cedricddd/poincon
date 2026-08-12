@@ -2,6 +2,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { isAdminRole } from '@/lib/roles'
 import { getUserPlan, planCanAccess, planCsvExportMaxDays } from '@/lib/plan'
+import { brusselsDateKey, brusselsDayOffset, brusselsMidnightFromDateString } from '@/lib/clock'
 import { NextRequest, NextResponse } from 'next/server'
 
 
@@ -98,8 +99,8 @@ export async function GET(req: NextRequest) {
   }
 
   // La grille jour-par-jour doit rester bornée — 30 jours par défaut si aucune plage n'est précisée
-  const today = new Date().toISOString().slice(0, 10)
-  const defaultFrom = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+  const today = brusselsDateKey(new Date())
+  const defaultFrom = brusselsDateKey(brusselsDayOffset(new Date(), -30))
   const effectiveFrom = from ?? defaultFrom
   const effectiveTo = to ?? today
 
@@ -117,14 +118,15 @@ export async function GET(req: NextRequest) {
   }
   const allowedIds = companyUsers.map(u => u.id)
 
-  const rangeStart = new Date(effectiveFrom + 'T00:00:00Z')
-  const rangeEnd = new Date(effectiveTo + 'T23:59:59Z')
+  const rangeStart = brusselsMidnightFromDateString(effectiveFrom)
+  const rangeEndExclusive = brusselsDayOffset(brusselsMidnightFromDateString(effectiveTo), 1)
+  const rangeEnd = new Date(rangeEndExclusive.getTime() - 1) // borne inclusive, pour le clamp des congés plus bas
 
   const [clockRecords, timeOffRequests] = await Promise.all([
     prisma.clockRecord.findMany({
       where: {
         userId: { in: allowedIds },
-        date: { gte: rangeStart, lte: rangeEnd },
+        date: { gte: rangeStart, lt: rangeEndExclusive },
         ...(siteId ? { siteId } : {}),
       },
       include: {
@@ -137,7 +139,7 @@ export async function GET(req: NextRequest) {
       where: {
         status: 'APPROVED',
         userId: { in: allowedIds },
-        startDate: { lte: rangeEnd },
+        startDate: { lt: rangeEndExclusive },
         endDate: { gte: rangeStart },
       },
       select: { userId: true, startDate: true, endDate: true, leaveType: true },

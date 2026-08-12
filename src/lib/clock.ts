@@ -2,19 +2,31 @@ import { prisma } from '@/lib/prisma'
 
 export const OVERTIME_GRACE_MINUTES = 30
 
-// Les horaires de travail (WorkSchedule.startTime/endTime) sont toujours exprimés
-// en heure de Bruxelles. Le serveur, lui, tourne en UTC — un simple setHours() les
-// interpréterait donc dans le mauvais fuseau (décalage de 1h ou 2h selon été/hiver).
+// Toute heure "métier" (horaires de travail, journée légale, semaine, mois) est
+// toujours exprimée en heure de Bruxelles. Le serveur, lui, tourne en UTC — un
+// simple setHours()/getDay()/toISOString() l'interpréterait dans le mauvais fuseau
+// (décalage de 1h en hiver, 2h en été). Toutes les fonctions ci-dessous convertissent
+// explicitement via Europe/Brussels, quel que soit le fuseau du serveur qui les exécute.
 const WORK_TIMEZONE = 'Europe/Brussels'
+
+// "YYYY-MM-DD" du jour calendaire à Bruxelles pour un instant donné.
+export function brusselsDateKey(date: Date): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: WORK_TIMEZONE, year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(date)
+}
+
+export function brusselsDateParts(date: Date): { year: number; month: number; day: number } {
+  const [year, month, day] = brusselsDateKey(date).split('-').map(Number)
+  return { year, month, day }
+}
 
 // Convertit un "HH:MM" d'horaire (heure de Bruxelles) en instant UTC réel, pour le
 // jour calendaire de référence (lui aussi compté à Bruxelles). Gère automatiquement
 // le passage heure d'été / heure d'hiver, quel que soit le fuseau du serveur.
 export function parseShiftTime(timeStr: string, referenceDate: Date): Date {
   const [hours, minutes] = timeStr.split(':').map(Number)
-  const dateStr = new Intl.DateTimeFormat('en-CA', {
-    timeZone: WORK_TIMEZONE, year: 'numeric', month: '2-digit', day: '2-digit',
-  }).format(referenceDate)
+  const dateStr = brusselsDateKey(referenceDate)
   const hh = String(hours).padStart(2, '0')
   const mm = String(minutes).padStart(2, '0')
 
@@ -30,6 +42,52 @@ export function parseShiftTime(timeStr: string, referenceDate: Date): Date {
   for (const p of dtf.formatToParts(guess)) parts[p.type] = p.value
   const asIfUtc = Date.UTC(+parts.year, +parts.month - 1, +parts.day, +parts.hour, +parts.minute, +parts.second)
   return new Date(guess.getTime() - (asIfUtc - guess.getTime()))
+}
+
+// Minuit (00:00 Bruxelles) d'un jour calendaire donné, en instant UTC réel. `day`
+// peut sortir de la plage normale (0, -1, 32...) : Date.UTC normalise le débordement
+// de mois/année, ce qui permet de faire de l'arithmétique de calendrier en toute sécurité.
+function brusselsMidnightUtc(year: number, month1to12: number, day: number): Date {
+  const noonUtc = new Date(Date.UTC(year, month1to12 - 1, day, 12))
+  return parseShiftTime('00:00', noonUtc)
+}
+
+// Bornes [début, fin) de la journée calendaire de Bruxelles contenant referenceDate.
+// À utiliser pour tout filtre "aujourd'hui" côté serveur (date: { gte: start, lt: end }).
+export function brusselsDayRange(referenceDate: Date = new Date()): { start: Date; end: Date } {
+  const { year, month, day } = brusselsDateParts(referenceDate)
+  return { start: brusselsMidnightUtc(year, month, day), end: brusselsMidnightUtc(year, month, day + 1) }
+}
+
+// Bornes [début, fin) de la semaine ISO (lundi → dimanche inclus) de Bruxelles contenant referenceDate.
+export function brusselsWeekRange(referenceDate: Date = new Date()): { start: Date; end: Date } {
+  const weekdayStr = new Intl.DateTimeFormat('en-US', { timeZone: WORK_TIMEZONE, weekday: 'short' }).format(referenceDate)
+  const isoDay = ({ Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 } as Record<string, number>)[weekdayStr] ?? 1
+  const { year, month, day } = brusselsDateParts(referenceDate)
+  return {
+    start: brusselsMidnightUtc(year, month, day - (isoDay - 1)),
+    end: brusselsMidnightUtc(year, month, day - (isoDay - 1) + 7),
+  }
+}
+
+// Bornes [début, fin) d'un mois calendaire de Bruxelles (month1to12 peut déborder 1-12,
+// normalisé par Date.UTC — pratique pour calculer "le mois précédent" sans cas particulier).
+export function brusselsMonthRange(year: number, month1to12: number): { start: Date; end: Date } {
+  return { start: brusselsMidnightUtc(year, month1to12, 1), end: brusselsMidnightUtc(year, month1to12 + 1, 1) }
+}
+
+// Minuit (Bruxelles) N jours avant/après referenceDate — brique de base pour des
+// fenêtres glissantes ("les 7 derniers jours") ancrées sur le calendrier de Bruxelles.
+export function brusselsDayOffset(referenceDate: Date, offsetDays: number): Date {
+  const { year, month, day } = brusselsDateParts(referenceDate)
+  return brusselsMidnightUtc(year, month, day + offsetDays)
+}
+
+// Convertit une chaîne "YYYY-MM-DD" (jour calendaire choisi côté client, donc déjà
+// en heure de Bruxelles pour un utilisateur belge) en l'instant réel de minuit Bruxelles.
+export function brusselsMidnightFromDateString(dateStr: string): Date {
+  const noonUtc = new Date(`${dateStr}T12:00:00Z`)
+  return parseShiftTime('00:00', noonUtc)
 }
 
 export function computeShiftDuration(

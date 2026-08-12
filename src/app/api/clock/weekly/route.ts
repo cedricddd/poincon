@@ -1,5 +1,6 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { brusselsWeekRange, brusselsDayOffset, brusselsDateKey } from '@/lib/clock'
 import { NextResponse } from 'next/server'
 
 export async function GET() {
@@ -7,21 +8,13 @@ export async function GET() {
     const session = await auth()
     if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const now = new Date()
-    const dayOfWeek = now.getDay() // 0=Sun, 1=Mon...
-    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
-    const monday = new Date(now)
-    monday.setDate(now.getDate() + diffToMonday)
-    monday.setHours(0, 0, 0, 0)
-
-    const friday = new Date(monday)
-    friday.setDate(monday.getDate() + 4)
-    friday.setHours(23, 59, 59, 999)
+    const { start: monday } = brusselsWeekRange()
+    const saturday = brusselsDayOffset(monday, 5) // borne exclusive : fin du vendredi (Bruxelles)
 
     const records = await prisma.clockRecord.findMany({
       where: {
         userId: session.user.id,
-        date: { gte: monday, lte: friday },
+        date: { gte: monday, lt: saturday },
       },
     })
 
@@ -29,14 +22,13 @@ export async function GET() {
     const dateKeys = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
 
     const result = Array.from({ length: 5 }, (_, i) => {
-      const d = new Date(monday)
-      d.setDate(monday.getDate() + i)
-      return { date: dateKeys[i], day: dayNames[i], hours: 0, isoDate: d.toISOString().split('T')[0] }
+      const d = brusselsDayOffset(monday, i)
+      return { date: dateKeys[i], day: dayNames[i], hours: 0, isoDate: brusselsDateKey(d) }
     })
 
     records.forEach(record => {
       if (!record.duration) return
-      const isoDate = new Date(record.date).toISOString().split('T')[0]
+      const isoDate = brusselsDateKey(new Date(record.date))
       const found = result.find(r => r.isoDate === isoDate)
       if (found) found.hours = Math.round((found.hours + record.duration / 60) * 100) / 100
     })

@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { getUserPlan, planCanAccess } from '@/lib/plan'
+import { brusselsDateKey } from '@/lib/clock'
 import { NextResponse } from 'next/server'
 
 export async function GET() {
@@ -29,9 +30,12 @@ export async function GET() {
   })
   const memberIds = [...new Set(members.map(m => m.userId))]
 
-  const today = new Date()
+  // TimeOffRequest.startDate/endDate sont des sentinelles "minuit UTC = jour calendaire"
+  // (créées via `new Date("YYYY-MM-DD")`), pas des instants réels — `today` doit suivre
+  // la même convention pour que la comparaison avec `endDate` reste correcte toute la journée.
+  const today = new Date(`${brusselsDateKey(new Date())}T00:00:00.000Z`)
   const in30days = new Date(today)
-  in30days.setDate(today.getDate() + 30)
+  in30days.setUTCDate(today.getUTCDate() + 30)
 
   const timeOffs = await prisma.timeOffRequest.findMany({
     where: {

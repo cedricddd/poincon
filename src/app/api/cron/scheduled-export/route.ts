@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 import { PLAN_LIMITS, PlanName } from '@/lib/plan'
+import { brusselsDateParts, brusselsMonthRange, brusselsDayOffset } from '@/lib/clock'
 import nodemailer from 'nodemailer'
 
 const transporter = nodemailer.createTransport({
@@ -51,8 +52,10 @@ export async function GET(req: NextRequest) {
   }
 
   const now = new Date()
-  const isMonday = now.getDay() === 1
-  const isFirstOfMonth = now.getDate() === 1
+  const { year, month, day } = brusselsDateParts(now)
+  const brusselsWeekday = new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Brussels', weekday: 'short' }).format(now)
+  const isMonday = brusselsWeekday === 'Mon'
+  const isFirstOfMonth = day === 1
 
   // Récupérer toutes les companies avec un plan actif
   const companies = await prisma.company.findMany({
@@ -78,24 +81,24 @@ export async function GET(req: NextRequest) {
 
     if (!shouldSend) { skipped++; continue }
 
-    // Calculer la période
-    const periodStart = new Date(now)
-    const periodEnd = new Date(now)
+    // Calculer la période (bornes calendaires de Bruxelles, pas celles du serveur)
+    let periodStart: Date
+    let periodEnd: Date
     if (schedule === 'weekly') {
-      periodStart.setDate(now.getDate() - 7)
+      periodStart = brusselsDayOffset(now, -7)
+      periodEnd = brusselsDayOffset(now, 1) // exclusive : fin de la journée d'aujourd'hui
     } else {
-      periodStart.setMonth(now.getMonth() - 1, 1)
-      periodEnd.setDate(0) // dernier jour du mois précédent
+      const prevMonth = month === 1 ? 12 : month - 1
+      const prevYear = month === 1 ? year - 1 : year
+      ;({ start: periodStart, end: periodEnd } = brusselsMonthRange(prevYear, prevMonth))
     }
-    periodStart.setHours(0, 0, 0, 0)
-    periodEnd.setHours(23, 59, 59, 999)
 
     const memberIds = company.members.map(m => m.id)
 
     const records = await prisma.clockRecord.findMany({
       where: {
         userId: { in: memberIds },
-        date: { gte: periodStart, lte: periodEnd },
+        date: { gte: periodStart, lt: periodEnd },
       },
       include: {
         user: { select: { name: true, email: true } },

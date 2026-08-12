@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { companyHasAddon } from '@/lib/plan'
 import { runReportAnalysis, type ReportGroupBy } from '@/lib/reportAnalysis'
 import { sendEmail } from '@/lib/mail'
+import { brusselsDateKey, brusselsDayOffset } from '@/lib/clock'
 import { NextRequest, NextResponse } from 'next/server'
 
 interface TemplateConfig {
@@ -10,11 +11,9 @@ interface TemplateConfig {
 }
 
 function periodRange(frequency: 'weekly' | 'monthly'): { from: string; to: string } {
-  const to = new Date()
-  const from = new Date(to)
-  if (frequency === 'weekly') from.setDate(from.getDate() - 7)
-  else from.setMonth(from.getMonth() - 1)
-  return { from: from.toISOString().slice(0, 10), to: to.toISOString().slice(0, 10) }
+  const now = new Date()
+  const from = frequency === 'weekly' ? brusselsDayOffset(now, -7) : brusselsDayOffset(now, -30)
+  return { from: brusselsDateKey(from), to: brusselsDateKey(now) }
 }
 
 function toCsv(rows: Awaited<ReturnType<typeof runReportAnalysis>>): string {

@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { sendEndOfDayReminderEmail } from '@/lib/mail'
+import { brusselsDayRange } from '@/lib/clock'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(req: NextRequest) {
@@ -9,15 +10,12 @@ export async function GET(req: NextRequest) {
   }
 
   const now = new Date()
-  const startOfDay = new Date(now)
-  startOfDay.setHours(0, 0, 0, 0)
-  const endOfDay = new Date(now)
-  endOfDay.setHours(23, 59, 59, 999)
+  const { start: startOfDay, end: endOfDay } = brusselsDayRange(now)
 
   // Find clock records from today with no departure
   const openRecords = await prisma.clockRecord.findMany({
     where: {
-      arrivalTime: { gte: startOfDay, lte: endOfDay },
+      arrivalTime: { gte: startOfDay, lt: endOfDay },
       departureTime: null,
     },
     include: {

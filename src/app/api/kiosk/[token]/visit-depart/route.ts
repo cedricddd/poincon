@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { getCompanyPlan, planCanAccess } from '@/lib/plan'
 import { rateLimit } from '@/lib/rateLimit'
+import { brusselsDayRange } from '@/lib/clock'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(
@@ -31,10 +32,7 @@ export async function POST(
       return NextResponse.json({ error: 'Email requis' }, { status: 400 })
     }
 
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
+    const { start: today, end: tomorrow } = brusselsDayRange()
 
     // Find the most recent open visit for this email today
     const visit = await prisma.kioskVisit.findFirst({

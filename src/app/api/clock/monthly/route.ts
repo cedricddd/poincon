@@ -1,5 +1,6 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { brusselsMonthRange, brusselsDateKey } from '@/lib/clock'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(req: NextRequest) {
@@ -16,24 +17,23 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Paramètres year/month invalides' }, { status: 400 })
     }
 
-    const startDate = new Date(year, month - 1, 1)
-    const endDate = new Date(year, month, 0, 23, 59, 59)
+    const { start: startDate, end: endDate } = brusselsMonthRange(year, month)
 
     const records = await prisma.clockRecord.findMany({
       where: {
         userId: session.user.id,
         date: {
           gte: startDate,
-          lte: endDate,
+          lt: endDate,
         },
       },
       orderBy: { createdAt: 'asc' },
     })
 
-    // Group by date and sum hours
+    // Group by date (jour calendaire de Bruxelles) and sum hours
     const dailyHours: Record<string, number> = {}
     records.forEach(record => {
-      const dateKey = new Date(record.date).toISOString().split('T')[0]
+      const dateKey = brusselsDateKey(new Date(record.date))
       if (!dailyHours[dateKey]) {
         dailyHours[dateKey] = 0
       }
@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
       year,
       month,
       dailyHours,
-      totalDays: endDate.getDate(),
+      totalDays: new Date(year, month, 0).getDate(),
       totalHours: Object.values(dailyHours).reduce((sum, h) => sum + h, 0),
     })
   } catch (error) {

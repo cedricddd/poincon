@@ -2,6 +2,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { isAdminRole } from '@/lib/roles'
 import { getUserPlan, planCanAccess } from '@/lib/plan'
+import { brusselsMidnightFromDateString, brusselsDayOffset } from '@/lib/clock'
 import { NextRequest, NextResponse } from 'next/server'
 
 async function requireAdmin() {
@@ -40,8 +41,8 @@ export async function GET(req: NextRequest) {
     ...(siteId ? { siteId } : {}),
     ...(from || to ? {
       date: {
-        ...(from ? { gte: new Date(from) } : {}),
-        ...(to ? { lte: new Date(to + 'T23:59:59') } : {}),
+        ...(from ? { gte: brusselsMidnightFromDateString(from) } : {}),
+        ...(to ? { lt: brusselsDayOffset(brusselsMidnightFromDateString(to), 1) } : {}),
       },
     } : {}),
   }
@@ -76,8 +77,8 @@ export async function GET(req: NextRequest) {
       ...(userId ? { userId } : {}),
       ...(from || to ? {
         date: {
-          ...(from ? { gte: new Date(from) } : {}),
-          ...(to ? { lte: new Date(to + 'T23:59:59') } : {}),
+          ...(from ? { gte: brusselsMidnightFromDateString(from) } : {}),
+          ...(to ? { lt: brusselsDayOffset(brusselsMidnightFromDateString(to), 1) } : {}),
         },
       } : {}),
     }

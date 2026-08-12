@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { brusselsDateParts, brusselsMidnightFromDateString, brusselsDayOffset } from '@/lib/clock'
 
 export type ReportGroupBy = 'employee' | 'team' | 'week' | 'month'
 
@@ -10,8 +11,12 @@ export interface ReportAnalysisRow {
   timeOffDays: number
 }
 
+// Regroupe par semaine/mois ISO du calendrier de Bruxelles, pas celui du serveur
+// (le conteneur tourne en UTC ; sans ça, un pointage réellement du lundi matin
+// bascule encore dans "dimanche" côté serveur pendant la fenêtre de minuit).
 function weekKey(date: Date): string {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+  const { year, month, day } = brusselsDateParts(date)
+  const d = new Date(Date.UTC(year, month - 1, day))
   d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7))
   const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1))
   const week = Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7)
@@ -19,7 +24,8 @@ function weekKey(date: Date): string {
 }
 
 function monthKey(date: Date): string {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+  const { year, month } = brusselsDateParts(date)
+  return `${year}-${String(month).padStart(2, '0')}`
 }
 
 export async function runReportAnalysis(params: {
@@ -42,10 +48,13 @@ export async function runReportAnalysis(params: {
   const allowedIds = companyUsers.map(u => u.id)
   if (allowedIds.length === 0) return []
 
+  const fromInstant = brusselsMidnightFromDateString(from)
+  const toInstantExclusive = brusselsDayOffset(brusselsMidnightFromDateString(to), 1)
+
   const records = await prisma.clockRecord.findMany({
     where: {
       userId: { in: allowedIds },
-      date: { gte: new Date(from), lte: new Date(to + 'T23:59:59Z') },
+      date: { gte: fromInstant, lt: toInstantExclusive },
       departureTime: { not: null },
       duration: { not: null },
     },
@@ -56,8 +65,8 @@ export async function runReportAnalysis(params: {
     where: {
       userId: { in: allowedIds },
       status: 'APPROVED',
-      startDate: { lte: new Date(to + 'T23:59:59Z') },
-      endDate: { gte: new Date(from) },
+      startDate: { lt: toInstantExclusive },
+      endDate: { gte: fromInstant },
     },
     select: { userId: true, startDate: true, endDate: true },
   })

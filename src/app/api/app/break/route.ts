@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { brusselsDayRange } from '@/lib/clock'
 
 // GET — check if meal break is enabled + return active break state
 export async function GET() {
@@ -21,10 +22,7 @@ export async function GET() {
   const enabled = company?.mealBreakEnabled ?? false
 
   // Find active clock record for today
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const tomorrow = new Date(today)
-  tomorrow.setDate(tomorrow.getDate() + 1)
+  const { start: today, end: tomorrow } = brusselsDayRange()
 
   const activeRecord = await prisma.clockRecord.findFirst({
     where: { userId: session.user.id, departureTime: null, date: { gte: today, lt: tomorrow } },

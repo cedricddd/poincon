@@ -2,7 +2,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { logAudit } from '@/lib/audit'
 import { dispatchWebhookSafe } from '@/lib/webhook'
-import { closeClockRecord } from '@/lib/clock'
+import { closeClockRecord, brusselsDayRange } from '@/lib/clock'
 import { NextRequest, NextResponse } from 'next/server'
 
 // SECURITY: Validate timestamp is within reasonable range
@@ -41,11 +41,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid timestamp' }, { status: 400 })
     }
 
-    // SECURITY: Prevent multiple clock-in on same day
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
+    // SECURITY: Prevent multiple clock-in on same day (jour calendaire de Bruxelles)
+    const { start: today, end: tomorrow } = brusselsDayRange()
 
     const existingRecord = await prisma.clockRecord.findFirst({
       where: {
@@ -211,10 +208,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
+    const { start: today, end: tomorrow } = brusselsDayRange()
 
     const records = await prisma.clockRecord.findMany({
       where: {

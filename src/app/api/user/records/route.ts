@@ -1,5 +1,6 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { brusselsMidnightFromDateString, brusselsDayOffset } from '@/lib/clock'
 import { NextRequest, NextResponse } from 'next/server'
 
 const PAGE_SIZE = 30
@@ -17,8 +18,8 @@ export async function GET(req: NextRequest) {
     userId: session.user.id,
     ...(from || to ? {
       date: {
-        ...(from ? { gte: new Date(from) } : {}),
-        ...(to ? { lte: new Date(to + 'T23:59:59') } : {}),
+        ...(from ? { gte: brusselsMidnightFromDateString(from) } : {}),
+        ...(to ? { lt: brusselsDayOffset(brusselsMidnightFromDateString(to), 1) } : {}),
       },
     } : {}),
   }

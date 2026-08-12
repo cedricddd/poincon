@@ -4,6 +4,7 @@ import { isOdooConfigured, syncInvoiceToOdoo } from '@/lib/odoo'
 import { sendInternalInvoiceAlert } from '@/lib/mail'
 import { syncSeatQuantitySafe } from '@/lib/billing'
 import { ADDON_FLAGS } from '@/lib/plan'
+import { brusselsDateKey } from '@/lib/clock'
 import { NextRequest, NextResponse } from 'next/server'
 
 // Parse Pointon's free-text company address into Odoo's structured fields.
@@ -265,7 +266,7 @@ export async function POST(req: NextRequest) {
           // at checkout. So fall back on truthiness, not on ?? (which keeps '').
           const stripeVat = invoice.customer_tax_ids?.[0]?.value ?? null
           const vatNumber = companyFull?.vatNumber || stripeVat || null
-          const invoiceDate = new Date(invoice.created * 1000).toISOString().split('T')[0]
+          const invoiceDate = brusselsDateKey(new Date(invoice.created * 1000))
           // subtotal = HTVA (before tax, before credits)
           const amountHtva = invoice.subtotal ?? invoice.amount_paid
           // Tax: newer Stripe API exposes total_taxes[]; legacy used invoice.tax

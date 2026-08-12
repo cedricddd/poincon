@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { getCompanyPlan, planCanAccess } from '@/lib/plan'
 import { rateLimit } from '@/lib/rateLimit'
 import { logAudit } from '@/lib/audit'
-import { closeClockRecord } from '@/lib/clock'
+import { closeClockRecord, brusselsDayRange } from '@/lib/clock'
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 
@@ -53,10 +53,7 @@ export async function POST(
     }
 
     const now = new Date()
-    const today = new Date(now)
-    today.setHours(0, 0, 0, 0)
-    const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
+    const { start: today, end: tomorrow } = brusselsDayRange(now)
 
     const openRecord = await prisma.clockRecord.findFirst({
       where: {
