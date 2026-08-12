@@ -2,6 +2,36 @@ import { prisma } from '@/lib/prisma'
 
 export const OVERTIME_GRACE_MINUTES = 30
 
+// Les horaires de travail (WorkSchedule.startTime/endTime) sont toujours exprimés
+// en heure de Bruxelles. Le serveur, lui, tourne en UTC — un simple setHours() les
+// interpréterait donc dans le mauvais fuseau (décalage de 1h ou 2h selon été/hiver).
+const WORK_TIMEZONE = 'Europe/Brussels'
+
+// Convertit un "HH:MM" d'horaire (heure de Bruxelles) en instant UTC réel, pour le
+// jour calendaire de référence (lui aussi compté à Bruxelles). Gère automatiquement
+// le passage heure d'été / heure d'hiver, quel que soit le fuseau du serveur.
+export function parseShiftTime(timeStr: string, referenceDate: Date): Date {
+  const [hours, minutes] = timeStr.split(':').map(Number)
+  const dateStr = new Intl.DateTimeFormat('en-CA', {
+    timeZone: WORK_TIMEZONE, year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(referenceDate)
+  const hh = String(hours).padStart(2, '0')
+  const mm = String(minutes).padStart(2, '0')
+
+  // Devine un instant en le lisant comme UTC, puis corrige avec le décalage réel
+  // de Bruxelles à cet instant (ce décalage dépend de la date, d'où l'aller-retour).
+  const guess = new Date(`${dateStr}T${hh}:${mm}:00Z`)
+  const dtf = new Intl.DateTimeFormat('en-US', {
+    timeZone: WORK_TIMEZONE, hourCycle: 'h23',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+  })
+  const parts: Record<string, string> = {}
+  for (const p of dtf.formatToParts(guess)) parts[p.type] = p.value
+  const asIfUtc = Date.UTC(+parts.year, +parts.month - 1, +parts.day, +parts.hour, +parts.minute, +parts.second)
+  return new Date(guess.getTime() - (asIfUtc - guess.getTime()))
+}
+
 export function computeShiftDuration(
   actualArrival: Date,
   actualDeparture: Date,
@@ -14,15 +44,8 @@ export function computeShiftDuration(
     return { duration, hoursWorked: duration / 60, hoursStandard: hoursPerDay }
   }
 
-  const parseTime = (timeStr: string, ref: Date) => {
-    const [h, m] = timeStr.split(':').map(Number)
-    const d = new Date(ref)
-    d.setHours(h, m, 0, 0)
-    return d
-  }
-
-  const shiftStart = parseTime(startTimeStr, actualArrival)
-  let shiftEnd = parseTime(endTimeStr, actualArrival)
+  const shiftStart = parseShiftTime(startTimeStr, actualArrival)
+  let shiftEnd = parseShiftTime(endTimeStr, actualArrival)
   if (shiftEnd <= shiftStart) shiftEnd.setDate(shiftEnd.getDate() + 1)
 
   const effectiveArrival = actualArrival < shiftStart ? shiftStart : actualArrival
@@ -47,7 +70,7 @@ export async function closeClockRecord({
   userId: string
   record: { id: string; arrivalTime: Date; date: Date }
   departureTime: Date
-}): Promise<{ finalDuration: number; hoursStandard: number; totalBreakMinutes: number }> {
+}) {
   const userSchedule = await prisma.userSchedule.findUnique({
     where: { userId },
     include: { workSchedule: true },
@@ -78,7 +101,7 @@ export async function closeClockRecord({
 
   const finalDuration = Math.max(1, computedDuration - totalBreakMinutes)
 
-  await prisma.clockRecord.update({
+  const updated = await prisma.clockRecord.update({
     where: { id: record.id },
     data: { departureTime, duration: finalDuration },
   })
@@ -96,5 +119,5 @@ export async function closeClockRecord({
     })
   }
 
-  return { finalDuration, hoursStandard, totalBreakMinutes }
+  return { record: updated, finalDuration, hoursStandard, totalBreakMinutes }
 }
