@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { isAdminRole } from '@/lib/roles'
+import { brusselsMidnightFromDateString, brusselsDayOffset } from '@/lib/clock'
 import { NextRequest, NextResponse } from 'next/server'
 
 async function requireAdmin() {
@@ -39,8 +40,8 @@ export async function GET(req: NextRequest) {
   if (action) where.action = action
   if (from || to) {
     where.createdAt = {}
-    if (from) where.createdAt.gte = new Date(from)
-    if (to) where.createdAt.lte = new Date(to)
+    if (from) where.createdAt.gte = brusselsMidnightFromDateString(from)
+    if (to) where.createdAt.lt = brusselsDayOffset(brusselsMidnightFromDateString(to), 1)
   }
 
   const [logs, total] = await Promise.all([

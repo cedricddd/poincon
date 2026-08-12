@@ -1,17 +1,16 @@
 import { NextResponse } from "next/server"
 import { requireAdminWithCompany, forbiddenError } from "@/lib/admin-security"
 import { prisma } from "@/lib/prisma"
+import { brusselsDayRange } from "@/lib/clock"
 
 export async function GET() {
   const auth = await requireAdminWithCompany()
   if (!auth) return forbiddenError()
 
   try {
-    const now = new Date()
-    // UTC boundaries to avoid timezone drift between Node.js and the DB
-    const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
-    const tomorrowUTC = new Date(todayUTC)
-    tomorrowUTC.setUTCDate(tomorrowUTC.getUTCDate() + 1)
+    // Bornes du jour calendaire de Bruxelles (pas UTC — le serveur tourne en UTC,
+    // ce qui décale sinon la journée de 1-2h selon la saison).
+    const { start: todayUTC, end: tomorrowUTC } = brusselsDayRange()
 
     console.log("[presence] companyId:", auth.admin.companyId, "range:", todayUTC.toISOString(), "→", tomorrowUTC.toISOString())
 

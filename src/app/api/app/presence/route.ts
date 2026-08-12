@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { getPresenceAccess } from '@/lib/plan'
+import { brusselsDayRange } from '@/lib/clock'
 
 export async function GET() {
   const session = await auth()
@@ -17,10 +18,7 @@ export async function GET() {
   if (!hasAccess) return NextResponse.json({ error: 'Plan insuffisant — fonctionnalité Présences non disponible' }, { status: 403 })
   if (!presenceForEmployees) return NextResponse.json({ error: 'Fonctionnalité désactivée par votre administrateur' }, { status: 403 })
 
-  const now = new Date()
-  const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
-  const tomorrowUTC = new Date(todayUTC)
-  tomorrowUTC.setUTCDate(tomorrowUTC.getUTCDate() + 1)
+  const { start: todayUTC, end: tomorrowUTC } = brusselsDayRange()
 
   const records = await prisma.clockRecord.findMany({
     where: {

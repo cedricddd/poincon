@@ -1,6 +1,7 @@
 import { randomBytes } from 'crypto'
 import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
+import { brusselsDayOffset, parseShiftTime } from '@/lib/clock'
 
 const DEMO_COMPANY_NAME = 'Dupont & Associés SPRL'
 const DEMO_ADDRESS = 'Rue de la Régence 45, 4000 Liège'
@@ -9,10 +10,10 @@ const DEMO_VAT = 'BE0123456789'
 const DEMO_DURATION_DAYS = 15
 
 function daysAgo(n: number, h = 8, m = 0) {
-  const d = new Date()
-  d.setDate(d.getDate() - n)
-  d.setHours(h, m, 0, 0)
-  return d
+  const dayStart = brusselsDayOffset(new Date(), -n)
+  const hh = String(h).padStart(2, '0')
+  const mm = String(m).padStart(2, '0')
+  return parseShiftTime(`${hh}:${mm}`, dayStart)
 }
 
 // Generate workdays (Mon-Fri) going back `count` days from today
@@ -20,10 +21,9 @@ function workdays(count: number): number[] {
   const days: number[] = []
   let offset = 1
   while (days.length < count) {
-    const d = new Date()
-    d.setDate(d.getDate() - offset)
-    const dow = d.getDay() // 0=Sun 6=Sat
-    if (dow !== 0 && dow !== 6) days.push(offset)
+    const d = brusselsDayOffset(new Date(), -offset)
+    const weekday = new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Brussels', weekday: 'short' }).format(d)
+    if (weekday !== 'Sun' && weekday !== 'Sat') days.push(offset)
     offset++
   }
   return days

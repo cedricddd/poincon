@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { getPresenceAccess } from '@/lib/plan'
+import { brusselsDayRange } from '@/lib/clock'
 
 async function requireManager() {
   const session = await auth()
@@ -26,10 +27,7 @@ export async function GET(req: NextRequest) {
 
   const scope = req.nextUrl.searchParams.get('scope') ?? 'team'
 
-  const now = new Date()
-  const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
-  const tomorrowUTC = new Date(todayUTC)
-  tomorrowUTC.setUTCDate(tomorrowUTC.getUTCDate() + 1)
+  const { start: todayUTC, end: tomorrowUTC } = brusselsDayRange()
 
   let memberIds: string[] | undefined
 

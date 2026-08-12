@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireApiKey } from '@/lib/api-v1-auth'
+import { brusselsMidnightFromDateString, brusselsDayOffset } from '@/lib/clock'
 
 export async function GET(req: NextRequest) {
   const result = await requireApiKey(req)
@@ -20,8 +21,8 @@ export async function GET(req: NextRequest) {
       ...(from || to
         ? {
             date: {
-              ...(from && { gte: new Date(from) }),
-              ...(to && { lte: new Date(to + 'T23:59:59.999Z') }),
+              ...(from && { gte: brusselsMidnightFromDateString(from) }),
+              ...(to && { lt: brusselsDayOffset(brusselsMidnightFromDateString(to), 1) }),
             },
           }
         : {}),
