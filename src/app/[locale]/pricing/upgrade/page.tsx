@@ -2,7 +2,7 @@
 
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { Logo } from '@/components/Logo'
 import { Card } from '@/components/Card'
 

@@ -28,6 +28,11 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>
 }): Promise<Metadata> {
   const { locale } = await params
+  const hdrs = await headers()
+  const pathname = hdrs.get('x-pathname') ?? `/${locale}`
+  const localeRegex = new RegExp(`^/(${routing.locales.join('|')})(?=/|$)`)
+  const pathWithoutLocale = pathname.replace(localeRegex, '')
+
   return {
     metadataBase: new URL('https://pointon.be'),
     title: {
@@ -84,13 +89,10 @@ export async function generateMetadata({
       },
     },
     alternates: {
-      canonical: `https://pointon.be/${locale}`,
-      languages: {
-        fr: 'https://pointon.be/fr',
-        nl: 'https://pointon.be/nl',
-        en: 'https://pointon.be/en',
-        de: 'https://pointon.be/de',
-      },
+      canonical: `https://pointon.be/${locale}${pathWithoutLocale}`,
+      languages: Object.fromEntries(
+        routing.locales.map((l) => [l, `https://pointon.be/${l}${pathWithoutLocale}`])
+      ),
     },
     manifest: '/manifest.json',
     icons: {

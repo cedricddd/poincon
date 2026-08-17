@@ -1,5 +1,5 @@
 import { Header } from '@/components/Header'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
   return (
