@@ -380,7 +380,8 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
 
   const startEdit = (t: WorkSchedule) => {
     setEditId(t.id)
-    const days: number[] = JSON.parse(t.daysOfWeek)
+    let days: number[] = []
+    try { days = JSON.parse(t.daysOfWeek) } catch {}
     const parsedDayConfig: Record<number, DayConfigEntry> = {}
     try {
       if (t.dayConfig) {

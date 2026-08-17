@@ -181,6 +181,14 @@ export default function AuditPage() {
     return val
   }
 
+  const formatChanges = (raw: string): string => {
+    try {
+      return JSON.stringify(JSON.parse(raw), null, 2)
+    } catch {
+      return raw
+    }
+  }
+
   const summarizeChangesForPdf = (raw: string): string => {
     if (!raw) return '—'
     try {
@@ -445,7 +453,7 @@ export default function AuditPage() {
                   <td className="px-4 py-3 text-xs">
                     {log.changes ? (
                       <pre className="bg-gray-100 dark:bg-gray-900 dark:text-gray-300 p-2 rounded overflow-auto max-w-xs max-h-24">
-                        {JSON.stringify(JSON.parse(log.changes), null, 2)}
+                        {formatChanges(log.changes)}
                       </pre>
                     ) : (
                       <span className="text-gray-400">—</span>
