@@ -87,14 +87,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--pp-bg)] flex items-center justify-center px-4" suppressHydrationWarning>
+    <div className="min-h-screen bg-[var(--pp-bg)] flex items-center justify-center px-4">
       <div className="absolute top-4 right-4 w-40">
         <LocaleSwitcher />
       </div>
-      <div className="w-full max-w-lg" suppressHydrationWarning>
+      <div className="w-full max-w-lg">
 
         {/* Header: logo société ou branding Pointon */}
-        <div className="text-center mb-8 transition-all duration-300" suppressHydrationWarning>
+        <div className="text-center mb-8 transition-all duration-300">
           {company ? (
             <div className="flex flex-col items-center gap-3 animate-fade-in">
               {company.logoUrl ? (
@@ -128,13 +128,15 @@ export default function LoginPage() {
         </div>
 
         <Card>
-          <form onSubmit={handleSubmit} className="space-y-4" suppressHydrationWarning>
+          <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
                 {error}
               </div>
             )}
 
+            {/* suppressHydrationWarning: password managers (pCloud Pass, LastPass…)
+                inject attributes/nodes into credential fields before hydration. */}
             <div suppressHydrationWarning>
               <label htmlFor="email" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
                 {t('emailLabel')}
@@ -147,6 +149,7 @@ export default function LoginPage() {
                 onBlur={handleEmailBlur}
                 placeholder={t('emailPlaceholder')}
                 required
+                suppressHydrationWarning
                 className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
               />
             </div>
@@ -162,6 +165,7 @@ export default function LoginPage() {
                 onChange={e => setPassword(e.target.value)}
                 placeholder={t('passwordPlaceholder')}
                 required
+                suppressHydrationWarning
                 className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
               />
             </div>
