@@ -47,6 +47,20 @@ function looksLikeExtensionTampering(event: ErrorEvent): boolean {
   return EXTENSION_MARKERS.some(marker => haystack.includes(marker))
 }
 
+// Unauthenticated credential pages. Password managers reliably rewrite the
+// email/password DOM before React hydrates, and React's generic hydration error
+// ("this tree will be regenerated on the client") carries no attribute diff we
+// can attribute back to them — so on these routes a hydration mismatch is never
+// actionable on our side. Real hydration bugs elsewhere still get through.
+const CREDENTIAL_PATH_RE = /\/(login|signup|forgot-password|reset-password|set-password)(\/|$|\?)/
+
+function isCredentialPage(event: ErrorEvent): boolean {
+  return (
+    CREDENTIAL_PATH_RE.test(event.request?.url ?? '') ||
+    CREDENTIAL_PATH_RE.test(event.transaction ?? '')
+  )
+}
+
 function stripSensitiveHeaders(event: ErrorEvent): void {
   if (!event.request?.headers) return
   const safe = { ...event.request.headers }
@@ -57,9 +71,12 @@ function stripSensitiveHeaders(event: ErrorEvent): void {
 }
 
 /** Shared `beforeSend`: scrubs secrets, then drops hydration mismatches that are
- *  attributable to a visitor's browser extension (not actionable on our side). */
+ *  attributable to a visitor's browser extension or that fire on an unauthenticated
+ *  credential page (password-manager tampering — not actionable on our side). */
 export function beforeSendError(event: ErrorEvent): ErrorEvent | null {
   stripSensitiveHeaders(event)
-  if (isHydrationError(event) && looksLikeExtensionTampering(event)) return null
+  if (isHydrationError(event) && (looksLikeExtensionTampering(event) || isCredentialPage(event))) {
+    return null
+  }
   return event
 }

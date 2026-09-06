@@ -34,6 +34,53 @@ describe('beforeSendError', () => {
     expect(beforeSendError(event)).toBe(event)
   })
 
+  it('drops generic hydration mismatches that fire on a credential page (password managers)', () => {
+    const event = makeEvent({
+      request: { url: 'https://pointon.be/fr/login' },
+      exception: {
+        values: [
+          {
+            type: 'Error',
+            value:
+              "Hydration failed because the server rendered HTML didn't match the client. " +
+              'As a result this tree will be regenerated on the client.',
+          },
+        ],
+      },
+    })
+    expect(beforeSendError(event)).toBeNull()
+  })
+
+  it('matches the credential page from the transaction name too', () => {
+    const event = makeEvent({
+      transaction: '/[locale]/set-password',
+      exception: {
+        values: [{ type: 'Error', value: "Hydration failed because the server rendered HTML didn't match the client." }],
+      },
+    })
+    expect(beforeSendError(event)).toBeNull()
+  })
+
+  it('keeps non-hydration errors that happen on a credential page', () => {
+    const event = makeEvent({
+      request: { url: 'https://pointon.be/nl/signup' },
+      exception: {
+        values: [{ type: 'TypeError', value: "Cannot read properties of undefined (reading 'name')" }],
+      },
+    })
+    expect(beforeSendError(event)).toBe(event)
+  })
+
+  it('keeps hydration mismatches on non-credential pages', () => {
+    const event = makeEvent({
+      request: { url: 'https://pointon.be/fr/admin/dashboard' },
+      exception: {
+        values: [{ type: 'Error', value: "Hydration failed because the server rendered HTML didn't match the client." }],
+      },
+    })
+    expect(beforeSendError(event)).toBe(event)
+  })
+
   it('keeps unrelated errors even when an extension URL appears in the stack', () => {
     const event = makeEvent({
       exception: {
