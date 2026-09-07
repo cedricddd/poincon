@@ -2,7 +2,7 @@
                     POINTON - TODO LIST (MISE À JOUR 2026-06-28)
 ================================================================================
 
-Dernière mise à jour: 2026-07-21
+Dernière mise à jour: 2026-09-07
 Version: 0.8.4
 État: PHASE A (facturation par siège) TERMINÉE le 2026-07-17 — changement de
       plan durci + testé réel (annuel always_invoice + STARTER→TEAM + invitation
@@ -24,6 +24,17 @@ Version: 0.8.4
       Reste côté lancement : backups hors-site, facture Odoo #132 à annuler
       (attente comptable).
       DKIM/DMARC Mailcow validés le 2026-07-10 (rapports agrégés reçus).
+      Audit funnel/acquisition "L'entonnoir qui fuit" (2026-09-07) : Ads
+      21/07->07/09 = 471EUR / 239 clics / CTR 6,87% / 0 conversion ;
+      ~55 impressions organiques sur 3 mois (Search Console). Batch 1
+      déployé (commit 1ff40a8) : faux témoignages nommés -> scénarios
+      anonymes, stat "500+ PME belges" -> "4 méthodes de pointage", FAQ
+      hébergement corrigée (OVH/France, plus "Vercel"), signup 9->5
+      champs + oeil mot de passe, register renvoie 503+Sentry si plan
+      FREE absent. Reste : négatifs + split groupes Ads, lead magnet
+      Guide 2027 + séquence Brevo, refonte /comparaison (concurrent
+      fictif "Guidepoint"), SSO Google/Microsoft. Détail : artifact
+      Claude "L'entonnoir qui fuit".
 
 ================================================================================
 PHASES COMPLÉTÉES (✓)
@@ -508,8 +519,13 @@ PHASE D — MARKETING & SEO · Septembre 2026 · ~2-3 sessions
 ================================================================================
 Objectif : etre visible quand les entreprises cherchent une solution avant 2027
 
-[ ] Article SEO /blog/pointage-obligatoire-belgique-2027
-    ├─ Mots-clés : "obligation enregistrement temps travail 2027", "logiciel pointage PME belge"
+[ ] Article SEO pilier /blog/pointage-obligatoire-belgique-2027 + cluster légal
+    ├─ Mots-clés confirmés par les rapports Ads + GSC (2026-09) : "pointage
+    │  obligatoire belgique" 179 impr, "pointeuse obligatoire 2027" 151 impr,
+    │  "enregistrement du temps de travail belgique"…
+    ├─ PRÉREQUIS : créer une route blog MDX /[locale]/blog (n'existe pas encore)
+    ├─ Pilier + 5 satellites légaux + versions NL — détail : artifact Claude
+    │  "L'entonnoir qui fuit", partie 2
     └─ SEO prend 6-12 mois → commencer maintenant
 [ ] Section sanctions légales sur la landing
     ├─ Vérifier montants amendes (Securex, Liantis, texte de loi)
@@ -534,9 +550,16 @@ PHASE E — PUBLICITES · Octobre 2026
 ================================================================================
 Objectif : générer du trafic qualifié avant le rush de fin d'année
 
-[ ] Google Ads — 300-600€/mois
-    ├─ Mots-clés : "application pointage belgique 2027", "logiciel pointage PME"
-    └─ Prérequis : tracking conversion Google Ads sur page post-inscription
+[~] Google Ads — campagne active depuis 2026-07-21, à rééquilibrer
+    ├─ Bilan 21/07->07/09 : 471EUR / 239 clics / CTR 6,87% / 0 conversion
+    │  (tracking fireSignupConversion OK — le 0 est réel)
+    ├─ À appliquer (côté Cédric, dans l'UI Google Ads) :
+    │   - négatifs : checkinatwork, strobbo, shyfter, astrow, "sd worx",
+    │     skello, kelio, timemoto, safescan, gratuit, excel, "feuille de pointage pdf"
+    │   - split des groupes : "Légal/2027" (-> article pilier, PAS /signup)
+    │     vs "Produit/pointeuse" (-> page produit dédiée)
+    │   - budget ~120EUR/mois sur le groupe Produit le temps de réparer le funnel
+    └─ enchères : Max clics ou CPC manuel plafonné 2,50EUR (0 conversion = smart bidding aveugle)
 [ ] LinkedIn Ads — décideurs PME belges (RH, gérants, comptables)
 [ ] Retargeting landing page (visiteurs non-inscrits)
 
