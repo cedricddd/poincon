@@ -534,7 +534,11 @@ Objectif : etre visible quand les entreprises cherchent une solution avant 2027
     │  lieux honnête (loi pas votée), sourcé, aucun montant d'amende inventé
     ├─ Après deploy : Search Console → demander l'indexation ; cible du groupe
     │  Ads "Légal/2027" au prochain rééquilibrage
-    └─ Suites : traduction NL, 5 satellites, pages produit dédiées. SEO = 6-12 mois
+    ├─ 2026-09-07 (suite) : 2 satellites FR déployés (/fr/blog/pointeuse-rgpd-
+    │  belgique, /fr/blog/enregistrer-temps-travail-methodes) + traduction NL
+    │  du pilier (/nl/blog/...). Cluster interne lié, hreflang fr<->nl.
+    │  NL pas relu par un humain -> à faire skimmer par un néerlandophone.
+    └─ Suites : traduction NL des 2 satellites, pages produit dédiées. SEO = 6-12 mois
 [ ] Section sanctions légales sur la landing
     ├─ Vérifier montants amendes (Securex, Liantis, texte de loi)
     └─ "En cas d'inspection sans enregistrement conforme : amende X€/travailleur"
