@@ -35,6 +35,13 @@ Version: 0.8.4
       Guide 2027 + séquence Brevo, refonte /comparaison (concurrent
       fictif "Guidepoint"), SSO Google/Microsoft. Détail : artifact
       Claude "L'entonnoir qui fuit".
+      2026-09-07 (suite) : 2e passe Ads (AI Max off, Search Partners off,
+      9 négatifs marques, enchères -> Max clics CPC 2,50EUR) ; infra blog
+      + article pilier "Pointage obligatoire 2027" déployés (commit
+      e754819). Note : 2 conversions Ads ont bien eu lieu (10+13/08), pas
+      0 ; rien depuis (août B2B mort + tag "inactif" car pas de conversion
+      pub attribuée + Consent Mode v2 pas implémenté -> sous-comptage
+      structurel des refus cookies, à faire).
 
 ================================================================================
 PHASES COMPLÉTÉES (✓)
@@ -519,14 +526,15 @@ PHASE D — MARKETING & SEO · Septembre 2026 · ~2-3 sessions
 ================================================================================
 Objectif : etre visible quand les entreprises cherchent une solution avant 2027
 
-[ ] Article SEO pilier /blog/pointage-obligatoire-belgique-2027 + cluster légal
-    ├─ Mots-clés confirmés par les rapports Ads + GSC (2026-09) : "pointage
-    │  obligatoire belgique" 179 impr, "pointeuse obligatoire 2027" 151 impr,
-    │  "enregistrement du temps de travail belgique"…
-    ├─ PRÉREQUIS : créer une route blog MDX /[locale]/blog (n'existe pas encore)
-    ├─ Pilier + 5 satellites légaux + versions NL — détail : artifact Claude
-    │  "L'entonnoir qui fuit", partie 2
-    └─ SEO prend 6-12 mois → commencer maintenant
+[x] Infra blog + article pilier — DÉPLOYÉ 2026-09-07 (commit e754819)
+    ├─ Infra : /[locale]/blog + [slug], contenu en modules TSX typés (pas de
+    │  MDX, 0 dépendance), JSON-LD BlogPosting+FAQPage, sitemap, lien header.
+    │  Ajout d'un article = src/content/blog/<slug>/fr.tsx + 1 ligne au registre.
+    ├─ Article pilier : /fr/blog/pointage-obligatoire-belgique-2027 — état des
+    │  lieux honnête (loi pas votée), sourcé, aucun montant d'amende inventé
+    ├─ Après deploy : Search Console → demander l'indexation ; cible du groupe
+    │  Ads "Légal/2027" au prochain rééquilibrage
+    └─ Suites : traduction NL, 5 satellites, pages produit dédiées. SEO = 6-12 mois
 [ ] Section sanctions légales sur la landing
     ├─ Vérifier montants amendes (Securex, Liantis, texte de loi)
     └─ "En cas d'inspection sans enregistrement conforme : amende X€/travailleur"
