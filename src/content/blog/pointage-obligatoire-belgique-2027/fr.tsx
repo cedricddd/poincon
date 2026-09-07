@@ -175,6 +175,20 @@ export default function Body() {
         <Link href="/comparaison">Comparer les solutions de pointage</Link>.
       </Callout>
 
+      <h2>Pour aller plus loin</h2>
+      <ul>
+        <li>
+          <Link href="/blog/enregistrer-temps-travail-methodes">
+            Enregistrer le temps de travail : quelle méthode choisir ? (badge, appli, borne, Excel…)
+          </Link>
+        </li>
+        <li>
+          <Link href="/blog/pointeuse-rgpd-belgique">
+            Pointeuse et RGPD : GPS, biométrie et vie privée
+          </Link>
+        </li>
+      </ul>
+
       <h2>Sources</h2>
       <ul>
         <li>

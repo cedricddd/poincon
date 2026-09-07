@@ -19,6 +19,19 @@ export const BLOG_REGISTRY: BlogRegistryEntry[] = [
     slug: 'pointage-obligatoire-belgique-2027',
     locales: {
       fr: () => import('./pointage-obligatoire-belgique-2027/fr'),
+      nl: () => import('./pointage-obligatoire-belgique-2027/nl'),
+    },
+  },
+  {
+    slug: 'pointeuse-rgpd-belgique',
+    locales: {
+      fr: () => import('./pointeuse-rgpd-belgique/fr'),
+    },
+  },
+  {
+    slug: 'enregistrer-temps-travail-methodes',
+    locales: {
+      fr: () => import('./enregistrer-temps-travail-methodes/fr'),
     },
   },
 ]
