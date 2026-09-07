@@ -94,6 +94,9 @@ export function Header() {
               {l.label}
             </a>
           ))}
+          <Link href="/blog" className={`text-sm transition-colors ${linkCls}`}>
+            Blog
+          </Link>
         </nav>
 
         {/* CTAs desktop */}
@@ -157,6 +160,13 @@ export function Header() {
                 {item.label}
               </a>
             ))}
+            <Link
+              href="/blog"
+              onClick={() => setMenuOpen(false)}
+              className="py-3 text-sm font-medium text-[var(--pp-muted)] hover:text-[var(--pp-ink)] border-b border-[var(--pp-line)] last:border-0 transition-colors"
+            >
+              Blog
+            </Link>
           </nav>
           <div className="mb-3">
             <LocaleSwitcher />
