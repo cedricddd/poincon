@@ -13,7 +13,7 @@ import { Logo } from '@/components/Logo'
 interface FeatureItem { n: string; color: string; title: string; description: string }
 interface MethodItem { color: string; icon: React.ReactNode; hasSub?: boolean; title: string; description: string }
 interface StepItem { n: string; icon: React.ReactNode; title: string; description: string }
-interface TestimonialItem { name: string; company: string; location: string; plan: string; initials: string; color: string; quote: string; role: string }
+interface TestimonialItem { sector: string; color: string; quote: string }
 interface TierItem {
   name: string; monthlyPrice: number | null; annualPrice: number | null; annualTotal: number | null; annualSavings: number | null
   buttonHref: string; buttonHrefAnnual: string; highlight: boolean; extraSeat: number | null
@@ -72,7 +72,7 @@ function useReveal() {
 /* ─── Visual config (text comes from translations) ──────────────────────── */
 
 const statsConfig = [
-  { value: 500, suffix: '+' },
+  { value: 4, suffix: '' },
   { value: 2, suffix: ' min' },
   { value: 100, suffix: '%' },
   { value: 0, suffix: '€' },
@@ -87,10 +87,12 @@ const featuresConfig = [
   { n: '06', color: '#8b5cf6' },
 ]
 
+// Scénarios d'usage illustratifs — aucune personne / société nommée (règle CLAUDE.md).
+// Le libellé de secteur et le texte viennent des traductions (landing.testimonials.items).
 const testimonialsConfig = [
-  { name: 'Marie Renard', company: 'Boulangerie Renard', location: 'Liège', plan: 'Starter', initials: 'MR', color: '#10b981' },
-  { name: 'Thomas Henrard', company: 'DataBridge SPRL', location: 'Bruxelles', plan: 'Team', initials: 'TH', color: '#6366f1' },
-  { name: 'Sébastien Pirard', company: 'Pirard Installations', location: 'Namur', plan: 'Starter', initials: 'SP', color: '#0ea5e9' },
+  { color: '#10b981' },
+  { color: '#6366f1' },
+  { color: '#0ea5e9' },
 ]
 
 const stepsConfig = [
@@ -784,45 +786,24 @@ function PricingCard({ tier, annual, delay }: { tier: TierItem; annual: boolean;
 /* ─── Testimonial card ───────────────────────────────────────────────────── */
 
 function TestimonialCard({ item, delay }: { item: TestimonialItem; delay: number }) {
-  const t = useTranslations('landing.testimonials')
   const ref = useReveal()
   return (
     <div
       ref={ref}
-      className="pp-reveal rounded-2xl border border-[var(--pp-line)] bg-[var(--pp-bg)] p-7 flex flex-col gap-5"
+      className="pp-reveal rounded-2xl border border-[var(--pp-line)] bg-[var(--pp-bg)] p-7 flex flex-col gap-4"
       style={{ transitionDelay: `${delay}ms` } as React.CSSProperties}
     >
-      {/* Stars */}
-      <div className="flex gap-0.5">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <svg key={i} className="w-4 h-4 text-[#f59e0b]" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M8 1l1.85 3.75 4.15.6-3 2.93.7 4.12L8 10.4l-3.7 1.95.7-4.13-3-2.92 4.15-.6z"/>
-          </svg>
-        ))}
-      </div>
-      {/* Quote */}
+      {/* Secteur / configuration */}
+      <span
+        className="self-start text-[11px] font-bold px-2.5 py-1 rounded-full"
+        style={{ background: `${item.color}18`, color: item.color }}
+      >
+        {item.sector}
+      </span>
+      {/* Scénario */}
       <p className="text-sm text-[var(--pp-muted)] leading-relaxed flex-1">
-        &ldquo;{item.quote}&rdquo;
+        {item.quote}
       </p>
-      {/* Footer */}
-      <div className="flex items-center gap-3">
-        <div
-          className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
-          style={{ background: item.color }}
-        >
-          {item.initials}
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-[var(--pp-ink)]">{item.name}</p>
-          <p className="text-xs text-[var(--pp-muted)]">{item.role} · {item.company} · {item.location}</p>
-        </div>
-        <span
-          className="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full"
-          style={{ background: `${item.color}18`, color: item.color }}
-        >
-          {t('planLabel', { plan: item.plan })}
-        </span>
-      </div>
     </div>
   )
 }
@@ -835,34 +816,16 @@ function PlaceholderTestimonialCard({ delay }: { delay: number }) {
   return (
     <div
       ref={ref}
-      className="pp-reveal rounded-2xl p-7 flex flex-col gap-5"
+      className="pp-reveal rounded-2xl p-7 flex flex-col gap-4"
       style={{
         transitionDelay: `${delay}ms`,
         background: 'transparent',
         border: '1px dashed var(--pp-line)',
       } as React.CSSProperties}
     >
-      <div className="flex gap-0.5">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <svg key={i} className="w-4 h-4 text-[var(--pp-line)]" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M8 1l1.85 3.75 4.15.6-3 2.93.7 4.12L8 10.4l-3.7 1.95.7-4.13-3-2.92 4.15-.6z"/>
-          </svg>
-        ))}
-      </div>
-      <p className="text-sm text-[var(--pp-muted)] leading-relaxed flex-1 italic opacity-60">
-        &ldquo;{t('placeholderQuote')}&rdquo;
+      <p className="text-sm text-[var(--pp-muted)] leading-relaxed flex-1 italic opacity-70">
+        {t('placeholderQuote')}
       </p>
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full flex items-center justify-center border border-dashed border-[var(--pp-line)]">
-          <svg className="w-5 h-5 text-[var(--pp-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-          </svg>
-        </div>
-        <div className="flex-1">
-          <p className="text-sm font-semibold text-[var(--pp-muted)] opacity-70">{t('placeholderCompany')}</p>
-          <p className="text-xs text-[var(--pp-muted)] opacity-50">{t('placeholderLocation')}</p>
-        </div>
-      </div>
       <a
         href="mailto:contact@pointon.be"
         className="inline-flex items-center justify-center gap-2 text-xs font-bold px-4 py-2.5 rounded-xl w-full transition-all"
@@ -1180,7 +1143,7 @@ export default function Home() {
   const sItems = t.raw('how.steps') as { title: string; description: string }[]
   const steps: StepItem[] = stepsConfig.map((c, i) => ({ ...c, ...sItems[i] }))
 
-  const tItems = t.raw('testimonials.items') as { quote: string; role: string }[]
+  const tItems = t.raw('testimonials.items') as { quote: string; sector: string }[]
   const testimonials: TestimonialItem[] = testimonialsConfig.map((c, i) => ({ ...c, ...tItems[i] }))
 
   const trTiers = t.raw('pricing.tiers') as { limit: string; buttonText: string; includesLabel: string; features: string[]; includes: string[] }[]
@@ -1390,14 +1353,11 @@ export default function Home() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {testimonials.map((item, i) => (
-              <TestimonialCard key={item.name} item={item} delay={i * 80} />
+              <TestimonialCard key={i} item={item} delay={i * 80} />
             ))}
             <PlaceholderTestimonialCard delay={testimonials.length * 80} />
           </div>
           <p className="text-center text-xs text-[var(--pp-muted)] mt-6">
-            {t('testimonials.disclaimer1')}
-          </p>
-          <p className="text-center text-xs text-[var(--pp-muted)] mt-1">
             {t('testimonials.disclaimer2')}
           </p>
         </div>

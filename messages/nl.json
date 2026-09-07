@@ -66,32 +66,22 @@
       "submit": "Mijn account aanmaken",
       "alreadyAccount": "Al een account?",
       "loginLink": "Aanmelden",
-      "header": "Maak uw beheerdersaccount aan — het is gratis",
-      "passwordMismatch": "De wachtwoorden komen niet overeen",
-      "invalidVat": "Ongeldig btw-nummer (formaat: BE + 10 cijfers)",
+      "header": "Maak uw account aan — gratis, geen bankkaart nodig",
       "signupError": "Fout bij de registratie",
       "signupRetryError": "Fout bij de registratie. Probeer opnieuw.",
       "success": "Registratie geslaagd! Aanmelden...",
-      "personalInfo": "Persoonlijke gegevens",
       "firstName": "Voornaam *",
       "lastName": "Naam *",
       "email": "E-mail *",
-      "phone": "Telefoon (optioneel)",
       "password": "Wachtwoord *",
-      "confirmPassword": "Bevestig het wachtwoord *",
       "minChars": "Minimaal 8 tekens",
-      "companyInfo": "Bedrijfsgegevens",
+      "showPassword": "Wachtwoord tonen",
+      "hidePassword": "Wachtwoord verbergen",
       "companyName": "Bedrijfsnaam *",
-      "vatNumber": "Btw-nummer (optioneel)",
-      "vatFormat": "Formaat: BE + 10 cijfers",
-      "address": "Adres (optioneel)",
       "phFirstName": "Jan",
       "phLastName": "Janssens",
       "phEmail": "u@bedrijf.be",
-      "phPhone": "+32 470 00 00 00",
       "phCompany": "Acme NV",
-      "phVat": "BE0123456789",
-      "phAddress": "Voorbeeldstraat 123, 1000 Brussel",
       "submitting": "Bezig met registreren...",
       "createFreeBtn": "Mijn account gratis aanmaken",
       "terms": "Door u te registreren, gaat u akkoord met onze <terms>gebruiksvoorwaarden</terms> en ons <privacy>privacybeleid</privacy>.",
@@ -748,7 +738,7 @@
       "duration": "Duur"
     },
     "stats": [
-      "Belgische kmo’s",
+      "manieren om te prikken",
       "Gemiddelde setup",
       "HVJEU-conform",
       "Om te starten"
@@ -817,29 +807,25 @@
       "kioskSubDetail": "Onthaal, tijdgestempelde badge en opvolging van externe bezoeken — zonder Pointon-account."
     },
     "testimonials": {
-      "label": "Zij vertrouwen ons",
-      "title1": "Belgische kmo’s die dagelijks",
-      "title2": "inklokken",
-      "planLabel": "Plan {plan}",
+      "label": "Gebruikssituaties",
+      "title1": "Gemaakt voor situaties",
+      "title2": "uit de praktijk",
       "items": [
         {
-          "quote": "Vroeger noteerden we de uren op papier. Nu gaat het automatisch. Mijn medewerkers klokken in op de tablet bij de ingang, ik exporteer het overzicht op vrijdag. Setup: 10 minuten.",
-          "role": "Zaakvoerder"
+          "sector": "Handel · 6 personen",
+          "quote": "Een bakkerij: de medewerkers klokken in op de tablet bij de ingang, de zaakvoerder exporteert het overzicht op vrijdag. Opgezet in 10 minuten."
         },
         {
-          "quote": "We zochten een oplossing die klaar is voor de verplichting 2027 zonder GPS of tracking. Pointon vinkt alle vakjes aan. Het onveranderbare audit trail stelt ons gerust bij sociale controles.",
-          "role": "Technisch directeur"
+          "sector": "Studiebureau",
+          "quote": "Een technisch team dat zich voorbereidt op de verplichting 2027: registratie zonder GPS of tracking, onveranderbaar audit trail voor sociale controles."
         },
         {
-          "quote": "Mijn technici zijn zelden op kantoor. Met de tabletkiosk in het depot en de mobiele app voor verplaatsingen klokt iedereen vlot in.",
-          "role": "Bedrijfsleider"
+          "sector": "Terrein · meerdere locaties",
+          "quote": "Technici die zelden op kantoor zijn: tabletkiosk in het depot, mobiele app onderweg — iedereen klokt vlot in."
         }
       ],
-      "placeholderQuote": "Uw getuigenis hier — deel uw ervaring met Pointon.",
-      "placeholderCompany": "Uw onderneming",
-      "placeholderLocation": "België",
+      "placeholderQuote": "Gebruikt u Pointon? Deel uw ervaring.",
       "placeholderCta": "Contacteer ons",
-      "disclaimer1": "Deze getuigenissen zijn representatief voor reële gebruikssituaties.",
       "disclaimer2": "Geen GPS · Geen geolocatie · GDPR-conform · cao 68 België"
     },
     "how": {
@@ -972,7 +958,7 @@
         },
         {
           "q": "Hoe worden de gegevens opgeslagen?",
-          "a": "Gegevens gehost in de EU (Vercel Postgres of zelf-gehoste server). HTTPS-versleuteling. GDPR-conform."
+          "a": "Gegevens gehost in Europa (OVH, Frankrijk). HTTPS-versleuteling. GDPR-conform."
         },
         {
           "q": "Kan ik de gegevens exporteren?",

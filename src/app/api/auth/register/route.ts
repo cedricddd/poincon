@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
+import * as Sentry from '@sentry/nextjs'
 import { prisma } from '@/lib/prisma'
 import { sendWelcomeEmail, sendNewCompanyNotification } from '@/lib/mail'
 import { rateLimit } from '@/lib/rateLimit'
-import { normalizeVat, isValidBelgianVat } from '@/lib/vat'
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
 
     const locale = req.headers.get('x-next-intl-locale') ?? 'fr'
     const body = await req.json()
-    const { firstName, lastName, email, password, phone, companyName, companyAddress, companyVAT } = body
+    const { firstName, lastName, email, password, companyName } = body
 
     if (!firstName || !lastName || !email || !password || !companyName) {
       return NextResponse.json(
@@ -38,14 +38,15 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // TVA, adresse et téléphone sont facultatifs à l'inscription : ils ne servent qu'à
-    // la facturation, donc ils sont réclamés au checkout. Les colonnes restent non-null
-    // en base (chaîne vide) pour ne rien casser côté Stripe/Odoo/factures qui les lisent.
-    const normalizedVAT = companyVAT?.trim() ? normalizeVat(companyVAT) : ''
-    if (normalizedVAT && !isValidBelgianVat(normalizedVAT)) {
+    // Le plan FREE doit exister (seed `node prisma/seed.js`). Sans lui, on créerait une
+    // société avec planId: null → dashboard cassé. On échoue explicitement à la place.
+    const freePlan = await prisma.plan.findFirst({ where: { name: 'FREE' } })
+    if (!freePlan) {
+      console.error('SEED MISSING: table Plan sans entrée FREE — inscription bloquée')
+      Sentry.captureMessage('register: plan FREE absent de la table Plan (seed manquant)', 'error')
       return NextResponse.json(
-        { error: 'Numéro de TVA invalide (format: BE + 10 chiffres)' },
-        { status: 400 }
+        { error: 'Inscription momentanément indisponible. Réessayez plus tard.' },
+        { status: 503 }
       )
     }
 
@@ -57,6 +58,9 @@ export async function POST(req: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 10)
     const fullName = `${firstName.trim()} ${lastName.trim()}`
 
+    // TVA, adresse et téléphone sont collectés plus tard (checkout Stripe : billing_address
+    // + tax_id, rétro-écrits par le webhook). Les colonnes restent non-null → chaîne vide.
+    //
     // Pas de dispatchWebhookSafe('employee.created') ici : à ce stade la company vient
     // d'être créée, aucun addon_webhooks ne peut encore être actif (pas de flag posé).
     const { user, company } = await prisma.$transaction(async (tx) => {
@@ -70,17 +74,15 @@ export async function POST(req: NextRequest) {
         },
       })
 
-      const freePlan = await tx.plan.findFirst({ where: { name: 'FREE' } })
-
       const company = await tx.company.create({
         data: {
           name: companyName,
-          address: companyAddress?.trim() ?? '',
-          phone: phone?.trim() ?? '',
-          vatNumber: normalizedVAT,
+          address: '',
+          phone: '',
+          vatNumber: '',
           contactEmail: email,
           adminId: user.id,
-          planId: freePlan?.id ?? null,
+          planId: freePlan.id,
         },
       })
 
@@ -99,7 +101,7 @@ export async function POST(req: NextRequest) {
         companyName,
         adminName: fullName,
         adminEmail: email,
-        vatNumber: normalizedVAT,
+        vatNumber: '',
         companyId: company.id,
       }),
     ]).catch((err) => console.error('Registration email error:', err))

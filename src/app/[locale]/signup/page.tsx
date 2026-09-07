@@ -8,7 +8,6 @@ import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 import { Logo } from '@/components/Logo'
 import { fireSignupConversion } from '@/components/GoogleAdsTag'
-import { normalizeVat, isValidBelgianVat } from '@/lib/vat'
 
 export default function SignupPage() {
   const t = useTranslations('auth.signup')
@@ -16,12 +15,9 @@ export default function SignupPage() {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [companyName, setCompanyName] = useState('')
-  const [companyAddress, setCompanyAddress] = useState('')
-  const [companyVAT, setCompanyVAT] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -32,35 +28,11 @@ export default function SignupPage() {
     setSuccess('')
     setLoading(true)
 
-    if (password !== confirmPassword) {
-      setError(t('passwordMismatch'))
-      setLoading(false)
-      return
-    }
-
-    // TVA facultative à l'inscription — validée seulement si l'utilisateur l'a remplie,
-    // et exigée plus tard au checkout (Stripe Tax / facturation).
-    const normalizedVAT = companyVAT.trim() ? normalizeVat(companyVAT) : ''
-    if (normalizedVAT && !isValidBelgianVat(normalizedVAT)) {
-      setError(t('invalidVat'))
-      setLoading(false)
-      return
-    }
-
     try {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName,
-          lastName,
-          email,
-          phone,
-          password,
-          companyName,
-          companyAddress,
-          companyVAT: normalizedVAT,
-        }),
+        body: JSON.stringify({ firstName, lastName, email, password, companyName }),
       })
 
       const data = await res.json()
@@ -82,6 +54,7 @@ export default function SignupPage() {
 
       if (signInResult?.ok) {
         // Hard navigation: avoids the Next.js router cache serving the pre-auth state.
+        // The admin layout then routes to /admin/onboarding until it is completed.
         window.location.href = '/admin/dashboard'
       } else {
         router.push('/login')
@@ -93,9 +66,12 @@ export default function SignupPage() {
     }
   }
 
+  const inputCls =
+    'w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]'
+
   return (
     <div className="min-h-screen bg-[var(--pp-bg)] flex items-center justify-center px-4" suppressHydrationWarning>
-      <div className="w-full max-w-2xl py-10" suppressHydrationWarning>
+      <div className="w-full max-w-md py-10" suppressHydrationWarning>
         <div className="text-center mb-8" suppressHydrationWarning>
           <Link href="/" aria-label="Pointon — accueil">
             <Logo size="lg" useThemeVar />
@@ -104,7 +80,7 @@ export default function SignupPage() {
         </div>
 
         <Card>
-          <form onSubmit={handleSubmit} className="space-y-6" suppressHydrationWarning>
+          <form onSubmit={handleSubmit} className="space-y-5" suppressHydrationWarning>
             {error && (
               <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
                 {error}
@@ -117,164 +93,108 @@ export default function SignupPage() {
               </div>
             )}
 
-            {/* Section administrateur */}
-            <div className="border-b border-[var(--pp-line)] pb-6">
-              <h3 className="text-sm font-semibold text-[var(--pp-ink)] mb-4">{t('personalInfo')}</h3>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div suppressHydrationWarning>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    {t('firstName')}
-                  </label>
-                  <input
-                    id="firstName"
-                    type="text"
-                    autoComplete="given-name"
-                    value={firstName}
-                    onChange={e => setFirstName(e.target.value)}
-                    placeholder={t('phFirstName')}
-                    required
-                    className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
-                  />
-                </div>
-
-                <div suppressHydrationWarning>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    {t('lastName')}
-                  </label>
-                  <input
-                    id="lastName"
-                    type="text"
-                    autoComplete="family-name"
-                    value={lastName}
-                    onChange={e => setLastName(e.target.value)}
-                    placeholder={t('phLastName')}
-                    required
-                    className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
-                  />
-                </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div suppressHydrationWarning>
+                <label htmlFor="firstName" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
+                  {t('firstName')}
+                </label>
+                <input
+                  id="firstName"
+                  type="text"
+                  autoComplete="given-name"
+                  value={firstName}
+                  onChange={e => setFirstName(e.target.value)}
+                  placeholder={t('phFirstName')}
+                  required
+                  className={inputCls}
+                />
               </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-4">
-                <div suppressHydrationWarning>
-                  <label htmlFor="email" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    {t('email')}
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    autoComplete="email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    placeholder={t('phEmail')}
-                    required
-                    className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
-                  />
-                </div>
-
-                <div suppressHydrationWarning>
-                  <label htmlFor="phone" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    {t('phone')}
-                  </label>
-                  <input
-                    id="phone"
-                    type="tel"
-                    autoComplete="tel"
-                    value={phone}
-                    onChange={e => setPhone(e.target.value)}
-                    placeholder={t('phPhone')}
-                    className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-4 grid grid-cols-2 gap-4">
-                <div suppressHydrationWarning>
-                  <label htmlFor="password" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    {t('password')}
-                  </label>
-                  <input
-                    id="password"
-                    type="password"
-                    autoComplete="new-password"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    required
-                    className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
-                  />
-                  <p className="text-xs text-[var(--pp-muted)] mt-1">{t('minChars')}</p>
-                </div>
-
-                <div suppressHydrationWarning>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    {t('confirmPassword')}
-                  </label>
-                  <input
-                    id="confirmPassword"
-                    type="password"
-                    autoComplete="new-password"
-                    value={confirmPassword}
-                    onChange={e => setConfirmPassword(e.target.value)}
-                    placeholder="••••••••"
-                    required
-                    className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
-                  />
-                </div>
+              <div suppressHydrationWarning>
+                <label htmlFor="lastName" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
+                  {t('lastName')}
+                </label>
+                <input
+                  id="lastName"
+                  type="text"
+                  autoComplete="family-name"
+                  value={lastName}
+                  onChange={e => setLastName(e.target.value)}
+                  placeholder={t('phLastName')}
+                  required
+                  className={inputCls}
+                />
               </div>
             </div>
 
-            {/* Section société */}
-            <div>
-              <h3 className="text-sm font-semibold text-[var(--pp-ink)] mb-4">{t('companyInfo')}</h3>
+            <div suppressHydrationWarning>
+              <label htmlFor="email" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
+                {t('email')}
+              </label>
+              <input
+                id="email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder={t('phEmail')}
+                required
+                className={inputCls}
+              />
+            </div>
 
-              <div className="space-y-4">
-                <div suppressHydrationWarning>
-                  <label htmlFor="companyName" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    {t('companyName')}
-                  </label>
-                  <input
-                    id="companyName"
-                    type="text"
-                    autoComplete="organization"
-                    value={companyName}
-                    onChange={e => setCompanyName(e.target.value)}
-                    placeholder={t('phCompany')}
-                    required
-                    className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
-                  />
-                </div>
-
-                <div suppressHydrationWarning>
-                  <label htmlFor="companyVAT" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    {t('vatNumber')}
-                  </label>
-                  <input
-                    id="companyVAT"
-                    type="text"
-                    value={companyVAT}
-                    onChange={e => setCompanyVAT(e.target.value.toUpperCase())}
-                    placeholder="BE0123456789"
-                    className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
-                  />
-                  <p className="text-xs text-[var(--pp-muted)] mt-1">{t('vatFormat')}</p>
-                </div>
-
-                <div suppressHydrationWarning>
-                  <label htmlFor="companyAddress" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
-                    {t('address')}
-                  </label>
-                  <input
-                    id="companyAddress"
-                    type="text"
-                    autoComplete="street-address"
-                    value={companyAddress}
-                    onChange={e => setCompanyAddress(e.target.value)}
-                    placeholder={t('phAddress')}
-                    className="w-full px-4 py-2 border border-[var(--pp-line)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
-                  />
-                </div>
+            <div suppressHydrationWarning>
+              <label htmlFor="password" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
+                {t('password')}
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  minLength={8}
+                  className={`${inputCls} pr-12`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  aria-label={showPassword ? t('hidePassword') : t('showPassword')}
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-[var(--pp-muted)] hover:text-[var(--pp-ink)]"
+                >
+                  {showPassword ? (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                      <line x1="1" y1="1" x2="23" y2="23" />
+                    </svg>
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  )}
+                </button>
               </div>
+              <p className="text-xs text-[var(--pp-muted)] mt-1">{t('minChars')}</p>
+            </div>
+
+            <div suppressHydrationWarning>
+              <label htmlFor="companyName" className="block text-sm font-medium text-[var(--pp-ink)] mb-2">
+                {t('companyName')}
+              </label>
+              <input
+                id="companyName"
+                type="text"
+                autoComplete="organization"
+                value={companyName}
+                onChange={e => setCompanyName(e.target.value)}
+                placeholder={t('phCompany')}
+                required
+                className={inputCls}
+              />
             </div>
 
             <Button type="submit" disabled={loading} className="w-full" size="md">

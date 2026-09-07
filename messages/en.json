@@ -66,32 +66,22 @@
       "submit": "Create my account",
       "alreadyAccount": "Already have an account?",
       "loginLink": "Sign in",
-      "header": "Create your admin account — it's free",
-      "passwordMismatch": "The passwords do not match",
-      "invalidVat": "Invalid VAT number (format: BE + 10 digits)",
+      "header": "Create your account — free, no credit card",
       "signupError": "Error during registration",
       "signupRetryError": "Error during registration. Please try again.",
       "success": "Registration successful! Signing in...",
-      "personalInfo": "Personal information",
       "firstName": "First name *",
       "lastName": "Last name *",
       "email": "Email *",
-      "phone": "Phone (optional)",
       "password": "Password *",
-      "confirmPassword": "Confirm the password *",
       "minChars": "Minimum 8 characters",
-      "companyInfo": "Company information",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
       "companyName": "Company name *",
-      "vatNumber": "VAT number (optional)",
-      "vatFormat": "Format: BE + 10 digits",
-      "address": "Address (optional)",
       "phFirstName": "John",
       "phLastName": "Doe",
       "phEmail": "you@company.com",
-      "phPhone": "+32 470 00 00 00",
       "phCompany": "Acme Ltd",
-      "phVat": "BE0123456789",
-      "phAddress": "Example St 123, 1000 Brussels",
       "submitting": "Registering...",
       "createFreeBtn": "Create my account for free",
       "terms": "By signing up, you agree to our <terms>terms of use</terms> and our <privacy>privacy policy</privacy>.",
@@ -748,7 +738,7 @@
       "duration": "Duration"
     },
     "stats": [
-      "Belgian SMEs",
+      "ways to clock in",
       "Average setup",
       "CJEU compliant",
       "To get started"
@@ -817,29 +807,25 @@
       "kioskSubDetail": "Reception, time-stamped badge and tracking of external visits — without a Pointon account."
     },
     "testimonials": {
-      "label": "They trust us",
-      "title1": "Belgian SMEs clocking in",
-      "title2": "every day",
-      "planLabel": "{plan} plan",
+      "label": "Use cases",
+      "title1": "Built for situations",
+      "title2": "that are actually real",
       "items": [
         {
-          "quote": "We used to write hours on paper. Now it’s automatic. My employees clock in on the tablet at the entrance, I export the summary on Friday. Setup: 10 minutes.",
-          "role": "Manager"
+          "sector": "Retail · 6 people",
+          "quote": "A bakery: staff clock in on the tablet at the entrance, the manager exports the summary on Friday. Up and running in 10 minutes."
         },
         {
-          "quote": "We were looking for a solution ready for the 2027 obligation without GPS or tracking. Pointon ticks every box. The immutable audit trail reassures us for social inspections.",
-          "role": "Technical Director"
+          "sector": "Engineering firm",
+          "quote": "A technical team preparing for the 2027 obligation: recording without GPS or tracking, immutable audit trail for social inspections."
         },
         {
-          "quote": "My technicians are rarely in the office. With the tablet kiosk at the depot and the mobile app for travel, everyone clocks in easily.",
-          "role": "Director"
+          "sector": "Field · multi-site",
+          "quote": "Technicians rarely in the office: tablet kiosk at the depot, mobile app on the road — everyone clocks in without friction."
         }
       ],
-      "placeholderQuote": "Your testimonial here — share your experience with Pointon.",
-      "placeholderCompany": "Your company",
-      "placeholderLocation": "Belgium",
+      "placeholderQuote": "Using Pointon? Share your feedback.",
       "placeholderCta": "Contact us",
-      "disclaimer1": "These testimonials are representative of real use cases.",
       "disclaimer2": "Zero GPS · No geolocation · GDPR compliant · CBA 68 Belgium"
     },
     "how": {
@@ -972,7 +958,7 @@
         },
         {
           "q": "How is the data stored?",
-          "a": "Data hosted in the EU (Vercel Postgres or self-hosted server). HTTPS encryption. GDPR compliant."
+          "a": "Data hosted in Europe (OVH, France). HTTPS encryption. GDPR compliant."
         },
         {
           "q": "Can I export the data?",

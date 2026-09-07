@@ -66,32 +66,22 @@
       "submit": "Créer mon compte",
       "alreadyAccount": "Déjà un compte ?",
       "loginLink": "Se connecter",
-      "header": "Créez votre compte administrateur — c’est gratuit",
-      "passwordMismatch": "Les mots de passe ne correspondent pas",
-      "invalidVat": "Numéro de TVA invalide (format: BE + 10 chiffres)",
+      "header": "Créez votre compte — c’est gratuit, sans carte bancaire",
       "signupError": "Erreur lors de l’inscription",
       "signupRetryError": "Erreur lors de l’inscription. Veuillez réessayer.",
       "success": "Inscription réussie ! Connexion en cours...",
-      "personalInfo": "Informations personnelles",
       "firstName": "Prénom *",
       "lastName": "Nom *",
       "email": "Email *",
-      "phone": "Téléphone (facultatif)",
       "password": "Mot de passe *",
-      "confirmPassword": "Confirmer le mot de passe *",
       "minChars": "Minimum 8 caractères",
-      "companyInfo": "Informations société",
+      "showPassword": "Afficher le mot de passe",
+      "hidePassword": "Masquer le mot de passe",
       "companyName": "Nom de la société *",
-      "vatNumber": "Numéro de TVA (facultatif)",
-      "vatFormat": "Format : BE + 10 chiffres — à compléter plus tard",
-      "address": "Adresse (facultatif)",
       "phFirstName": "Jean",
       "phLastName": "Dupont",
       "phEmail": "vous@entreprise.be",
-      "phPhone": "+32 470 00 00 00",
       "phCompany": "Acme SA",
-      "phVat": "BE0123456789",
-      "phAddress": "Rue Example 123, 1000 Bruxelles",
       "submitting": "Inscription en cours...",
       "createFreeBtn": "Créer mon compte gratuitement",
       "terms": "En vous inscrivant, vous acceptez nos <terms>conditions d’utilisation</terms> et notre <privacy>politique de confidentialité</privacy>.",
@@ -748,7 +738,7 @@
       "duration": "Durée"
     },
     "stats": [
-      "PME belges",
+      "méthodes de pointage",
       "Setup moyen",
       "Conforme CJUE",
       "Pour commencer"
@@ -817,29 +807,25 @@
       "kioskSubDetail": "Accueil, badge horodaté et suivi des passages externes — sans compte Pointon."
     },
     "testimonials": {
-      "label": "Ils nous font confiance",
-      "title1": "Des PME belges qui pointent",
-      "title2": "au quotidien",
-      "planLabel": "Plan {plan}",
+      "label": "Cas d'usage",
+      "title1": "Pensé pour des situations",
+      "title2": "bien réelles",
       "items": [
         {
-          "quote": "Avant on notait les heures sur papier. Maintenant c'est automatique. Mes employés pointent sur la tablette à l'entrée, j'exporte le récap le vendredi. Setup : 10 minutes.",
-          "role": "Gérante"
+          "sector": "Commerce · 6 personnes",
+          "quote": "Une boulangerie : les employés pointent sur la tablette à l'entrée, la gérante exporte le récap le vendredi. Mise en route en 10 minutes."
         },
         {
-          "quote": "On cherchait une solution prête pour l'obligation 2027 sans GPS ni tracking. Pointon coche toutes les cases. L'audit trail immuable nous rassure pour les contrôles sociaux.",
-          "role": "Directeur technique"
+          "sector": "Bureau d'études",
+          "quote": "Une équipe technique qui se prépare à l'obligation 2027 : enregistrement sans GPS ni tracking, audit trail immuable pour les contrôles sociaux."
         },
         {
-          "quote": "Mes techniciens sont rarement au bureau. Avec le kiosque tablette au dépôt et l'appli mobile pour les déplacements, tout le monde pointe facilement.",
-          "role": "Dirigeant"
+          "sector": "Terrain · multi-sites",
+          "quote": "Des techniciens rarement au bureau : kiosque tablette au dépôt, application mobile en déplacement — tout le monde pointe sans friction."
         }
       ],
-      "placeholderQuote": "Votre témoignage ici — partagez votre expérience avec Pointon.",
-      "placeholderCompany": "Votre entreprise",
-      "placeholderLocation": "Belgique",
+      "placeholderQuote": "Vous utilisez Pointon ? Partagez votre retour.",
       "placeholderCta": "Nous contacter",
-      "disclaimer1": "Ces témoignages sont représentatifs de cas d'usage réels.",
       "disclaimer2": "Zéro GPS · Aucune géolocalisation · RGPD compliant · CCT 68 Belgique"
     },
     "how": {
@@ -972,7 +958,7 @@
         },
         {
           "q": "Comment sont stockées les données?",
-          "a": "Données hébergées en EU (Vercel Postgres ou serveur auto-hébergé). Chiffrement HTTPS. RGPD compliant."
+          "a": "Données hébergées en Europe (OVH, France). Chiffrement HTTPS. Conforme RGPD."
         },
         {
           "q": "Puis-je exporter les données?",

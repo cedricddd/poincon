@@ -66,32 +66,22 @@
       "submit": "Mein Konto erstellen",
       "alreadyAccount": "Haben Sie bereits ein Konto?",
       "loginLink": "Anmelden",
-      "header": "Erstellen Sie Ihr Administratorkonto — kostenlos",
-      "passwordMismatch": "Die Passwörter stimmen nicht überein",
-      "invalidVat": "Ungültige USt-IdNr. (Format: BE + 10 Ziffern)",
+      "header": "Erstellen Sie Ihr Konto — kostenlos, ohne Kreditkarte",
       "signupError": "Fehler bei der Registrierung",
       "signupRetryError": "Fehler bei der Registrierung. Bitte erneut versuchen.",
       "success": "Registrierung erfolgreich! Anmeldung läuft...",
-      "personalInfo": "Persönliche Angaben",
       "firstName": "Vorname *",
       "lastName": "Nachname *",
       "email": "E-Mail *",
-      "phone": "Telefon (optional)",
       "password": "Passwort *",
-      "confirmPassword": "Passwort bestätigen *",
       "minChars": "Mindestens 8 Zeichen",
-      "companyInfo": "Unternehmensangaben",
+      "showPassword": "Passwort anzeigen",
+      "hidePassword": "Passwort verbergen",
       "companyName": "Firmenname *",
-      "vatNumber": "USt-IdNr. (optional)",
-      "vatFormat": "Format: BE + 10 Ziffern",
-      "address": "Adresse (optional)",
       "phFirstName": "Max",
       "phLastName": "Mustermann",
       "phEmail": "sie@firma.de",
-      "phPhone": "+32 470 00 00 00",
       "phCompany": "Acme GmbH",
-      "phVat": "BE0123456789",
-      "phAddress": "Beispielstraße 123, 1000 Brüssel",
       "submitting": "Registrierung läuft...",
       "createFreeBtn": "Mein Konto kostenlos erstellen",
       "terms": "Mit der Registrierung akzeptieren Sie unsere <terms>Nutzungsbedingungen</terms> und unsere <privacy>Datenschutzrichtlinie</privacy>.",
@@ -748,7 +738,7 @@
       "duration": "Dauer"
     },
     "stats": [
-      "Belgische KMU",
+      "Erfassungsmethoden",
       "Durchschn. Setup",
       "EuGH-konform",
       "Für den Start"
@@ -817,29 +807,25 @@
       "kioskSubDetail": "Empfang, zeitgestempelter Ausweis und Nachverfolgung externer Besuche — ohne Pointon-Konto."
     },
     "testimonials": {
-      "label": "Sie vertrauen uns",
-      "title1": "Belgische KMU, die täglich",
-      "title2": "stempeln",
-      "planLabel": "Plan {plan}",
+      "label": "Anwendungsfälle",
+      "title1": "Gemacht für Situationen",
+      "title2": "aus der Praxis",
       "items": [
         {
-          "quote": "Früher haben wir die Stunden auf Papier notiert. Jetzt geht es automatisch. Meine Mitarbeiter stempeln am Tablet am Eingang, freitags exportiere ich die Übersicht. Setup: 10 Minuten.",
-          "role": "Geschäftsführerin"
+          "sector": "Handel · 6 Personen",
+          "quote": "Eine Bäckerei: Die Mitarbeiter stempeln am Tablet am Eingang, die Geschäftsführung exportiert freitags die Übersicht. In 10 Minuten einsatzbereit."
         },
         {
-          "quote": "Wir suchten eine Lösung, die für die Pflicht 2027 bereit ist, ohne GPS oder Tracking. Pointon erfüllt alle Kriterien. Der unveränderbare Audit-Trail gibt uns Sicherheit bei Sozialkontrollen.",
-          "role": "Technischer Direktor"
+          "sector": "Ingenieurbüro",
+          "quote": "Ein technisches Team, das sich auf die Pflicht 2027 vorbereitet: Erfassung ohne GPS oder Tracking, unveränderbarer Audit-Trail für Sozialkontrollen."
         },
         {
-          "quote": "Meine Techniker sind selten im Büro. Mit dem Tablet-Kiosk im Depot und der mobilen App für unterwegs stempelt jeder problemlos.",
-          "role": "Geschäftsführer"
+          "sector": "Außendienst · mehrere Standorte",
+          "quote": "Techniker, die selten im Büro sind: Tablet-Kiosk im Depot, mobile App für unterwegs — jeder stempelt reibungslos."
         }
       ],
-      "placeholderQuote": "Ihre Erfahrung hier — teilen Sie Ihre Erfahrung mit Pointon.",
-      "placeholderCompany": "Ihr Unternehmen",
-      "placeholderLocation": "Belgien",
+      "placeholderQuote": "Sie nutzen Pointon? Teilen Sie Ihre Erfahrung.",
       "placeholderCta": "Kontaktieren Sie uns",
-      "disclaimer1": "Diese Erfahrungsberichte sind repräsentativ für reale Anwendungsfälle.",
       "disclaimer2": "Kein GPS · Keine Geolokalisierung · DSGVO-konform · Tarifvertrag 68 Belgien"
     },
     "how": {
@@ -972,7 +958,7 @@
         },
         {
           "q": "Wie werden die Daten gespeichert?",
-          "a": "Daten in der EU gehostet (Vercel Postgres oder selbst gehosteter Server). HTTPS-Verschlüsselung. DSGVO-konform."
+          "a": "Daten in Europa gehostet (OVH, Frankreich). HTTPS-Verschlüsselung. DSGVO-konform."
         },
         {
           "q": "Kann ich die Daten exportieren?",
