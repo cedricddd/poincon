@@ -192,6 +192,7 @@
     "login": "Anmelden",
     "start": "Loslegen",
     "startFree": "Kostenlos starten",
+    "mySpace": "Mein Bereich",
     "themeLight": "Heller Modus",
     "themeDark": "Dunkler Modus",
     "menu": "Menü"
@@ -221,6 +222,7 @@
     "comptes": "Konten",
     "mon_profil": "Mein Profil",
     "se_deconnecter": "Abmelden",
+    "accueil": "Zurück zur Startseite",
     "ouvrir_menu": "Menü öffnen",
     "fermer_menu": "Menü schließen",
     "reduire_menu": "Menü einklappen",

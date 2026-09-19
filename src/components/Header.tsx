@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
+import { useSession } from 'next-auth/react'
 import { Link } from '@/i18n/navigation'
 import { Button } from './Button'
 import { Logo } from './Logo'
@@ -24,8 +25,17 @@ function MoonIcon() {
   )
 }
 
+// Landing page of each role once logged in; anything else lands on the clock page.
+const SPACE_HREF: Record<string, string> = {
+  SUPER_ADMIN: '/super-admin/dashboard',
+  ADMIN: '/admin/dashboard',
+  MANAGER: '/manager/dashboard',
+}
+
 export function Header() {
   const t = useTranslations('header')
+  const { data: session } = useSession()
+  const spaceHref = session?.user ? (SPACE_HREF[session.user.role] ?? '/app/clock') : null
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [dark, setDark] = useState(false)
@@ -111,12 +121,20 @@ export function Header() {
           >
             {dark ? <SunIcon /> : <MoonIcon />}
           </button>
-          <Link href="/login" className={`text-sm font-medium transition-colors ${linkCls}`}>
-            {t('login')}
-          </Link>
-          <Link href="/signup">
-            <Button size="sm">{t('start')}</Button>
-          </Link>
+          {spaceHref ? (
+            <Link href={spaceHref}>
+              <Button size="sm">{t('mySpace')}</Button>
+            </Link>
+          ) : (
+            <>
+              <Link href="/login" className={`text-sm font-medium transition-colors ${linkCls}`}>
+                {t('login')}
+              </Link>
+              <Link href="/signup">
+                <Button size="sm">{t('start')}</Button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile: theme toggle + hamburger */}
@@ -172,12 +190,20 @@ export function Header() {
             <LocaleSwitcher />
           </div>
           <div className="flex flex-col gap-2">
-            <Link href="/login" onClick={() => setMenuOpen(false)}>
-              <Button variant="outline" size="md" className="w-full">{t('login')}</Button>
-            </Link>
-            <Link href="/signup" onClick={() => setMenuOpen(false)}>
-              <Button size="md" className="w-full">{t('startFree')}</Button>
-            </Link>
+            {spaceHref ? (
+              <Link href={spaceHref} onClick={() => setMenuOpen(false)}>
+                <Button size="md" className="w-full">{t('mySpace')}</Button>
+              </Link>
+            ) : (
+              <>
+                <Link href="/login" onClick={() => setMenuOpen(false)}>
+                  <Button variant="outline" size="md" className="w-full">{t('login')}</Button>
+                </Link>
+                <Link href="/signup" onClick={() => setMenuOpen(false)}>
+                  <Button size="md" className="w-full">{t('startFree')}</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

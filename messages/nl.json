@@ -192,6 +192,7 @@
     "login": "Aanmelden",
     "start": "Starten",
     "startFree": "Gratis starten",
+    "mySpace": "Mijn ruimte",
     "themeLight": "Lichte modus",
     "themeDark": "Donkere modus",
     "menu": "Menu"
@@ -221,6 +222,7 @@
     "comptes": "Accounts",
     "mon_profil": "Mijn profiel",
     "se_deconnecter": "Afmelden",
+    "accueil": "Terug naar de startpagina",
     "ouvrir_menu": "Menu openen",
     "fermer_menu": "Menu sluiten",
     "reduire_menu": "Menu inklappen",

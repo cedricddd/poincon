@@ -455,6 +455,17 @@ export function Sidebar() {
           </Link>
         )}
 
+        {isSuperAdmin && (
+          <Link
+            href="/"
+            title={c ? t('accueil') : undefined}
+            className={`w-full flex items-center gap-2 px-2 py-2 text-xs text-[var(--pp-muted)] hover:text-[var(--pp-ink)] transition rounded-lg hover:bg-[var(--pp-line)]/40 ${c ? 'justify-center' : ''}`}
+          >
+            <IconHome />
+            {!c && t('accueil')}
+          </Link>
+        )}
+
         <button
           onClick={() => signOut({ callbackUrl: `/${locale}/login` })}
           title={c ? t('se_deconnecter') : undefined}

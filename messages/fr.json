@@ -192,6 +192,7 @@
     "login": "Connexion",
     "start": "Commencer",
     "startFree": "Commencer gratuitement",
+    "mySpace": "Mon espace",
     "themeLight": "Mode clair",
     "themeDark": "Mode sombre",
     "menu": "Menu"
@@ -221,6 +222,7 @@
     "comptes": "Comptes",
     "mon_profil": "Mon profil",
     "se_deconnecter": "Se déconnecter",
+    "accueil": "Retour à l'accueil",
     "ouvrir_menu": "Ouvrir le menu",
     "fermer_menu": "Fermer le menu",
     "reduire_menu": "Réduire le menu",
