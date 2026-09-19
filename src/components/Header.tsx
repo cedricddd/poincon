@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { useSession } from 'next-auth/react'
-import { Link } from '@/i18n/navigation'
+import { Link, usePathname } from '@/i18n/navigation'
 import { Button } from './Button'
 import { Logo } from './Logo'
 import { LocaleSwitcher } from './LocaleSwitcher'
@@ -25,6 +25,22 @@ function MoonIcon() {
   )
 }
 
+/** Landing-page section anchor. The sections only exist on the landing page, so from
+ *  any other page (blog, legal, comparison) the link has to point back to it. */
+function SectionLink({ id, onHome, className, onClick, children }: {
+  id: string
+  onHome: boolean
+  className: string
+  onClick?: () => void
+  children: React.ReactNode
+}) {
+  return onHome ? (
+    <a href={`#${id}`} className={className} onClick={onClick}>{children}</a>
+  ) : (
+    <Link href={{ pathname: '/', hash: id }} className={className} onClick={onClick}>{children}</Link>
+  )
+}
+
 // Landing page of each role once logged in; anything else lands on the clock page.
 const SPACE_HREF: Record<string, string> = {
   SUPER_ADMIN: '/super-admin/dashboard',
@@ -34,6 +50,7 @@ const SPACE_HREF: Record<string, string> = {
 
 export function Header() {
   const t = useTranslations('header')
+  const onHome = usePathname() === '/'
   const { data: session } = useSession()
   const spaceHref = session?.user ? (SPACE_HREF[session.user.role] ?? '/app/clock') : null
   const [scrolled, setScrolled] = useState(false)
@@ -62,10 +79,10 @@ export function Header() {
   }
 
   const navLinks = [
-    { href: '#features', label: t('navFeatures') },
-    { href: '#how', label: t('navHow') },
-    { href: '#pricing', label: t('navPricing') },
-    { href: '#faq', label: t('navFaq') },
+    { id: 'features', label: t('navFeatures') },
+    { id: 'how', label: t('navHow') },
+    { id: 'pricing', label: t('navPricing') },
+    { id: 'faq', label: t('navFaq') },
   ]
 
   // The header overlays the always-dark hero until scrolled → force light text there,
@@ -100,9 +117,9 @@ export function Header() {
         {/* Nav desktop */}
         <nav className="hidden md:flex items-center gap-8">
           {navLinks.map(l => (
-            <a key={l.href} href={l.href} className={`text-sm transition-colors ${linkCls}`}>
+            <SectionLink key={l.id} id={l.id} onHome={onHome} className={`text-sm transition-colors ${linkCls}`}>
               {l.label}
-            </a>
+            </SectionLink>
           ))}
           <Link href="/blog" className={`text-sm transition-colors ${linkCls}`}>
             Blog
@@ -169,14 +186,15 @@ export function Header() {
         <div className="md:hidden bg-[var(--pp-bg)] border-b border-[var(--pp-line)] px-4 pb-4">
           <nav className="flex flex-col gap-1 mb-4">
             {navLinks.map(item => (
-              <a
-                key={item.href}
-                href={item.href}
+              <SectionLink
+                key={item.id}
+                id={item.id}
+                onHome={onHome}
                 onClick={() => setMenuOpen(false)}
                 className="py-3 text-sm font-medium text-[var(--pp-muted)] hover:text-[var(--pp-ink)] border-b border-[var(--pp-line)] last:border-0 transition-colors"
               >
                 {item.label}
-              </a>
+              </SectionLink>
             ))}
             <Link
               href="/blog"
