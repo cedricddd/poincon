@@ -632,6 +632,21 @@
     "backHome": "← Zurück zur Startseite",
     "copyright": "© {year} Pointon · Ced-IT"
   },
+  "blog": {
+    "subtitle": "Zeiterfassung, Arbeitszeitregistrierung und die belgische Pflicht ab 2027.",
+    "metaDescription": "Informationen zur Zeiterfassung in Belgien: Pflicht 2027, Konformität, DSGVO, Systemauswahl.",
+    "breadcrumbHome": "Startseite",
+    "notTranslated": "Die Artikel sind noch nicht in diese Sprache übersetzt.",
+    "seeInFrench": "Blog auf Französisch ansehen",
+    "publishedOn": "Veröffentlicht am",
+    "updatedOn": "Aktualisiert am",
+    "keyTakeaway": "Kurz gefasst",
+    "faqHeading": "Häufige Fragen",
+    "ctaTitle": "Auf die Pflicht ab 2027 vorbereiten",
+    "ctaText": "Pointon ist eine belgische Stempeluhr: objektive Erfassung, unveränderbares Audit-Trail, ohne GPS. Kostenlos starten.",
+    "ctaPrimary": "Kostenloses Konto erstellen",
+    "ctaSecondary": "Lösungen vergleichen"
+  },
   "emails": {
     "greeting": "Sehr geehrte(r) {name},",
     "greetingGeneric": "Sehr geehrte Damen und Herren,",

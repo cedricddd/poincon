@@ -632,6 +632,21 @@
     "backHome": "← Terug naar de startpagina",
     "copyright": "© {year} Pointon · Ced-IT"
   },
+  "blog": {
+    "subtitle": "Prikken, arbeidstijdregistratie en de Belgische verplichting van 2027.",
+    "metaDescription": "Informatie over tijdsregistratie in België: verplichting 2027, conformiteit, GDPR, een systeem kiezen.",
+    "breadcrumbHome": "Home",
+    "notTranslated": "De artikels zijn nog niet vertaald in deze taal.",
+    "seeInFrench": "Bekijk de blog in het Frans",
+    "publishedOn": "Gepubliceerd op",
+    "updatedOn": "Bijgewerkt op",
+    "keyTakeaway": "Samengevat",
+    "faqHeading": "Veelgestelde vragen",
+    "ctaTitle": "Voorbereiden op de verplichting van 2027",
+    "ctaText": "Pointon is een Belgische prikklok: objectieve registratie, onveranderbaar audit trail, zonder gps. Gratis om te starten.",
+    "ctaPrimary": "Gratis account aanmaken",
+    "ctaSecondary": "Vergelijk de oplossingen"
+  },
   "emails": {
     "greeting": "Beste {name},",
     "greetingGeneric": "Beste,",

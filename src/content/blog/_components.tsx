@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useTranslations } from 'next-intl'
 import type { BlogFaqItem } from '@/lib/blog'
 
 /** Wraps the article body — all prose styling lives in `.blog-prose` (globals.css). */
@@ -8,9 +9,10 @@ export function Prose({ children }: { children: ReactNode }) {
 
 /** "En résumé" box, placed at the top of an article. */
 export function KeyTakeaway({ children }: { children: ReactNode }) {
+  const t = useTranslations('blog')
   return (
-    <aside className="blog-takeaway" aria-label="En résumé">
-      <p className="blog-takeaway__title">En résumé</p>
+    <aside className="blog-takeaway" aria-label={t('keyTakeaway')}>
+      <p className="blog-takeaway__title">{t('keyTakeaway')}</p>
       {children}
     </aside>
   )
@@ -26,10 +28,11 @@ export function Callout({ children }: { children: ReactNode }) {
  * `items` array feeds the FAQPage JSON-LD from the route.
  */
 export function FaqSection({ items }: { items: BlogFaqItem[] }) {
+  const t = useTranslations('blog')
   if (!items.length) return null
   return (
     <section className="blog-faq" aria-labelledby="blog-faq-heading">
-      <h2 id="blog-faq-heading">Questions fréquentes</h2>
+      <h2 id="blog-faq-heading">{t('faqHeading')}</h2>
       <dl>
         {items.map((f) => (
           <div key={f.q} className="blog-faq__item">

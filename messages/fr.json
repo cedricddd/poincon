@@ -632,6 +632,21 @@
     "backHome": "← Retour à l'accueil",
     "copyright": "© {year} Pointon · Ced-IT"
   },
+  "blog": {
+    "subtitle": "Pointage, enregistrement du temps de travail et obligation belge de 2027.",
+    "metaDescription": "Ressources sur le pointage et l'enregistrement du temps de travail en Belgique : obligation 2027, conformité, RGPD, choix d'un système.",
+    "breadcrumbHome": "Accueil",
+    "notTranslated": "Les articles ne sont pas encore traduits dans cette langue.",
+    "seeInFrench": "Voir le blog en français",
+    "publishedOn": "Publié le",
+    "updatedOn": "Mis à jour le",
+    "keyTakeaway": "En résumé",
+    "faqHeading": "Questions fréquentes",
+    "ctaTitle": "Se préparer à l'obligation 2027",
+    "ctaText": "Pointon est une pointeuse belge : enregistrement objectif, audit trail immuable, sans GPS. Gratuit pour démarrer.",
+    "ctaPrimary": "Créer un compte gratuit",
+    "ctaSecondary": "Comparer les solutions"
+  },
   "emails": {
     "greeting": "Bonjour {name},",
     "greetingGeneric": "Bonjour,",

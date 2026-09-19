@@ -33,6 +33,17 @@ export interface BlogPost {
 const SITE = 'https://pointon.be'
 const DEFAULT_OG_IMAGE = '/images/hero-main.png'
 
+const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
+
+/** Locale-aware long date, e.g. "7 septembre 2026". */
+export function formatBlogDate(iso: string, locale: string): string {
+  return new Date(iso).toLocaleDateString(BCP47[locale] ?? 'fr-BE', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+}
+
 /* ─── Registry helpers (no content loaded) ─────────────────────────────── */
 
 /** Every (locale, slug) pair that has content — for generateStaticParams. */

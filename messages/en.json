@@ -632,6 +632,21 @@
     "backHome": "← Back to home",
     "copyright": "© {year} Pointon · Ced-IT"
   },
+  "blog": {
+    "subtitle": "Time tracking, working-time registration and Belgium's 2027 obligation.",
+    "metaDescription": "Resources on time tracking and working-time registration in Belgium: 2027 obligation, compliance, GDPR, choosing a system.",
+    "breadcrumbHome": "Home",
+    "notTranslated": "The articles are not yet translated into this language.",
+    "seeInFrench": "View the blog in French",
+    "publishedOn": "Published on",
+    "updatedOn": "Updated on",
+    "keyTakeaway": "In brief",
+    "faqHeading": "Frequently asked questions",
+    "ctaTitle": "Get ready for the 2027 obligation",
+    "ctaText": "Pointon is a Belgian time clock: objective recording, immutable audit trail, no GPS. Free to start.",
+    "ctaPrimary": "Create a free account",
+    "ctaSecondary": "Compare solutions"
+  },
   "emails": {
     "greeting": "Dear {name},",
     "greetingGeneric": "Dear,",

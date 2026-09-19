@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import {
   articleJsonLd,
   blogStaticParams,
   faqJsonLd,
+  formatBlogDate,
   getPost,
   localesForSlug,
   ogImageUrl,
@@ -53,13 +55,12 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   }
 }
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('fr-BE', { day: 'numeric', month: 'long', year: 'numeric' })
-}
-
 export default async function BlogArticlePage({ params }: Params) {
   const { locale, slug } = await params
-  const post = await getPost(slug, locale)
+  const [post, t] = await Promise.all([
+    getPost(slug, locale),
+    getTranslations({ locale, namespace: 'blog' }),
+  ])
   if (!post) notFound()
 
   const { meta, Body } = post
@@ -79,7 +80,7 @@ export default async function BlogArticlePage({ params }: Params) {
       )}
 
       <nav className="text-sm text-[var(--pp-muted)] mb-8">
-        <Link href="/" className="hover:text-[var(--pp-ink)] transition-colors">Accueil</Link>
+        <Link href="/" className="hover:text-[var(--pp-ink)] transition-colors">{t('breadcrumbHome')}</Link>
         <span className="mx-2">›</span>
         <Link href="/blog" className="hover:text-[var(--pp-ink)] transition-colors">Blog</Link>
         <span className="mx-2">›</span>
@@ -91,8 +92,8 @@ export default async function BlogArticlePage({ params }: Params) {
           {meta.title}
         </h1>
         <p className="text-sm text-[var(--pp-muted)] mb-10">
-          Publié le {formatDate(meta.publishedAt)}
-          {showUpdated && <> · Mis à jour le {formatDate(meta.updatedAt)}</>}
+          {t('publishedOn')} {formatBlogDate(meta.publishedAt, locale)}
+          {showUpdated && <> · {t('updatedOn')} {formatBlogDate(meta.updatedAt, locale)}</>}
         </p>
 
         <Prose>
@@ -104,11 +105,10 @@ export default async function BlogArticlePage({ params }: Params) {
 
       <section className="mt-14 rounded-2xl border border-[var(--pp-line)] bg-[var(--pp-bg2)] p-8 text-center">
         <h2 className="font-display font-bold text-xl text-[var(--pp-ink)] mb-2">
-          Se préparer à l&apos;obligation 2027
+          {t('ctaTitle')}
         </h2>
         <p className="text-sm text-[var(--pp-muted)] mb-6">
-          Pointon est une pointeuse belge : enregistrement objectif, audit trail immuable, sans GPS.
-          Gratuit pour démarrer.
+          {t('ctaText')}
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
@@ -116,13 +116,13 @@ export default async function BlogArticlePage({ params }: Params) {
             className="inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-bold text-white"
             style={{ background: 'var(--pp-pos-btn)' }}
           >
-            Créer un compte gratuit
+            {t('ctaPrimary')}
           </Link>
           <Link
             href="/comparaison"
             className="inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-bold border border-[var(--pp-line)] text-[var(--pp-ink)]"
           >
-            Comparer les solutions
+            {t('ctaSecondary')}
           </Link>
         </div>
       </section>
