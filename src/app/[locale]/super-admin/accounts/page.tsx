@@ -12,6 +12,7 @@ interface Account {
   name: string
   adminEmail: string
   adminName?: string
+  adminTwoFactorEnabled: boolean
   contactEmail?: string
   plan: string
   activeMembers: number
@@ -22,6 +23,31 @@ interface Account {
   lastActivityAt: string | null
   createdAt: string
   planExpiresAt: string | null
+}
+
+// An admin cannot reach the dashboard before configuring 2FA. Past this delay without
+// it, the signup is considered stuck at that step rather than still in progress.
+const TWO_FA_GRACE_MS = 24 * 60 * 60 * 1000
+
+const TWO_FA_BADGES = {
+  ok: { label: 'Activé', className: 'bg-[#22c55e20] text-[#22c55e]', title: 'Double authentification configurée' },
+  pending: { label: 'En cours', className: 'bg-[#f59e0b20] text-[#f59e0b]', title: 'Inscrit depuis moins de 24 h, 2FA pas encore configuré' },
+  stuck: { label: 'Bloqué', className: 'bg-[#ef444420] text-[#ef4444]', title: 'Inscrit depuis plus de 24 h, 2FA jamais configuré' },
+} as const
+
+function getTwoFactorBadge(acc: Account) {
+  if (acc.adminTwoFactorEnabled) return TWO_FA_BADGES.ok
+  const age = Date.now() - new Date(acc.createdAt).getTime()
+  return age > TWO_FA_GRACE_MS ? TWO_FA_BADGES.stuck : TWO_FA_BADGES.pending
+}
+
+function TwoFactorBadge({ acc }: { acc: Account }) {
+  const badge = getTwoFactorBadge(acc)
+  return (
+    <span title={badge.title} className={`px-2 py-1 rounded-full text-xs font-medium ${badge.className}`}>
+      {badge.label}
+    </span>
+  )
 }
 
 export default function SuperAdminAccounts() {
@@ -198,6 +224,7 @@ export default function SuperAdminAccounts() {
                   <th className="text-left font-semibold py-3 px-4">Contact</th>
                   <th className="text-left font-semibold py-3 px-4">Plan</th>
                   <th className="text-center font-semibold py-3 px-4">Usage</th>
+                  <th className="text-center font-semibold py-3 px-4">2FA</th>
                   <th className="text-left font-semibold py-3 px-4">Dernière activité</th>
                   <th className="text-center font-semibold py-3 px-4">Actions</th>
                 </tr>
@@ -229,6 +256,9 @@ export default function SuperAdminAccounts() {
                       <span className={`text-xs font-mono ${acc.isOverQuota ? 'text-[#ef4444]' : 'text-[var(--pp-muted)]'}`}>
                         {acc.activeMembers}/{acc.maxEmployees === -1 ? '∞' : acc.maxEmployees}
                       </span>
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <TwoFactorBadge acc={acc} />
                     </td>
                     <td className="py-3 px-4 text-xs text-[var(--pp-muted)]">
                       {formatDate(acc.lastActivityAt)}

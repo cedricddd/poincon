@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
     const companies = await prisma.company.findMany({
       where,
       include: {
-        admin: { select: { email: true, name: true } },
+        admin: { select: { email: true, name: true, twoFactorEnabled: true } },
         plan: { select: { name: true, maxEmployees: true } },
         members: { where: { deletedAt: null } },
       },
@@ -47,6 +47,7 @@ export async function GET(req: NextRequest) {
         name: company.name,
         adminEmail: company.admin.email,
         adminName: company.admin.name,
+        adminTwoFactorEnabled: company.admin.twoFactorEnabled,
         contactEmail: company.contactEmail,
         phone: company.phone,
         address: company.address,
