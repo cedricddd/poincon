@@ -56,19 +56,22 @@ export function CookieBanner() {
         // almost entirely, so it anchors below the header instead.
         ...(isMobile
           ? { top: '5rem', left: '1rem', right: '1rem' }
-          : { bottom: '1.5rem', left: '50%', transform: 'translateX(-50%)', width: 'min(92vw, 640px)' }),
+          // Desktop: wide and short (text beside the buttons) so it does not
+          // hide the bottom of short pages such as the signup form.
+          : { bottom: '1rem', left: '50%', transform: 'translateX(-50%)', width: 'min(94vw, 960px)' }),
         zIndex: 9999,
         background: 'var(--pp-bg2)',
         border: '1px solid var(--pp-line)',
         borderRadius: '0.75rem',
         boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-        padding: '1rem 1.25rem',
+        padding: isMobile ? '1rem 1.25rem' : '0.75rem 1rem 0.75rem 1.25rem',
         display: 'flex',
-        flexDirection: 'column',
-        gap: '0.875rem',
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: isMobile ? 'stretch' : 'center',
+        gap: isMobile ? '0.875rem' : '1.25rem',
       }}
     >
-      <p style={{ fontSize: '0.875rem', color: 'var(--pp-muted)', lineHeight: '1.5' }}>
+      <p style={{ fontSize: isMobile ? '0.875rem' : '0.8125rem', color: 'var(--pp-muted)', lineHeight: '1.5', flex: 1 }}>
         {t('essential')} {t('ads')}{' '}
         <Link
           href="/legal/privacy"
@@ -80,7 +83,7 @@ export function CookieBanner() {
 
       {/* Both choices share one style: the Belgian DPA / EDPB require refusing
           to be as easy and as visible as accepting. */}
-      <div style={{ display: 'flex', gap: '0.625rem', justifyContent: 'flex-end' }}>
+      <div style={{ display: 'flex', gap: '0.625rem', justifyContent: 'flex-end', flexShrink: 0 }}>
         <button onClick={() => handleChoice('refused')} style={choiceButtonStyle}>
           {t('refuse')}
         </button>
