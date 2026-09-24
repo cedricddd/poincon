@@ -2086,5 +2086,12 @@
     "placeholder": "Uw vraag…",
     "greeting": "Hallo 👋 Ik ben de Pointon-assistent. Hoe kan ik u helpen?",
     "error": "Verbindingsfout. Probeer opnieuw of neem contact op met cedric@ced-it.be."
+  },
+  "cookieBanner": {
+    "essential": "Pointon gebruikt cookies die essentieel zijn voor de werking van de dienst.",
+    "ads": "Als u akkoord gaat, meet Pointon via Google Ads ook of een bezoek via zijn advertenties tot een registratie leidt (geen gepersonaliseerde advertenties).",
+    "privacy": "Privacybeleid",
+    "refuse": "Weigeren",
+    "accept": "Accepteren"
   }
 }

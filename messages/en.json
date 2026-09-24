@@ -2086,5 +2086,12 @@
     "placeholder": "Your question…",
     "greeting": "Hello 👋 I'm the Pointon assistant. How can I help you?",
     "error": "Connection error. Please retry or contact cedric@ced-it.be."
+  },
+  "cookieBanner": {
+    "essential": "Pointon uses cookies that are essential for the service to work.",
+    "ads": "If you accept, Pointon also uses Google Ads to measure whether a visit from its ads leads to a sign-up (no personalised advertising).",
+    "privacy": "Privacy policy",
+    "refuse": "Decline",
+    "accept": "Accept"
   }
 }

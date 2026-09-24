@@ -1,13 +1,17 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 
-const STORAGE_KEY = 'pp_cookie_consent'
+// v2: consent now explicitly covers Google Ads measurement — earlier answers were
+// given on an "essential cookies only" notice and must be asked again.
+const STORAGE_KEY = 'pp_cookie_consent_v2'
 
 const MOBILE_QUERY = '(max-width: 639px)'
 
 export function CookieBanner() {
+  const t = useTranslations('cookieBanner')
   const [visible, setVisible] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
@@ -54,12 +58,12 @@ export function CookieBanner() {
       }}
     >
       <p style={{ fontSize: '0.875rem', color: 'var(--pp-muted)', lineHeight: '1.5' }}>
-        Pointon utilise des cookies essentiels au fonctionnement du service.{' '}
+        {t('essential')} {t('ads')}{' '}
         <Link
           href="/legal/privacy"
           style={{ color: 'var(--pp-ink)', textDecoration: 'underline', textUnderlineOffset: '2px' }}
         >
-          Politique de confidentialité
+          {t('privacy')}
         </Link>
       </p>
 
@@ -77,7 +81,7 @@ export function CookieBanner() {
             cursor: 'pointer',
           }}
         >
-          Refuser
+          {t('refuse')}
         </button>
         <button
           onClick={() => handleChoice('accepted')}
@@ -92,7 +96,7 @@ export function CookieBanner() {
             cursor: 'pointer',
           }}
         >
-          Accepter
+          {t('accept')}
         </button>
       </div>
     </div>

@@ -198,6 +198,7 @@ export default function PrivacyPage() {
               { nom: 'OVH SAS', role: 'Hébergement des serveurs et de la base de données — datacenter Roubaix, France', pays: 'France (UE)' },
               { nom: 'Brevo (ex-Sendinblue)', role: "Envoi d'emails transactionnels", pays: 'France (UE)' },
               { nom: 'Stripe', role: 'Traitement des paiements', pays: 'UE / USA (SCCs)' },
+              { nom: 'Google Ireland Ltd (Google Ads)', role: "Mesure des inscriptions issues des annonces Pointon — uniquement après acceptation du bandeau cookies (cookies _gcl_*, 90 jours). Aucune publicité personnalisée", pays: 'Irlande (UE) / USA (DPF)' },
               { nom: 'Sentry (Sentry GmbH)', role: "Surveillance des erreurs et exceptions techniques — les données d'erreur sont anonymisées (cookies et tokens supprimés avant envoi)", pays: 'Allemagne (UE)' },
             ].map(s => (
               <div key={s.nom} className="flex gap-4 border border-[var(--pp-line)] rounded-lg p-4">

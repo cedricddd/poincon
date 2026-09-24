@@ -2087,5 +2087,12 @@
     "placeholder": "Votre question…",
     "greeting": "Bonjour 👋 Je suis l'assistant Pointon. Comment puis-je vous aider ?",
     "error": "Erreur de connexion. Réessayez ou contactez cedric@ced-it.be."
+  },
+  "cookieBanner": {
+    "essential": "Pointon utilise des cookies essentiels au fonctionnement du service.",
+    "ads": "Si vous acceptez, Pointon mesure aussi via Google Ads si une visite venant de ses annonces aboutit à une inscription (aucune publicité personnalisée).",
+    "privacy": "Politique de confidentialité",
+    "refuse": "Refuser",
+    "accept": "Accepter"
   }
 }
