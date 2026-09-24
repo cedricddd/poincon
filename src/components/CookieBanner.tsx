@@ -10,6 +10,17 @@ const STORAGE_KEY = 'pp_cookie_consent_v2'
 
 const MOBILE_QUERY = '(max-width: 639px)'
 
+const choiceButtonStyle: React.CSSProperties = {
+  padding: '0.4rem 1rem',
+  fontSize: '0.875rem',
+  fontWeight: 600,
+  color: 'var(--pp-ink)',
+  background: 'transparent',
+  border: '1px solid var(--pp-line)',
+  borderRadius: '0.5rem',
+  cursor: 'pointer',
+}
+
 export function CookieBanner() {
   const t = useTranslations('cookieBanner')
   const [visible, setVisible] = useState(false)
@@ -67,35 +78,13 @@ export function CookieBanner() {
         </Link>
       </p>
 
+      {/* Both choices share one style: the Belgian DPA / EDPB require refusing
+          to be as easy and as visible as accepting. */}
       <div style={{ display: 'flex', gap: '0.625rem', justifyContent: 'flex-end' }}>
-        <button
-          onClick={() => handleChoice('refused')}
-          style={{
-            padding: '0.4rem 1rem',
-            fontSize: '0.875rem',
-            fontWeight: 500,
-            color: 'var(--pp-muted)',
-            background: 'transparent',
-            border: '1px solid var(--pp-line)',
-            borderRadius: '0.5rem',
-            cursor: 'pointer',
-          }}
-        >
+        <button onClick={() => handleChoice('refused')} style={choiceButtonStyle}>
           {t('refuse')}
         </button>
-        <button
-          onClick={() => handleChoice('accepted')}
-          style={{
-            padding: '0.4rem 1rem',
-            fontSize: '0.875rem',
-            fontWeight: 500,
-            color: '#ffffff',
-            background: '#7c3aed',
-            border: '1px solid transparent',
-            borderRadius: '0.5rem',
-            cursor: 'pointer',
-          }}
-        >
+        <button onClick={() => handleChoice('accepted')} style={choiceButtonStyle}>
           {t('accept')}
         </button>
       </div>
