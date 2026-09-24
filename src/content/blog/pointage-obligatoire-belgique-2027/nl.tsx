@@ -148,7 +148,8 @@ export default function Body() {
         registratiesoftware of een terminal voldoen allemaal. Het systeem mag zich beperken tot het registreren
         van de <em>afwijkingen</em> ten opzichte van het afgesproken uurrooster, maar het moet de werkelijk
         gepresteerde tijd weergeven, niet een theoretisch rooster. De gegevens moeten{' '}
-        <strong>vijf jaar bewaard</strong> blijven.
+        <strong>vijf jaar bewaard</strong> blijven. Voor teams op verplaatsing: zie{' '}
+        <Link href="/blog/mobiele-prikklok-smartphone">mobiele prikklok op smartphone, zonder gps</Link>.
       </p>
 
       <h2>Welke sancties?</h2>

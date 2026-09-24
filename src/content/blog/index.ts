@@ -19,6 +19,14 @@ export interface BlogRegistryEntry {
  */
 export const BLOG_REGISTRY: BlogRegistryEntry[] = [
   {
+    slug: 'pointeuse-mobile-smartphone',
+    localizedSlugs: { nl: 'mobiele-prikklok-smartphone' },
+    locales: {
+      fr: () => import('./pointeuse-mobile-smartphone/fr'),
+      nl: () => import('./pointeuse-mobile-smartphone/nl'),
+    },
+  },
+  {
     slug: 'pointage-obligatoire-belgique-2027',
     localizedSlugs: { nl: 'verplichte-tijdregistratie-belgie-2027' },
     locales: {

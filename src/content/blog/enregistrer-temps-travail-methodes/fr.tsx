@@ -165,6 +165,9 @@ export default function Body() {
       <h2>Pour aller plus loin</h2>
       <ul>
         <li>
+          <Link href="/blog/pointeuse-mobile-smartphone">Pointeuse mobile : pointer sur smartphone, sans GPS</Link>
+        </li>
+        <li>
           <Link href="/blog/pointage-obligatoire-belgique-2027">
             Pointage obligatoire en Belgique : où en est la loi de 2027 ?
           </Link>
