@@ -62,6 +62,11 @@ export function blogStaticParams(): { locale: string; slug: string }[] {
   )
 }
 
+/** Locales that have at least one article — the blog index is empty elsewhere. */
+export function blogLocales(): string[] {
+  return routing.locales.filter((l) => BLOG_REGISTRY.some((e) => e.locales[l]))
+}
+
 /**
  * hreflang map for an article (each locale with its own slug), plus x-default
  * pointing at the default-locale version when it exists.

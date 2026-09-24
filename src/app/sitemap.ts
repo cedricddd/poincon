@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next'
-import { routing } from '@/i18n/routing'
-import { blogStaticParams, getPost, postAlternates, postUrl } from '@/lib/blog'
+import { localesForPath } from '@/lib/seo'
+import { blogLocales, blogStaticParams, getPost, postAlternates, postUrl } from '@/lib/blog'
 
 const base = 'https://pointon.be'
 
@@ -21,20 +21,23 @@ const pages: {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const lastModified = new Date()
 
-  const staticEntries: MetadataRoute.Sitemap = pages.flatMap((page) =>
-    routing.locales.map((locale) => ({
+  const staticEntries: MetadataRoute.Sitemap = pages.flatMap((page) => {
+    const locales = page.path === '/blog' ? blogLocales() : localesForPath(page.path)
+    return locales.map((locale) => ({
       url: `${base}/${locale}${page.path}`,
       lastModified,
       changeFrequency: page.changeFrequency,
       priority: page.priority,
-      alternates: {
-        languages: {
-          ...Object.fromEntries(routing.locales.map((l) => [l, `${base}/${l}${page.path}`])),
-          'x-default': `${base}${page.path}`,
+      ...(locales.length > 1 && {
+        alternates: {
+          languages: {
+            ...Object.fromEntries(locales.map((l) => [l, `${base}/${l}${page.path}`])),
+            'x-default': `${base}${page.path}`,
+          },
         },
-      },
-    })),
-  )
+      }),
+    }))
+  })
 
   const blogEntries: MetadataRoute.Sitemap = await Promise.all(
     blogStaticParams().map(async ({ locale, slug }) => {

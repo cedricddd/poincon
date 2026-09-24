@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
+import { localesForPath } from '@/lib/seo'
 import { Providers } from '../providers'
 import { auth } from '@/auth'
 import { CookieBanner } from '@/components/CookieBanner'
@@ -32,6 +33,9 @@ export async function generateMetadata({
   const pathname = hdrs.get('x-pathname') ?? `/${locale}`
   const localeRegex = new RegExp(`^/(${routing.locales.join('|')})(?=/|$)`)
   const pathWithoutLocale = pathname.replace(localeRegex, '')
+  const pathLocales = localesForPath(pathWithoutLocale)
+  // FR-only pages point every locale variant at the French URL.
+  const canonicalLocale = pathLocales.includes(locale) ? locale : routing.defaultLocale
 
   return {
     metadataBase: new URL('https://pointon.be'),
@@ -89,15 +93,18 @@ export async function generateMetadata({
       },
     },
     alternates: {
-      canonical: `https://pointon.be/${locale}${pathWithoutLocale}`,
-      languages: {
-        ...Object.fromEntries(
-          routing.locales.map((l) => [l, `https://pointon.be/${l}${pathWithoutLocale}`])
-        ),
-        // The bare domain negotiates the locale — declare it as the fallback so
-        // Google stops treating https://pointon.be/ as a separate page.
-        'x-default': `https://pointon.be${pathWithoutLocale}`,
-      },
+      canonical: `https://pointon.be/${canonicalLocale}${pathWithoutLocale}`,
+      // No hreflang set for single-language pages — there is nothing to point to.
+      languages: pathLocales.length > 1
+        ? {
+            ...Object.fromEntries(
+              pathLocales.map((l) => [l, `https://pointon.be/${l}${pathWithoutLocale}`])
+            ),
+            // The bare domain negotiates the locale — declare it as the fallback so
+            // Google stops treating https://pointon.be/ as a separate page.
+            'x-default': `https://pointon.be${pathWithoutLocale}`,
+          }
+        : undefined,
     },
     manifest: '/manifest.json',
     icons: {

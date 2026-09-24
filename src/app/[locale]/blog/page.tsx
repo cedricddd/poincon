@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
-import { routing } from '@/i18n/routing'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
-import { formatBlogDate, getPosts } from '@/lib/blog'
+import { blogLocales, formatBlogDate, getPosts } from '@/lib/blog'
 
 type Params = { params: Promise<{ locale: string }> }
 
@@ -12,10 +11,12 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return {
     title: 'Blog',
     description: t('metaDescription'),
+    // An index with no article in this locale is an empty page — keep it out of Google.
+    ...(!blogLocales().includes(locale) && { robots: { index: false, follow: true } }),
     alternates: {
       canonical: `https://pointon.be/${locale}/blog`,
       languages: {
-        ...Object.fromEntries(routing.locales.map((l) => [l, `https://pointon.be/${l}/blog`])),
+        ...Object.fromEntries(blogLocales().map((l) => [l, `https://pointon.be/${l}/blog`])),
         'x-default': 'https://pointon.be/blog',
       },
     },
