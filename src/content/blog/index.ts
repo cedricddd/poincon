@@ -5,7 +5,10 @@ type PostModule = { meta: BlogMeta; default: ComponentType }
 type Loader = () => Promise<PostModule>
 
 export interface BlogRegistryEntry {
+  /** Default slug — used for every locale not listed in `localizedSlugs`. */
   slug: string
+  /** Per-locale URL slug overrides, so each language ranks on its own keywords. */
+  localizedSlugs?: Partial<Record<string, string>>
   /** One loader per locale that has this article. */
   locales: Partial<Record<string, Loader>>
 }
@@ -17,6 +20,7 @@ export interface BlogRegistryEntry {
 export const BLOG_REGISTRY: BlogRegistryEntry[] = [
   {
     slug: 'pointage-obligatoire-belgique-2027',
+    localizedSlugs: { nl: 'verplichte-tijdregistratie-belgie-2027' },
     locales: {
       fr: () => import('./pointage-obligatoire-belgique-2027/fr'),
       nl: () => import('./pointage-obligatoire-belgique-2027/nl'),

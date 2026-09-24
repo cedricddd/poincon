@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import {
@@ -8,14 +8,15 @@ import {
   faqJsonLd,
   formatBlogDate,
   getPost,
-  localesForSlug,
   ogImageUrl,
+  postAlternates,
   postUrl,
+  redirectSlug,
 } from '@/lib/blog'
 import { FaqSection, Prose } from '@/content/blog/_components'
 
-export const dynamicParams = false
-
+// Unknown slugs still reach the page so a slug from another locale (old URL,
+// locale switcher) can be 301'd to this locale's slug instead of 404ing.
 type Params = { params: Promise<{ locale: string; slug: string }> }
 
 export function generateStaticParams() {
@@ -28,9 +29,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   if (!post) return {}
 
   const url = postUrl(slug, locale)
-  const languages = Object.fromEntries(
-    localesForSlug(slug).map((l) => [l, postUrl(slug, l)]),
-  )
+  const languages = postAlternates(slug, locale)
 
   return {
     title: post.meta.title,
@@ -61,7 +60,11 @@ export default async function BlogArticlePage({ params }: Params) {
     getPost(slug, locale),
     getTranslations({ locale, namespace: 'blog' }),
   ])
-  if (!post) notFound()
+  if (!post) {
+    const target = redirectSlug(slug, locale)
+    if (target) permanentRedirect(`/${locale}/blog/${target}`)
+    notFound()
+  }
 
   const { meta, Body } = post
   const showUpdated = meta.updatedAt !== meta.publishedAt

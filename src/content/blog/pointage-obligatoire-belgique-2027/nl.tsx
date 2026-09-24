@@ -3,12 +3,15 @@ import { Link } from '@/i18n/navigation'
 import { Callout, KeyTakeaway } from '../_components'
 
 export const meta: BlogMeta = {
-  title: 'Verplichte tijdsregistratie in België: waar staat de wet van 2027?',
+  title: 'Verplichte tijdregistratie in België (2027): wat zegt de wet?',
   description:
-    'De verplichting om de arbeidstijd te registreren is gepland voor 1 januari 2027, maar de Belgische wet is nog niet gestemd. Stand van zaken: wat vaststaat, wat nog kan wijzigen en hoe u zich voorbereidt.',
+    'Tijdregistratie verplicht vanaf 1 januari 2027? Data, kleine ondernemingen, uitzonderingen en boetes: de stand van zaken (sept. 2026) en hoe u zich voorbereidt.',
   publishedAt: '2026-09-07',
   updatedAt: '2026-09-07',
   keywords: [
+    'tijdregistratie verplicht 2027',
+    'arbeidstijdregistratie 2027',
+    'prikklok wetgeving',
     'tijdsregistratie verplicht 2027',
     'verplichte tijdsregistratie belgië',
     'prikklok verplicht 2027',

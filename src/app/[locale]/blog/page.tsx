@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { routing } from '@/i18n/routing'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { formatBlogDate, getPosts } from '@/lib/blog'
@@ -11,7 +12,13 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return {
     title: 'Blog',
     description: t('metaDescription'),
-    alternates: { canonical: `https://pointon.be/${locale}/blog` },
+    alternates: {
+      canonical: `https://pointon.be/${locale}/blog`,
+      languages: {
+        ...Object.fromEntries(routing.locales.map((l) => [l, `https://pointon.be/${l}/blog`])),
+        'x-default': 'https://pointon.be/blog',
+      },
+    },
   }
 }
 

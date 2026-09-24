@@ -90,9 +90,14 @@ export async function generateMetadata({
     },
     alternates: {
       canonical: `https://pointon.be/${locale}${pathWithoutLocale}`,
-      languages: Object.fromEntries(
-        routing.locales.map((l) => [l, `https://pointon.be/${l}${pathWithoutLocale}`])
-      ),
+      languages: {
+        ...Object.fromEntries(
+          routing.locales.map((l) => [l, `https://pointon.be/${l}${pathWithoutLocale}`])
+        ),
+        // The bare domain negotiates the locale — declare it as the fallback so
+        // Google stops treating https://pointon.be/ as a separate page.
+        'x-default': `https://pointon.be${pathWithoutLocale}`,
+      },
     },
     manifest: '/manifest.json',
     icons: {
@@ -152,20 +157,41 @@ export default async function LocaleLayout({
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               '@context': 'https://schema.org',
-              '@type': 'SoftwareApplication',
-              name: 'Pointon',
-              description:
-                'Pointeuse pour PME belges. Enregistrement objectif du temps de travail selon l\'arrêt CJUE 2019, prêt pour l\'obligation légale prévue en 2027.',
-              url: 'https://pointon.be',
-              applicationCategory: 'BusinessApplication',
-              operatingSystem: 'Web, iOS, Android, Windows',
-              inLanguage: locale,
-              offers: [
-                { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: 'EUR' },
-                { '@type': 'Offer', name: 'Starter', price: '19.90', priceCurrency: 'EUR' },
-                { '@type': 'Offer', name: 'Team', price: '44.90', priceCurrency: 'EUR' },
+              '@graph': [
+                {
+                  '@type': 'Organization',
+                  '@id': 'https://pointon.be/#organization',
+                  name: 'Pointon',
+                  url: 'https://pointon.be',
+                  logo: 'https://pointon.be/images/logo-icon.png',
+                  areaServed: 'BE',
+                  parentOrganization: { '@type': 'Organization', name: 'Ced-IT', url: 'https://ced-it.be' },
+                },
+                {
+                  '@type': 'WebSite',
+                  '@id': 'https://pointon.be/#website',
+                  name: 'Pointon',
+                  url: 'https://pointon.be',
+                  inLanguage: ['fr-BE', 'nl-BE', 'en', 'de'],
+                  publisher: { '@id': 'https://pointon.be/#organization' },
+                },
+                {
+                  '@type': 'SoftwareApplication',
+                  name: 'Pointon',
+                  description:
+                    "Pointeuse pour PME belges. Enregistrement objectif du temps de travail selon l'arrêt CJUE 2019, prêt pour l'obligation légale prévue en 2027.",
+                  url: 'https://pointon.be',
+                  applicationCategory: 'BusinessApplication',
+                  operatingSystem: 'Web, iOS, Android, Windows',
+                  inLanguage: locale,
+                  offers: [
+                    { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: 'EUR' },
+                    { '@type': 'Offer', name: 'Starter', price: '19.90', priceCurrency: 'EUR' },
+                    { '@type': 'Offer', name: 'Team', price: '44.90', priceCurrency: 'EUR' },
+                  ],
+                  publisher: { '@id': 'https://pointon.be/#organization' },
+                },
               ],
-              publisher: { '@type': 'Organization', name: 'Ced-IT', url: 'https://ced-it.be' },
             }),
           }}
         />

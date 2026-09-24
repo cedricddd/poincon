@@ -3,9 +3,9 @@ import { Link } from '@/i18n/navigation'
 import { Callout, KeyTakeaway } from '../_components'
 
 export const meta: BlogMeta = {
-  title: 'Pointage obligatoire en Belgique : où en est la loi de 2027 ?',
+  title: 'Pointage obligatoire en Belgique (2027) : ce que dit la loi',
   description:
-    "L'obligation d'enregistrer le temps de travail est prévue pour le 1ᵉʳ janvier 2027, mais la loi belge n'est pas encore votée. État des lieux à jour : ce qui est certain, ce qui peut encore changer, et comment s'y préparer.",
+    "Pointeuse obligatoire au 1ᵉʳ janvier 2027 ? Dates, PME concernées, exceptions et amendes : le point à jour (sept. 2026) et comment s'y préparer.",
   publishedAt: '2026-09-07',
   updatedAt: '2026-09-07',
   keywords: [
