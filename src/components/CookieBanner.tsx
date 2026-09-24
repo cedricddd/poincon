@@ -75,7 +75,7 @@ export function CookieBanner() {
         {t('essential')} {t('ads')}{' '}
         <Link
           href="/legal/privacy"
-          style={{ color: 'var(--pp-ink)', textDecoration: 'underline', textUnderlineOffset: '2px' }}
+          style={{ color: 'var(--pp-ink)', textDecoration: 'underline', textUnderlineOffset: '2px', whiteSpace: 'nowrap' }}
         >
           {t('privacy')}
         </Link>
