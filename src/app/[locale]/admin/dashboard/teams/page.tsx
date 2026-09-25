@@ -365,7 +365,7 @@ export default function TeamsPage() {
                       </div>
                     )}
                     <div className="flex gap-2 shrink-0">
-                      <button onClick={() => { setEditingId(team.id); setEditName(team.name) }} className="text-xs px-3 py-1 border border-[var(--pp-line)] rounded hover:bg-gray-50">
+                      <button onClick={() => { setEditingId(team.id); setEditName(team.name) }} className="text-xs px-3 py-1 border border-[var(--pp-line)] rounded hover:bg-[var(--pp-line)]/40">
                         {t('rename')}
                       </button>
                       <button onClick={() => deleteTeam(team.id, team.name)} className="text-xs px-3 py-1 border border-red-200 text-red-600 rounded hover:bg-red-50">
@@ -429,7 +429,7 @@ export default function TeamsPage() {
                     ))}
 
                     {available.length > 0 && (
-                      <div className="px-5 py-3 bg-gray-50 flex items-center gap-3">
+                      <div className="px-5 py-3 bg-[var(--pp-bg2)] flex items-center gap-3">
                         <select
                           className="flex-1 border border-[var(--pp-line)] rounded px-2 py-1.5 text-sm"
                           defaultValue=""
@@ -603,7 +603,7 @@ export default function TeamsPage() {
               </div>
 
               <div className="flex gap-3 justify-end">
-                <button onClick={() => setShowCycleForm(false)} className="px-4 py-2 text-sm border border-[var(--pp-line)] rounded-lg hover:bg-gray-50">
+                <button onClick={() => setShowCycleForm(false)} className="px-4 py-2 text-sm border border-[var(--pp-line)] rounded-lg hover:bg-[var(--pp-line)]/40">
                   {t('cancel')}
                 </button>
                 <button
@@ -638,7 +638,7 @@ export default function TeamsPage() {
                     )}
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => openEditCycle(cycle)} className="text-xs px-3 py-1 border border-[var(--pp-line)] rounded hover:bg-gray-50">
+                    <button onClick={() => openEditCycle(cycle)} className="text-xs px-3 py-1 border border-[var(--pp-line)] rounded hover:bg-[var(--pp-line)]/40">
                       {t('edit')}
                     </button>
                     <button onClick={() => deleteCycle(cycle.id, cycle.name)} className="text-xs px-3 py-1 border border-red-200 text-red-600 rounded hover:bg-red-50">
