@@ -196,6 +196,7 @@ export default function PrivacyPage() {
           <div className="space-y-3">
             {[
               { nom: 'OVH SAS', role: 'Hébergement des serveurs et de la base de données — datacenter Roubaix, France', pays: 'France (UE)' },
+              { nom: 'pCloud AG', role: "Copie de sauvegarde hors site — chiffrée sur le serveur de Pointon avant envoi, illisible pour pCloud. Société suisse, stockage au Luxembourg", pays: 'Luxembourg (UE)' },
               { nom: 'Brevo (ex-Sendinblue)', role: "Envoi d'emails transactionnels", pays: 'France (UE)' },
               { nom: 'Stripe', role: 'Traitement des paiements', pays: 'UE / USA (SCCs)' },
               { nom: 'Google Ireland Ltd (Google Ads)', role: "Mesure des inscriptions issues des annonces Pointon — uniquement après acceptation du bandeau cookies (cookies _gcl_*, 90 jours). Aucune publicité personnalisée", pays: 'Irlande (UE) / USA (DPF)' },
