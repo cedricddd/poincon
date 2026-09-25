@@ -2,6 +2,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 import { logAudit } from '@/lib/audit'
+import { deleteDemoCompany } from '@/lib/demo-seed'
 
 export async function GET(req: NextRequest) {
   try {
@@ -103,6 +104,28 @@ export async function DELETE(req: NextRequest) {
     const { companyId } = await req.json()
     if (!companyId) {
       return NextResponse.json({ error: 'Missing companyId' }, { status: 400 })
+    }
+
+    const existing = await prisma.company.findUnique({
+      where: { id: companyId },
+      select: { name: true, isDemo: true },
+    })
+    if (!existing) {
+      return NextResponse.json({ error: 'Company not found' }, { status: 404 })
+    }
+
+    // Prospect demos hold only fictitious data: remove them for real so the
+    // prospect's e-mail can be reused for a fresh demo.
+    if (existing.isDemo) {
+      await deleteDemoCompany(companyId)
+      await logAudit({
+        userId: session.user.id,
+        action: 'SUPER_ADMIN_DELETE_ACCOUNT',
+        resource: 'Company',
+        resourceId: companyId,
+        changes: { action: 'hard_delete_demo', name: existing.name },
+      })
+      return NextResponse.json({ success: true, message: 'Demo account deleted' })
     }
 
     const company = await prisma.company.update({

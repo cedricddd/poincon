@@ -156,6 +156,10 @@ export async function deleteDemoCompany(companyId: string): Promise<void> {
 
   // Company.adminId → User.id is ON DELETE RESTRICT, so members must go first,
   // then the company (which frees the admin's row), then the admin last.
+  // Rows that reference a user without a cascade would block the user deletes.
+  await prisma.apiKey.deleteMany({ where: { companyId: company.id } })
+  await prisma.kioskVisit.deleteMany({ where: { companyId: company.id } })
+
   const members = await prisma.user.findMany({
     where: { companyId: company.id, NOT: { id: company.adminId } },
     select: { id: true },

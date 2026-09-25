@@ -10,7 +10,8 @@ export async function POST(req: NextRequest) {
   }
 
   const expired = await prisma.company.findMany({
-    where: { isDemo: true, demoExpiresAt: { lt: new Date() }, deletedAt: null },
+    // Soft-deleted demos included: they used to be left behind forever.
+    where: { isDemo: true, demoExpiresAt: { lt: new Date() } },
     select: { id: true, name: true },
   })
 
