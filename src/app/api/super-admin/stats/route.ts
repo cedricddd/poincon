@@ -14,7 +14,8 @@ export async function GET() {
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
     const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000)
 
-    const baseWhere = { deletedAt: null, isInternal: false }
+    // Prospect demo instances are not customers either.
+    const baseWhere = { deletedAt: null, isInternal: false, isDemo: false }
 
     // Companies (non-deleted, non-internal only)
     const totalCompanies = await prisma.company.count({

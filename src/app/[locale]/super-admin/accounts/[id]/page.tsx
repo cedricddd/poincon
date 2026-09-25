@@ -102,6 +102,17 @@ export default function AccountDetail() {
     }
   }
 
+  // The checked value must be read synchronously: on a controlled checkbox,
+  // React resets e.target.checked before an async callback runs.
+  const toggleFlag = async (field: 'marketingConsent' | 'isInternal', value: boolean) => {
+    const res = await fetch(`/api/super-admin/accounts/${id}/contact`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ [field]: value }),
+    })
+    if (res.ok) setCompany((prev) => (prev ? { ...prev, [field]: value } : prev))
+  }
+
   const handlePlanChange = async () => {
     if (!editPlan || editPlan === company?.plan) return
     setPlanError('')
@@ -224,15 +235,7 @@ export default function AccountDetail() {
                 <input
                   type="checkbox"
                   checked={company.marketingConsent}
-                  onChange={(e) => {
-                    fetch(`/api/super-admin/accounts/${id}/contact`, {
-                      method: 'PATCH',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ marketingConsent: e.target.checked }),
-                    }).then(() => {
-                      setCompany({ ...company, marketingConsent: e.target.checked })
-                    })
-                  }}
+                  onChange={(e) => toggleFlag('marketingConsent', e.target.checked)}
                   className="rounded"
                 />
                 <span className="text-[var(--pp-muted)]">Consentement marketing</span>
@@ -243,15 +246,7 @@ export default function AccountDetail() {
                 <input
                   type="checkbox"
                   checked={company.isInternal}
-                  onChange={(e) => {
-                    fetch(`/api/super-admin/accounts/${id}/contact`, {
-                      method: 'PATCH',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ isInternal: e.target.checked }),
-                    }).then(() => {
-                      setCompany({ ...company, isInternal: e.target.checked })
-                    })
-                  }}
+                  onChange={(e) => toggleFlag('isInternal', e.target.checked)}
                   className="rounded"
                 />
                 <div>
