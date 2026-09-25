@@ -44,7 +44,7 @@ function getTwoFactorBadge(acc: Account) {
 function TwoFactorBadge({ acc }: { acc: Account }) {
   const badge = getTwoFactorBadge(acc)
   return (
-    <span title={badge.title} className={`px-2 py-1 rounded-full text-xs font-medium ${badge.className}`}>
+    <span title={badge.title} className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${badge.className}`}>
       {badge.label}
     </span>
   )
