@@ -66,7 +66,7 @@ export default function PrivacyPage() {
           <div className="bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-lg p-4 text-[var(--pp-muted)]">
             <strong className="text-[var(--pp-ink)]">Ced-IT</strong><br />
             Belgique<br />
-            Email : <a href="mailto:privacy@ced-it.be" className="text-[var(--pp-info)] hover:underline">privacy@ced-it.be</a>
+            Email : <a href="mailto:privacy@pointon.be" className="text-[var(--pp-info)] hover:underline">privacy@pointon.be</a>
           </div>
         </section>
 
@@ -180,7 +180,7 @@ export default function PrivacyPage() {
           </div>
           <p className="text-[var(--pp-muted)] mt-4">
             Pour exercer vos droits, contactez-nous à{' '}
-            <a href="mailto:privacy@ced-it.be" className="text-[var(--pp-info)] hover:underline">privacy@ced-it.be</a>.
+            <a href="mailto:privacy@pointon.be" className="text-[var(--pp-info)] hover:underline">privacy@pointon.be</a>.
             Vous pouvez également introduire une réclamation auprès de l'
             <a href="https://www.autoriteprotectiondonnees.be" target="_blank" rel="noopener noreferrer" className="text-[var(--pp-info)] hover:underline">
               Autorité de Protection des Données belge
@@ -221,7 +221,7 @@ export default function PrivacyPage() {
             </p>
             <div className="space-y-2 text-sm text-[var(--pp-muted)]">
               <div><strong className="text-[var(--pp-ink)]">Email :</strong>{' '}
-                <a href="mailto:privacy@ced-it.be" className="text-[var(--pp-info)] hover:underline">privacy@ced-it.be</a>
+                <a href="mailto:privacy@pointon.be" className="text-[var(--pp-info)] hover:underline">privacy@pointon.be</a>
               </div>
               <div><strong className="text-[var(--pp-ink)]">Délai de réponse :</strong> 30 jours maximum (RGPD Art. 12)</div>
             </div>
