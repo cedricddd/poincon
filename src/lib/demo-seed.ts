@@ -121,8 +121,9 @@ export async function createProspectDemoCompany(params: {
 
       const arrivalMin = 8 * 60 + variance()
       const workMin = emp.hoursPerDay * 60 + variance()
-      const arrival = daysAgo(daysBack)
-      arrival.setHours(Math.floor(arrivalMin / 60), arrivalMin % 60, 0, 0)
+      // Built in Brussels time — setHours() would use the server's UTC clock
+      // and shift every demo shift by the UTC offset (8:00 showed as 10:00).
+      const arrival = daysAgo(daysBack, Math.floor(arrivalMin / 60), arrivalMin % 60)
 
       const departure = new Date(arrival)
       departure.setMinutes(departure.getMinutes() + workMin + 30) // +30 for lunch
