@@ -7,8 +7,13 @@ const MIME_TYPES: Record<string, string> = {
   jpg: 'image/jpeg',
   jpeg: 'image/jpeg',
   webp: 'image/webp',
-  svg: 'image/svg+xml',
-  gif: 'image/gif',
+}
+
+// Uploaded files are user content: never let them run script, even if a
+// disguised file slipped through (proxy.ts CSP does not apply to /api routes).
+const SECURITY_HEADERS = {
+  'Content-Security-Policy': "default-src 'none'; img-src 'self'; sandbox",
+  'X-Content-Type-Options': 'nosniff',
 }
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
@@ -20,7 +25,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ pat
 
   const filePath = path.join(process.cwd(), 'public', 'uploads', ...safeSegments)
   const ext = filePath.split('.').pop()?.toLowerCase() ?? ''
-  const mime = MIME_TYPES[ext] ?? 'application/octet-stream'
+  const mime = MIME_TYPES[ext]
+  if (!mime) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
   try {
     const buffer = await readFile(filePath)
@@ -28,6 +34,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ pat
       headers: {
         'Content-Type': mime,
         'Cache-Control': 'public, max-age=3600',
+        ...SECURITY_HEADERS,
       },
     })
   } catch {
