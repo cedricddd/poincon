@@ -83,10 +83,17 @@ export const authConfig: NextAuthConfig = {
         token.twoFactorVerified = trustedUntil != null && new Date(trustedUntil) > new Date()
       }
 
-      // Handle session.update({ twoFactorVerified, twoFactorEnabled }) from 2FA pages
-      if (trigger === 'update' && updateData) {
-        if (updateData.twoFactorVerified === true) token.twoFactorVerified = true
-        if (typeof updateData.twoFactorEnabled === 'boolean') token.twoFactorEnabled = updateData.twoFactorEnabled
+      // session.update() from the 2FA pages is only a refresh signal: the client payload
+      // is attacker-controlled, so the 2FA state is re-read from the DB, which the
+      // /api/auth/2fa/* routes only update after a successful TOTP verification.
+      if (trigger === 'update' && updateData && token.sub) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { twoFactorEnabled: true, twoFactorTrustedUntil: true },
+        })
+        token.twoFactorEnabled = dbUser?.twoFactorEnabled ?? false
+        token.twoFactorVerified =
+          dbUser?.twoFactorTrustedUntil != null && dbUser.twoFactorTrustedUntil > new Date()
       }
 
       if (token.sessionExpiry && Date.now() > token.sessionExpiry) {

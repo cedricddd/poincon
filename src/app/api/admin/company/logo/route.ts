@@ -3,10 +3,9 @@ import { requireAdminWithCompany } from '@/lib/admin-security'
 import { prisma } from '@/lib/prisma'
 import { writeFile, mkdir, unlink } from 'fs/promises'
 import path from 'path'
+import { validateLogoUpload } from '@/lib/image-upload'
 
 const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads', 'logos')
-const MAX_SIZE = 2 * 1024 * 1024 // 2 MB
-const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp']
 
 export async function POST(req: NextRequest) {
   const auth = await requireAdminWithCompany()
@@ -16,14 +15,10 @@ export async function POST(req: NextRequest) {
   const file = formData.get('logo') as File | null
   if (!file) return NextResponse.json({ error: 'Aucun fichier fourni' }, { status: 400 })
 
-  if (!ALLOWED_TYPES.includes(file.type)) {
-    return NextResponse.json({ error: 'Format non supporté (PNG, JPG, WebP, SVG)' }, { status: 400 })
-  }
-  if (file.size > MAX_SIZE) {
-    return NextResponse.json({ error: 'Fichier trop lourd (max 2 Mo)' }, { status: 400 })
-  }
+  const validation = await validateLogoUpload(file)
+  if (!validation.ok) return NextResponse.json({ error: validation.error }, { status: 400 })
+  const { buffer, ext } = validation.image
 
-  const ext = file.name.split('.').pop()?.toLowerCase() ?? 'png'
   const filename = `${auth.admin.companyId}-${Date.now()}.${ext}`
 
   // Delete previous logo file
@@ -37,7 +32,6 @@ export async function POST(req: NextRequest) {
   }
 
   await mkdir(UPLOAD_DIR, { recursive: true })
-  const buffer = Buffer.from(await file.arrayBuffer())
   await writeFile(path.join(UPLOAD_DIR, filename), buffer)
 
   const logoUrl = `/api/uploads/logos/${filename}`

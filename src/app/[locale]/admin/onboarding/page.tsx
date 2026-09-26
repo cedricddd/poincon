@@ -146,7 +146,7 @@ function Step1({
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*"
+          accept="image/png,image/jpeg,image/webp"
           className="hidden"
           onChange={handleLogoChange}
         />
