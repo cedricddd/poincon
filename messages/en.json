@@ -438,7 +438,7 @@
     "pdfFrom": "From: {date}",
     "pdfTo": "To: {date}",
     "pdfExportedOn": "Exported on: {date}",
-    "pdfSummary": "Total: {total}   |   Average/day: {avg}   |   Incomplete: {incomplete}   |   Overtime: {ot}h"
+    "pdfSummary": "Total: {total}   |   Average/day: {avg}   |   Incomplete: {incomplete}   |   Overtime: {ot}"
   },
   "planning": {
     "title": "Shift planning",
@@ -1324,7 +1324,7 @@
     "overtimesTitle": "Overtime",
     "typeOvertime": "Overtime",
     "emptyOvertimes": "No overtime requests",
-    "overtimeDetails": "{date} — {hours}h ({worked}h worked, {std}h standard)",
+    "overtimeDetails": "{date} — {hours} ({worked} worked, {std} standard)",
     "rttsTitle": "Recovery requests",
     "typeRtt": "Recovery",
     "emptyRtts": "No recovery requests",
@@ -2061,7 +2061,7 @@
     "sectionRtt": "Recovery requests",
     "add": "+ Add",
     "pendingBadge": "{count} pending",
-    "overtimeDetail": "{date} — {hours}h overtime",
+    "overtimeDetail": "{date} — {hours} overtime",
     "rttDetail": "{date} — {hours}h",
     "statusPending": "Pending",
     "statusApproved": "Approved",

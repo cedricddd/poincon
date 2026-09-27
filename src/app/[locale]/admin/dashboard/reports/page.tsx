@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { Card } from '@/components/Card'
 import { Link } from '@/i18n/navigation'
 import { showToast } from '@/hooks/useToast'
+import { formatHours } from '@/lib/format-hours'
 
 const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
 
@@ -65,10 +66,6 @@ function fmtTime(iso: string, bcp: string) {
 function fmtDate(iso: string, bcp: string) {
   return new Date(iso).toLocaleDateString(bcp, { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
-function fmtHours(h: number) {
-  const hours = Math.floor(h); const mins = Math.round((h - hours) * 60)
-  return mins > 0 ? `${hours}h${String(mins).padStart(2, '0')}` : `${hours}h`
-}
 
 const GROUP_KEYS: Record<string, string> = {
   employee: 'grpEmployee', team: 'grpTeam', week: 'grpWeek', month: 'grpMonth',
@@ -101,7 +98,7 @@ async function exportPDF(
       total: fmt(stats.totalMinutes),
       avg: fmt(stats.avgMinutes),
       incomplete: stats.incompleteCount,
-      ot: Number(stats.overtimeHours).toFixed(1),
+      ot: formatHours(stats.overtimeHours),
     }), 14, 31)
   }
   autoTable(doc, {
@@ -458,7 +455,7 @@ export default function ReportsPage() {
                 { label: t('totalHours'), value: fmt(stats.totalMinutes), sub: t('recordsCount', { count: total }) },
                 { label: t('statAvgPerDay'), value: fmt(stats.avgMinutes), sub: t('completeDays', { count: stats.completedCount }) },
                 { label: t('incomplete'), value: String(stats.incompleteCount), sub: t('withoutDeparture') },
-                { label: t('overtimes'), value: `${Number(stats.overtimeHours).toFixed(1)}h`, sub: t('detectedInPeriod') },
+                { label: t('overtimes'), value: formatHours(stats.overtimeHours), sub: t('detectedInPeriod') },
               ].map(s => (
                 <Card key={s.label}>
                   <p className="text-xs text-[var(--pp-muted)] mb-1">{s.label}</p>
@@ -638,7 +635,7 @@ export default function ReportsPage() {
               <div className="grid grid-cols-3 gap-4 mb-6">
                 {[
                   { label: t('kpiRecords'), value: totalRecords },
-                  { label: t('kpiHours'), value: fmtHours(totalHoursA) },
+                  { label: t('kpiHours'), value: formatHours(totalHoursA) },
                   { label: t('kpiTimeOff'), value: totalTimeOff },
                 ].map(kpi => (
                   <Card key={kpi.label} className="text-center">
@@ -669,7 +666,7 @@ export default function ReportsPage() {
                             <td className="py-3 pr-4 text-right text-[var(--pp-ink)]">{row.recordCount}</td>
                             <td className="py-3 pr-4 text-right">
                               <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--pp-info)]/10 text-[var(--pp-info)]">
-                                {fmtHours(row.totalHours)}
+                                {formatHours(row.totalHours)}
                               </span>
                             </td>
                             <td className="py-3 text-right text-[var(--pp-muted)]">{row.timeOffDays}</td>
@@ -680,7 +677,7 @@ export default function ReportsPage() {
                         <tr className="border-t-2 border-[var(--pp-line)] font-semibold">
                           <td className="pt-3 pr-4 text-xs text-[var(--pp-muted)]">{t('totalRow')}</td>
                           <td className="pt-3 pr-4 text-right text-[var(--pp-ink)]">{totalRecords}</td>
-                          <td className="pt-3 pr-4 text-right text-[var(--pp-ink)]">{fmtHours(totalHoursA)}</td>
+                          <td className="pt-3 pr-4 text-right text-[var(--pp-ink)]">{formatHours(totalHoursA)}</td>
                           <td className="pt-3 text-right text-[var(--pp-muted)]">{totalTimeOff}</td>
                         </tr>
                       </tfoot>

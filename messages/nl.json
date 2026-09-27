@@ -438,7 +438,7 @@
     "pdfFrom": "Van: {date}",
     "pdfTo": "Tot: {date}",
     "pdfExportedOn": "Geëxporteerd op: {date}",
-    "pdfSummary": "Totaal: {total}   |   Gemiddelde/dag: {avg}   |   Onvolledig: {incomplete}   |   Overuren: {ot}u"
+    "pdfSummary": "Totaal: {total}   |   Gemiddelde/dag: {avg}   |   Onvolledig: {incomplete}   |   Overuren: {ot}"
   },
   "planning": {
     "title": "Shiftplanning",
@@ -1324,7 +1324,7 @@
     "overtimesTitle": "Overuren",
     "typeOvertime": "Overuren",
     "emptyOvertimes": "Geen overurenaanvragen",
-    "overtimeDetails": "{date} — {hours}u ({worked}u gewerkt, {std}u standaard)",
+    "overtimeDetails": "{date} — {hours} ({worked} gewerkt, {std} standaard)",
     "rttsTitle": "Recuperatieaanvragen",
     "typeRtt": "Recuperatie",
     "emptyRtts": "Geen recuperatieaanvragen",
@@ -2061,7 +2061,7 @@
     "sectionRtt": "Recuperatieaanvragen",
     "add": "+ Toevoegen",
     "pendingBadge": "{count} in afwachting",
-    "overtimeDetail": "{date} — {hours}u overuren",
+    "overtimeDetail": "{date} — {hours} overuren",
     "rttDetail": "{date} — {hours}u",
     "statusPending": "In afwachting",
     "statusApproved": "Goedgekeurd",

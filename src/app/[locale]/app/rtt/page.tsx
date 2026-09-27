@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 import { showToast } from '@/hooks/useToast'
+import { formatHours } from '@/lib/format-hours'
 
 const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
 
@@ -104,7 +105,7 @@ export default function RTTPage() {
           </div>
           <div className="text-right">
             <p className="text-xs text-[var(--pp-muted)]">{t('approvedLabel')}</p>
-            <p className="text-2xl font-bold text-[var(--pp-pos)]">{totalApproved.toFixed(1)}h</p>
+            <p className="text-2xl font-bold text-[var(--pp-pos)]">{formatHours(totalApproved)}</p>
           </div>
         </div>
 
@@ -140,7 +141,7 @@ export default function RTTPage() {
                   <div className="p-3 rounded-xl bg-[var(--pp-pos-btn)]/10 border border-[var(--pp-pos)]/20">
                     <p className="text-xs text-[var(--pp-muted)] mb-0.5">{t('preview')}</p>
                     <p className="text-base font-bold text-[var(--pp-pos)]">
-                      {fmt(formData.date)} · {parseFloat(formData.hoursToRecover).toFixed(1)}h
+                      {fmt(formData.date)} · {formatHours(parseFloat(formData.hoursToRecover))}
                     </p>
                   </div>
                 )}

@@ -438,7 +438,7 @@
     "pdfFrom": "Du : {date}",
     "pdfTo": "Au : {date}",
     "pdfExportedOn": "Exporté le : {date}",
-    "pdfSummary": "Total : {total}   |   Moyenne/jour : {avg}   |   Incomplets : {incomplete}   |   Heures sup : {ot}h"
+    "pdfSummary": "Total : {total}   |   Moyenne/jour : {avg}   |   Incomplets : {incomplete}   |   Heures sup : {ot}"
   },
   "planning": {
     "title": "Planning des shifts",
@@ -1324,7 +1324,7 @@
     "overtimesTitle": "Heures Supplémentaires",
     "typeOvertime": "Heures Sup",
     "emptyOvertimes": "Aucune demande dʼheures supplémentaires",
-    "overtimeDetails": "{date} — {hours}h ({worked}h travaillées, {std}h standard)",
+    "overtimeDetails": "{date} — {hours} ({worked} travaillées, {std} standard)",
     "rttsTitle": "Demandes de récupération",
     "typeRtt": "Récupération",
     "emptyRtts": "Aucune demande de récupération",
@@ -2062,7 +2062,7 @@
     "sectionRtt": "Demandes de récupération",
     "add": "+ Ajouter",
     "pendingBadge": "{count} en attente",
-    "overtimeDetail": "{date} — {hours}h sup",
+    "overtimeDetail": "{date} — {hours} sup",
     "rttDetail": "{date} — {hours}h",
     "statusPending": "En attente",
     "statusApproved": "Approuvé",

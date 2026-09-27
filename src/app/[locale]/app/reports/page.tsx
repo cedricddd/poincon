@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useState, useCallback } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Card } from '@/components/Card'
+import { formatHours } from '@/lib/format-hours'
 
 const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
 
@@ -315,12 +316,12 @@ export default function ReportsPage() {
         {balance && (
           <div className="grid grid-cols-2 gap-3">
             {[
-              { label: t('overtimeAccrued'), value: `${balance.overtimeHours.toFixed(1)}h`, color: 'text-[var(--pp-pos)]' },
-              { label: t('rttConsumed'), value: `${balance.rttHours.toFixed(1)}h`, color: 'text-[var(--pp-neg)]' },
+              { label: t('overtimeAccrued'), value: formatHours(balance.overtimeHours), color: 'text-[var(--pp-pos)]' },
+              { label: t('rttConsumed'), value: formatHours(balance.rttHours), color: 'text-[var(--pp-neg)]' },
               { label: t('daysOff'), value: `${balance.daysOff}${t('daysSuffix')}`, color: 'text-[var(--pp-muted)]' },
               {
                 label: t('netBalance'),
-                value: `${balance.balance >= 0 ? '+' : ''}${balance.balance.toFixed(1)}h`,
+                value: `${balance.balance >= 0 ? '+' : ''}${formatHours(balance.balance)}`,
                 color: balance.balance >= 0 ? 'text-[var(--pp-pos)]' : 'text-[var(--pp-neg)]',
               },
             ].map(c => (

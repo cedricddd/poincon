@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { showToast } from '@/hooks/useToast'
+import { formatHours } from '@/lib/format-hours'
 import { LEAVE_TYPE_KEY_LEAVE_PREFIX, LEAVE_TYPE_COLOR_CLASSES, type LeaveType } from '@/lib/leaveTypes'
 import { LeaveTypeIcon } from '@/components/LeaveTypeIcon'
 
@@ -146,7 +147,7 @@ export default function ManagerDashboard() {
       <Section title={t('sectionOvertimes')} count={overtimes.filter(o => o.status === 'PENDING').length}>
         {overtimes.map(o => (
           <Row key={o.id} user={o.user} status={o.status}
-            detail={t('overtimeDetail', { date: fmtDate(o.date), hours: o.overtimeHours.toFixed(1) })}
+            detail={t('overtimeDetail', { date: fmtDate(o.date), hours: formatHours(o.overtimeHours) })}
             onApprove={() => act('overtime', o.id, 'approve')}
             onReject={() => act('overtime', o.id, 'reject')}
             loading={acting === o.id}

@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { AdminRequestRow } from '@/components/AdminRequestRow'
+import { formatHours } from '@/lib/format-hours'
 
 const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
 
@@ -83,7 +84,6 @@ export default function OvertimesPage() {
   }
 
   const pending = overtimes.filter(o => o.status === 'PENDING')
-  const hoursFmt = new Intl.NumberFormat(bcp, { maximumFractionDigits: 2 })
 
   return (
     <div className="p-8">
@@ -117,7 +117,7 @@ export default function OvertimesPage() {
                   employee={ot.userName || t('unknown')}
                   email={ot.userEmail || ''}
                   status={ot.status}
-                  details={t('overtimeDetails', { date: new Date(ot.date).toLocaleDateString(bcp), hours: hoursFmt.format(ot.overtimeHours), worked: hoursFmt.format(ot.hoursWorked), std: hoursFmt.format(ot.hoursStandard) })}
+                  details={t('overtimeDetails', { date: new Date(ot.date).toLocaleDateString(bcp), hours: formatHours(ot.overtimeHours), worked: formatHours(ot.hoursWorked), std: formatHours(ot.hoursStandard) })}
                   disabled={actionInProgress === ot.id}
                   onApprove={() => handleAction(ot.id, 'approve')}
                   onReject={() => {

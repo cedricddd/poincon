@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Card } from '@/components/Card'
+import { formatHours } from '@/lib/format-hours'
 
 interface Balance {
   overtimeHours: number
@@ -74,7 +75,7 @@ export function BalanceWidget() {
         <div className="p-3 rounded-lg bg-[var(--pp-info)]/10">
           <p className="text-xs text-[var(--pp-muted)] mb-1">{t('netBalance')}</p>
           <p className={`text-2xl font-bold ${balanceColor}`}>
-            {balance.balance > 0 ? '+' : ''}{balance.balance.toFixed(1)}h
+            {balance.balance > 0 ? '+' : ''}{formatHours(balance.balance)}
           </p>
           <p className="text-xs text-[var(--pp-muted)] mt-1">
             {balance.balance > 0
@@ -90,7 +91,7 @@ export function BalanceWidget() {
           <div className="p-2 rounded-lg bg-[var(--pp-pos-btn)]/10">
             <p className="text-xs text-[var(--pp-muted)]">{t('overtime')}</p>
             <p className="text-lg font-bold text-[var(--pp-pos)]">
-              {balance.overtimeHours.toFixed(1)}h
+              {formatHours(balance.overtimeHours)}
             </p>
             <p className="text-xs text-[var(--pp-muted)]">{t('approvedF')}</p>
           </div>

@@ -7,6 +7,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { Card } from '@/components/Card'
 import { Button } from '@/components/Button'
+import { formatHours } from '@/lib/format-hours'
 
 type ClockRecord = {
   id: string; date: string; arrivalTime: string; departureTime: string | null; duration: number | null; location: string
@@ -811,12 +812,12 @@ export default function UserDetailPage() {
         <div className="space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: t('cardOvertimeApproved'), value: `${balance.overtimeHours.toFixed(1)}h`, color: 'text-green-600' },
-              { label: t('cardRttUsed'), value: `${balance.rttHours.toFixed(1)}h`, color: 'text-orange-500' },
+              { label: t('cardOvertimeApproved'), value: formatHours(balance.overtimeHours), color: 'text-green-600' },
+              { label: t('cardRttUsed'), value: formatHours(balance.rttHours), color: 'text-orange-500' },
               { label: t('cardTimeOffApproved'), value: `${balance.timeOffDays}${t('dayShort')}`, color: 'text-blue-500' },
               {
                 label: t('cardNetBalance'),
-                value: `${balance.balance >= 0 ? '+' : ''}${balance.balance.toFixed(1)}h`,
+                value: `${balance.balance >= 0 ? '+' : ''}${formatHours(balance.balance)}`,
                 color: balance.balance >= 0 ? 'text-green-600' : 'text-[var(--pp-neg)]',
               },
             ].map(s => (
@@ -947,11 +948,11 @@ export default function UserDetailPage() {
                 {user.detectedOvertimes.map(o => (
                   <tr key={o.id}>
                     <td className="py-3 pr-4 text-[var(--pp-ink)]">{fmtDate(o.date, locale)}</td>
-                    <td className="py-3 pr-4 text-[var(--pp-ink)]">{o.hoursWorked.toFixed(1)}h</td>
-                    <td className="py-3 pr-4 text-[var(--pp-muted)]">{o.hoursStandard.toFixed(1)}h</td>
+                    <td className="py-3 pr-4 text-[var(--pp-ink)]">{formatHours(o.hoursWorked)}</td>
+                    <td className="py-3 pr-4 text-[var(--pp-muted)]">{formatHours(o.hoursStandard)}</td>
                     <td className="py-3 pr-4">
                       <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">
-                        +{o.overtimeHours.toFixed(1)}h
+                        +{formatHours(o.overtimeHours)}
                       </span>
                     </td>
                     <td className="py-3"><StatusBadge status={o.status} /></td>
