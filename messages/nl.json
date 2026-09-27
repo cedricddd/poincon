@@ -622,7 +622,11 @@
     "tfaDisabling": "Uitschakelen...",
     "tfaDisable": "2FA uitschakelen",
     "tfaNotConfigured": "2FA niet geconfigureerd",
-    "tfaNotConfiguredDesc": "2FA is nog niet ingeschakeld op dit account. Het wordt gevraagd bij uw volgende aanmelding."
+    "tfaNotConfiguredDesc": "2FA is nog niet ingeschakeld op dit account. Het wordt gevraagd bij uw volgende aanmelding.",
+    "qrTitle": "QR-code prikken",
+    "qrDesc": "Telefoons die aangemeld zijn bij een ander bedrijf kunnen uw QR-codes nooit gebruiken.",
+    "qrAccountOnly": "QR voorbehouden aan Pointon-accounts",
+    "qrAccountOnlyDesc": "Werknemers moeten op hun telefoon aangemeld zijn bij Pointon. De pincode wordt niet meer gevraagd: ze prikken met één tik. Aanbevolen voor grote teams. Uitgeschakeld: elke telefoon kan scannen en prikken met een pincode."
   },
   "legal": {
     "privacy": "Privacy",

@@ -622,7 +622,11 @@
     "tfaDisabling": "Disabling...",
     "tfaDisable": "Disable 2FA",
     "tfaNotConfigured": "2FA not configured",
-    "tfaNotConfiguredDesc": "2FA is not yet enabled on this account. It will be requested at your next login."
+    "tfaNotConfiguredDesc": "2FA is not yet enabled on this account. It will be requested at your next login.",
+    "qrTitle": "QR code clocking",
+    "qrDesc": "Phones signed in to another company can never use your QR codes.",
+    "qrAccountOnly": "Restrict QR to Pointon accounts",
+    "qrAccountOnlyDesc": "Employees must be signed in to Pointon on their phone. No PIN is asked: they clock in with one tap. Recommended for large teams. Off: any phone can scan and clock in with a PIN."
   },
   "legal": {
     "privacy": "Privacy",

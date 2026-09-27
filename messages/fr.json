@@ -622,7 +622,11 @@
     "tfaDisabling": "Désactivation...",
     "tfaDisable": "Désactiver la 2FA",
     "tfaNotConfigured": "2FA non configurée",
-    "tfaNotConfiguredDesc": "La 2FA n’est pas encore activée sur ce compte. Elle sera demandée à votre prochaine connexion."
+    "tfaNotConfiguredDesc": "La 2FA n’est pas encore activée sur ce compte. Elle sera demandée à votre prochaine connexion.",
+    "qrTitle": "Pointage QR code",
+    "qrDesc": "Les téléphones connectés à une autre société ne peuvent jamais utiliser vos QR codes.",
+    "qrAccountOnly": "Réserver le QR aux comptes Pointon",
+    "qrAccountOnlyDesc": "Les employés doivent être connectés à Pointon sur leur téléphone. Le code PIN n'est plus demandé : ils pointent en un geste. Recommandé pour les grandes équipes. Désactivé : n'importe quel téléphone peut scanner et pointer avec un PIN."
   },
   "legal": {
     "privacy": "Confidentialité",
