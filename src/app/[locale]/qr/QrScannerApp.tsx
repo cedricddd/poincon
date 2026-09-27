@@ -12,6 +12,9 @@ interface SiteInfo {
   siteName: string
   companyName: string
   logoUrl: string | null
+  /** 'account': identity from the Pointon session, no PIN */
+  mode: 'pin' | 'account'
+  firstName?: string
 }
 
 interface ClockResult {
@@ -372,7 +375,7 @@ export function QrScannerApp() {
         return
       }
       const data = await res.json()
-      setSiteInfo({ token, siteName: data.siteName, companyName: data.companyName, logoUrl: data.logoUrl })
+      setSiteInfo({ token, siteName: data.siteName, companyName: data.companyName, logoUrl: data.logoUrl, mode: data.mode === 'account' ? 'account' : 'pin', firstName: data.firstName })
       setPin('')
       setPinError('')
     } catch {
@@ -386,13 +389,14 @@ export function QrScannerApp() {
 
   // Auto-submit at 4 digits
   useEffect(() => {
-    if (pin.length === 4 && screen === 'pin') {
+    if (siteInfo?.mode === 'pin' && pin.length === 4 && screen === 'pin') {
       submitPin(pin)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pin, screen])
 
-  const submitPin = async (pinValue: string, action?: 'clock_out' | 'break_start' | 'break_end') => {
+  // In account mode the session identifies the employee: no PIN is sent
+  const submitPin = async (pinValue: string | null, action?: 'clock_out' | 'break_start' | 'break_end') => {
     if (!siteInfo) return
     clearResultTimer()
     setScreen('clocking')
@@ -400,7 +404,7 @@ export function QrScannerApp() {
       const res = await fetch(`/api/qr/${siteInfo.token}/clock`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(action ? { pin: pinValue, action } : { pin: pinValue }),
+        body: JSON.stringify({ ...(pinValue ? { pin: pinValue } : {}), ...(action ? { action } : {}) }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -624,41 +628,71 @@ export function QrScannerApp() {
               <p className="text-white/40 text-sm mt-1">{siteInfo.siteName}</p>
             </div>
 
-            <p className="text-center text-white/60 text-sm mt-8 mb-0">
-              Entrez votre code PIN
-            </p>
+            {siteInfo.mode === 'account' ? (
+              <>
+                <p className="text-center text-white/60 text-sm mt-8 mb-6">Bonjour, {siteInfo.firstName}</p>
+                {pinError && (
+                  <p
+                    key={pinErrorKey}
+                    className="text-center text-red-400 text-sm mb-4 animate-[shake_0.35s_ease]"
+                  >
+                    {pinError}
+                  </p>
+                )}
+                <button
+                  onClick={() => submitPin(null)}
+                  disabled={screen === 'clocking'}
+                  className="w-full h-16 rounded-2xl text-lg font-semibold transition-all active:scale-95 disabled:opacity-40"
+                  style={{ background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.4)', color: '#34d399' }}
+                >
+                  Pointer
+                </button>
+                <button
+                  onClick={goHome}
+                  className="w-full mt-3 h-12 rounded-2xl text-sm text-white/40 transition-all active:scale-95"
+                >
+                  ← Retour
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="text-center text-white/60 text-sm mt-8 mb-0">
+                  Entrez votre code PIN
+                </p>
 
-            <PinDots count={pin.length} />
+                <PinDots count={pin.length} />
 
-            {pinError && (
-              <p
-                key={pinErrorKey}
-                className="text-center text-red-400 text-sm mb-4 animate-[shake_0.35s_ease]"
-              >
-                {pinError}
-              </p>
+                {pinError && (
+                  <p
+                    key={pinErrorKey}
+                    className="text-center text-red-400 text-sm mb-4 animate-[shake_0.35s_ease]"
+                  >
+                    {pinError}
+                  </p>
+                )}
+
+                <div
+                  className="grid grid-cols-3 gap-3"
+                  style={{
+                    opacity: screen === 'clocking' ? 0.4 : 1,
+                    pointerEvents: screen === 'clocking' ? 'none' : 'auto',
+                  }}
+                >
+                  {['1','2','3','4','5','6','7','8','9'].map(k => (
+                    <NumKey key={k} label={k} onClick={() => handleKey(k)} />
+                  ))}
+                  <button
+                    onClick={goHome}
+                    className="h-20 rounded-2xl text-xs text-white/30 transition-all active:scale-95 leading-tight"
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+                  >
+                    ← Retour
+                  </button>
+                  <NumKey label="0" onClick={() => handleKey('0')} />
+                  <NumKey label={<DelIcon />} onClick={handleDel} />
+                </div>
+              </>
             )}
-
-            <div
-              className="grid grid-cols-3 gap-3"
-              style={{
-                opacity: screen === 'clocking' ? 0.4 : 1,
-                pointerEvents: screen === 'clocking' ? 'none' : 'auto',
-              }}
-            >
-              {['1','2','3','4','5','6','7','8','9'].map(k => (
-                <NumKey key={k} label={k} onClick={() => handleKey(k)} />
-              ))}
-              <button
-                onClick={goHome}
-                className="h-20 rounded-2xl text-xs text-white/30 transition-all active:scale-95 leading-tight"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
-              >
-                ← Retour
-              </button>
-              <NumKey label="0" onClick={() => handleKey('0')} />
-              <NumKey label={<DelIcon />} onClick={handleDel} />
-            </div>
 
             {screen === 'clocking' && (
               <p className="text-center text-white/40 text-sm mt-6">Pointage en cours…</p>
@@ -675,14 +709,14 @@ export function QrScannerApp() {
             <h2 className="text-2xl font-bold text-white mb-8">Bonjour, {result.firstName}</h2>
             <div className="flex flex-col gap-4">
               <button
-                onClick={() => submitPin(pin, result.hasOpenBreak ? 'break_end' : 'break_start')}
+                onClick={() => submitPin(siteInfo?.mode === 'account' ? null : pin, result.hasOpenBreak ? 'break_end' : 'break_start')}
                 className="h-16 rounded-2xl text-lg font-semibold transition-all active:scale-95"
                 style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.4)', color: '#f59e0b' }}
               >
                 {result.hasOpenBreak ? 'Terminer la pause' : 'Commencer la pause'}
               </button>
               <button
-                onClick={() => submitPin(pin, 'clock_out')}
+                onClick={() => submitPin(siteInfo?.mode === 'account' ? null : pin, 'clock_out')}
                 className="h-16 rounded-2xl text-lg font-semibold transition-all active:scale-95"
                 style={{ background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa' }}
               >

@@ -63,13 +63,16 @@ export default function SettingsPage() {
     presenceForManagers: boolean; presenceForEmployees: boolean; mealBreakEnabled: boolean
   } | null>(null)
   const [presenceSaving, setPresenceSaving] = useState(false)
+  const [qrSettings, setQrSettings] = useState<{ hasAccess: boolean; qrAccountOnly: boolean } | null>(null)
+  const [qrSaving, setQrSaving] = useState(false)
 
   useEffect(() => {
     Promise.all([
       fetch('/api/admin/company/settings').then(r => { if (!r.ok) throw new Error(t('serverError', { status: r.status })); return r.json() }),
       fetch('/api/admin/presence/settings').then(r => r.ok ? r.json() : null),
+      fetch('/api/admin/qr/settings').then(r => r.ok ? r.json() : null),
     ])
-      .then(([companyData, presenceData]) => {
+      .then(([companyData, presenceData, qrData]) => {
         setSettings(companyData)
         setForm({
           name: companyData.name ?? '',
@@ -80,6 +83,7 @@ export default function SettingsPage() {
           contactEmail: companyData.contactEmail ?? '',
         })
         if (presenceData) setPresenceSettings(presenceData)
+        if (qrData) setQrSettings(qrData)
       })
       .catch(err => setError(err.message))
       .finally(() => setLoading(false))
@@ -175,6 +179,21 @@ export default function SettingsPage() {
       setPresenceSettings(prev => prev ? { ...prev, [field]: newValue } : prev)
     }
     setPresenceSaving(false)
+  }
+
+  const handleQrAccountOnlyToggle = async () => {
+    if (!qrSettings) return
+    setQrSaving(true)
+    const newValue = !qrSettings.qrAccountOnly
+    const res = await fetch('/api/admin/qr/settings', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ qrAccountOnly: newValue }),
+    })
+    if (res.ok) {
+      setQrSettings(prev => prev ? { ...prev, qrAccountOnly: newValue } : prev)
+    }
+    setQrSaving(false)
   }
 
   const handleLogoDelete = async () => {
@@ -565,6 +584,33 @@ export default function SettingsPage() {
               <span
                 className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${
                   presenceSettings.mealBreakEnabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </label>
+        </Card>
+      )}
+
+      {/* QR code */}
+      {qrSettings?.hasAccess && (
+        <Card>
+          <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-1">{t('qrTitle')}</h2>
+          <p className="text-xs text-[var(--pp-muted)] mb-4">{t('qrDesc')}</p>
+          <label className="flex items-center justify-between p-3 border border-[var(--pp-line)] rounded-lg cursor-pointer hover:bg-[var(--pp-bg2)] transition">
+            <div>
+              <p className="text-sm font-medium text-[var(--pp-ink)]">{t('qrAccountOnly')}</p>
+              <p className="text-xs text-[var(--pp-muted)]">{t('qrAccountOnlyDesc')}</p>
+            </div>
+            <button
+              onClick={handleQrAccountOnlyToggle}
+              disabled={qrSaving}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 shrink-0 ml-4 ${
+                qrSettings.qrAccountOnly ? 'bg-[var(--pp-pos-btn)]' : 'bg-[var(--pp-line)]'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${
+                  qrSettings.qrAccountOnly ? 'translate-x-6' : 'translate-x-1'
                 }`}
               />
             </button>

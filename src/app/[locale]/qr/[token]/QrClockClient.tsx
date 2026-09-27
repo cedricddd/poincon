@@ -19,6 +19,9 @@ interface Props {
   siteName: string
   companyName: string
   logoUrl: string | null
+  /** 'account': identity from the Pointon session, no PIN */
+  mode: 'pin' | 'account'
+  firstName?: string
 }
 
 function formatTime(iso: string) {
@@ -125,7 +128,7 @@ function CompanyLogo({ logoUrl, companyName }: { logoUrl: string | null; company
   )
 }
 
-export function QrClockClient({ token, siteName, companyName, logoUrl }: Props) {
+export function QrClockClient({ token, siteName, companyName, logoUrl, mode, firstName }: Props) {
   const [screen, setScreen] = useState<Screen>('pin')
   const [pin, setPin] = useState('')
   const [error, setError] = useState('')
@@ -154,13 +157,14 @@ export function QrClockClient({ token, siteName, companyName, logoUrl }: Props) 
 
   // Auto-submit when 4 digits entered
   useEffect(() => {
-    if (pin.length === 4) {
+    if (mode === 'pin' && pin.length === 4) {
       submit(pin)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pin])
 
-  async function submit(pinValue: string, action?: 'clock_out' | 'break_start' | 'break_end') {
+  // In account mode the session identifies the employee: no PIN is sent
+  async function submit(pinValue: string | null, action?: 'clock_out' | 'break_start' | 'break_end') {
     clearTimer()
     setScreen('loading')
     setError('')
@@ -168,7 +172,7 @@ export function QrClockClient({ token, siteName, companyName, logoUrl }: Props) 
       const res = await fetch(`/api/qr/${token}/clock`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(action ? { pin: pinValue, action } : { pin: pinValue }),
+        body: JSON.stringify({ ...(pinValue ? { pin: pinValue } : {}), ...(action ? { action } : {}) }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -229,45 +233,70 @@ export function QrClockClient({ token, siteName, companyName, logoUrl }: Props) 
               <p className="text-white/40 text-sm mt-1">{siteName}</p>
             </div>
 
-            {/* Instruction */}
-            <p className="text-center text-white/60 text-sm mt-8 mb-0">
-              Entrez votre code PIN
-            </p>
+            {mode === 'account' ? (
+              <>
+                <p className="text-center text-white/60 text-sm mt-8 mb-6">Bonjour, {firstName}</p>
+                {/* Error shake */}
+                {error && (
+                  <p
+                    key={errorKey}
+                    className="text-center text-red-400 text-sm mb-4 animate-[shake_0.35s_ease]"
+                  >
+                    {error}
+                  </p>
+                )}
+                <button
+                  onClick={() => submit(null)}
+                  disabled={screen === 'loading'}
+                  className="w-full h-16 rounded-2xl text-lg font-semibold transition-all active:scale-95 disabled:opacity-40"
+                  style={{ background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.4)', color: '#34d399' }}
+                >
+                  Pointer
+                </button>
+              </>
+            ) : (
+              <>
+                {/* Instruction */}
+                <p className="text-center text-white/60 text-sm mt-8 mb-0">
+                  Entrez votre code PIN
+                </p>
 
-            {/* PIN dots */}
-            <PinDots count={pin.length} />
+                {/* PIN dots */}
+                <PinDots count={pin.length} />
 
-            {/* Error shake */}
-            {error && (
-              <p
-                key={errorKey}
-                className="text-center text-red-400 text-sm mb-4 animate-[shake_0.35s_ease]"
-              >
-                {error}
-              </p>
+                {/* Error shake */}
+                {error && (
+                  <p
+                    key={errorKey}
+                    className="text-center text-red-400 text-sm mb-4 animate-[shake_0.35s_ease]"
+                  >
+                    {error}
+                  </p>
+                )}
+
+                {/* Numpad */}
+                <div
+                  className="grid grid-cols-3 gap-3"
+                  style={{ opacity: screen === 'loading' ? 0.4 : 1, pointerEvents: screen === 'loading' ? 'none' : 'auto' }}
+                >
+                  {keys1.map(k => <NumKey key={k} label={k} onClick={() => handleKey(k)} />)}
+                  {keys2.map(k => <NumKey key={k} label={k} onClick={() => handleKey(k)} />)}
+                  {keys3.map(k => <NumKey key={k} label={k} onClick={() => handleKey(k)} />)}
+                  {/* Row 4: empty | 0 | del */}
+                  <div />
+                  <NumKey label="0" onClick={() => handleKey('0')} />
+                  <NumKey
+                    label={
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 4H8l-7 7 7 7h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" />
+                        <line x1="18" y1="9" x2="12" y2="15" /><line x1="12" y1="9" x2="18" y2="15" />
+                      </svg>
+                    }
+                    onClick={handleDel}
+                  />
+                </div>
+              </>
             )}
-
-            {/* Numpad */}
-            <div
-              className="grid grid-cols-3 gap-3"
-              style={{ opacity: screen === 'loading' ? 0.4 : 1, pointerEvents: screen === 'loading' ? 'none' : 'auto' }}
-            >
-              {keys1.map(k => <NumKey key={k} label={k} onClick={() => handleKey(k)} />)}
-              {keys2.map(k => <NumKey key={k} label={k} onClick={() => handleKey(k)} />)}
-              {keys3.map(k => <NumKey key={k} label={k} onClick={() => handleKey(k)} />)}
-              {/* Row 4: empty | 0 | del */}
-              <div />
-              <NumKey label="0" onClick={() => handleKey('0')} />
-              <NumKey
-                label={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 4H8l-7 7 7 7h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" />
-                    <line x1="18" y1="9" x2="12" y2="15" /><line x1="12" y1="9" x2="18" y2="15" />
-                  </svg>
-                }
-                onClick={handleDel}
-              />
-            </div>
 
             {screen === 'loading' && (
               <p className="text-center text-white/40 text-sm mt-6">Pointage en cours…</p>
@@ -286,14 +315,14 @@ export function QrClockClient({ token, siteName, companyName, logoUrl }: Props) 
             </h2>
             <div className="flex flex-col gap-4">
               <button
-                onClick={() => submit(pin, result.hasOpenBreak ? 'break_end' : 'break_start')}
+                onClick={() => submit(mode === 'account' ? null : pin, result.hasOpenBreak ? 'break_end' : 'break_start')}
                 className="h-16 rounded-2xl text-lg font-semibold transition-all active:scale-95"
                 style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.4)', color: '#f59e0b' }}
               >
                 {result.hasOpenBreak ? 'Terminer la pause' : 'Commencer la pause'}
               </button>
               <button
-                onClick={() => submit(pin, 'clock_out')}
+                onClick={() => submit(mode === 'account' ? null : pin, 'clock_out')}
                 className="h-16 rounded-2xl text-lg font-semibold transition-all active:scale-95"
                 style={{ background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.4)', color: '#a78bfa' }}
               >

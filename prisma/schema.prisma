@@ -176,6 +176,7 @@ model Company {
   presenceForManagers  Boolean         @default(true)
   presenceForEmployees Boolean         @default(true)
   mealBreakEnabled     Boolean         @default(false)
+  qrAccountOnly        Boolean         @default(false) // QR pointage : identité par la session Pointon, sans PIN
   auditLogRetentionYears Int           @default(3) // addon_rgpd_export — modifiable 1-10 ans, 3 = défaut légal
   createdAt             DateTime        @default(now())
   updatedAt             DateTime        @updatedAt

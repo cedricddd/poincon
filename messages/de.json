@@ -622,7 +622,11 @@
     "tfaDisabling": "Deaktivieren...",
     "tfaDisable": "2FA deaktivieren",
     "tfaNotConfigured": "2FA nicht konfiguriert",
-    "tfaNotConfiguredDesc": "2FA ist auf diesem Konto noch nicht aktiviert. Sie wird bei Ihrer nächsten Anmeldung angefordert."
+    "tfaNotConfiguredDesc": "2FA ist auf diesem Konto noch nicht aktiviert. Sie wird bei Ihrer nächsten Anmeldung angefordert.",
+    "qrTitle": "QR-Code-Zeiterfassung",
+    "qrDesc": "Bei einem anderen Unternehmen angemeldete Telefone können Ihre QR-Codes nie verwenden.",
+    "qrAccountOnly": "QR auf Pointon-Konten beschränken",
+    "qrAccountOnlyDesc": "Mitarbeiter müssen auf ihrem Telefon bei Pointon angemeldet sein. Keine PIN mehr nötig: sie stempeln mit einem Tipp. Empfohlen für große Teams. Aus: jedes Telefon kann scannen und mit PIN stempeln."
   },
   "legal": {
     "privacy": "Datenschutz",

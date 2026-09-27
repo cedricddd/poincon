@@ -231,7 +231,7 @@ export default function AuditPage() {
       }
 
       // settings_change
-      if (c.before && c.after && 'mealBreakEnabled' in (c.before ?? {})) {
+      if (c.before && c.after && ('mealBreakEnabled' in (c.before ?? {}) || 'qrAccountOnly' in (c.before ?? {}))) {
         Object.keys(c.after as Record<string, unknown>).forEach(k => {
           if ((c.before as Record<string, unknown>)[k] !== (c.after as Record<string, unknown>)[k])
             parts.push(`${k}: ${(c.before as Record<string, unknown>)[k]} -> ${(c.after as Record<string, unknown>)[k]}`)
