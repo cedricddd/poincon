@@ -61,13 +61,11 @@ export default auth((req) => {
   // own response, so we must set it ourselves or messages fall back to defaultLocale.
   requestHeaders.set('x-next-intl-locale', locale)
 
-  // QR pages live at /qr without locale prefix (French only) so the "Pointon QR" PWA can
-  // own the /qr scope, separate from the main app's "/" scope. /fr/qr/... → /qr/...
-  if (pathWithoutLocale === '/qr' || pathWithoutLocale.startsWith('/qr/')) {
-    if (localeMatch) {
-      const target = new URL(pathWithoutLocale + req.nextUrl.search, req.url)
-      return NextResponse.redirect(target, 308)
-    }
+  // QR pages are served at /qr without locale prefix (French only) so the "Pointon QR" PWA
+  // can own the /qr scope, separate from the main app's "/" scope.
+  // Never redirect /xx/qr → /qr: in production the rewrite below re-enters this proxy as
+  // /fr/qr, so such a redirect loops forever (ERR_TOO_MANY_REDIRECTS).
+  if (!localeMatch && (pathname === '/qr' || pathname.startsWith('/qr/'))) {
     const res = NextResponse.rewrite(
       new URL(`/${routing.defaultLocale}${pathname}${req.nextUrl.search}`, req.url),
       { request: { headers: requestHeaders } }
