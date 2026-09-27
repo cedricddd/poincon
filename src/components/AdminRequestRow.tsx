@@ -77,7 +77,7 @@ export function AdminRequestRow({
       </td>
       <td className="px-4 py-3 text-sm">{details}</td>
       <td className="px-4 py-3">
-        <span className={`px-3 py-1 rounded-full text-sm ${statusColors[status] || 'bg-[var(--pp-bg2)] text-[var(--pp-muted)]'}`}>
+        <span className={`inline-block whitespace-nowrap px-3 py-1 rounded-full text-sm ${statusColors[status] || 'bg-[var(--pp-bg2)] text-[var(--pp-muted)]'}`}>
           {statusLabels[status] ?? status}
         </span>
       </td>

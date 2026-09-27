@@ -83,6 +83,7 @@ export default function OvertimesPage() {
   }
 
   const pending = overtimes.filter(o => o.status === 'PENDING')
+  const hoursFmt = new Intl.NumberFormat(bcp, { maximumFractionDigits: 2 })
 
   return (
     <div className="p-8">
@@ -116,7 +117,7 @@ export default function OvertimesPage() {
                   employee={ot.userName || t('unknown')}
                   email={ot.userEmail || ''}
                   status={ot.status}
-                  details={t('overtimeDetails', { date: new Date(ot.date).toLocaleDateString(bcp), hours: ot.overtimeHours, worked: ot.hoursWorked, std: ot.hoursStandard })}
+                  details={t('overtimeDetails', { date: new Date(ot.date).toLocaleDateString(bcp), hours: hoursFmt.format(ot.overtimeHours), worked: hoursFmt.format(ot.hoursWorked), std: hoursFmt.format(ot.hoursStandard) })}
                   disabled={actionInProgress === ot.id}
                   onApprove={() => handleAction(ot.id, 'approve')}
                   onReject={() => {
