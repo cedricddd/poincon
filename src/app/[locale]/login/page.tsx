@@ -77,7 +77,9 @@ export default function LoginPage() {
           localStorage.removeItem('rememberedEmail')
         }
         // Hard navigation: avoids the Next.js router cache serving the pre-auth state.
-        window.location.href = '/app/clock'
+        // Only QR clock pages are accepted as return target (no open redirect).
+        const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl')
+        window.location.href = callbackUrl && /^\/qr\/[a-f0-9]+$/.test(callbackUrl) ? callbackUrl : '/app/clock'
       }
     } catch {
       setError(t('errorNetwork'))

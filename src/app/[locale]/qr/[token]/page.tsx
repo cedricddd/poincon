@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { resolveQrAccess, QR_ACCESS_ERRORS } from '@/lib/qr-access'
 import { QrClockClient } from './QrClockClient'
 
 interface Props {
@@ -14,12 +15,26 @@ export default async function QrPage({ params }: Props) {
       id: true,
       name: true,
       active: true,
-      company: { select: { name: true, logoUrl: true } },
+      company: { select: { id: true, name: true, logoUrl: true, qrAccountOnly: true } },
     },
   })
 
   if (!site || !site.active) {
-    return <QrError />
+    return <QrError title="QR code invalide" message="Ce QR code n'est pas reconnu." />
+  }
+
+  const access = await resolveQrAccess(site.company)
+  if (access.kind === 'other_company') {
+    return <QrError title="Autre société" message={QR_ACCESS_ERRORS.other_company.error} />
+  }
+  if (access.kind === 'login_required') {
+    return (
+      <QrError
+        title="Connexion requise"
+        message={QR_ACCESS_ERRORS.login_required.error}
+        loginHref={`/login?callbackUrl=${encodeURIComponent(`/qr/${token}`)}`}
+      />
+    )
   }
 
   return (
@@ -28,11 +43,13 @@ export default async function QrPage({ params }: Props) {
       siteName={site.name}
       companyName={site.company.name}
       logoUrl={site.company.logoUrl}
+      mode={access.kind}
+      firstName={access.kind === 'account' ? access.user.name.split(' ')[0] : undefined}
     />
   )
 }
 
-function QrError() {
+function QrError({ title, message, loginHref }: { title: string; message: string; loginHref?: string }) {
   return (
     <div className="min-h-screen bg-[#090c14] flex items-center justify-center px-4">
       <div className="max-w-sm w-full text-center">
@@ -43,8 +60,16 @@ function QrError() {
             <line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
         </div>
-        <h1 className="text-xl font-bold text-white mb-2">QR code invalide</h1>
-        <p className="text-white/50 text-sm">Ce QR code n'est pas reconnu.</p>
+        <h1 className="text-xl font-bold text-white mb-2">{title}</h1>
+        <p className="text-white/50 text-sm">{message}</p>
+        {loginHref && (
+          <a
+            href={loginHref}
+            className="inline-block mt-6 px-6 py-3 rounded-2xl text-sm font-semibold text-white bg-indigo-500 hover:bg-indigo-400 transition-colors"
+          >
+            Se connecter
+          </a>
+        )}
       </div>
     </div>
   )
