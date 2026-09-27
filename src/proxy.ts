@@ -61,6 +61,21 @@ export default auth((req) => {
   // own response, so we must set it ourselves or messages fall back to defaultLocale.
   requestHeaders.set('x-next-intl-locale', locale)
 
+  // QR pages live at /qr without locale prefix (French only) so the "Pointon QR" PWA can
+  // own the /qr scope, separate from the main app's "/" scope. /fr/qr/... → /qr/...
+  if (pathWithoutLocale === '/qr' || pathWithoutLocale.startsWith('/qr/')) {
+    if (localeMatch) {
+      const target = new URL(pathWithoutLocale + req.nextUrl.search, req.url)
+      return NextResponse.redirect(target, 308)
+    }
+    const res = NextResponse.rewrite(
+      new URL(`/${routing.defaultLocale}${pathname}${req.nextUrl.search}`, req.url),
+      { request: { headers: requestHeaders } }
+    )
+    res.headers.set('Content-Security-Policy', csp)
+    return res
+  }
+
   // 2FA UI pages: allow through without full auth enforcement
   if (TWO_FA_UI_PATHS.some(p => pathWithoutLocale.startsWith(p))) {
     return withHeaders()
