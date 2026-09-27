@@ -4,7 +4,8 @@ import { rateLimit } from '@/lib/rateLimit'
 import { logAudit } from '@/lib/audit'
 import { closeClockRecord, brusselsDayRange } from '@/lib/clock'
 import { NextRequest, NextResponse } from 'next/server'
-import bcrypt from 'bcryptjs'
+import { findUsersByPin, PIN_REGEX } from '@/lib/kiosk-pin'
+import { resolveQrAccess, QR_ACCESS_ERRORS } from '@/lib/qr-access'
 
 export async function GET(
   _req: NextRequest,
@@ -16,16 +17,23 @@ export async function GET(
     select: {
       name: true,
       active: true,
-      company: { select: { name: true, logoUrl: true } },
+      company: { select: { id: true, name: true, logoUrl: true, qrAccountOnly: true } },
     },
   })
   if (!site || !site.active) {
     return NextResponse.json({ error: 'QR code invalide' }, { status: 404 })
   }
+  const access = await resolveQrAccess(site.company)
+  if (access.kind === 'other_company' || access.kind === 'login_required') {
+    const { status, code, error } = QR_ACCESS_ERRORS[access.kind]
+    return NextResponse.json({ error, code }, { status })
+  }
   return NextResponse.json({
     siteName: site.name,
     companyName: site.company.name,
     logoUrl: site.company.logoUrl,
+    mode: access.kind,
+    ...(access.kind === 'account' ? { firstName: access.user.name.split(' ')[0] } : {}),
   })
 }
 
@@ -46,7 +54,7 @@ export async function POST(
       select: {
         id: true,
         active: true,
-        company: { select: { id: true, name: true, logoUrl: true, mealBreakEnabled: true } },
+        company: { select: { id: true, name: true, logoUrl: true, mealBreakEnabled: true, qrAccountOnly: true } },
       },
     })
 
@@ -59,32 +67,47 @@ export async function POST(
       return NextResponse.json({ error: 'Fonctionnalité non disponible sur votre plan' }, { status: 403 })
     }
 
-    const { pin, action } = await req.json()
-    if (!pin || !/^\d{4}$/.test(pin)) {
-      return NextResponse.json({ error: 'PIN invalide' }, { status: 400 })
+    const access = await resolveQrAccess(site.company)
+    if (access.kind === 'other_company' || access.kind === 'login_required') {
+      const { status, code, error } = QR_ACCESS_ERRORS[access.kind]
+      return NextResponse.json({ error, code }, { status })
     }
+
+    const { pin, action } = await req.json()
     if (action && !['clock_out', 'break_start', 'break_end'].includes(action)) {
       return NextResponse.json({ error: 'Action invalide' }, { status: 400 })
     }
 
-    const usersWithPin = await prisma.user.findMany({
-      where: { companyId: site.company.id, active: true, deletedAt: null, kioskPin: { not: null } },
-      select: { id: true, name: true, kioskPin: true },
-    })
-
-    let matchedUser: { id: string; name: string } | null = null
-    for (const u of usersWithPin) {
-      if (u.kioskPin && await bcrypt.compare(pin, u.kioskPin)) {
-        matchedUser = { id: u.id, name: u.name ?? 'Employé' }
-        break
+    let matchedUser: { id: string; name: string }
+    if (access.kind === 'account') {
+      matchedUser = access.user
+    } else {
+      if (!pin || !PIN_REGEX.test(pin)) {
+        return NextResponse.json({ error: 'PIN invalide' }, { status: 400 })
       }
-    }
-    if (!matchedUser) {
-      const rlFail = rateLimit(`qr-fail:${ip}:${token}`, 10, 5 * 60 * 1000)
-      if (!rlFail.allowed) {
-        return NextResponse.json({ error: 'Trop de tentatives. Réessayez dans 5 minutes.' }, { status: 429 })
+      const matches = await findUsersByPin(site.company.id, pin)
+      if (matches.length === 0) {
+        const rlFail = rateLimit(`qr-fail:${ip}:${token}`, 10, 5 * 60 * 1000)
+        if (!rlFail.allowed) {
+          return NextResponse.json({ error: 'Trop de tentatives. Réessayez dans 5 minutes.' }, { status: 429 })
+        }
+        return NextResponse.json({ error: 'PIN incorrect' }, { status: 401 })
       }
-      return NextResponse.json({ error: 'PIN incorrect' }, { status: 401 })
+      if (matches.length > 1) {
+        await logAudit({
+          userId: matches[0].id,
+          action: 'kiosk_pin_ambiguous',
+          resource: 'site',
+          resourceId: site.id,
+          changes: { via: 'qr', userIds: matches.map(m => m.id) },
+          ipAddress: ip,
+        })
+        return NextResponse.json(
+          { error: 'Ce PIN est partagé par plusieurs employés. Contactez votre administrateur.', code: 'PIN_AMBIGUOUS' },
+          { status: 409 }
+        )
+      }
+      matchedUser = matches[0]
     }
 
     const firstName = matchedUser.name.split(' ')[0]

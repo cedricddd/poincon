@@ -4,7 +4,7 @@ import { rateLimit } from '@/lib/rateLimit'
 import { logAudit } from '@/lib/audit'
 import { closeClockRecord, brusselsDayRange } from '@/lib/clock'
 import { NextRequest, NextResponse } from 'next/server'
-import bcrypt from 'bcryptjs'
+import { findUsersByPin, PIN_REGEX } from '@/lib/kiosk-pin'
 
 export async function POST(
   req: NextRequest,
@@ -30,27 +30,29 @@ export async function POST(
     }
 
     const { pin } = await req.json()
-    if (!pin || !/^\d{4}$/.test(pin)) {
+    if (!pin || !PIN_REGEX.test(pin)) {
       return NextResponse.json({ error: 'PIN invalide' }, { status: 400 })
     }
 
-    // Find matching user in company
-    const usersWithPin = await prisma.user.findMany({
-      where: { companyId: kioskToken.companyId, active: true, deletedAt: null, kioskPin: { not: null } },
-      select: { id: true, name: true, kioskPin: true },
-    })
-
-    let matchedUser: { id: string; name: string } | null = null
-    for (const u of usersWithPin) {
-      if (u.kioskPin && await bcrypt.compare(pin, u.kioskPin)) {
-        matchedUser = { id: u.id, name: u.name ?? 'Employé' }
-        break
-      }
-    }
-
-    if (!matchedUser) {
+    const matches = await findUsersByPin(kioskToken.companyId, pin)
+    if (matches.length === 0) {
       return NextResponse.json({ error: 'PIN incorrect' }, { status: 401 })
     }
+    if (matches.length > 1) {
+      await logAudit({
+        userId: matches[0].id,
+        action: 'kiosk_pin_ambiguous',
+        resource: 'kioskToken',
+        resourceId: token,
+        changes: { via: 'kiosk', userIds: matches.map(m => m.id) },
+        ipAddress: ip,
+      })
+      return NextResponse.json(
+        { error: 'Ce PIN est partagé par plusieurs employés. Contactez votre administrateur.', code: 'PIN_AMBIGUOUS' },
+        { status: 409 }
+      )
+    }
+    const matchedUser = matches[0]
 
     const now = new Date()
     const { start: today, end: tomorrow } = brusselsDayRange(now)

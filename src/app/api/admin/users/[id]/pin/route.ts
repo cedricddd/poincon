@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { isAdminRole } from '@/lib/roles'
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
+import { findUsersByPin, PIN_REGEX } from '@/lib/kiosk-pin'
 
 export async function PATCH(
   req: NextRequest,
@@ -36,8 +37,13 @@ export async function PATCH(
       return NextResponse.json({ ok: true, pinSet: false })
     }
 
-    if (!/^\d{4}$/.test(pin)) {
+    if (typeof pin !== 'string' || !PIN_REGEX.test(pin)) {
       return NextResponse.json({ error: 'Le PIN doit contenir exactement 4 chiffres' }, { status: 400 })
+    }
+
+    const taken = await findUsersByPin(admin.companyId, pin, { excludeUserId: id })
+    if (taken.length > 0) {
+      return NextResponse.json({ error: 'Ce PIN est déjà utilisé par un autre employé. Choisissez-en un autre.' }, { status: 409 })
     }
 
     // Use 4 rounds for PIN — fast enough for kiosk (~2ms) while still blocking offline attacks
