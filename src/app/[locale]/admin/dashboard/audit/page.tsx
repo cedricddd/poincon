@@ -230,6 +230,14 @@ export default function AuditPage() {
         if (c.location)      parts.push(`${t('lblLocation')}: ${c.location}`)
       }
 
+      // Kiosk / QR clocking — never print the terminal token (it is a clocking credential)
+      if (c.via === 'kiosk' || c.via === 'qr') parts.push(`${t('lblVia')}: ${c.via === 'kiosk' ? t('viaKiosk') : t('viaQr')}`)
+      if (typeof c.duration === 'number') {
+        const h = Math.floor(c.duration / 60)
+        const m = c.duration % 60
+        parts.push(`${t('lblDuration')}: ${h}h${String(m).padStart(2, '0')}`)
+      }
+
       // settings_change
       if (c.before && c.after && ('mealBreakEnabled' in (c.before ?? {}) || 'qrAccountOnly' in (c.before ?? {}))) {
         Object.keys(c.after as Record<string, unknown>).forEach(k => {
@@ -238,7 +246,9 @@ export default function AuditPage() {
         })
       }
 
-      return parts.length > 0 ? parts.join('\n') : raw.slice(0, 100)
+      if (parts.length > 0) return parts.join('\n')
+      const { token: _token, ...rest } = c
+      return JSON.stringify(rest).slice(0, 100)
     } catch {
       return raw.slice(0, 100)
     }
