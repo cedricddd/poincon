@@ -4,6 +4,7 @@ import { isAdminRole } from '@/lib/roles'
 import { getCompanyPlan, planCanAccess, PLAN_LIMITS } from '@/lib/plan'
 import { syncSeatQuantitySafe } from '@/lib/billing'
 import { dispatchWebhookSafe } from '@/lib/webhook'
+import { setUserActive } from '@/lib/user-status'
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { createHash } from 'crypto'
@@ -31,7 +32,7 @@ export async function GET(req: NextRequest) {
       prisma.user.findMany({
         where: { companyId: admin.companyId },
         select: {
-          id: true, name: true, email: true, role: true, createdAt: true,
+          id: true, name: true, email: true, role: true, active: true, createdAt: true,
           defaultSiteId: true,
           defaultSite: { select: { id: true, name: true } },
           managerId: true,
@@ -89,6 +90,19 @@ export async function PATCH(req: NextRequest) {
     })
     if (!targetUser || targetUser.companyId !== admin.companyId) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    // Deactivation / reactivation is its own action: the account keeps its whole history
+    if (typeof body.active === 'boolean') {
+      const result = await setUserActive({
+        companyId: admin.companyId,
+        actorId: session.user.id,
+        targetId: id,
+        active: body.active,
+        ipAddress: req.headers.get('x-forwarded-for') ?? undefined,
+      })
+      if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status })
+      return NextResponse.json({ id, active: body.active })
     }
 
     const allowedRoles = ['EMPLOYEE', 'MANAGER', 'ADMIN']
@@ -164,6 +178,16 @@ export async function DELETE(req: NextRequest) {
     })
     if (!targetUser || targetUser.companyId !== admin.companyId) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    // Deleting cascades to the clock records, which must be kept for the legal
+    // retention period: a worker with a history can only be deactivated.
+    const clockRecordCount = await prisma.clockRecord.count({ where: { userId: id } })
+    if (clockRecordCount > 0) {
+      return NextResponse.json(
+        { error: 'Ce travailleur a des pointages, qui doivent être conservés. Désactivez son compte au lieu de le supprimer.', code: 'HAS_HISTORY' },
+        { status: 409 }
+      )
     }
 
     // Anonymiser les audit logs avant suppression (RGPD)

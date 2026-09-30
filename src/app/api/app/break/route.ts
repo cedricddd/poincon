@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { brusselsDayRange } from '@/lib/clock'
+import { isUserActive } from '@/lib/user-status'
 
 // GET — check if meal break is enabled + return active break state
 export async function GET() {
@@ -59,6 +60,10 @@ export async function POST(req: NextRequest) {
   const session = await auth()
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  if (!await isUserActive(session.user.id)) {
+    return NextResponse.json({ error: 'Account deactivated' }, { status: 403 })
+  }
+
   const { clockRecordId } = await req.json()
   if (!clockRecordId) return NextResponse.json({ error: 'Missing clockRecordId' }, { status: 400 })
 
@@ -97,6 +102,10 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const session = await auth()
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  if (!await isUserActive(session.user.id)) {
+    return NextResponse.json({ error: 'Account deactivated' }, { status: 403 })
+  }
 
   const { breakId } = await req.json()
   if (!breakId) return NextResponse.json({ error: 'Missing breakId' }, { status: 400 })
