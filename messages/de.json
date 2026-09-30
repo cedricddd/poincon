@@ -930,7 +930,7 @@
           ],
           "includes": [
             "Prioritäts-Support",
-            "Multi-Standort",
+            "Bis zu 5 Standorte",
             "Manager-Dashboard"
           ]
         },
@@ -941,7 +941,7 @@
           "features": [
             "API & Integrationen",
             "Erweiterte Berichte",
-            "Multi-Gesellschaft"
+            "Bis zu 10 Standorte"
           ],
           "includes": [
             "SLA 99,9%",

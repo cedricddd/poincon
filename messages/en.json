@@ -930,7 +930,7 @@
           ],
           "includes": [
             "Priority support",
-            "Multi-site",
+            "Up to 5 sites",
             "Manager dashboard"
           ]
         },
@@ -941,7 +941,7 @@
           "features": [
             "API & integrations",
             "Advanced reports",
-            "Multi-company"
+            "Up to 10 sites"
           ],
           "includes": [
             "SLA 99.9%",

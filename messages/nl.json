@@ -930,7 +930,7 @@
           ],
           "includes": [
             "Prioritaire ondersteuning",
-            "Multi-locatie",
+            "Tot 5 locaties",
             "Managerdashboard"
           ]
         },
@@ -941,7 +941,7 @@
           "features": [
             "API & integraties",
             "Geavanceerde rapporten",
-            "Multi-vennootschap"
+            "Tot 10 locaties"
           ],
           "includes": [
             "SLA 99.9%",
