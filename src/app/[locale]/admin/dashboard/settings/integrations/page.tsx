@@ -162,7 +162,7 @@ export default function IntegrationsPage() {
     const res = await fetch('/api/admin/company/retention')
     if (res.ok) {
       const d = await res.json()
-      setRetentionYears(d.auditLogRetentionYears ?? 3)
+      setRetentionYears(d.auditLogRetentionYears ?? 5)
     }
   }
 
@@ -372,7 +372,7 @@ export default function IntegrationsPage() {
               <div className="flex items-center gap-3">
                 <label className="text-xs text-[var(--pp-muted)]">{t('rgpdRetentionLabel')}</label>
                 <select
-                  value={retentionYears ?? 3}
+                  value={retentionYears ?? 5}
                   disabled={savingRetention}
                   onChange={e => saveRetention(Number(e.target.value))}
                   className="px-2 py-1 border border-[var(--pp-line)] rounded-lg text-xs bg-[var(--pp-bg)]"

@@ -2,9 +2,9 @@ import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 import { createHash } from 'crypto'
 
-// RGPD belge : conservation max 3 ans par défaut. Configurable par company (1-10
+// Conservation 5 ans par défaut (durée légale belge des données de temps de travail). Configurable par company (1-10
 // ans) via l'addon addon_rgpd_export — voir Company.auditLogRetentionYears.
-const DEFAULT_RETENTION_YEARS = 3
+const DEFAULT_RETENTION_YEARS = 5
 
 export async function POST(req: NextRequest) {
   const secret = req.headers.get('x-cron-secret')
