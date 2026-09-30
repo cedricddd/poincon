@@ -69,7 +69,7 @@ const paidPlans = [
     extraSeat: 2.60,
     features: ['Planning & congés', 'Rôle Manager', 'Exports planifiés'],
     includesLabel: 'Tout Starter inclus :',
-    includes: ['Support prioritaire', 'Multi-sites', 'Dashboard manager'],
+    includes: ['Support prioritaire', 'Jusqu’à 5 sites', 'Dashboard manager'],
   },
   {
     name: 'BUSINESS',
@@ -81,7 +81,7 @@ const paidPlans = [
     limit: '30 utilisateurs inclus',
     highlight: false,
     extraSeat: 2.20,
-    features: ['API & intégrations', 'Rapports avancés', 'Multi-sociétés'],
+    features: ['API & intégrations', 'Rapports avancés', 'Jusqu’à 10 sites'],
     includesLabel: 'Tout Team inclus :',
     includes: ['SLA garanti 99.9%', 'Onboarding dédié', 'Facturation personnalisée'],
   },

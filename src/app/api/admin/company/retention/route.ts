@@ -13,7 +13,7 @@ export async function GET() {
   })
   const hasAddon = await companyHasAddon(auth.admin.companyId, 'addon_rgpd_export')
 
-  return NextResponse.json({ auditLogRetentionYears: company?.auditLogRetentionYears ?? 3, hasAddon })
+  return NextResponse.json({ auditLogRetentionYears: company?.auditLogRetentionYears ?? 5, hasAddon })
 }
 
 export async function PATCH(req: NextRequest) {

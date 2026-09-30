@@ -930,7 +930,7 @@
           ],
           "includes": [
             "Prioritäts-Support",
-            "Multi-Standort",
+            "Bis zu 5 Standorte",
             "Manager-Dashboard"
           ]
         },
@@ -941,7 +941,7 @@
           "features": [
             "API & Integrationen",
             "Erweiterte Berichte",
-            "Multi-Gesellschaft"
+            "Bis zu 10 Standorte"
           ],
           "includes": [
             "SLA 99,9%",
@@ -1653,6 +1653,11 @@
     "pin": "PIN",
     "anonymize": "Anonymisieren",
     "delete": "Löschen",
+    "inactive": "Inaktiv",
+    "deactivate": "Deaktivieren",
+    "reactivate": "Reaktivieren",
+    "confirmDeactivate": "Konto von {name} deaktivieren?\n\nAnmeldung und Zeiterfassung sind dann nicht mehr möglich, der Platz wird frei. Der gesamte Verlauf bleibt erhalten.",
+    "confirmReactivate": "Konto von {name} reaktivieren?",
     "confirmDelete": "Konto von {name} löschen? Diese Aktion ist unwiderruflich.",
     "confirmAnonymize": "Audit-Logs von {name} anonymisieren?\n\nIhre vergangenen Aktionen bleiben erhalten, werden aber von ihrer Identität getrennt. Unwiderrufliche Aktion.",
     "anonymizeResult": "✓ {count} Log(s) anonymisiert für {name}",

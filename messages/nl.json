@@ -930,7 +930,7 @@
           ],
           "includes": [
             "Prioritaire ondersteuning",
-            "Multi-locatie",
+            "Tot 5 locaties",
             "Managerdashboard"
           ]
         },
@@ -941,7 +941,7 @@
           "features": [
             "API & integraties",
             "Geavanceerde rapporten",
-            "Multi-vennootschap"
+            "Tot 10 locaties"
           ],
           "includes": [
             "SLA 99.9%",
@@ -1653,6 +1653,11 @@
     "pin": "PIN",
     "anonymize": "Anonimiseren",
     "delete": "Verwijderen",
+    "inactive": "Inactief",
+    "deactivate": "Deactiveren",
+    "reactivate": "Heractiveren",
+    "confirmDeactivate": "Het account van {name} deactiveren?\n\nDeze persoon kan niet meer inloggen of prikken en de plaats komt vrij. De volledige geschiedenis blijft bewaard.",
+    "confirmReactivate": "Het account van {name} heractiveren?",
     "confirmDelete": "Account van {name} verwijderen? Deze actie is onomkeerbaar.",
     "confirmAnonymize": "Auditlogs van {name} anonimiseren?\n\nHun vroegere acties blijven bewaard maar worden losgekoppeld van hun identiteit. Onomkeerbare actie.",
     "anonymizeResult": "✓ {count} log(s) geanonimiseerd voor {name}",

@@ -10,7 +10,7 @@ import { usePlan } from '@/hooks/usePlan'
 
 type Site = { id: string; name: string }
 type Manager = { id: string; name: string | null; email: string }
-type User = { id: string; name: string; email: string; role: string; createdAt: string; defaultSiteId: string | null; defaultSite: Site | null; managerId: string | null; manager: Manager | null }
+type User = { id: string; name: string; email: string; role: string; active: boolean; createdAt: string; defaultSiteId: string | null; defaultSite: Site | null; managerId: string | null; manager: Manager | null }
 type EditState = { name: string; email: string; role: string; password: string; defaultSiteId: string; managerId: string }
 type SortField = 'name' | 'email' | 'role' | 'site' | 'createdAt'
 type SortDir = 'asc' | 'desc'
@@ -171,6 +171,17 @@ export default function UsersPage() {
     fetchUsers()
   }
 
+  const setActive = async (user: User, active: boolean) => {
+    if (!confirm(t(active ? 'confirmReactivate' : 'confirmDeactivate', { name: user.name }))) return
+    const res = await fetch('/api/admin/users', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: user.id, active }),
+    })
+    if (!res.ok) { setError((await res.json()).error); return }
+    fetchUsers()
+  }
+
   const anonymizeUser = async (id: string, name: string) => {
     if (!confirm(t('confirmAnonymize', { name }))) return
     const res = await fetch('/api/admin/users/anonymize', {
@@ -196,9 +207,13 @@ export default function UsersPage() {
     else if (sortField === 'role') { va = a.role; vb = b.role }
     else if (sortField === 'site') { va = a.defaultSite?.name ?? ''; vb = b.defaultSite?.name ?? '' }
     else if (sortField === 'createdAt') { va = a.createdAt; vb = b.createdAt }
+    // Deactivated accounts always sink to the bottom, whatever the sort
+    if (a.active !== b.active) return a.active ? -1 : 1
     const cmp = va.localeCompare(vb, 'fr')
     return sortDir === 'asc' ? cmp : -cmp
   })
+
+  const activeCount = users.filter(u => u.active).length
 
   const thClass = 'pb-3 pr-4 font-medium cursor-pointer select-none hover:text-[var(--pp-ink)] whitespace-nowrap'
   const inp = 'w-full px-2 py-1 border border-[var(--pp-info)] rounded focus:outline-none text-sm'
@@ -214,20 +229,20 @@ export default function UsersPage() {
             {planInfo && planInfo.maxEmployees !== -1 && (
               planInfo.plan === 'FREE' ? (
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                  users.length >= planInfo.maxEmployees
+                  activeCount >= planInfo.maxEmployees
                     ? 'bg-red-100 text-red-700'
-                    : users.length >= planInfo.maxEmployees * 0.8
+                    : activeCount >= planInfo.maxEmployees * 0.8
                     ? 'bg-yellow-100 text-yellow-700'
                     : 'bg-gray-100 text-gray-500'
                 }`}>
-                  {t('freeUsage', { count: users.length, max: planInfo.maxEmployees })}
+                  {t('freeUsage', { count: activeCount, max: planInfo.maxEmployees })}
                 </span>
               ) : (
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                  users.length > planInfo.maxEmployees ? 'bg-[#7c3aed]/10 text-[#7c3aed]' : 'bg-gray-100 text-gray-500'
+                  activeCount > planInfo.maxEmployees ? 'bg-[#7c3aed]/10 text-[#7c3aed]' : 'bg-gray-100 text-gray-500'
                 }`}>
-                  {t('seatUsage', { count: users.length, max: planInfo.maxEmployees })}
-                  {users.length > planInfo.maxEmployees ? t('extraSeats', { count: users.length - planInfo.maxEmployees }) : ''}
+                  {t('seatUsage', { count: activeCount, max: planInfo.maxEmployees })}
+                  {activeCount > planInfo.maxEmployees ? t('extraSeats', { count: activeCount - planInfo.maxEmployees }) : ''}
                 </span>
               )
             )}
@@ -243,10 +258,10 @@ export default function UsersPage() {
         </div>
       </div>
 
-      {planInfo && planInfo.plan === 'FREE' && planInfo.maxEmployees !== -1 && users.length >= planInfo.maxEmployees && (
+      {planInfo && planInfo.plan === 'FREE' && planInfo.maxEmployees !== -1 && activeCount >= planInfo.maxEmployees && (
         <div className="mb-4 p-4 rounded-xl border border-orange-200 bg-orange-50 flex items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-medium text-orange-800">{t('freeLimitTitle', { count: users.length, max: planInfo.maxEmployees })}</p>
+            <p className="text-sm font-medium text-orange-800">{t('freeLimitTitle', { count: activeCount, max: planInfo.maxEmployees })}</p>
             <p className="text-xs text-orange-600 mt-0.5">{t('freeLimitDesc')}</p>
           </div>
           <Link href="/pricing" className="shrink-0 px-3 py-1.5 bg-orange-600 text-white text-xs font-medium rounded-lg hover:opacity-90">
@@ -255,10 +270,10 @@ export default function UsersPage() {
         </div>
       )}
 
-      {planInfo && planInfo.plan !== 'FREE' && planInfo.maxEmployees !== -1 && users.length > planInfo.maxEmployees && (
+      {planInfo && planInfo.plan !== 'FREE' && planInfo.maxEmployees !== -1 && activeCount > planInfo.maxEmployees && (
         <div className="mb-4 p-4 rounded-xl border border-[#7c3aed]/20 bg-[#7c3aed]/5">
           <p className="text-sm text-[#7c3aed]">
-            {t('seatsBillingPre', { count: users.length - planInfo.maxEmployees, max: planInfo.maxEmployees })}
+            {t('seatsBillingPre', { count: activeCount - planInfo.maxEmployees, max: planInfo.maxEmployees })}
             {t('seatsBillingDetail')}<Link href="/admin/dashboard/settings" className="underline font-medium">{t('settingsLink')}</Link>.
           </p>
         </div>
@@ -306,7 +321,7 @@ export default function UsersPage() {
               </thead>
               <tbody className="divide-y divide-[var(--pp-line)]">
                 {sorted.map(user => (
-                  <tr key={user.id}>
+                  <tr key={user.id} className={user.active ? '' : 'opacity-60'}>
                     {editingId === user.id ? (
                       <>
                         <td className="py-3 pr-4">
@@ -352,7 +367,14 @@ export default function UsersPage() {
                       </>
                     ) : (
                       <>
-                        <td className="py-3 pr-4 text-[var(--pp-ink)] font-medium">{user.name}</td>
+                        <td className="py-3 pr-4 text-[var(--pp-ink)] font-medium">
+                          {user.name}
+                          {!user.active && (
+                            <span className="ml-2 px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--pp-line)] text-[var(--pp-muted)] whitespace-nowrap">
+                              {t('inactive')}
+                            </span>
+                          )}
+                        </td>
                         <td className="py-3 pr-4 text-[var(--pp-muted)]">{user.email}</td>
                         <td className="py-3 pr-4">
                           <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
@@ -382,6 +404,9 @@ export default function UsersPage() {
                             </Link>
                             <Button size="sm" variant="outline" onClick={() => startEdit(user)}>{t('edit')}</Button>
                             <Button size="sm" variant="outline" onClick={() => setPinUser(user)} title={t('pinTitle')}>{t('pin')}</Button>
+                            <Button size="sm" variant="outline" onClick={() => setActive(user, !user.active)}>
+                              {user.active ? t('deactivate') : t('reactivate')}
+                            </Button>
                             <button onClick={() => anonymizeUser(user.id, user.name)} className="text-xs text-[var(--pp-muted)] hover:underline px-2" title={t('anonymize')}>
                               {t('anonymize')}
                             </button>

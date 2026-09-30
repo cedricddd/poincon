@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { logAudit } from '@/lib/audit'
 import { dispatchWebhookSafe } from '@/lib/webhook'
 import { closeClockRecord, brusselsDayRange } from '@/lib/clock'
+import { isUserActive } from '@/lib/user-status'
 import { NextRequest, NextResponse } from 'next/server'
 
 // SECURITY: Validate timestamp is within reasonable range
@@ -28,6 +29,10 @@ export async function POST(req: NextRequest) {
     const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (!await isUserActive(session.user.id)) {
+      return NextResponse.json({ error: 'Account deactivated' }, { status: 403 })
     }
 
     const { arrivalTime, location, siteId } = await req.json()
@@ -117,6 +122,10 @@ export async function PATCH(req: NextRequest) {
     const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (!await isUserActive(session.user.id)) {
+      return NextResponse.json({ error: 'Account deactivated' }, { status: 403 })
     }
 
     const { recordId, departureTime } = await req.json()

@@ -27,6 +27,8 @@ export const authConfig: NextAuthConfig = {
         try {
           const user = await prisma.user.findUnique({ where: { email } })
           if (!user || !user.password) return null
+          // Deactivated or soft-deleted accounts keep their history but can no longer sign in
+          if (!user.active || user.deletedAt) return null
 
           const isValid = await bcrypt.compare(password, user.password)
           if (!isValid) return null
