@@ -5,7 +5,7 @@ import { Callout, KeyTakeaway } from '../_components'
 export const meta: BlogMeta = {
   title: 'Pointeuse biométrique en Belgique : est-ce légal ?',
   description:
-    "Empreinte digitale, reconnaissance faciale : ce que dit le RGPD, l'amende de 45 000 € infligée en 2024, et que faire si vous avez déjà une pointeuse biométrique.",
+    "Empreinte digitale, reconnaissance faciale : ce que dit le RGPD, l'amende de 45 000 € infligée en 2024, et que faire si vous avez déjà une pointeuse biométrique.",
   publishedAt: '2026-10-02',
   updatedAt: '2026-10-02',
   keywords: [
@@ -50,7 +50,7 @@ export default function Body() {
             dans une relation de travail.
           </li>
           <li>
-            Le <strong>6 septembre 2024</strong>, un employeur belge a reçu une <strong>amende de 45 000 €</strong>{' '}
+            Le <strong>6 septembre 2024</strong>, un employeur belge a reçu une <strong>amende de 45 000 €</strong>{' '}
             pour un pointage par empreinte.
           </li>
           <li>
@@ -104,7 +104,7 @@ export default function Body() {
         </li>
       </ul>
 
-      <h2>La décision de l&apos;APD du 6 septembre 2024 : 45 000 € d&apos;amende</h2>
+      <h2>La décision de l&apos;APD du 6 septembre 2024 : 45 000 € d&apos;amende</h2>
       <p>
         La Chambre contentieuse de l&apos;APD a sanctionné un employeur qui faisait pointer son personnel par
         empreinte digitale. Les manquements retenus :
@@ -263,7 +263,7 @@ export default function Body() {
             rel="nofollow noopener"
             target="_blank"
           >
-            « 45 000 euros d&apos;amende pour l&apos;enregistrement du temps par empreintes digitales »
+            « 45 000 euros d&apos;amende pour l&apos;enregistrement du temps par empreintes digitales »
           </a>
         </li>
       </ul>

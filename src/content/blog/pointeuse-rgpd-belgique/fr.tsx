@@ -18,7 +18,7 @@ export const meta: BlogMeta = {
   faq: [
     {
       q: 'Une pointeuse par empreinte digitale est-elle légale en Belgique ?',
-      a: "En pratique, non, pour enregistrer le temps de travail. L'empreinte est une donnée sensible et l'Autorité de protection des données considère que le consentement d'un travailleur n'est pas « libre » dans une relation de travail. En 2024, un employeur a été sanctionné de 45 000 € pour un pointage par empreinte.",
+      a: "En pratique, non, pour enregistrer le temps de travail. L'empreinte est une donnée sensible et l'Autorité de protection des données considère que le consentement d'un travailleur n'est pas « libre » dans une relation de travail. En 2024, un employeur a été sanctionné de 45 000 € pour un pointage par empreinte.",
     },
     {
       q: 'Peut-on utiliser le GPS au moment du pointage ?',
@@ -46,7 +46,7 @@ export default function Body() {
           </li>
           <li>
             <strong>Empreinte digitale, reconnaissance faciale</strong> : à éviter. L&apos;Autorité de protection
-            des données les juge disproportionnées pour un simple pointage (amende de 45 000 € en 2024).
+            des données les juge disproportionnées pour un simple pointage (amende de 45 000 € en 2024).
           </li>
           <li>
             <strong>GPS au moment du pointage</strong> : possible, mais strictement encadré. Pas de suivi continu
@@ -82,7 +82,7 @@ export default function Body() {
       </p>
       <p>
         Dans une décision du <strong>6 septembre 2024</strong>, l&apos;Autorité de protection des données a
-        infligé une <strong>amende de 45 000 €</strong> à un employeur qui utilisait l&apos;empreinte comme
+        infligé une <strong>amende de 45 000 €</strong> à un employeur qui utilisait l&apos;empreinte comme
         unique méthode de pointage. Les motifs :
       </p>
       <ul>
@@ -197,7 +197,7 @@ export default function Body() {
             rel="nofollow noopener"
             target="_blank"
           >
-            « 45 000 euros d&apos;amende pour l&apos;enregistrement du temps par empreintes digitales »
+            « 45 000 euros d&apos;amende pour l&apos;enregistrement du temps par empreintes digitales »
           </a>
         </li>
         <li>
