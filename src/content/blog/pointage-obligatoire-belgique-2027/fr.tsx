@@ -3,9 +3,9 @@ import { Link } from '@/i18n/navigation'
 import { Callout, KeyTakeaway } from '../_components'
 
 export const meta: BlogMeta = {
-  title: 'Pointage obligatoire en Belgique (2027) : ce que dit la loi',
+  title: 'Pointeuse obligatoire en 2027 : ce que dit la loi belge',
   description:
-    "Pointeuse obligatoire au 1ᵉʳ janvier 2027 ? Dates, PME concernées, exceptions et amendes : le point à jour (sept. 2026) et comment s'y préparer.",
+    "Toutes les entreprises devront-elles pointer au 1ᵉʳ janvier 2027 ? Qui est concerné, exceptions, amendes : le point (sept. 2026) et comment s'y préparer.",
   publishedAt: '2026-09-07',
   updatedAt: '2026-09-07',
   keywords: [

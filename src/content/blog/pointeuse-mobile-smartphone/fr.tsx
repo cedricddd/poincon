@@ -3,9 +3,9 @@ import { Link } from '@/i18n/navigation'
 import { Callout, KeyTakeaway } from '../_components'
 
 export const meta: BlogMeta = {
-  title: 'Pointeuse mobile : pointer sur smartphone, sans GPS',
+  title: 'Pointeuse mobile : smartphone, QR code ou tablette ?',
   description:
-    "Chantier, nettoyage, aide à domicile, commerciaux : comment faire pointer une équipe mobile sur smartphone en Belgique, sans GPS ni biométrie, et rester conforme.",
+    "Chantier, nettoyage, aide à domicile : comment faire pointer une équipe mobile en Belgique ? Les 3 méthodes comparées, pourquoi éviter le GPS, les pièges.",
   publishedAt: '2026-09-24',
   updatedAt: '2026-09-24',
   keywords: [

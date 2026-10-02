@@ -3,9 +3,9 @@ import { Link } from '@/i18n/navigation'
 import { Callout, KeyTakeaway } from '../_components'
 
 export const meta: BlogMeta = {
-  title: 'Mobiele prikklok: tijdregistratie op smartphone, zonder gps',
+  title: 'Mobiele prikklok: smartphone, QR-code of tablet?',
   description:
-    'Bouw, schoonmaak, thuiszorg, vertegenwoordigers: hoe laat u een mobiel team prikken op de smartphone in België, zonder gps of biometrie, en blijft u in orde?',
+    'Bouw, schoonmaak, thuiszorg: hoe laat u een mobiel team prikken in België? De 3 methodes vergeleken, waarom zonder gps, en de valkuilen.',
   publishedAt: '2026-09-24',
   updatedAt: '2026-09-24',
   keywords: [
