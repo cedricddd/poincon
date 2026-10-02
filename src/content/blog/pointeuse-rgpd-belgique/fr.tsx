@@ -3,16 +3,16 @@ import { Link } from '@/i18n/navigation'
 import { Callout, KeyTakeaway } from '../_components'
 
 export const meta: BlogMeta = {
-  title: 'Pointeuse et RGPD en Belgique : GPS, biométrie et vie privée',
+  title: 'Pointeuse et RGPD en Belgique : GPS et vie privée',
   description:
-    "Badge, application, logiciel : ces méthodes de pointage ne posent aucun problème RGPD. L'empreinte digitale, elle, est quasi interdite pour enregistrer le temps de travail. Ce que dit l'Autorité de protection des données.",
+    "Badge, application, GPS : quelles méthodes de pointage sont conformes au RGPD ? Vos obligations (information, registre, conservation 5 ans) selon l'APD.",
   publishedAt: '2026-09-07',
-  updatedAt: '2026-09-07',
+  updatedAt: '2026-10-02',
   keywords: [
     'pointeuse rgpd belgique',
     'badgeuse conforme rgpd',
     'pointeuse sans gps',
-    'pointeuse biométrique rgpd',
+    'pointage gps rgpd',
     'enregistrement temps de travail vie privée',
   ],
   faq: [
@@ -103,14 +103,10 @@ export default function Body() {
         gestion des horaires.
       </p>
 
-      <h2>Et si on veut quand même de la biométrie ?</h2>
       <p>
-        Il faudrait une <strong>base légale nationale</strong> prévoyant explicitement que ce traitement
-        biométrique est proportionné et légitime — elle n&apos;existe pas pour la gestion du temps de travail.
-        À défaut, il faut au minimum : proposer une <strong>alternative équivalente</strong> au travailleur qui
-        refuse, et stocker le gabarit biométrique <strong>sur le support du travailleur</strong> (son badge),
-        pas dans une base centrale contrôlée par l&apos;employeur. Autant dire que, pour du pointage, ça n&apos;en
-        vaut pas la peine.
+        Conditions minimales, cas de la reconnaissance faciale, marche à suivre si vous avez déjà un appareil
+        à empreinte : voir{' '}
+        <Link href="/blog/pointeuse-biometrique-belgique">Pointeuse biométrique en Belgique : est-ce légal ?</Link>
       </p>
 
       <h2>Géolocalisation GPS au moment du pointage</h2>
@@ -156,6 +152,9 @@ export default function Body() {
 
       <h2>Pour aller plus loin</h2>
       <ul>
+        <li>
+          <Link href="/blog/pointeuse-biometrique-belgique">Pointeuse biométrique en Belgique : est-ce légal ?</Link>
+        </li>
         <li>
           <Link href="/blog/pointeuse-mobile-smartphone">Pointeuse mobile : pointer sur smartphone, sans GPS</Link>
         </li>

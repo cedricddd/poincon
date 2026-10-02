@@ -35,6 +35,12 @@ export const BLOG_REGISTRY: BlogRegistryEntry[] = [
     },
   },
   {
+    slug: 'pointeuse-biometrique-belgique',
+    locales: {
+      fr: () => import('./pointeuse-biometrique-belgique/fr'),
+    },
+  },
+  {
     slug: 'pointeuse-rgpd-belgique',
     locales: {
       fr: () => import('./pointeuse-rgpd-belgique/fr'),
