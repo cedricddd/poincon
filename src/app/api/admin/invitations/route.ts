@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireAdminWithCompany } from '@/lib/admin-security'
 import { prisma } from '@/lib/prisma'
 import { sendInvitationEmail } from '@/lib/mail'
-import { logAudit } from '@/lib/audit'
+import { logAudit, requestMeta } from '@/lib/audit'
 import { getCompanyPlan, getActiveMemberCount, PLAN_LIMITS } from '@/lib/plan'
 
 export async function GET() {
@@ -78,6 +78,7 @@ export async function POST(req: NextRequest) {
     resource: 'UserInvitation',
     resourceId: invitation.id,
     changes: { email: invitation.email, role: invitation.role },
+    ...requestMeta(req),
   })
 
   return NextResponse.json({ ok: true, id: invitation.id })
@@ -130,6 +131,7 @@ export async function PATCH(req: NextRequest) {
     resource: 'UserInvitation',
     resourceId: invitation.id,
     changes: { email: invitation.email, role: invitation.role, resent: true },
+    ...requestMeta(req),
   })
 
   return NextResponse.json({ ok: true, id: invitation.id })

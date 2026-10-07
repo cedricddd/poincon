@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { sendWelcomeEmail, sendNewCompanyNotification } from '@/lib/mail'
 import { rateLimit } from '@/lib/rateLimit'
 import { isDisposableEmail } from '@/lib/disposable-email'
+import { logAudit, requestMeta } from '@/lib/audit'
 
 export async function POST(req: NextRequest) {
   try {
@@ -100,6 +101,15 @@ export async function POST(req: NextRequest) {
       })
 
       return { user, company }
+    })
+
+    await logAudit({
+      userId: user.id,
+      action: 'company_register',
+      resource: 'Company',
+      resourceId: company.id,
+      changes: { companyName, email },
+      ...requestMeta(req),
     })
 
     // Fire-and-forget — don't block the response on email delivery

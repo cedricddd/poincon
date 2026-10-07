@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { syncSeatQuantitySafe } from '@/lib/billing'
 import { dispatchWebhookSafe } from '@/lib/webhook'
 import bcrypt from 'bcryptjs'
+import { logAudit, requestMeta } from '@/lib/audit'
 
 export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get('token')
@@ -60,6 +61,15 @@ export async function POST(req: NextRequest) {
     })
 
     return user
+  })
+
+  await logAudit({
+    userId: createdUser.id,
+    action: 'invitation_accepted',
+    resource: 'User',
+    resourceId: createdUser.id,
+    changes: { email: createdUser.email, companyId: invitation.companyId },
+    ...requestMeta(req),
   })
 
   // New active member → reconcile billed seats with Stripe (non-blocking)
