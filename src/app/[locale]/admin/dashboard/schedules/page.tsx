@@ -102,7 +102,7 @@ function AssignmentsTab({ allSchedules }: { allSchedules: WorkSchedule[] }) {
   const fetchRows = useCallback(() => {
     setLoading(true)
     Promise.all([
-      fetch('/api/admin/schedule').then(r => r.json()),
+      fetch('/api/admin/schedule').then(r => r.ok ? r.json() : { schedules: [] }),
       fetch('/api/admin/teams').then(r => r.ok ? r.json() : { teams: [] }),
     ])
       .then(([schedData, teamsData]) => {
@@ -116,6 +116,7 @@ function AssignmentsTab({ allSchedules }: { allSchedules: WorkSchedule[] }) {
         }
         setRotationMap(map)
       })
+      .catch(() => setRows([]))
       .finally(() => setLoading(false))
   }, [])
 
@@ -134,7 +135,7 @@ function AssignmentsTab({ allSchedules }: { allSchedules: WorkSchedule[] }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, scheduleId }),
     })
-    if (!res.ok) setError((await res.json()).error ?? t('errorGeneric'))
+    if (!res.ok) setError((await res.json().catch(() => ({}))).error ?? t('errorGeneric'))
     setSaving(null)
     setPending(p => { const n = { ...p }; delete n[userId]; return n })
     fetchRows()
@@ -360,7 +361,7 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
       body: JSON.stringify(payload),
     })
     if (!res.ok) {
-      setError((await res.json()).error ?? t('errorServer'))
+      setError((await res.json().catch(() => ({}))).error ?? t('errorServer'))
       setSaving(false)
       return
     }
@@ -374,7 +375,7 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
   const del = async (id: string) => {
     if (!confirm(t('confirmDelete'))) return
     const res = await fetch(`/api/admin/work-schedules?id=${id}`, { method: 'DELETE' })
-    if (!res.ok) { alert((await res.json()).error); return }
+    if (!res.ok) { alert((await res.json().catch(() => ({}))).error ?? t('errorServer')); return }
     onRefresh()
   }
 
@@ -674,8 +675,9 @@ export default function SchedulesPage() {
 
   const fetchTemplates = useCallback(() => {
     fetch('/api/admin/work-schedules')
-      .then(r => r.json())
+      .then(r => r.ok ? r.json() : { schedules: [] })
       .then(d => setTemplates(d.schedules ?? []))
+      .catch(() => setTemplates([]))
   }, [])
 
   useEffect(() => { fetchTemplates() }, [fetchTemplates])
