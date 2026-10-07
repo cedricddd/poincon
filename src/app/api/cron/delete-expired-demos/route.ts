@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { deleteDemoCompany } from '@/lib/demo-seed'
 import { logAudit } from '@/lib/audit'
 
-export async function POST(req: NextRequest) {
+async function run(req: NextRequest) {
   const secret = req.headers.get('x-cron-secret')
   if (secret !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -32,3 +32,8 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ deleted: deleted.length })
 }
+
+// GET et POST acceptés : le crontab busybox appelle les endpoints avec un wget simple (GET).
+// Protégé par le header x-cron-secret.
+export const GET = run
+export const POST = run
