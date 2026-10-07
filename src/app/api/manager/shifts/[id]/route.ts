@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { getUserPlan, planCanAccess } from '@/lib/plan'
+import { isSiteAllowedForUser } from '@/lib/admin-security'
 import { NextRequest, NextResponse } from 'next/server'
 
 async function requireManagerMemberIds(sessionUserId: string): Promise<string[]> {
@@ -38,6 +39,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!shift) return NextResponse.json({ error: 'Shift introuvable' }, { status: 404 })
 
   const { siteId, date, startTime, endTime, shiftType, note } = await req.json()
+  if (!await isSiteAllowedForUser(siteId, shift.userId)) {
+    return NextResponse.json({ error: 'Site introuvable' }, { status: 400 })
+  }
 
   const updated = await prisma.shift.update({
     where: { id },

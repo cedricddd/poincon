@@ -27,6 +27,17 @@ export async function canAccessUser(adminCompanyId: string, userId: string) {
   return user?.companyId === adminCompanyId
 }
 
+// A shift's site must belong to the same company as the shift's employee
+// (siteId comes from the request body: reject sites of another tenant).
+export async function isSiteAllowedForUser(siteId: string | null | undefined, userId: string) {
+  if (!siteId) return true
+  const [site, user] = await Promise.all([
+    prisma.site.findUnique({ where: { id: siteId }, select: { companyId: true } }),
+    prisma.user.findUnique({ where: { id: userId }, select: { companyId: true } }),
+  ])
+  return !!site && !!user?.companyId && site.companyId === user.companyId
+}
+
 export async function forbiddenError() {
   return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 }

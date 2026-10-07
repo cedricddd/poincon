@@ -1,4 +1,4 @@
-import { requireAdminWithCompany, forbiddenError } from '@/lib/admin-security'
+import { requireAdminWithCompany, forbiddenError, isSiteAllowedForUser } from '@/lib/admin-security'
 import { prisma } from '@/lib/prisma'
 import { getCompanyPlan, planCanAccess } from '@/lib/plan'
 import { dispatchWebhookSafe } from '@/lib/webhook'
@@ -24,6 +24,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!shift) return NextResponse.json({ error: 'Shift introuvable' }, { status: 404 })
 
   const { siteId, date, startTime, endTime, shiftType, note } = await req.json()
+  if (!await isSiteAllowedForUser(siteId, shift.userId)) {
+    return NextResponse.json({ error: 'Site introuvable' }, { status: 400 })
+  }
 
   const updated = await prisma.shift.update({
     where: { id },

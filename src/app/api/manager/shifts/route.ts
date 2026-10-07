@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { getUserPlan, planCanAccess } from '@/lib/plan'
+import { isSiteAllowedForUser } from '@/lib/admin-security'
 import { NextRequest, NextResponse } from 'next/server'
 
 function utcDateKey(d: Date): string {
@@ -158,6 +159,9 @@ export async function POST(req: NextRequest) {
   const memberIds = await requireManagerScope(session.user.id)
   if (!memberIds.includes(userId)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+  if (!await isSiteAllowedForUser(siteId, userId)) {
+    return NextResponse.json({ error: 'Site introuvable' }, { status: 400 })
   }
 
   const shift = await prisma.shift.create({

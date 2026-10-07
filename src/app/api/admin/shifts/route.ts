@@ -1,4 +1,4 @@
-import { requireAdminWithCompany, canAccessUser, forbiddenError } from '@/lib/admin-security'
+import { requireAdminWithCompany, canAccessUser, forbiddenError, isSiteAllowedForUser } from '@/lib/admin-security'
 import { prisma } from '@/lib/prisma'
 import { getCompanyPlan, planCanAccess } from '@/lib/plan'
 import { dispatchWebhookSafe } from '@/lib/webhook'
@@ -144,6 +144,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Champs requis: userId, date, startTime, endTime' }, { status: 400 })
   }
   if (!await canAccessUser(auth.admin.companyId, userId)) return forbiddenError()
+  if (!await isSiteAllowedForUser(siteId, userId)) {
+    return NextResponse.json({ error: 'Site introuvable' }, { status: 400 })
+  }
 
   const shift = await prisma.shift.create({
     data: {
