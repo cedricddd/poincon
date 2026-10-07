@@ -68,6 +68,7 @@
       "loginLink": "Aanmelden",
       "header": "Maak uw account aan — gratis, geen bankkaart nodig",
       "signupError": "Fout bij de registratie",
+      "disposableEmail": "Wegwerp-e-mailadressen worden niet aanvaard. Gebruik uw zakelijke e-mailadres.",
       "signupRetryError": "Fout bij de registratie. Probeer opnieuw.",
       "success": "Registratie geslaagd! Aanmelden...",
       "firstName": "Voornaam *",

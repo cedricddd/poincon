@@ -38,7 +38,7 @@ export default function SignupPage() {
       const data = await res.json()
 
       if (!res.ok) {
-        setError(data.error || t('signupError'))
+        setError(data.code === 'disposable_email' ? t('disposableEmail') : (data.error || t('signupError')))
         setLoading(false)
         return
       }

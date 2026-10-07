@@ -68,6 +68,7 @@
       "loginLink": "Se connecter",
       "header": "Créez votre compte — c’est gratuit, sans carte bancaire",
       "signupError": "Erreur lors de l’inscription",
+      "disposableEmail": "Les adresses email jetables ne sont pas acceptées. Utilisez votre adresse professionnelle.",
       "signupRetryError": "Erreur lors de l’inscription. Veuillez réessayer.",
       "success": "Inscription réussie ! Connexion en cours...",
       "firstName": "Prénom *",

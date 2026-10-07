@@ -4,6 +4,7 @@ import * as Sentry from '@sentry/nextjs'
 import { prisma } from '@/lib/prisma'
 import { sendWelcomeEmail, sendNewCompanyNotification } from '@/lib/mail'
 import { rateLimit } from '@/lib/rateLimit'
+import { isDisposableEmail } from '@/lib/disposable-email'
 
 export async function POST(req: NextRequest) {
   try {
@@ -29,6 +30,13 @@ export async function POST(req: NextRequest) {
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: 'Format email invalide' }, { status: 400 })
+    }
+
+    if (isDisposableEmail(email)) {
+      return NextResponse.json(
+        { error: 'Les adresses email jetables ne sont pas acceptées', code: 'disposable_email' },
+        { status: 400 }
+      )
     }
 
     if (password.length < 8) {

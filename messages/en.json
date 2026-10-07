@@ -68,6 +68,7 @@
       "loginLink": "Sign in",
       "header": "Create your account — free, no credit card",
       "signupError": "Error during registration",
+      "disposableEmail": "Disposable email addresses are not accepted. Please use your work email.",
       "signupRetryError": "Error during registration. Please try again.",
       "success": "Registration successful! Signing in...",
       "firstName": "First name *",

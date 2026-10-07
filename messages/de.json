@@ -68,6 +68,7 @@
       "loginLink": "Anmelden",
       "header": "Erstellen Sie Ihr Konto — kostenlos, ohne Kreditkarte",
       "signupError": "Fehler bei der Registrierung",
+      "disposableEmail": "Wegwerf-E-Mail-Adressen werden nicht akzeptiert. Bitte verwenden Sie Ihre geschäftliche E-Mail-Adresse.",
       "signupRetryError": "Fehler bei der Registrierung. Bitte erneut versuchen.",
       "success": "Registrierung erfolgreich! Anmeldung läuft...",
       "firstName": "Vorname *",
