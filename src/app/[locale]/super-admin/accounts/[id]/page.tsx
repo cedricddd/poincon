@@ -165,7 +165,10 @@ export default function AccountDetail() {
     if (res.ok) {
       alert('Compte supprimé')
       router.push('/super-admin/accounts')
+      return
     }
+    const data = await res.json().catch(() => ({}))
+    alert(`Suppression impossible (${res.status}) : ${data.error ?? 'erreur inconnue'}`)
   }
 
   if (loading) return <p className="p-6 text-[var(--pp-muted)]">Chargement...</p>
