@@ -47,7 +47,8 @@ export async function POST(req: NextRequest) {
       const token = createHash('sha256').update(userId).digest('hex').slice(0, 16)
       const { count } = await prisma.auditLog.updateMany({
         where: { id: { in: ids } },
-        data: { userId: null, anonymizedToken: token, anonymized: true },
+        // IP + user-agent sont des données personnelles : on les efface aussi à l'anonymisation (RGPD)
+        data: { userId: null, anonymizedToken: token, anonymized: true, ipAddress: null, userAgent: null },
       })
       companyTotal += count
     }
@@ -55,12 +56,28 @@ export async function POST(req: NextRequest) {
     perCompany.push({ companyId: company.id, anonymized: companyTotal })
   }
 
+  // Logs orphelins : userId mis à null par la suppression d'un compte (onDelete: SetNull).
+  // Le cron par company ne les voit pas, mais ils peuvent encore contenir une IP (donnée
+  // personnelle). On les purge au-delà de la rétention par défaut.
+  const orphanCutoff = new Date()
+  orphanCutoff.setFullYear(orphanCutoff.getFullYear() - DEFAULT_RETENTION_YEARS)
+  const { count: orphansCleared } = await prisma.auditLog.updateMany({
+    where: {
+      userId: null,
+      anonymized: false,
+      createdAt: { lt: orphanCutoff },
+      OR: [{ ipAddress: { not: null } }, { userAgent: { not: null } }],
+    },
+    data: { ipAddress: null, userAgent: null, anonymized: true },
+  })
+  total += orphansCleared
+
   if (total > 0) {
     await prisma.auditLog.create({
       data: {
         action: 'cron_anonymize',
         resource: 'AuditLog',
-        changes: JSON.stringify({ logsAnonymized: total, perCompany }),
+        changes: JSON.stringify({ logsAnonymized: total, perCompany, orphansCleared }),
       },
     })
   }

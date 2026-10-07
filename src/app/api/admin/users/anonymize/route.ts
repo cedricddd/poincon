@@ -19,7 +19,8 @@ export async function POST(req: NextRequest) {
 
   const { count } = await prisma.auditLog.updateMany({
     where: { userId, anonymized: false },
-    data: { userId: null, anonymizedToken: token, anonymized: true },
+    // IP + user-agent sont des données personnelles : on les efface aussi (RGPD)
+    data: { userId: null, anonymizedToken: token, anonymized: true, ipAddress: null, userAgent: null },
   })
 
   await prisma.auditLog.create({
