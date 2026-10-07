@@ -10,7 +10,7 @@ const DEFAULT_RETENTION_YEARS = 5
 // la politique de confidentialité (minimisation des données).
 const IP_RETENTION_YEARS = 1
 
-export async function POST(req: NextRequest) {
+async function run(req: NextRequest) {
   const secret = req.headers.get('x-cron-secret')
   if (secret !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -87,3 +87,8 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ anonymized: total, ipCleared, perCompany })
 }
+
+// GET and POST both accepted: the busybox cron and the monthly maintenance runbook
+// call cron endpoints with a plain wget (GET). Guarded by the x-cron-secret header.
+export const GET = run
+export const POST = run
