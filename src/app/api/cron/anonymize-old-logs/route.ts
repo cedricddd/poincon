@@ -5,12 +5,27 @@ import { createHash } from 'crypto'
 // Conservation 5 ans par défaut (durée légale belge des données de temps de travail). Configurable par company (1-10
 // ans) via l'addon addon_rgpd_export — voir Company.auditLogRetentionYears.
 const DEFAULT_RETENTION_YEARS = 5
+// L'IP et le User-Agent (données de sécurité) ont une utilité courte : on les purge
+// après 1 an, bien avant l'anonymisation complète de l'événement à 5 ans. Cohérent avec
+// la politique de confidentialité (minimisation des données).
+const IP_RETENTION_YEARS = 1
 
 export async function POST(req: NextRequest) {
   const secret = req.headers.get('x-cron-secret')
   if (secret !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+
+  // Passe 1 — purge IP/User-Agent de tout log de plus d'1 an (sécurité, métier, orphelins).
+  const ipCutoff = new Date()
+  ipCutoff.setFullYear(ipCutoff.getFullYear() - IP_RETENTION_YEARS)
+  const { count: ipCleared } = await prisma.auditLog.updateMany({
+    where: {
+      createdAt: { lt: ipCutoff },
+      OR: [{ ipAddress: { not: null } }, { userAgent: { not: null } }],
+    },
+    data: { ipAddress: null, userAgent: null },
+  })
 
   const companies = await prisma.company.findMany({
     where: { deletedAt: null },
@@ -56,31 +71,19 @@ export async function POST(req: NextRequest) {
     perCompany.push({ companyId: company.id, anonymized: companyTotal })
   }
 
-  // Logs orphelins : userId mis à null par la suppression d'un compte (onDelete: SetNull).
-  // Le cron par company ne les voit pas, mais ils peuvent encore contenir une IP (donnée
-  // personnelle). On les purge au-delà de la rétention par défaut.
-  const orphanCutoff = new Date()
-  orphanCutoff.setFullYear(orphanCutoff.getFullYear() - DEFAULT_RETENTION_YEARS)
-  const { count: orphansCleared } = await prisma.auditLog.updateMany({
-    where: {
-      userId: null,
-      anonymized: false,
-      createdAt: { lt: orphanCutoff },
-      OR: [{ ipAddress: { not: null } }, { userAgent: { not: null } }],
-    },
-    data: { ipAddress: null, userAgent: null, anonymized: true },
-  })
-  total += orphansCleared
+  // Note : les logs orphelins (userId mis à null par la suppression d'un compte via
+  // onDelete: SetNull) ont déjà perdu leur userId ; leur IP/User-Agent est purgé par la
+  // passe 1 ci-dessus dès 1 an. Aucune passe dédiée n'est donc nécessaire.
 
-  if (total > 0) {
+  if (total > 0 || ipCleared > 0) {
     await prisma.auditLog.create({
       data: {
         action: 'cron_anonymize',
         resource: 'AuditLog',
-        changes: JSON.stringify({ logsAnonymized: total, perCompany, orphansCleared }),
+        changes: JSON.stringify({ logsAnonymized: total, perCompany, ipCleared }),
       },
     })
   }
 
-  return NextResponse.json({ anonymized: total, perCompany })
+  return NextResponse.json({ anonymized: total, ipCleared, perCompany })
 }

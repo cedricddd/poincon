@@ -140,7 +140,8 @@ export default function PrivacyPage() {
             {[
               { type: 'Données de pointage', duree: '5 ans', raison: 'Obligation légale belge (Loi sur le bien-être au travail)' },
               { type: 'Données de compte', duree: 'Durée du contrat + 1 an', raison: 'Archivage légal' },
-              { type: "Logs d'audit", duree: '1 an', raison: 'Sécurité et conformité' },
+              { type: "Logs d'audit (événements)", duree: '5 ans', raison: 'Traçabilité et conformité' },
+              { type: 'Adresse IP / User-Agent dans les logs', duree: '1 an', raison: 'Sécurité — minimisation des données' },
               { type: 'Données de facturation', duree: '7 ans', raison: 'Obligation fiscale belge' },
               { type: 'Tokens de réinitialisation', duree: '24 heures', raison: 'Sécurité — expiration automatique' },
             ].map(row => (
