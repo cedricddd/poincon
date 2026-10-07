@@ -3,6 +3,11 @@ import Credentials from 'next-auth/providers/credentials'
 import { prisma } from '@/lib/prisma'
 import { rateLimit } from '@/lib/rateLimit'
 import bcrypt from 'bcryptjs'
+import { accountStateSelect, isAccountUsable, isAccountUsableById } from '@/lib/account-access'
+
+// Sessions are JWTs: re-check the account in DB at most this often, so a deactivated
+// user or a deleted company loses access within minutes instead of at token expiry.
+const ACCOUNT_RECHECK_MS = 5 * 60 * 1000
 
 export const authConfig: NextAuthConfig = {
   providers: [
@@ -25,10 +30,12 @@ export const authConfig: NextAuthConfig = {
         if (!perAccount.allowed || !perIp.allowed) throw new Error('TooManyAttempts')
 
         try {
-          const user = await prisma.user.findUnique({ where: { email } })
+          const user = await prisma.user.findUnique({
+            where: { email },
+            include: { companyMember: { select: accountStateSelect.companyMember.select } },
+          })
           if (!user || !user.password) return null
-          // Deactivated or soft-deleted accounts keep their history but can no longer sign in
-          if (!user.active || user.deletedAt) return null
+          if (!isAccountUsable(user)) return null
 
           const isValid = await bcrypt.compare(password, user.password)
           if (!isValid) return null
@@ -80,6 +87,7 @@ export const authConfig: NextAuthConfig = {
         }
 
         token.sessionExpiry = Date.now() + sessionDurationMs
+        token.accountCheckedAt = Date.now()
         token.twoFactorEnabled = (user as { twoFactorEnabled?: boolean }).twoFactorEnabled ?? false
         const trustedUntil = (user as { twoFactorTrustedUntil?: Date | null }).twoFactorTrustedUntil
         token.twoFactorVerified = trustedUntil != null && new Date(trustedUntil) > new Date()
@@ -100,6 +108,11 @@ export const authConfig: NextAuthConfig = {
 
       if (token.sessionExpiry && Date.now() > token.sessionExpiry) {
         return null
+      }
+
+      if (token.sub && Date.now() - (token.accountCheckedAt ?? 0) > ACCOUNT_RECHECK_MS) {
+        if (!await isAccountUsableById(token.sub)) return null
+        token.accountCheckedAt = Date.now()
       }
 
       return token

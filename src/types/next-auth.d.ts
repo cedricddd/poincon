@@ -20,6 +20,7 @@ declare module 'next-auth/jwt' {
   interface JWT {
     role: string
     sessionExpiry?: number
+    accountCheckedAt?: number
     twoFactorEnabled?: boolean
     twoFactorVerified?: boolean
   }
@@ -31,6 +32,7 @@ declare module '@auth/core/jwt' {
   interface JWT {
     role: string
     sessionExpiry?: number
+    accountCheckedAt?: number
     twoFactorEnabled?: boolean
     twoFactorVerified?: boolean
   }
