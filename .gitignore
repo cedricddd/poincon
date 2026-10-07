@@ -50,3 +50,8 @@ yarn-debug.log*
 prisma/dev.db
 prisma/dev.db-journal
 *.bak
+
+# Prospect notes (client personal data, never commit)
+prospects/
+
+optimize-report.md

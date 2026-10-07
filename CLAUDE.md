@@ -59,8 +59,9 @@ ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker comp
 
 ## Crons (busybox crond Docker prod)
 
-- `0 15 * * 1-5` reminder · `0 5 * * 1` Enterprise weekly · `0 5 1 * *` Team monthly
-- `0 3 1 1 *` anonymize RGPD · `0 4 * * *` delete-expired-demos (démos prospects >15j) · Auth: `x-cron-secret` header → `/pointon-cron`
+- Crontab : `0 15 * * 1-5` reminder · exports hebdo/mensuel · rappels renew · reconcile-seats · rotate-kiosk-tokens · `0 4 * * *` delete-expired-demos (démos >15j)
+- Routes cron = **GET** (busybox wget ne fait pas de POST) · auth `x-cron-secret` → `/pointon-cron`
+- ⚠️ `anonymize-old-logs` n'est **PAS** dans le crontab → lancé à la maintenance mensuelle OVH (`/serveur-ovh-maintenance-mensuelle` étape 6b). Purge IP/UA à 1 an, anonymise à 5 ans.
 
 ## Deploy
 
