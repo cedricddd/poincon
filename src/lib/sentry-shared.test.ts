@@ -90,6 +90,31 @@ describe('beforeSendError', () => {
     expect(beforeSendError(event)).toBe(event)
   })
 
+  it('drops Outlook Safe Links scanner promise rejections', () => {
+    const event = makeEvent({
+      request: { url: 'https://pointon.be/en' },
+      exception: {
+        values: [
+          {
+            type: 'UnhandledRejection',
+            value:
+              'Non-Error promise rejection captured with value: Object Not Found Matching Id:3, MethodName:update, ParamCount:4',
+          },
+        ],
+      },
+    })
+    expect(beforeSendError(event)).toBeNull()
+  })
+
+  it('keeps other non-Error promise rejections', () => {
+    const event = makeEvent({
+      exception: {
+        values: [{ type: 'UnhandledRejection', value: 'Non-Error promise rejection captured with value: undefined' }],
+      },
+    })
+    expect(beforeSendError(event)).toBe(event)
+  })
+
   it('strips sensitive request headers', () => {
     const event = makeEvent({
       request: {

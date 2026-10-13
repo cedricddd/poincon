@@ -61,6 +61,18 @@ function isCredentialPage(event: ErrorEvent): boolean {
   )
 }
 
+// Microsoft Outlook Safe Links / Defender pre-scans every link in an e-mail with a
+// headless CefSharp browser; its .NET bridge rejects promises with a plain object,
+// e.g. "Object Not Found Matching Id:3, MethodName:update, ParamCount:4". Not a
+// real visitor and nothing in our code — pure noise from invitation/Brevo e-mails.
+const LINK_SCANNER_RE = /Object Not Found Matching Id:\d+, MethodName:\w+, ParamCount:\d+/
+
+function isLinkScannerNoise(event: ErrorEvent): boolean {
+  const values = event.exception?.values ?? []
+  const text = `${event.message ?? ''} ${values.map(v => v.value ?? '').join(' ')}`
+  return LINK_SCANNER_RE.test(text)
+}
+
 function stripSensitiveHeaders(event: ErrorEvent): void {
   if (!event.request?.headers) return
   const safe = { ...event.request.headers }
@@ -72,9 +84,11 @@ function stripSensitiveHeaders(event: ErrorEvent): void {
 
 /** Shared `beforeSend`: scrubs secrets, then drops hydration mismatches that are
  *  attributable to a visitor's browser extension or that fire on an unauthenticated
- *  credential page (password-manager tampering — not actionable on our side). */
+ *  credential page (password-manager tampering — not actionable on our side), plus
+ *  Outlook Safe Links scanner rejections. */
 export function beforeSendError(event: ErrorEvent): ErrorEvent | null {
   stripSensitiveHeaders(event)
+  if (isLinkScannerNoise(event)) return null
   if (isHydrationError(event) && (looksLikeExtensionTampering(event) || isCredentialPage(event))) {
     return null
   }
