@@ -26,6 +26,7 @@
     "@types/nodemailer": "^8.0.0",
     "bcryptjs": "^2.4.3",
     "date-fns": "^4.1.0",
+    "exceljs": "^4.4.0",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.7",
     "jsqr": "^1.4.0",

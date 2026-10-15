@@ -120,6 +120,7 @@ async function exportPDF(
 
 export default function ReportsPage() {
   const t = useTranslations('reports')
+  const tWm = useTranslations('workModes')
   const locale = useLocale()
   const bcp = BCP47[locale] ?? 'fr-BE'
   const [tab, setTab] = useState<Tab>('pointages')
@@ -149,6 +150,15 @@ export default function ReportsPage() {
   const [applied, setApplied] = useState({ userId: '', siteId: '', from: '', to: '' })
   const [empSearch, setEmpSearch] = useState('')
   const [empOpen, setEmpOpen] = useState(false)
+  // Boni/Mali Excel export is only offered when the company has work codes (feature flag work_rules)
+  const [hasWorkRules, setHasWorkRules] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/admin/work-modes')
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => setHasWorkRules(Boolean(d?.enabled && d.modes?.length)))
+      .catch(() => {})
+  }, [])
 
   const fetchRecords = useCallback((f: typeof applied, p: number) => {
     setLoadingP(true)
@@ -178,6 +188,14 @@ export default function ReportsPage() {
     if (applied.from) params.set('from', applied.from)
     if (applied.to) params.set('to', applied.to)
     window.location.href = `/api/admin/reports/export?${params}`
+  }
+
+  const exportBoniMali = () => {
+    const params = new URLSearchParams()
+    if (applied.userId) params.set('userId', applied.userId)
+    if (applied.from) params.set('from', applied.from)
+    if (applied.to) params.set('to', applied.to)
+    window.location.href = `/api/admin/reports/export-xlsx?${params}`
   }
 
   const exportPDF_ = async () => {
@@ -334,6 +352,12 @@ export default function ReportsPage() {
                 className={`${btnBase} border border-[var(--pp-line)] text-[var(--pp-ink)] hover:bg-[var(--pp-line)]/30`}>
                 {t('csvBtn')}
               </button>
+              {hasWorkRules && (
+                <button onClick={exportBoniMali} disabled={loadingP}
+                  className={`${btnBase} bg-[var(--pp-pos-btn)] text-white hover:opacity-90`}>
+                  {tWm('exportXlsx')}
+                </button>
+              )}
               {isAdvanced && (
                 <button onClick={exportPDF_} disabled={loadingP || total === 0 || exporting === 'pdf'}
                   className={`${btnBase} bg-[var(--pp-info)] text-white hover:opacity-90`}>
