@@ -32,8 +32,8 @@ describe('baseMinutesFromHours', () => {
 })
 
 describe('computeDay — Interreg timesheet rows', () => {
-  it('TT 03/09 7h40 → surplus dropped, no boni, no mali', () => {
-    const r = run('TT', day('2026-09-03', '08:30', '13:00', '13:30', '16:40'))
+  it('TT 16/09 7h40 → surplus dropped, no boni, no mali', () => {
+    const r = run('TT', day('2026-09-16', '08:30', '13:00', '13:30', '16:40'))
     expect(r.workedMinutes).toBe(460)
     expect(r.boniMinutes).toBe(0)
     expect(r.maliMinutes).toBe(0)
