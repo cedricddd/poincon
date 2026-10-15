@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Card } from '@/components/Card'
 import { Button } from '@/components/Button'
+import { WorkModesSettings } from '@/components/admin/WorkModesSettings'
 import Image from 'next/image'
 
 const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
@@ -590,6 +591,9 @@ export default function SettingsPage() {
           </label>
         </Card>
       )}
+
+      {/* Codes de prestation (feature flag work_rules) */}
+      <WorkModesSettings />
 
       {/* QR code */}
       {qrSettings?.hasAccess && (
