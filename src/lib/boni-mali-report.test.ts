@@ -91,9 +91,22 @@ describe('sheetName', () => {
     expect(sheetName('a/b [test]', used)).toBe('a b  test 2')
     expect(sheetName('x'.repeat(40), new Set()).length).toBeLessThanOrEqual(31)
   })
+
+  it('avoids names Excel rejects (reserved "History", leading/trailing quote)', () => {
+    expect(sheetName('History', new Set())).toBe('History 2')
+    expect(sheetName("'O'Neil'", new Set())).toBe("O'Neil")
+    expect(sheetName("'''", new Set())).toBe('Employé')
+  })
 })
 
 describe('buildBoniMaliWorkbook', () => {
+  it('does not throw on employee names Excel would reject as sheet names', async () => {
+    const { days, totals } = report()
+    const employees = ['History', "'Quote'", 'Synthèse'].map(name => ({ name, email: 'x@test.be', days, totals }))
+    await expect(buildBoniMaliWorkbook({ employees, from: '2026-09-14', to: '2026-09-20', codes: ['PR'] }))
+      .resolves.toBeInstanceOf(Buffer)
+  })
+
   it('writes a summary and one sheet per employee with computable values', async () => {
     const { days, totals } = report()
     const buffer = await buildBoniMaliWorkbook({

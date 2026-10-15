@@ -45,11 +45,16 @@ const fmtDateKey = (key: string) => {
   return `${d}-${m}-${y}`
 }
 
-/** Excel sheet names: max 31 chars, no []:*?/\ , unique within the workbook. */
+// "History" is reserved by Excel (ExcelJS throws on it).
+const RESERVED_SHEET_NAMES = new Set(['history'])
+
+/** Excel sheet names: max 31 chars, no []:*?/\ , no leading/trailing quote, unique within the workbook. */
 export function sheetName(raw: string, used: Set<string>): string {
-  const base = (raw.replace(/[[\]:*?/\\]/g, ' ').trim() || 'Employé').slice(0, 28)
+  const cleaned = raw.replace(/[[\]:*?/\\]/g, ' ').trim().slice(0, 28).replace(/^'+|'+$/g, '').trim()
+  const base = cleaned || 'Employé'
+  const taken = (n: string) => used.has(n.toLowerCase()) || RESERVED_SHEET_NAMES.has(n.toLowerCase())
   let name = base
-  for (let i = 2; used.has(name.toLowerCase()); i++) name = `${base.slice(0, 26)} ${i}`
+  for (let i = 2; taken(name); i++) name = `${base.slice(0, 26)} ${i}`
   used.add(name.toLowerCase())
   return name
 }
