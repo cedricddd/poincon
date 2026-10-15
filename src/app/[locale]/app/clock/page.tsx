@@ -43,6 +43,8 @@ const MODES = [
   { value: 'Déplacement', key: 'modeTravel' },
 ] as const
 
+type WorkModeOption = { id: string; code: string; label: string; isDefault: boolean }
+
 export default function ClockPage() {
   const { data: session } = useSession()
   const t = useTranslations('clock')
@@ -71,6 +73,9 @@ export default function ClockPage() {
   const [sites, setSites] = useState<Site[]>([])
   const [selectedSiteId, setSelectedSiteId] = useState<string>('')
   const [isViaQr, setIsViaQr] = useState(false)
+  // Company work codes (feature flag work_rules) — empty = legacy MODES
+  const [workModes, setWorkModes] = useState<WorkModeOption[]>([])
+  const [workModeId, setWorkModeId] = useState('')
 
   // Meal break state
   const [mealBreakEnabled, setMealBreakEnabled] = useState(false)
@@ -96,6 +101,20 @@ export default function ClockPage() {
         } else {
           setSelectedSiteId(defaultSiteId ?? '')
         }
+      })
+      .catch(() => {})
+  }, [])
+
+  // Load company work codes; when present they replace the legacy modes
+  useEffect(() => {
+    fetch('/api/user/work-modes')
+      .then(r => (r.ok ? r.json() : { modes: [] }))
+      .then(({ modes }: { modes: WorkModeOption[] }) => {
+        if (!modes?.length) return
+        const initial = modes.find(m => m.isDefault) ?? modes[0]
+        setWorkModes(modes)
+        setWorkModeId(initial.id)
+        setLocation(initial.label)
       })
       .catch(() => {})
   }, [])
@@ -237,6 +256,7 @@ export default function ClockPage() {
           arrivalTime: currentTime.toISOString(),
           location,
           ...(selectedSiteId && { siteId: selectedSiteId }),
+          ...(workModeId && { workModeId }),
         }
 
         try {
@@ -487,13 +507,28 @@ export default function ClockPage() {
               )}
               <div>
                 <label className="block text-[10px] font-semibold text-[var(--pp-muted)] mb-1.5 uppercase tracking-wider">{t('mode')}</label>
-                <select
-                  value={location}
-                  onChange={e => setLocation(e.target.value)}
-                  className="w-full px-3 py-3 border border-[var(--pp-line)] rounded-xl bg-[var(--pp-bg)] text-[var(--pp-ink)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)] touch-manipulation"
-                >
-                  {MODES.map(m => <option key={m.value} value={m.value}>{t(m.key)}</option>)}
-                </select>
+                {workModes.length > 0 ? (
+                  <select
+                    value={workModeId}
+                    onChange={e => {
+                      const m = workModes.find(x => x.id === e.target.value)
+                      if (!m) return
+                      setWorkModeId(m.id)
+                      setLocation(m.label)
+                    }}
+                    className="w-full px-3 py-3 border border-[var(--pp-line)] rounded-xl bg-[var(--pp-bg)] text-[var(--pp-ink)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)] touch-manipulation"
+                  >
+                    {workModes.map(m => <option key={m.id} value={m.id}>{m.code} · {m.label}</option>)}
+                  </select>
+                ) : (
+                  <select
+                    value={location}
+                    onChange={e => setLocation(e.target.value)}
+                    className="w-full px-3 py-3 border border-[var(--pp-line)] rounded-xl bg-[var(--pp-bg)] text-[var(--pp-ink)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-pos)] touch-manipulation"
+                  >
+                    {MODES.map(m => <option key={m.value} value={m.value}>{t(m.key)}</option>)}
+                  </select>
+                )}
               </div>
             </div>
 

@@ -4,6 +4,7 @@ import { logAudit } from '@/lib/audit'
 import { dispatchWebhookSafe } from '@/lib/webhook'
 import { closeClockRecord, brusselsDayRange } from '@/lib/clock'
 import { isUserActive } from '@/lib/user-status'
+import { resolveWorkMode } from '@/lib/work-modes'
 import { NextRequest, NextResponse } from 'next/server'
 
 // SECURITY: Validate timestamp is within reasonable range
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Account deactivated' }, { status: 403 })
     }
 
-    const { arrivalTime, location, siteId } = await req.json()
+    const { arrivalTime, location, siteId, workModeId } = await req.json()
     if (!arrivalTime) {
       return NextResponse.json({ error: 'Missing arrivalTime' }, { status: 400 })
     }
@@ -80,12 +81,21 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Work codes (feature flag): the chosen mode must belong to the user's company; its label is
+    // snapshotted into `location` so legacy consumers (CSV, webhooks, API v1) keep working.
+    const resolved = user?.companyId ? await resolveWorkMode(user.companyId, workModeId) : null
+    if (resolved && 'error' in resolved) {
+      return NextResponse.json({ error: resolved.error }, { status: 400 })
+    }
+    const workMode = resolved?.mode ?? null
+
     const record = await prisma.clockRecord.create({
       data: {
         userId: session.user.id,
         arrivalTime: validatedTime,
-        location: location || 'Sur site',
+        location: workMode?.label ?? (location || 'Sur site'),
         ...(siteId && { siteId }),
+        ...(workMode && { workModeId: workMode.id }),
       },
     })
 
@@ -105,7 +115,7 @@ export async function POST(req: NextRequest) {
       action: 'clock_in',
       resource: 'clockRecord',
       resourceId: record.id,
-      changes: { arrivalTime, location: location || 'Sur site', siteId: siteId ?? null },
+      changes: { arrivalTime, location: record.location, siteId: siteId ?? null, workModeId: record.workModeId },
       ipAddress: req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? undefined,
       userAgent: req.headers.get('user-agent') ?? undefined,
     })

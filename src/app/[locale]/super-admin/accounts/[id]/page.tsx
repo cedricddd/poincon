@@ -457,6 +457,7 @@ export default function AccountDetail() {
         <div className="space-y-2">
           {[
             { key: 'presences', label: 'Présences', desc: 'Débloque la vue des présences en temps réel (plans FREE et STARTER)' },
+            { key: 'work_rules', label: 'Codes de prestation', desc: 'Codes TT / PR / MIS au pointage, règles Boni/Mali et export Excel' },
             { key: 'early_access_api', label: 'early_access_api', desc: 'Accès anticipé à l\'API' },
             { key: 'extended_export', label: 'extended_export', desc: 'Exports étendus' },
             { key: 'custom_reports', label: 'custom_reports', desc: 'Rapports personnalisés' },

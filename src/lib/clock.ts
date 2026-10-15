@@ -164,7 +164,9 @@ export async function closeClockRecord({
     data: { departureTime, duration: finalDuration },
   })
 
-  if (finalDuration / 60 > hoursStandard) {
+  // Records carrying a work code are settled by the Boni/Mali rules (src/lib/boni-mali.ts),
+  // not by overtime approval — e.g. telework surplus must never become pending overtime.
+  if (!updated.workModeId && finalDuration / 60 > hoursStandard) {
     await prisma.detectedOvertime.create({
       data: {
         userId,
