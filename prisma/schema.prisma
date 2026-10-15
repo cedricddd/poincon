@@ -198,6 +198,7 @@ model Company {
   stripeInvoices        StripeInvoice[]
   reportTemplates       ReportTemplate[]
   workSchedules         WorkSchedule[]
+  workModes             WorkMode[]
 
   @@index([adminId])
   @@index([planId])
@@ -389,6 +390,8 @@ model ClockRecord {
 
   siteId                String?
   site                  Site?           @relation(fields: [siteId], references: [id])
+  workModeId            String?         // code de prestation choisi au pointage (feature flag work_rules)
+  workMode              WorkMode?       @relation(fields: [workModeId], references: [id], onDelete: SetNull)
   user                  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   editor                User?           @relation("EditedClockRecords", fields: [editedById], references: [id])
   breaks                BreakEntry[]
@@ -397,9 +400,34 @@ model ClockRecord {
   @@index([userId])
   @@index([date])
   @@index([siteId])
+  @@index([workModeId])
   @@index([userId, date])       // requêtes mensuelles par employé
   @@index([userId, departureTime]) // détection pointages ouverts
   @@index([editedById])
+}
+
+// Code de prestation par entreprise (TT / PR / MIS…) avec ses règles Boni/Mali.
+// Choisi par l'employé au pointage ; le calcul est fait à la lecture (src/lib/boni-mali.ts).
+model WorkMode {
+  id              String        @id @default(cuid())
+  companyId       String
+  code            String        // "TT"
+  label           String        // "Télétravail"
+  boniCapMinutes  Int?          // null = boni illimité, 0 = jamais de boni
+  dailyMaxMinutes Int?          // null = pas de plafond journalier (ex. 540 = 9 h)
+  latestClockTime String?       // "18:30" — le temps au-delà n'est pas compté
+  payrollFlag     String?       // ex. "no_social_transport" (jours mission)
+  isDefault       Boolean       @default(false)
+  sortOrder       Int           @default(0)
+  active          Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  company         Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  clockRecords    ClockRecord[]
+
+  @@unique([companyId, code])
+  @@index([companyId])
 }
 
 model BreakEntry {
