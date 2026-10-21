@@ -296,6 +296,9 @@
     "toastClockOut": "Abgang um {time} erfasst ✓",
     "toastClockOutOffline": "Abgang um {time} erfasst (⏳ Sync ausstehend)",
     "errorValidation": "Validierungsfehler",
+    "arrivalAfterLimit": "Einstempeln nach {time} mit {code} nicht möglich. Wählen Sie einen anderen Code (zum Beispiel Mission) oder wenden Sie sich an Ihren Vorgesetzten.",
+    "onSiteOnly": "Für {label} stempeln Sie Ihre Ankunft mit dem QR-Code des Standorts oder am Terminal ein.",
+    "scanQr": "QR-Code scannen",
     "errorBreakStart": "Fehler beim Starten der Pause",
     "errorBreakEnd": "Fehler beim Beenden der Pause",
     "weekdays": [
@@ -562,6 +565,10 @@
     "maxPerDay": "max {value}/Tag",
     "notAfter": "nichts nach {time}",
     "noSocialTransport": "ohne Sozialabonnement",
+    "blockArrivalOption": "Einstempeln nach der spätesten Uhrzeit verweigern (Ausstempeln bleibt immer möglich)",
+    "onSiteArrivalOption": "Ankunft vor Ort erforderlich: QR-Code des Standorts oder Terminal, nicht die Schaltfläche in der App",
+    "noArrivalAfter": "kein Einstempeln nach {time}",
+    "onSiteArrival": "Ankunft vor Ort (QR / Terminal)",
     "exportXlsx": "Excel-Export Boni/Mali"
   },
   "settings": {

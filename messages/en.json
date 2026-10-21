@@ -296,6 +296,9 @@
     "toastClockOut": "Departure recorded at {time} ✓",
     "toastClockOutOffline": "Departure recorded at {time} (⏳ pending sync)",
     "errorValidation": "Validation error",
+    "arrivalAfterLimit": "Clock-in not allowed after {time} with {code}. Choose another code (for example mission) or contact your manager.",
+    "onSiteOnly": "For {label}, clock in with the site QR code or the kiosk.",
+    "scanQr": "Scan the QR code",
     "errorBreakStart": "Error starting the break",
     "errorBreakEnd": "Error ending the break",
     "weekdays": [
@@ -562,6 +565,10 @@
     "maxPerDay": "max {value}/day",
     "notAfter": "nothing after {time}",
     "noSocialTransport": "no social transport",
+    "blockArrivalOption": "Refuse clock-ins after the latest time (clocking out is always allowed)",
+    "onSiteArrivalOption": "On-site clock-in required: site QR code or kiosk, not the app button",
+    "noArrivalAfter": "no clock-in after {time}",
+    "onSiteArrival": "on-site clock-in (QR / kiosk)",
     "exportXlsx": "Excel export Boni/Mali"
   },
   "settings": {

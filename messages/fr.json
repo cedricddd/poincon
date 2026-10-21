@@ -296,6 +296,9 @@
     "toastClockOut": "Départ enregistré à {time} ✓",
     "toastClockOutOffline": "Départ enregistré à {time} (⏳ en attente de sync)",
     "errorValidation": "Erreur de validation",
+    "arrivalAfterLimit": "Arrivée impossible après {time} en {code}. Choisissez un autre code (par exemple mission) ou contactez votre responsable.",
+    "onSiteOnly": "Pour {label}, pointez votre arrivée avec le QR code du site ou la borne.",
+    "scanQr": "Scanner le QR code",
     "errorBreakStart": "Erreur lors du démarrage de la pause",
     "errorBreakEnd": "Erreur lors de la fin de pause",
     "weekdays": [
@@ -562,6 +565,10 @@
     "maxPerDay": "max {value}/jour",
     "notAfter": "rien après {time}",
     "noSocialTransport": "sans abonnement social",
+    "blockArrivalOption": "Refuser les arrivées après l'heure limite (le départ reste toujours possible)",
+    "onSiteArrivalOption": "Arrivée sur site obligatoire : QR code du site ou borne, pas le bouton de l'appli",
+    "noArrivalAfter": "arrivée refusée après {time}",
+    "onSiteArrival": "arrivée sur site (QR / borne)",
     "exportXlsx": "Export Excel Boni/Mali"
   },
   "settings": {

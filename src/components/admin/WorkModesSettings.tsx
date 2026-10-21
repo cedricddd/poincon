@@ -13,6 +13,8 @@ type WorkMode = {
   dailyMaxMinutes: number | null
   latestClockTime: string | null
   payrollFlag: string | null
+  blockArrivalAfterLatest: boolean
+  requireOnSiteArrival: boolean
   isDefault: boolean
   sortOrder: number
   active: boolean
@@ -26,10 +28,12 @@ type Draft = {
   dailyMax: string
   latestClockTime: string
   noSocialTransport: boolean
+  blockArrivalAfterLatest: boolean
+  requireOnSiteArrival: boolean
   isDefault: boolean
 }
 
-const EMPTY_DRAFT: Draft = { code: '', label: '', boniCap: '', dailyMax: '', latestClockTime: '', noSocialTransport: false, isDefault: false }
+const EMPTY_DRAFT: Draft = { code: '', label: '', boniCap: '', dailyMax: '', latestClockTime: '', noSocialTransport: false, blockArrivalAfterLatest: false, requireOnSiteArrival: false, isDefault: false }
 
 const toHM = (minutes: number | null) =>
   minutes == null ? '' : `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, '0')}`
@@ -49,6 +53,8 @@ const toDraft = (m: WorkMode): Draft => ({
   dailyMax: toHM(m.dailyMaxMinutes),
   latestClockTime: m.latestClockTime ?? '',
   noSocialTransport: m.payrollFlag === 'no_social_transport',
+  blockArrivalAfterLatest: m.blockArrivalAfterLatest,
+  requireOnSiteArrival: m.requireOnSiteArrival,
   isDefault: m.isDefault,
 })
 
@@ -95,6 +101,8 @@ export function WorkModesSettings() {
       dailyMaxMinutes,
       latestClockTime: draft.latestClockTime || null,
       payrollFlag: draft.noSocialTransport ? 'no_social_transport' : null,
+      blockArrivalAfterLatest: !!draft.latestClockTime && draft.blockArrivalAfterLatest,
+      requireOnSiteArrival: draft.requireOnSiteArrival,
       isDefault: draft.isDefault,
       ...(editingId === 'new' && { sortOrder: modes.length }),
     }
@@ -140,6 +148,8 @@ export function WorkModesSettings() {
     parts.push(m.boniCapMinutes === 0 ? t('noBoni') : m.boniCapMinutes == null ? t('boniUnlimited') : t('boniUpTo', { value: toHM(m.boniCapMinutes) }))
     if (m.dailyMaxMinutes != null) parts.push(t('maxPerDay', { value: toHM(m.dailyMaxMinutes) }))
     if (m.latestClockTime) parts.push(t('notAfter', { time: m.latestClockTime }))
+    if (m.latestClockTime && m.blockArrivalAfterLatest) parts.push(t('noArrivalAfter', { time: m.latestClockTime }))
+    if (m.requireOnSiteArrival) parts.push(t('onSiteArrival'))
     if (m.payrollFlag === 'no_social_transport') parts.push(t('noSocialTransport'))
     return parts.join(' · ')
   }
@@ -207,6 +217,14 @@ export function WorkModesSettings() {
               <span className="block mt-1">{t('latestHelp')}</span>
             </label>
           </div>
+          <label className={`flex items-center gap-2 text-sm text-[var(--pp-ink)] ${draft.latestClockTime ? '' : 'opacity-50'}`}>
+            <input type="checkbox" disabled={!draft.latestClockTime} checked={!!draft.latestClockTime && draft.blockArrivalAfterLatest} onChange={e => setDraft({ ...draft, blockArrivalAfterLatest: e.target.checked })} />
+            {t('blockArrivalOption')}
+          </label>
+          <label className="flex items-center gap-2 text-sm text-[var(--pp-ink)]">
+            <input type="checkbox" checked={draft.requireOnSiteArrival} onChange={e => setDraft({ ...draft, requireOnSiteArrival: e.target.checked })} />
+            {t('onSiteArrivalOption')}
+          </label>
           <label className="flex items-center gap-2 text-sm text-[var(--pp-ink)]">
             <input type="checkbox" checked={draft.noSocialTransport} onChange={e => setDraft({ ...draft, noSocialTransport: e.target.checked })} />
             {t('noSocialTransportOption')}

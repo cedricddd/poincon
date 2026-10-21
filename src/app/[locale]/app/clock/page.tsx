@@ -11,6 +11,7 @@ import { BalanceWidget } from '@/components/BalanceWidget'
 import { showToast } from '@/hooks/useToast'
 import { useOfflineSync } from '@/hooks/useOfflineSync'
 import { formatHours } from '@/lib/format-hours'
+import { Link } from '@/i18n/navigation'
 
 interface ClockRecord {
   id: string
@@ -43,7 +44,7 @@ const MODES = [
   { value: 'Déplacement', key: 'modeTravel' },
 ] as const
 
-type WorkModeOption = { id: string; code: string; label: string; isDefault: boolean }
+type WorkModeOption = { id: string; code: string; label: string; isDefault: boolean; requireOnSiteArrival?: boolean; arrivalLimit?: string | null }
 
 export default function ClockPage() {
   const { data: session } = useSession()
@@ -245,6 +246,17 @@ export default function ClockPage() {
 
   const firstName = session?.user?.name?.split(' ')[0] ?? session?.user?.email?.split('@')[0] ?? ''
 
+  // A code may require the arrival through a site QR code or a kiosk: the app button is then off.
+  const selectedWorkMode = workModes.find(m => m.id === workModeId)
+  const onSiteOnly = !isClockedIn && !!selectedWorkMode?.requireOnSiteArrival
+
+  // Translated message for the server's arrival refusals, falling back to its own text.
+  const arrivalErrorMessage = (data: any): string => {
+    if (data?.code === 'ARRIVAL_AFTER_LIMIT') return t('arrivalAfterLimit', { time: data.limit, code: data.workMode?.code ?? '' })
+    if (data?.code === 'ARRIVAL_ON_SITE_ONLY') return t('onSiteOnly', { label: data.workMode?.label ?? '' })
+    return data?.error || t('errorValidation')
+  }
+
   const handleClockToggle = async () => {
     if (!currentTime || loading) return
     setLoading(true)
@@ -287,7 +299,7 @@ export default function ClockPage() {
           // 4xx = server validation error → show message, do NOT queue for offline retry
           if ((res as Response).status < 500) {
             const errorData = await (res as Response).json().catch(() => ({}))
-            showToast((errorData as any).error || t('errorValidation'), 'error')
+            showToast(arrivalErrorMessage(errorData), 'error')
             return
           }
 
@@ -536,12 +548,12 @@ export default function ClockPage() {
             <div className={isClockedIn && !isOnBreak ? 'pp-clock-active rounded-2xl' : ''}>
               <Button
                 onClick={handleClockToggle}
-                disabled={loading || isOnBreak}
+                disabled={loading || isOnBreak || onSiteOnly}
                 className="w-full h-24 md:h-32 text-2xl md:text-3xl font-bold tracking-wide rounded-2xl touch-manipulation"
                 variant="primary"
                 style={{
                   backgroundColor: isClockedIn ? 'var(--pp-neg)' : 'var(--pp-pos)',
-                  opacity: (loading || isOnBreak) ? 0.5 : 1,
+                  opacity: (loading || isOnBreak || onSiteOnly) ? 0.5 : 1,
                   letterSpacing: '0.1em',
                   fontSize: 'clamp(1.25rem, 5vw, 1.875rem)',
                 }}
@@ -549,6 +561,13 @@ export default function ClockPage() {
                 {loading ? '…' : isClockedIn ? t('clockOut') : t('clockIn')}
               </Button>
             </div>
+
+            {onSiteOnly && selectedWorkMode && (
+              <p className="text-sm text-center text-[var(--pp-muted)]">
+                {t('onSiteOnly', { label: selectedWorkMode.label })}{' '}
+                <Link href="/qr" className="font-semibold text-[var(--pp-pos)] underline">{t('scanQr')}</Link>
+              </p>
+            )}
 
             {/* Meal break button */}
             {isClockedIn && mealBreakEnabled && (

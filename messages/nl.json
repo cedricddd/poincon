@@ -296,6 +296,9 @@
     "toastClockOut": "Vertrek geregistreerd om {time} ✓",
     "toastClockOutOffline": "Vertrek geregistreerd om {time} (⏳ wacht op sync)",
     "errorValidation": "Validatiefout",
+    "arrivalAfterLimit": "Aankomst niet mogelijk na {time} met {code}. Kies een andere code (bijvoorbeeld missie) of neem contact op met uw leidinggevende.",
+    "onSiteOnly": "Voor {label} registreert u uw aankomst met de QR-code van de site of de terminal.",
+    "scanQr": "QR-code scannen",
     "errorBreakStart": "Fout bij het starten van de pauze",
     "errorBreakEnd": "Fout bij het beëindigen van de pauze",
     "weekdays": [
@@ -562,6 +565,10 @@
     "maxPerDay": "max {value}/dag",
     "notAfter": "niets na {time}",
     "noSocialTransport": "zonder sociaal abonnement",
+    "blockArrivalOption": "Aankomsten na de uiterste tijd weigeren (vertrek blijft altijd mogelijk)",
+    "onSiteArrivalOption": "Aankomst ter plaatse verplicht: QR-code van de site of terminal, niet de knop in de app",
+    "noArrivalAfter": "aankomst geweigerd na {time}",
+    "onSiteArrival": "aankomst ter plaatse (QR / terminal)",
     "exportXlsx": "Excel-export Boni/Mali"
   },
   "settings": {
