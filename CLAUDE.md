@@ -66,7 +66,7 @@ ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && docker comp
 ## Deploy
 
 - **Prod** : pointon.be · OVH KS-5-A · LXC 106 (141.94.102.226)
-- **SSH** : `ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && git pull origin main && docker compose up -d --build app'"`
+- **SSH** : `ssh root@141.94.102.226 "pct exec 106 -- bash -c 'cd /opt/pointon && git pull origin main && docker compose up -d --build app && docker compose up -d cron'"`
 - **CI/CD** : GitHub Actions auto-deploy → `/pointon-cicd`
 
 ## i18n (next-intl FR/NL/EN/DE)

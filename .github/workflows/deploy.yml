@@ -38,7 +38,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           command_timeout: 25m
           script: |
-            pct exec 106 -- bash -c 'cd /opt/pointon && git pull origin main && docker compose up -d --build app'
+            pct exec 106 -- bash -c 'cd /opt/pointon && git pull origin main && docker compose up -d --build app && docker compose up -d cron'
 
       # Non-destructive by design: no --accept-data-loss. If the push would
       # drop data, this step fails and the migration must be applied manually.
