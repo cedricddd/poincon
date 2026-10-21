@@ -60,7 +60,7 @@ const EMPLOYEES: { name: string; email: string; rows: Row[] }[] = [
 ]
 
 const MODES = [
-  { code: 'PR', label: 'Bureau', boniCapMinutes: null, dailyMaxMinutes: 540, latestClockTime: '18:30', payrollFlag: null, isDefault: true, sortOrder: 0 },
+  { code: 'PR', label: 'Bureau', boniCapMinutes: null, dailyMaxMinutes: 540, latestClockTime: '18:30', payrollFlag: null, blockArrivalAfterLatest: true, isDefault: true, sortOrder: 0 },
   { code: 'TT', label: 'Télétravail', boniCapMinutes: 0, dailyMaxMinutes: null, latestClockTime: null, payrollFlag: null, isDefault: false, sortOrder: 1 },
   { code: 'MIS', label: 'Missions externes', boniCapMinutes: null, dailyMaxMinutes: null, latestClockTime: null, payrollFlag: 'no_social_transport', isDefault: false, sortOrder: 2 },
 ]
