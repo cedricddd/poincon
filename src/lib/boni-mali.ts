@@ -4,7 +4,8 @@ import { brusselsDateKey, parseShiftTime } from '@/lib/clock'
 // A day's worked time is compared to the employee's contractual base (UserSchedule.hoursPerDay):
 //   delta = counted − base ; boni = clamp(delta, 0, boniCap) ; mali = min(delta, 0)
 // "counted" applies the work mode's rules (latest clock time, daily max) to the raw worked time.
-// Time beyond a rule is ignored in the calculation and flagged, never blocked at clock time.
+// Time beyond a rule is ignored in the calculation and flagged. A mode may additionally refuse
+// the clock-in itself (see ArrivalRules) — departures are never refused.
 
 export type WorkModeRules = {
   code: string
@@ -13,6 +14,13 @@ export type WorkModeRules = {
   dailyMaxMinutes: number | null  // null = no daily cap
   latestClockTime: string | null  // "HH:MM" Brussels — time worked after it is not counted
   payrollFlag: string | null
+}
+
+/** Clock-in restrictions of a work mode, checked when an arrival is recorded. */
+export type ArrivalRules = {
+  latestClockTime: string | null
+  blockArrivalAfterLatest: boolean // refuse an arrival at or after latestClockTime
+  requireOnSiteArrival: boolean    // arrival only through a site QR code or a kiosk
 }
 
 export type Interval = { start: Date; end: Date }
@@ -146,9 +154,26 @@ export function fmtSignedMinutes(minutes: number): string {
   return `${sign}${Math.floor(abs / 60)}:${String(abs % 60).padStart(2, '0')}`
 }
 
+/**
+ * Arrival check: which restriction (if any) refuses a clock-in at `at` under `mode`.
+ * `onSite` is true for site QR codes and kiosks, false for the app button.
+ */
+export function arrivalRefusal(
+  mode: ArrivalRules | null,
+  at: Date,
+  onSite: boolean,
+): 'after_latest' | 'on_site_only' | null {
+  if (!mode) return null
+  if (mode.requireOnSiteArrival && !onSite) return 'on_site_only'
+  if (mode.blockArrivalAfterLatest && mode.latestClockTime && at >= parseShiftTime(mode.latestClockTime, at)) {
+    return 'after_latest'
+  }
+  return null
+}
+
 /** Default codes offered by the "prefill" button — matches the Interreg FWVL rules. */
-export const DEFAULT_WORK_MODES: (WorkModeRules & { isDefault: boolean; sortOrder: number })[] = [
-  { code: 'PR', label: 'Bureau', boniCapMinutes: null, dailyMaxMinutes: 540, latestClockTime: '18:30', payrollFlag: null, isDefault: true, sortOrder: 0 },
-  { code: 'TT', label: 'Télétravail', boniCapMinutes: 0, dailyMaxMinutes: null, latestClockTime: null, payrollFlag: null, isDefault: false, sortOrder: 1 },
-  { code: 'MIS', label: 'Missions externes', boniCapMinutes: null, dailyMaxMinutes: null, latestClockTime: null, payrollFlag: 'no_social_transport', isDefault: false, sortOrder: 2 },
+export const DEFAULT_WORK_MODES: (WorkModeRules & Omit<ArrivalRules, 'latestClockTime'> & { isDefault: boolean; sortOrder: number })[] = [
+  { code: 'PR', label: 'Bureau', boniCapMinutes: null, dailyMaxMinutes: 540, latestClockTime: '18:30', payrollFlag: null, blockArrivalAfterLatest: true, requireOnSiteArrival: false, isDefault: true, sortOrder: 0 },
+  { code: 'TT', label: 'Télétravail', boniCapMinutes: 0, dailyMaxMinutes: null, latestClockTime: null, payrollFlag: null, blockArrivalAfterLatest: false, requireOnSiteArrival: false, isDefault: false, sortOrder: 1 },
+  { code: 'MIS', label: 'Missions externes', boniCapMinutes: null, dailyMaxMinutes: null, latestClockTime: null, payrollFlag: 'no_social_transport', blockArrivalAfterLatest: false, requireOnSiteArrival: false, isDefault: false, sortOrder: 2 },
 ]

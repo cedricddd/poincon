@@ -417,6 +417,8 @@ model WorkMode {
   dailyMaxMinutes Int?          // null = pas de plafond journalier (ex. 540 = 9 h)
   latestClockTime String?       // "18:30" — le temps au-delà n'est pas compté
   payrollFlag     String?       // ex. "no_social_transport" (jours mission)
+  blockArrivalAfterLatest Boolean @default(false) // refuse un pointage d'arrivée après latestClockTime (le départ reste permis)
+  requireOnSiteArrival    Boolean @default(false) // arrivée uniquement par QR du site ou borne, pas par le bouton de l'appli
   isDefault       Boolean       @default(false)
   sortOrder       Int           @default(0)
   active          Boolean       @default(true)

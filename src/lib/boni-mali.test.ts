@@ -6,6 +6,7 @@ import {
   groupByBrusselsDay,
   fmtSignedMinutes,
   baseMinutesFromHours,
+  arrivalRefusal,
   DEFAULT_WORK_MODES,
 } from './boni-mali'
 
@@ -178,5 +179,48 @@ describe('fmtSignedMinutes', () => {
     expect(fmtSignedMinutes(189)).toBe('3:09')
     expect(fmtSignedMinutes(-41)).toBe('-0:41')
     expect(fmtSignedMinutes(0)).toBe('0:00')
+  })
+})
+
+describe('arrivalRefusal', () => {
+  const PR = mode('PR')
+  const MIS = mode('MIS')
+
+  it('PR before 18:30 is accepted, from the app and on site', () => {
+    expect(arrivalRefusal(PR, at('2026-10-21', '18:29'), false)).toBeNull()
+    expect(arrivalRefusal(PR, at('2026-10-21', '18:29'), true)).toBeNull()
+  })
+
+  it('PR at or after 18:30 is refused, wherever it comes from', () => {
+    expect(arrivalRefusal(PR, at('2026-10-21', '18:30'), false)).toBe('after_latest')
+    expect(arrivalRefusal(PR, at('2026-10-21', '21:00'), true)).toBe('after_latest')
+  })
+
+  it('uses Brussels winter time after the DST change', () => {
+    const winter = (hhmm: string) => new Date(`2026-11-04T${hhmm}:00+01:00`)
+    expect(arrivalRefusal(PR, winter('18:29'), false)).toBeNull()
+    expect(arrivalRefusal(PR, winter('18:30'), false)).toBe('after_latest')
+  })
+
+  it('MIS has no limit', () => {
+    expect(arrivalRefusal(MIS, at('2026-10-21', '22:00'), false)).toBeNull()
+  })
+
+  it('a latest clock time alone never refuses (calculation rule only)', () => {
+    expect(arrivalRefusal({ ...PR, blockArrivalAfterLatest: false }, at('2026-10-21', '20:00'), false)).toBeNull()
+  })
+
+  it('blocking without a latest clock time refuses nothing', () => {
+    expect(arrivalRefusal({ ...PR, latestClockTime: null }, at('2026-10-21', '20:00'), false)).toBeNull()
+  })
+
+  it('on-site-only refuses the app button but accepts QR / kiosk', () => {
+    const onSitePR = { ...PR, requireOnSiteArrival: true }
+    expect(arrivalRefusal(onSitePR, at('2026-10-21', '09:00'), false)).toBe('on_site_only')
+    expect(arrivalRefusal(onSitePR, at('2026-10-21', '09:00'), true)).toBeNull()
+  })
+
+  it('no mode (feature off) never refuses', () => {
+    expect(arrivalRefusal(null, at('2026-10-21', '23:00'), false)).toBeNull()
   })
 })

@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { arrivalRefusal, type ArrivalRules } from '@/lib/boni-mali'
 
 // Work codes (TT / PR / MIS…) are gated by the `work_rules` feature flag, toggled by the super-admin.
 export const WORK_RULES_FLAG = 'work_rules'
@@ -38,6 +39,28 @@ export async function resolveWorkMode(companyId: string, workModeId?: string | n
   return { mode: modes.find(m => m.isDefault) ?? modes[0] }
 }
 
+type ArrivalMode = ArrivalRules & { code: string; label: string }
+
+/**
+ * Clock-in gate shared by the app, site QR and kiosk routes: null when the arrival is allowed,
+ * otherwise the 422 payload to return. `code` lets each client show a translated message.
+ */
+export function checkArrivalAllowed(mode: ArrivalMode | null, at: Date, onSite: boolean) {
+  const refusal = arrivalRefusal(mode, at, onSite)
+  if (!refusal || !mode) return null
+  const workMode = { code: mode.code, label: mode.label }
+  if (refusal === 'on_site_only') {
+    return {
+      status: 422,
+      body: { error: `Arrivée en ${mode.label} : pointez avec le QR code du site ou la borne.`, code: 'ARRIVAL_ON_SITE_ONLY', workMode },
+    }
+  }
+  return {
+    status: 422,
+    body: { error: `Arrivée impossible après ${mode.latestClockTime} en ${mode.code}.`, code: 'ARRIVAL_AFTER_LIMIT', limit: mode.latestClockTime, workMode },
+  }
+}
+
 const HHMM_RE = /^([01]\d|2[0-3]):[0-5]\d$/
 
 /** Validates an admin-submitted work mode payload. Returns the clean data or an error message. */
@@ -48,6 +71,8 @@ export function parseWorkModeInput(body: any): { data: {
   dailyMaxMinutes: number | null
   latestClockTime: string | null
   payrollFlag: string | null
+  blockArrivalAfterLatest: boolean
+  requireOnSiteArrival: boolean
   isDefault: boolean
   sortOrder: number
   active: boolean
@@ -83,6 +108,9 @@ export function parseWorkModeInput(body: any): { data: {
       dailyMaxMinutes,
       latestClockTime,
       payrollFlag,
+      // Refusing late arrivals only makes sense with a latest clock time to compare against.
+      blockArrivalAfterLatest: latestClockTime !== null && body.blockArrivalAfterLatest === true,
+      requireOnSiteArrival: body.requireOnSiteArrival === true,
       isDefault: body.isDefault === true,
       sortOrder: Number.isInteger(body.sortOrder) ? body.sortOrder : 0,
       active: body.active !== false,
