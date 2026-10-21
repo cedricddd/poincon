@@ -93,7 +93,7 @@ export async function POST(
         action: 'kiosk_clock_in',
         resource: 'clockRecord',
         resourceId: record.id,
-        changes: { via: 'kiosk', token },
+        changes: { via: 'kiosk', token, workModeId: record.workModeId },
         ipAddress: ip,
       })
 

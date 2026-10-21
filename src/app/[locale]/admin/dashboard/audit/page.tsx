@@ -30,6 +30,7 @@ interface AuditResponse {
   page: number
   limit: number
   totalPages: number
+  labels?: { sites: Record<string, string>; workModes: Record<string, string> }
 }
 
 const actionBadgeColor: Record<string, string> = {
@@ -117,6 +118,7 @@ export default function AuditPage() {
   const [filterUserId, setFilterUserId] = useState('')
   const [fromDate, setFromDate] = useState('')
   const [toDate, setToDate] = useState('')
+  const [labels, setLabels] = useState<{ sites: Record<string, string>; workModes: Record<string, string> }>({ sites: {}, workModes: {} })
 
   useEffect(() => {
     fetchLogs()
@@ -135,6 +137,7 @@ export default function AuditPage() {
       if (res.ok) {
         const data: AuditResponse = await res.json()
         setLogs(data.logs)
+        if (data.labels) setLabels(data.labels)
         setTotal(data.total)
         setTotalPages(data.totalPages)
       }
@@ -181,15 +184,9 @@ export default function AuditPage() {
     return val
   }
 
-  const formatChanges = (raw: string): string => {
-    try {
-      return JSON.stringify(JSON.parse(raw), null, 2)
-    } catch {
-      return raw
-    }
-  }
-
-  const summarizeChangesForPdf = (raw: string): string => {
+  // Readable summary of a log's changes, shared by the table and the PDF. `full` = table cell:
+  // unknown shapes fall back to the whole JSON instead of a 100-character excerpt.
+  const summarizeChanges = (raw: string, full = false): string => {
     if (!raw) return '—'
     try {
       const c = JSON.parse(raw)
@@ -229,6 +226,9 @@ export default function AuditPage() {
         if (c.departureTime) parts.push(`${t('lblDeparture')}: ${fmtTimeVal(c.departureTime)}`)
         if (c.location)      parts.push(`${t('lblLocation')}: ${c.location}`)
       }
+      if (c.workModeId) parts.push(`${t('lblWorkMode')}: ${labels.workModes[c.workModeId] ?? '—'}`)
+      if (c.siteId) parts.push(`${t('lblSite')}: ${labels.sites[c.siteId] ?? '—'}`)
+      if (c.email) parts.push(`${t('lblEmail')}: ${c.email}`)
 
       // Kiosk / QR clocking — never print the terminal token (it is a clocking credential)
       if (c.via === 'kiosk' || c.via === 'qr') parts.push(`${t('lblVia')}: ${c.via === 'kiosk' ? t('viaKiosk') : t('viaQr')}`)
@@ -248,7 +248,7 @@ export default function AuditPage() {
 
       if (parts.length > 0) return parts.join('\n')
       const { token: _token, ...rest } = c
-      return JSON.stringify(rest).slice(0, 100)
+      return full ? JSON.stringify(rest, null, 2) : JSON.stringify(rest).slice(0, 100)
     } catch {
       return raw.slice(0, 100)
     }
@@ -296,7 +296,7 @@ export default function AuditPage() {
       autoTable(doc, {
         startY: 28,
         head: [[t('pdfColDate'), t('pdfColUser'), t('pdfColAction'), t('pdfColResource'), t('pdfColStatus'), t('pdfColChanges')]],
-        body: rows.map(r => [r[0], r[1], r[3], r[4], r[6], summarizeChangesForPdf(r[8])]),
+        body: rows.map(r => [r[0], r[1], r[3], r[4], r[6], summarizeChanges(r[8])]),
         styles: { fontSize: 7.5, cellPadding: 3 },
         headStyles: { fillColor: [30, 64, 175] },
         alternateRowStyles: { fillColor: [245, 247, 250] },
@@ -462,8 +462,8 @@ export default function AuditPage() {
                   </td>
                   <td className="px-4 py-3 text-xs">
                     {log.changes ? (
-                      <pre className="bg-gray-100 dark:bg-gray-900 dark:text-gray-300 p-2 rounded overflow-auto max-w-xs max-h-24">
-                        {formatChanges(log.changes)}
+                      <pre className="bg-gray-100 dark:bg-gray-900 dark:text-gray-300 p-2 rounded overflow-auto max-w-xs max-h-24 whitespace-pre-wrap font-sans">
+                        {summarizeChanges(log.changes, true)}
                       </pre>
                     ) : (
                       <span className="text-gray-400">—</span>

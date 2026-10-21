@@ -141,7 +141,7 @@ export async function POST(
         action: 'kiosk_clock_in',
         resource: 'clockRecord',
         resourceId: record.id,
-        changes: { via: 'qr', token },
+        changes: { via: 'qr', token, workModeId: record.workModeId },
         ipAddress: ip,
       })
       return NextResponse.json({

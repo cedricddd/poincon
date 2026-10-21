@@ -44,7 +44,8 @@ export async function GET(req: NextRequest) {
     if (to) where.createdAt.lt = brusselsDayOffset(brusselsMidnightFromDateString(to), 1)
   }
 
-  const [logs, total] = await Promise.all([
+  // Readable names for the ids stored in `changes` (site, work code) — this company's only.
+  const [logs, total, sites, workModes] = await Promise.all([
     prisma.auditLog.findMany({
       where,
       include: {
@@ -55,6 +56,8 @@ export async function GET(req: NextRequest) {
       take: limit,
     }),
     prisma.auditLog.count({ where }),
+    prisma.site.findMany({ where: { companyId: admin.companyId }, select: { id: true, name: true } }),
+    prisma.workMode.findMany({ where: { companyId: admin.companyId }, select: { id: true, code: true, label: true } }),
   ])
 
   return NextResponse.json({
@@ -63,5 +66,9 @@ export async function GET(req: NextRequest) {
     page,
     limit,
     totalPages: Math.ceil(total / limit),
+    labels: {
+      sites: Object.fromEntries(sites.map(s => [s.id, s.name])),
+      workModes: Object.fromEntries(workModes.map(m => [m.id, `${m.code} · ${m.label}`])),
+    },
   })
 }
