@@ -6,6 +6,7 @@ import { closeClockRecord, brusselsDayRange } from '@/lib/clock'
 import { NextRequest, NextResponse } from 'next/server'
 import { findUsersByPin, PIN_REGEX } from '@/lib/kiosk-pin'
 import { resolveQrAccess, QR_ACCESS_ERRORS } from '@/lib/qr-access'
+import { resolveWorkMode, checkArrivalAllowed } from '@/lib/work-modes'
 
 export async function GET(
   _req: NextRequest,
@@ -119,12 +120,19 @@ export async function POST(
     })
 
     if (!openRecord) {
+      // With work codes on, a site QR applies the company's default code and its arrival rules.
+      const resolved = await resolveWorkMode(site.company.id)
+      const workMode = (resolved && 'mode' in resolved ? resolved.mode : null) ?? null
+      const refused = checkArrivalAllowed(workMode, now, true)
+      if (refused) return NextResponse.json(refused.body, { status: refused.status })
+
       const record = await prisma.clockRecord.create({
         data: {
           userId: matchedUser.id,
           arrivalTime: now,
           location: 'QR Code',
           siteId: site.id,
+          ...(workMode && { workModeId: workMode.id }),
         },
       })
       await prisma.company.update({ where: { id: site.company.id }, data: { lastActivityAt: now } })

@@ -4,7 +4,7 @@ import { logAudit } from '@/lib/audit'
 import { dispatchWebhookSafe } from '@/lib/webhook'
 import { closeClockRecord, brusselsDayRange } from '@/lib/clock'
 import { isUserActive } from '@/lib/user-status'
-import { resolveWorkMode } from '@/lib/work-modes'
+import { resolveWorkMode, checkArrivalAllowed } from '@/lib/work-modes'
 import { NextRequest, NextResponse } from 'next/server'
 
 // SECURITY: Validate timestamp is within reasonable range
@@ -88,6 +88,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: resolved.error }, { status: 400 })
     }
     const workMode = resolved?.mode ?? null
+
+    // The app button is off-site by nature: a code may require a site QR / kiosk, or close at its latest time.
+    const refused = checkArrivalAllowed(workMode, validatedTime, false)
+    if (refused) {
+      return NextResponse.json(refused.body, { status: refused.status })
+    }
 
     const record = await prisma.clockRecord.create({
       data: {

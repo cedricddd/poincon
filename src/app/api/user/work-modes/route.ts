@@ -18,6 +18,10 @@ export async function GET() {
   const modes = user?.companyId ? await getActiveWorkModes(user.companyId) : []
 
   return NextResponse.json({
-    modes: modes.map(m => ({ id: m.id, code: m.code, label: m.label, isDefault: m.isDefault })),
+    modes: modes.map(m => ({
+      id: m.id, code: m.code, label: m.label, isDefault: m.isDefault,
+      requireOnSiteArrival: m.requireOnSiteArrival,
+      arrivalLimit: m.blockArrivalAfterLatest ? m.latestClockTime : null,
+    })),
   })
 }

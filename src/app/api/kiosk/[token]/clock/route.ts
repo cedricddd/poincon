@@ -5,6 +5,7 @@ import { logAudit } from '@/lib/audit'
 import { closeClockRecord, brusselsDayRange } from '@/lib/clock'
 import { NextRequest, NextResponse } from 'next/server'
 import { findUsersByPin, PIN_REGEX } from '@/lib/kiosk-pin'
+import { resolveWorkMode, checkArrivalAllowed } from '@/lib/work-modes'
 
 export async function POST(
   req: NextRequest,
@@ -66,13 +67,19 @@ export async function POST(
     })
 
     if (!openRecord) {
-      // Clock in
+      // Clock in — with work codes on, the kiosk applies the company's default code and its arrival rules.
+      const resolved = await resolveWorkMode(kioskToken.companyId)
+      const workMode = (resolved && 'mode' in resolved ? resolved.mode : null) ?? null
+      const refused = checkArrivalAllowed(workMode, now, true)
+      if (refused) return NextResponse.json(refused.body, { status: refused.status })
+
       const record = await prisma.clockRecord.create({
         data: {
           userId: matchedUser.id,
           arrivalTime: now,
           location: 'Kiosque',
           ...(kioskToken.siteId ? { siteId: kioskToken.siteId } : {}),
+          ...(workMode && { workModeId: workMode.id }),
         },
       })
 
