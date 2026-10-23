@@ -18,7 +18,7 @@ services:
       retries: 10
 
   app:
-    image: node:20-alpine
+    image: node:22-alpine
     container_name: pointon-app-dev
     working_dir: /app
     volumes:
@@ -50,7 +50,7 @@ services:
         condition: service_healthy
 
   migrate:
-    image: node:20-alpine
+    image: node:22-alpine
     working_dir: /app
     volumes:
       - ./prisma:/app/prisma
