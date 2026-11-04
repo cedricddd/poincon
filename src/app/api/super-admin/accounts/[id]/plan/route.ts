@@ -15,9 +15,14 @@ export async function PATCH(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const { planName, reason, enterprisePaidStatus, enterprisePlanStartedAt, planExpiresAt } = await req.json()
+    const { planName, reason, enterprisePaidStatus, enterprisePlanStartedAt, planExpiresAt, enterpriseAnnualCents } = await req.json()
     if (!planName) {
       return NextResponse.json({ error: 'Missing planName' }, { status: 400 })
+    }
+    // null clears the amount; otherwise whole cents, max 100 000 € a year
+    if (enterpriseAnnualCents !== undefined && enterpriseAnnualCents !== null
+      && (!Number.isInteger(enterpriseAnnualCents) || enterpriseAnnualCents < 0 || enterpriseAnnualCents > 10_000_000)) {
+      return NextResponse.json({ error: 'Invalid enterpriseAnnualCents' }, { status: 400 })
     }
 
     const company = await prisma.company.findUnique({
@@ -45,6 +50,7 @@ export async function PATCH(
       if (enterprisePaidStatus) enterpriseData.enterprisePaidStatus = enterprisePaidStatus
       if (enterprisePlanStartedAt) enterpriseData.enterprisePlanStartedAt = new Date(enterprisePlanStartedAt)
       if (planExpiresAt) enterpriseData.planExpiresAt = new Date(planExpiresAt)
+      if (enterpriseAnnualCents !== undefined) enterpriseData.enterpriseAnnualCents = enterpriseAnnualCents
       // Auto-set start date if not provided and plan is changing to Enterprise
       if (!enterprisePlanStartedAt && company.plan?.name !== 'ENTERPRISE') {
         enterpriseData.enterprisePlanStartedAt = new Date()

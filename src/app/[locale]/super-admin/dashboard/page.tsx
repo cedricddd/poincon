@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { Card } from '@/components/Card'
 import { prisma } from '@/lib/prisma'
-import { STRIPE_PRICES } from '@/lib/stripe'
+import { computeRevenue, revenueCompanyQuery, toRevenueCompany } from '@/lib/revenue'
 
 export default async function SuperAdminDashboard() {
   const now = new Date()
@@ -31,7 +31,7 @@ export default async function SuperAdminDashboard() {
     totalUsers,
     activeUsers7d,
     activeUsers30d,
-    paidCompanies,
+    revenueCompanies,
   ] = await Promise.all([
     prisma.company.count({ where: baseWhere }),
     prisma.company.count({ where: { ...baseWhere, lastActivityAt: { gte: ninetyDaysAgo } } }),
@@ -41,10 +41,7 @@ export default async function SuperAdminDashboard() {
     prisma.user.count({ where: userWhere }),
     prisma.user.count({ where: { ...userWhere, clockRecords: { some: { arrivalTime: { gte: sevenDaysAgo } } } } }),
     prisma.user.count({ where: { ...userWhere, clockRecords: { some: { arrivalTime: { gte: thirtyDaysAgo } } } } }),
-    prisma.company.findMany({
-      where: { ...baseWhere, stripeSubscriptionId: { not: null }, planId: { not: null } },
-      include: { plan: { select: { name: true } } },
-    }),
+    prisma.company.findMany(revenueCompanyQuery),
   ])
 
   const ghostCompanies = totalCompanies - activeCompanies
@@ -52,42 +49,7 @@ export default async function SuperAdminDashboard() {
 
   const stats = { totalCompanies, activeCompanies, ghostCompanies, newCompaniesThisMonth, companiesWithPlan, totalUsers, activeUsers7d, activeUsers30d, churningCompanies, churnRate }
 
-  let mrrMonthly = 0
-  let mrrYearly = 0
-  const monthlyCount: Record<string, number> = {}
-  const yearlyCount: Record<string, number>  = {}
-
-  for (const company of paidCompanies) {
-    const planName = company.plan?.name as string
-    const billingCycle = company.stripeSubscriptionBillingCycle
-    if (!planName || !STRIPE_PRICES[planName]) continue
-    const prices = STRIPE_PRICES[planName]
-    if (billingCycle === 'monthly') {
-      mrrMonthly += prices.monthlyBaseCents / 100
-      monthlyCount[planName] = (monthlyCount[planName] ?? 0) + 1
-    } else if (billingCycle === 'yearly') {
-      mrrYearly += prices.yearlyBaseCents / 100 / 12
-      yearlyCount[planName] = (yearlyCount[planName] ?? 0) + 1
-    }
-  }
-
-  const mrrTotal = mrrMonthly + mrrYearly
-  const arrTotal = mrrTotal * 12
-  const monthlyBillingCount = Object.values(monthlyCount).reduce((a, b) => a + b, 0)
-  const yearlyBillingCount  = Object.values(yearlyCount).reduce((a, b) => a + b, 0)
-
-  const monthlyData = Array.from({ length: 12 }, (_, i) => {
-    const date = new Date(now)
-    date.setMonth(date.getMonth() - (11 - i))
-    return {
-      month: date.toLocaleString('fr-BE', { month: 'short', year: '2-digit' }),
-      mrr: mrrTotal,
-      mrrMonthly,
-      mrrYearly,
-    }
-  })
-
-  const revenue = { mrrTotal, mrrMonthly, mrrYearly, arrTotal, monthlyBillingCount, yearlyBillingCount, monthlyData }
+  const revenue = computeRevenue(revenueCompanies.map(toRevenueCompany), now)
 
   return (
     <div className="p-6 space-y-6">
@@ -139,7 +101,7 @@ export default async function SuperAdminDashboard() {
 
         <div className="rounded-xl border border-[var(--pp-line)] bg-[var(--pp-bg)] p-5 hover:shadow-md hover:-translate-y-0.5 transition">
           <div className="text-2xl font-bold tabular-nums text-[#ec4899]">
-            {revenue.yearlyBillingCount}
+            {revenue.yearlyBillingCount + revenue.contractCount}
           </div>
           <p className="text-xs text-[var(--pp-muted)] mt-2">Plans Annuels</p>
         </div>
@@ -193,23 +155,26 @@ export default async function SuperAdminDashboard() {
 
       <Card>
         <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-6">Revenu MRR — 12 derniers mois</h2>
-        <div className="h-64 flex items-flex-end gap-1">
+        <div className="h-64 flex items-end gap-1">
           {revenue.monthlyData.map((data, idx) => {
             const maxMrr = Math.max(...revenue.monthlyData.map(d => d.mrr)) || 1
             const heightPercent = (data.mrr / maxMrr) * 100
             return (
-              <div key={idx} className="flex-1 flex flex-col items-center gap-1">
-                <div
-                  className="w-full bg-gradient-to-t from-[#10b981] to-[#6ee7b7] rounded-t transition-all hover:opacity-80"
-                  style={{ height: `${heightPercent}%`, minHeight: '4px' }}
-                  title={`${data.month}: €${data.mrr.toFixed(2)} (Mensuel: €${data.mrrMonthly.toFixed(2)}, Annuel: €${data.mrrYearly.toFixed(2)})`}
-                />
+              <div key={idx} className="flex-1 h-full flex flex-col items-center gap-1">
+                <div className="w-full flex-1 flex items-end">
+                  <div
+                    className="w-full bg-gradient-to-t from-[#10b981] to-[#6ee7b7] rounded-t transition-all hover:opacity-80"
+                    style={{ height: `${heightPercent}%`, minHeight: '4px' }}
+                    title={`${data.month}: €${data.mrr.toFixed(2)} (Mensuel: €${data.mrrMonthly.toFixed(2)}, Annuel: €${data.mrrYearly.toFixed(2)}, Contrats: €${data.mrrContracts.toFixed(2)})`}
+                  />
+                </div>
                 <span className="text-xs text-[var(--pp-muted)]">{data.month}</span>
               </div>
             )
           })}
         </div>
-        <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
+        <p className="mt-2 text-xs text-[var(--pp-muted)]">Historique basé sur les dates des contrats Enterprise hors Stripe ; les abonnements Stripe n&apos;apparaissent qu&apos;à partir du mois en cours.</p>
+        <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
           <div>
             <p className="text-[var(--pp-muted)] text-xs">MRR Plans Mensuels</p>
             <p className="text-lg font-bold text-[#6366f1]">€{revenue.mrrMonthly.toLocaleString('fr-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
@@ -219,10 +184,14 @@ export default async function SuperAdminDashboard() {
             <p className="text-lg font-bold text-[#ec4899]">€{revenue.mrrYearly.toLocaleString('fr-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
           <div>
+            <p className="text-[var(--pp-muted)] text-xs">Contrats hors Stripe (÷12)</p>
+            <p className="text-lg font-bold text-[#f59e0b]">€{revenue.mrrContracts.toLocaleString('fr-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          </div>
+          <div>
             <p className="text-[var(--pp-muted)] text-xs">Ratio Mensuel/Annuel</p>
             <p className="text-lg font-bold text-[var(--pp-info)]">
-              {revenue.mrrMonthly > 0 && revenue.mrrYearly > 0
-                ? `${((revenue.mrrMonthly / (revenue.mrrMonthly + revenue.mrrYearly)) * 100).toFixed(0)}% / ${((revenue.mrrYearly / (revenue.mrrMonthly + revenue.mrrYearly)) * 100).toFixed(0)}%`
+              {revenue.mrrMonthly > 0 && revenue.mrrYearly + revenue.mrrContracts > 0
+                ? `${((revenue.mrrMonthly / revenue.mrrTotal) * 100).toFixed(0)}% / ${(((revenue.mrrYearly + revenue.mrrContracts) / revenue.mrrTotal) * 100).toFixed(0)}%`
                 : 'N/A'}
             </p>
           </div>

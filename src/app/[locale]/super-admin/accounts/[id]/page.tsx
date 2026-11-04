@@ -28,6 +28,7 @@ interface CompanyDetail {
   planExpiresAt?: string
   enterprisePaidStatus?: string
   enterprisePlanStartedAt?: string
+  enterpriseAnnualCents?: number | null
   stripeCurrentPeriodStart?: string
   stripeCurrentPeriodEnd?: string
 }
@@ -53,6 +54,7 @@ export default function AccountDetail() {
   const [enterprisePaidStatus, setEnterprisePaidStatus] = useState('')
   const [enterprisePlanStartedAt, setEnterprisePlanStartedAt] = useState('')
   const [enterprisePlanExpiresAt, setEnterprisePlanExpiresAt] = useState('')
+  const [enterpriseAnnualEuros, setEnterpriseAnnualEuros] = useState('')
   const [savingEnterprise, setSavingEnterprise] = useState(false)
 
   useEffect(() => {
@@ -72,6 +74,8 @@ export default function AccountDetail() {
             setEnterprisePaidStatus(found.enterprisePaidStatus || 'UNPAID')
             setEnterprisePlanStartedAt(found.enterprisePlanStartedAt ? found.enterprisePlanStartedAt.split('T')[0] : '')
             setEnterprisePlanExpiresAt(found.planExpiresAt ? found.planExpiresAt.split('T')[0] : '')
+        setEnterpriseAnnualEuros(found.enterpriseAnnualCents != null ? String(found.enterpriseAnnualCents / 100) : '')
+            setEnterpriseAnnualEuros(found.enterpriseAnnualCents != null ? String(found.enterpriseAnnualCents / 100) : '')
           }
         }
         if (flagsRes.ok) {
@@ -352,7 +356,7 @@ export default function AccountDetail() {
         <Card>
           <h2 className="text-lg font-semibold text-[var(--pp-ink)] mb-1">Contrat Enterprise</h2>
           <p className="text-xs text-[var(--pp-muted)] mb-4">Géré manuellement — hors Stripe</p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-sm mb-4">
             <div>
               <label className="text-[var(--pp-muted)] block mb-1">Statut paiement</label>
               <select
@@ -383,6 +387,20 @@ export default function AccountDetail() {
                 className="w-full px-3 py-2 border border-[var(--pp-line)] rounded-lg"
               />
             </div>
+            <div>
+              <label className="text-[var(--pp-muted)] block mb-1">Montant annuel HTVA (€)</label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                inputMode="decimal"
+                placeholder="199"
+                value={enterpriseAnnualEuros}
+                onChange={(e) => setEnterpriseAnnualEuros(e.target.value)}
+                className="w-full px-3 py-2 border border-[var(--pp-line)] rounded-lg"
+              />
+              <p className="text-xs text-[var(--pp-muted)] mt-1">Compté dans le MRR/ARR si payé</p>
+            </div>
           </div>
           {enterprisePlanExpiresAt && (() => {
             const expires = new Date(enterprisePlanExpiresAt)
@@ -402,6 +420,12 @@ export default function AccountDetail() {
           <button
             disabled={savingEnterprise}
             onClick={async () => {
+              const euros = enterpriseAnnualEuros.trim().replace(',', '.')
+              const annualCents = euros === '' ? null : Math.round(Number(euros) * 100)
+              if (annualCents !== null && (!Number.isFinite(annualCents) || annualCents < 0)) {
+                setPlanError('Montant annuel invalide')
+                return
+              }
               setSavingEnterprise(true)
               const res = await fetch(`/api/super-admin/accounts/${id}/plan`, {
                 method: 'PATCH',
@@ -412,6 +436,7 @@ export default function AccountDetail() {
                   enterprisePaidStatus,
                   enterprisePlanStartedAt: enterprisePlanStartedAt || undefined,
                   planExpiresAt: enterprisePlanExpiresAt || undefined,
+                  enterpriseAnnualCents: annualCents,
                 }),
               })
               if (res.ok) {

@@ -67,6 +67,7 @@ export async function GET(req: NextRequest) {
         planExpiresAt: company.planExpiresAt,
         enterprisePaidStatus: company.enterprisePaidStatus,
         enterprisePlanStartedAt: company.enterprisePlanStartedAt,
+        enterpriseAnnualCents: company.enterpriseAnnualCents,
         stripeSubscriptionId: company.stripeSubscriptionId,
         stripeCurrentPeriodStart: company.stripeCurrentPeriodStart,
         stripeCurrentPeriodEnd: company.stripeCurrentPeriodEnd,
