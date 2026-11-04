@@ -394,7 +394,6 @@ export default function AccountDetail() {
                 min="0"
                 step="0.01"
                 inputMode="decimal"
-                placeholder="199"
                 value={enterpriseAnnualEuros}
                 onChange={(e) => setEnterpriseAnnualEuros(e.target.value)}
                 className="w-full px-3 py-2 border border-[var(--pp-line)] rounded-lg"
