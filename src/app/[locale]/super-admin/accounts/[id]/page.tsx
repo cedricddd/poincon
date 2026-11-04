@@ -74,7 +74,6 @@ export default function AccountDetail() {
             setEnterprisePaidStatus(found.enterprisePaidStatus || 'UNPAID')
             setEnterprisePlanStartedAt(found.enterprisePlanStartedAt ? found.enterprisePlanStartedAt.split('T')[0] : '')
             setEnterprisePlanExpiresAt(found.planExpiresAt ? found.planExpiresAt.split('T')[0] : '')
-        setEnterpriseAnnualEuros(found.enterpriseAnnualCents != null ? String(found.enterpriseAnnualCents / 100) : '')
             setEnterpriseAnnualEuros(found.enterpriseAnnualCents != null ? String(found.enterpriseAnnualCents / 100) : '')
           }
         }
@@ -102,6 +101,7 @@ export default function AccountDetail() {
         setEnterprisePaidStatus(found.enterprisePaidStatus || 'UNPAID')
         setEnterprisePlanStartedAt(found.enterprisePlanStartedAt ? found.enterprisePlanStartedAt.split('T')[0] : '')
         setEnterprisePlanExpiresAt(found.planExpiresAt ? found.planExpiresAt.split('T')[0] : '')
+        setEnterpriseAnnualEuros(found.enterpriseAnnualCents != null ? String(found.enterpriseAnnualCents / 100) : '')
       }
     }
   }
