@@ -27,7 +27,9 @@ export async function GET(req: NextRequest) {
   const results: { company: string; sentTo: string }[] = []
 
   for (const company of companies) {
-    const recipientEmail = company.contactEmail || company.admin.email
+    // Internal reminder for the super-admin (it asks to send the invoice): never send it to the client.
+    const recipientEmail = process.env.SUPER_ADMIN_NOTIFY_EMAIL ?? 'cedric@pointon.be'
+    const clientEmail = company.contactEmail || company.admin.email
     const expiresAt = company.planExpiresAt!.toLocaleDateString('fr-BE')
     const companyName = company.name
     const paidStatus = company.enterprisePaidStatus ?? 'UNPAID'
@@ -44,6 +46,10 @@ export async function GET(req: NextRequest) {
             <tr>
               <td style="padding:8px; background:#f4f4f8; font-weight:bold;">Société</td>
               <td style="padding:8px;">${companyName}</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; background:#f4f4f8; font-weight:bold;">Contact client</td>
+              <td style="padding:8px;">${clientEmail}</td>
             </tr>
             <tr>
               <td style="padding:8px; background:#f4f4f8; font-weight:bold;">Date d'expiration</td>
