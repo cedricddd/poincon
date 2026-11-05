@@ -95,7 +95,8 @@ export function computeShiftDuration(
   actualDeparture: Date,
   startTimeStr: string | null | undefined,
   endTimeStr: string | null | undefined,
-  hoursPerDay: number
+  hoursPerDay: number,
+  unpaidBreakMinutes = 0
 ): { duration: number; hoursWorked: number; hoursStandard: number } {
   if (!startTimeStr || !endTimeStr) {
     const duration = Math.round((actualDeparture.getTime() - actualArrival.getTime()) / 60000)
@@ -115,7 +116,8 @@ export function computeShiftDuration(
     : actualDeparture
 
   const duration = Math.round((effectiveDeparture.getTime() - effectiveArrival.getTime()) / 60000)
-  const hoursStandard = Math.round((shiftEnd.getTime() - shiftStart.getTime()) / 60000) / 60
+  const shiftMinutes = Math.round((shiftEnd.getTime() - shiftStart.getTime()) / 60000)
+  const hoursStandard = Math.max(0, shiftMinutes - unpaidBreakMinutes) / 60
 
   return { duration, hoursWorked: duration / 60, hoursStandard }
 }
@@ -139,7 +141,8 @@ export async function closeClockRecord({
     departureTime,
     userSchedule?.workSchedule?.startTime,
     userSchedule?.workSchedule?.endTime,
-    hoursPerDay
+    hoursPerDay,
+    userSchedule?.workSchedule?.unpaidBreakMinutes ?? 0
   )
 
   const openBreak = await prisma.breakEntry.findFirst({

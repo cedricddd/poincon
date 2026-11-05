@@ -5,6 +5,8 @@ import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
+import { formatHours } from '@/lib/format-hours'
+import { dayMinutes, scheduleTotals, MAX_UNPAID_BREAK_MINUTES } from '@/lib/work-schedule'
 
 const TYPE_ORDER = ['JOURNEE', '2X8', '3X8', '4X8', '5X8', '2X12', 'NUIT', 'PARTIEL', 'VARIABLE']
 const NUMERIC_LABELS: Record<string, string> = { '2X8': '2×8', '3X8': '3×8', '4X8': '4×8', '5X8': '5×8', '2X12': '2×12' }
@@ -20,6 +22,7 @@ type WorkSchedule = {
   endTime: string
   hoursPerDay: number
   weeklyHours: number
+  unpaidBreakMinutes: number
   daysOfWeek: string
   dayConfig?: string | null
   description?: string
@@ -36,12 +39,6 @@ type UserRow = {
 
 type DayType = 'off' | 'office' | 'remote' | 'half'
 type DayConfigEntry = { type: Exclude<DayType, 'off'>; startTime: string; endTime: string }
-
-function calcDayHours(startTime: string, endTime: string): number {
-  const [sh, sm] = startTime.split(':').map(Number)
-  const [eh, em] = endTime.split(':').map(Number)
-  return Math.max(0, Math.round(((eh * 60 + em) - (sh * 60 + sm)) / 60 * 2) / 2)
-}
 
 const DAY_CONFIG_STYLES: Record<Exclude<DayType, 'off'>, { bg: string; titleKey: string }> = {
   office: { bg: 'bg-[var(--pp-info)] text-white',  titleKey: 'dayOffice' },
@@ -222,7 +219,7 @@ function AssignmentsTab({ allSchedules }: { allSchedules: WorkSchedule[] }) {
                           </select>
                           {selectedSchedule && (
                             <p className="text-xs text-[var(--pp-muted)] mt-1 max-w-xs leading-relaxed">
-                              {selectedSchedule.startTime}–{selectedSchedule.endTime} · {selectedSchedule.hoursPerDay}h/j · {selectedSchedule.weeklyHours}h/sem
+                              {selectedSchedule.startTime}–{selectedSchedule.endTime} · {formatHours(selectedSchedule.hoursPerDay)}/j · {formatHours(selectedSchedule.weeklyHours)}/sem
                               {selectedSchedule.description && ` — ${selectedSchedule.description}`}
                             </p>
                           )}
@@ -232,11 +229,11 @@ function AssignmentsTab({ allSchedules }: { allSchedules: WorkSchedule[] }) {
                     <td className="py-3 pr-4 hidden lg:table-cell">
                       {rotationMap[row.userId] ? null : selectedSchedule ? (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--pp-info)]/10 text-[var(--pp-info)]">
-                          {t('overtimeThreshold', { hours: selectedSchedule.hoursPerDay })}
+                          {t('overtimeThreshold', { hours: formatHours(selectedSchedule.hoursPerDay) })}
                         </span>
                       ) : (
                         <span className="text-xs italic text-[var(--pp-muted)]">
-                          {t('defaultThreshold', { hours: row.hoursPerDay })}
+                          {t('defaultThreshold', { hours: formatHours(row.hoursPerDay) })}
                         </span>
                       )}
                     </td>
@@ -284,6 +281,7 @@ const EMPTY_FORM = {
   name: '', type: 'JOURNEE', startTime: '09:00', endTime: '17:00',
   daysOfWeek: [1, 2, 3, 4, 5],
   dayConfig: makeDefaultDayConfig([1, 2, 3, 4, 5], '09:00', '17:00'),
+  unpaidBreakMinutes: 0,
   description: '',
 }
 
@@ -296,19 +294,16 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  const weeklyHoursCalc = useMemo(() => {
-    let total = 0
-    for (const d of form.daysOfWeek) {
-      const e = form.dayConfig[d]
-      total += calcDayHours(e?.startTime ?? form.startTime, e?.endTime ?? form.endTime)
-    }
-    return Math.round(total * 2) / 2
-  }, [form.daysOfWeek, form.dayConfig, form.startTime, form.endTime])
-
-  const hoursPerDayCalc = useMemo(() => {
-    if (form.daysOfWeek.length === 0) return 0
-    return Math.round(weeklyHoursCalc / form.daysOfWeek.length * 2) / 2
-  }, [weeklyHoursCalc, form.daysOfWeek.length])
+  const totals = useMemo(
+    () => scheduleTotals({
+      startTime: form.startTime,
+      endTime: form.endTime,
+      daysOfWeek: form.daysOfWeek,
+      dayConfig: form.dayConfig,
+      unpaidBreakMinutes: form.unpaidBreakMinutes,
+    }),
+    [form.daysOfWeek, form.dayConfig, form.startTime, form.endTime, form.unpaidBreakMinutes],
+  )
 
   const getDayState = (d: number): DayType => {
     if (!form.daysOfWeek.includes(d)) return 'off'
@@ -348,8 +343,7 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
       type: form.type,
       startTime: form.startTime,
       endTime: form.endTime,
-      hoursPerDay: hoursPerDayCalc,
-      weeklyHours: weeklyHoursCalc,
+      unpaidBreakMinutes: form.unpaidBreakMinutes,
       daysOfWeek: form.daysOfWeek,
       dayConfig: Object.keys(form.dayConfig).length > 0 ? JSON.stringify(form.dayConfig) : null,
       description: form.description,
@@ -406,6 +400,7 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
       startTime: t.startTime, endTime: t.endTime,
       daysOfWeek: days,
       dayConfig: parsedDayConfig,
+      unpaidBreakMinutes: t.unpaidBreakMinutes ?? 0,
       description: t.description ?? '',
     })
     setShowForm(true)
@@ -486,6 +481,24 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
             </div>
 
             <div>
+              <label htmlFor="unpaid-break" className="block text-xs font-medium text-[var(--pp-muted)] mb-1">{t('fUnpaidBreak')}</label>
+              <input
+                id="unpaid-break"
+                type="number"
+                min={0}
+                max={MAX_UNPAID_BREAK_MINUTES}
+                step={5}
+                value={form.unpaidBreakMinutes}
+                onChange={e => {
+                  const v = Math.round(Number(e.target.value))
+                  setForm(f => ({ ...f, unpaidBreakMinutes: Number.isFinite(v) ? Math.min(MAX_UNPAID_BREAK_MINUTES, Math.max(0, v)) : 0 }))
+                }}
+                className="w-32 px-3 py-2 border border-[var(--pp-line)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--pp-info)]"
+              />
+              <p className="text-xs text-[var(--pp-muted)] mt-1">{t('fUnpaidBreakHint')}</p>
+            </div>
+
+            <div>
               <label className="block text-xs font-medium text-[var(--pp-muted)] mb-2">
                 {t('fDays')}
                 <span className="ml-2 font-normal opacity-60">{t('fDaysHint')}</span>
@@ -532,7 +545,7 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
                         const st = entry?.startTime ?? form.startTime
                         const et = entry?.endTime ?? form.endTime
                         const dtype = entry?.type ?? 'office'
-                        const hours = calcDayHours(st, et)
+                        const minutes = dayMinutes(st, et, dtype === 'half' ? 0 : form.unpaidBreakMinutes)
                         const color = dtype === 'remote' ? 'text-cyan-400' : dtype === 'half' ? 'text-orange-400' : 'text-[var(--pp-info)]'
                         return (
                           <tr key={d} className="hover:bg-[var(--pp-bg2)]/40">
@@ -557,7 +570,7 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
                                 className="w-24 px-2 py-1 border border-[var(--pp-line)] rounded text-xs bg-[var(--pp-bg)] focus:outline-none focus:ring-1 focus:ring-[var(--pp-info)]"
                               />
                             </td>
-                            <td className={`px-3 py-1.5 text-right font-bold ${color}`}>{hours}h</td>
+                            <td className={`px-3 py-1.5 text-right font-bold ${color}`}>{formatHours(minutes / 60)}</td>
                           </tr>
                         )
                       })}
@@ -566,7 +579,7 @@ function TemplatesTab({ templates, onRefresh }: { templates: WorkSchedule[], onR
                       <tr className="bg-[var(--pp-bg2)] border-t border-[var(--pp-line)]">
                         <td colSpan={2} className="px-3 py-1.5 text-[var(--pp-muted)] text-xs font-medium">{t('total')}</td>
                         <td className="px-3 py-1.5 text-right text-xs font-bold text-[var(--pp-ink)]" colSpan={2}>
-                          {t('totalSummary', { weekly: weeklyHoursCalc, perDay: hoursPerDayCalc })}
+                          {t('totalSummary', { weekly: formatHours(totals.weeklyMinutes / 60), perDay: formatHours(totals.perDayMinutes / 60) })}
                         </td>
                       </tr>
                     </tfoot>
@@ -651,7 +664,8 @@ function ScheduleGrid({ templates, onEdit, onDelete, editable }: {
                   )}
                 </div>
                 <p className="text-xs text-[var(--pp-muted)] mb-2">
-                  {tpl.startTime}–{tpl.endTime} &nbsp;·&nbsp; {tpl.hoursPerDay}h/j &nbsp;·&nbsp; {tpl.weeklyHours}h/sem
+                  {tpl.startTime}–{tpl.endTime} &nbsp;·&nbsp; {formatHours(tpl.hoursPerDay)}/j &nbsp;·&nbsp; {formatHours(tpl.weeklyHours)}/sem
+                  {tpl.unpaidBreakMinutes > 0 && <> &nbsp;·&nbsp; {t('breakShort', { minutes: tpl.unpaidBreakMinutes })}</>}
                 </p>
                 <DayBadges daysJson={tpl.daysOfWeek} dayConfigJson={tpl.dayConfig} />
                 {tpl.description && (

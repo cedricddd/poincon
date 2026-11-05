@@ -866,7 +866,7 @@ export default function UserDetailPage() {
                   {user.userSchedule.workSchedule?.name ?? t('customSchedule')}
                 </p>
                 <p className="text-xs text-[var(--pp-muted)] mt-0.5">
-                  {t('scheduleDetail', { type: user.userSchedule.workSchedule?.type ?? '—', hours: user.userSchedule.hoursPerDay })}
+                  {t('scheduleDetail', { type: user.userSchedule.workSchedule?.type ?? '—', hours: formatHours(user.userSchedule.hoursPerDay) })}
                 </p>
               </div>
             ) : (

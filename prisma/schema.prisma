@@ -513,6 +513,7 @@ model WorkSchedule {
   endTime       String         // "14:00"
   hoursPerDay   Float          @default(8)
   weeklyHours   Float          @default(38)
+  unpaidBreakMinutes Int       @default(0) // retirée de chaque jour complet (pas des demi-journées)
   daysOfWeek    String         @default("[1,2,3,4,5]") // JSON: 1=Lun … 7=Dim
   dayConfig     String?        // JSON: {"1":"remote","3":"half"} — per-day type override
   description   String?
