@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test.describe('Clock Punch (Online)', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/app/clock')
-    await page.waitForURL('/app/clock')
+    await page.waitForURL(/\/app\/clock/)
   })
 
   test('clock in button is visible', async ({ page }) => {
@@ -93,7 +93,7 @@ test.describe('Clock Punch (Online)', () => {
 
     const adminPage = await context.newPage()
     await adminPage.goto('/admin/dashboard/audit')
-    await adminPage.waitForURL('/admin/dashboard/audit')
+    await adminPage.waitForURL(/\/admin\/dashboard\/audit/)
 
     await adminPage.waitForTimeout(2000)
     const tableBody = adminPage.locator('tbody tr')

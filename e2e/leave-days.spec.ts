@@ -1,7 +1,8 @@
-import { test, expect, type Page } from '@playwright/test'
+import { test, expect } from '@playwright/test'
 import { randomBytes } from 'crypto'
 import ExcelJS from 'exceljs'
 import { db } from './db'
+import { signIn, signInAdmin, E2E_TOTP_SECRET } from './auth-helpers'
 
 // Interreg case (06/11/2026): a 4/5 employee (Monday–Thursday, 08:30–16:36, 30 min unpaid break)
 // on leave 9 → 19/11/2026 takes 7 working days, not 11 calendar days; a day clocked without
@@ -15,13 +16,6 @@ type Fixture = { companyId: string; adminEmail: string; employeeEmail: string; e
 
 let fx: Fixture
 
-async function signIn(page: Page, email: string) {
-  await page.goto('/login')
-  await page.fill('input#email', email)
-  await page.fill('input#password', PASSWORD)
-  await page.click('button[type="submit"]')
-  await page.waitForURL(url => !url.pathname.endsWith('/login'))
-}
 
 test.use({ storageState: { cookies: [], origins: [] } })
 
@@ -32,7 +26,7 @@ test.describe.serial('Leave in working days + minimum break in Boni/Mali', () =>
       const password = await bcrypt.hash(ARGS.password, 10)
       const admin = await prisma.user.create({ data: {
         email: ARGS.adminEmail, name: 'Admin leave', password, role: 'ADMIN',
-        twoFactorEnabled: true, twoFactorTrustedUntil: new Date(Date.now() + 86400000),
+        twoFactorEnabled: true, twoFactorSecret: ARGS.totpSecret,
       } })
       const employee = await prisma.user.create({ data: { email: ARGS.employeeEmail, name: 'Agent 4-5', password, role: 'EMPLOYEE' } })
       const company = await prisma.company.create({ data: { name: 'E2E leave', address: 'E2E', phone: '000', vatNumber: 'BE0000000000', adminId: admin.id, planId: plan.id, onboardingCompleted: true } })
@@ -57,6 +51,7 @@ test.describe.serial('Leave in working days + minimum break in Boni/Mali', () =>
       adminEmail: `${EMAIL_PREFIX}admin-${suffix}@example.test`,
       employeeEmail: `${EMAIL_PREFIX}emp-${suffix}@example.test`,
       password: PASSWORD,
+      totpSecret: E2E_TOTP_SECRET,
     })
   })
 
@@ -88,7 +83,7 @@ test.describe.serial('Leave in working days + minimum break in Boni/Mali', () =>
   })
 
   test('admin sees 7 days and the Boni/Mali export takes 30 min off the unclocked lunch', async ({ page }) => {
-    await signIn(page, fx.adminEmail)
+    await signInAdmin(page, fx.adminEmail)
     const detail = await (await page.request.get(`/api/admin/users/${fx.employeeId}`)).json()
     expect(detail.balance.timeOffDays).toBe(7)
     expect(detail.user.timeOffRequests[0].days).toBe(7)

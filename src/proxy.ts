@@ -2,9 +2,8 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import createMiddleware from 'next-intl/middleware'
 import { routing } from '@/i18n/routing'
+import { apiBlockedForUnverifiedAdmin } from '@/lib/two-factor-gate'
 
-const AUTH_ROUTES = ['/api/auth/signin', '/api/auth/callback', '/api/auth/signup']
-const TWO_FA_API_PATHS = ['/api/auth/2fa/']
 const TWO_FA_UI_PATHS = ['/2fa/setup', '/2fa/challenge']
 const PROTECTED_PATHS = ['/app', '/admin', '/super-admin']
 const LOCALES = routing.locales as readonly string[]
@@ -41,11 +40,13 @@ export default auth((req) => {
     return res
   }
 
-  // API routes: skip i18n routing entirely
+  // API routes: no i18n; an admin session that has not passed the 2FA code is refused
+  // (the pages redirect to /2fa, the API must not be a way around it).
   if (pathname.startsWith('/api/')) {
-    if (AUTH_ROUTES.some(r => pathname.startsWith(r))) return withHeaders()
-    if (TWO_FA_API_PATHS.some(p => pathname.startsWith(p))) return withHeaders()
-    return withHeaders()
+    if (apiBlockedForUnverifiedAdmin(pathname, req.auth?.user as { role?: string; twoFactorVerified?: boolean } | undefined)) {
+      return NextResponse.json({ error: '2FA required' }, { status: 403 })
+    }
+    return NextResponse.next()
   }
 
   // Extract locale from URL (e.g. /fr/admin → 'fr'; /admin → use default 'fr')
@@ -121,5 +122,7 @@ export const config = {
   matcher: [
     // Skip all static files (any path with a dot) and _next internals
     '/((?!api|_next|_vercel|.*\\..*).*)',
+    // API routes, for the admin 2FA check only (NextAuth's own /api/auth/* stays out)
+    '/api/((?!auth/).*)',
   ],
 }

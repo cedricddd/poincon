@@ -2,8 +2,11 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { verifyTOTP } from '@/lib/totp'
+import { clearTrustCookie } from '@/lib/two-factor-trust'
 
-// DELETE — disable 2FA (requires current TOTP code as proof)
+// DELETE — "change device": removes the current 2FA secret so a new device can be set up
+// right away. 2FA stays mandatory: the session loses its verified state and the proxy sends
+// the admin to /2fa/setup. Requires a verified session and the current code.
 export async function DELETE(req: Request) {
   const session = await auth()
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -11,6 +14,9 @@ export async function DELETE(req: Request) {
   const { role } = session.user
   if (role !== 'ADMIN' && role !== 'SUPER_ADMIN') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+  if (!session.user.twoFactorVerified) {
+    return NextResponse.json({ error: '2FA required' }, { status: 403 })
   }
 
   const body = await req.json() as { code?: string }
@@ -35,5 +41,7 @@ export async function DELETE(req: Request) {
     data: { twoFactorEnabled: false, twoFactorSecret: null },
   })
 
-  return NextResponse.json({ success: true })
+  const res = NextResponse.json({ success: true })
+  clearTrustCookie(res)
+  return res
 }

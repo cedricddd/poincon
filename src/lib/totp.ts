@@ -44,6 +44,11 @@ function currentCounter(): number {
   return Math.floor(Date.now() / 1000 / 30)
 }
 
+/** Current 6-digit code of a secret (what the authenticator app shows). */
+export function generateTOTP(secret: string): string {
+  return hotp(secret, currentCounter())
+}
+
 export function verifyTOTP(token: string, secret: string): boolean {
   const clean = token.replace(/\s/g, '')
   const t = currentCounter()

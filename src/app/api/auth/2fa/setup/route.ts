@@ -3,6 +3,14 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { generateSecret, verifyTOTP, keyUri } from '@/lib/totp'
 import QRCode from 'qrcode'
+import { setTrustCookie } from '@/lib/two-factor-trust'
+
+// Setup is only for an account without 2FA (first time, or after "change device").
+// Once 2FA is on, a password alone must never be enough to replace the secret.
+async function alreadyEnabled(userId: string) {
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { twoFactorEnabled: true } })
+  return !!user?.twoFactorEnabled
+}
 
 // GET — generate a new TOTP secret and return QR code (does not save to DB yet)
 export async function GET() {
@@ -12,6 +20,9 @@ export async function GET() {
   const { role } = session.user
   if (role !== 'ADMIN' && role !== 'SUPER_ADMIN') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+  if (await alreadyEnabled(session.user.id)) {
+    return NextResponse.json({ error: '2FA already configured' }, { status: 409 })
   }
 
   const secret = generateSecret()
@@ -34,6 +45,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
+  if (await alreadyEnabled(session.user.id)) {
+    return NextResponse.json({ error: '2FA already configured' }, { status: 409 })
+  }
+
   const body = await req.json() as { secret?: string; code?: string }
   const { secret, code } = body
 
@@ -50,5 +65,8 @@ export async function POST(req: Request) {
     data: { twoFactorSecret: secret, twoFactorEnabled: true },
   })
 
-  return NextResponse.json({ success: true })
+  // The code just proved the new device: trust it, no second code needed.
+  const res = NextResponse.json({ success: true })
+  setTrustCookie(res, session.user.id, secret)
+  return res
 }

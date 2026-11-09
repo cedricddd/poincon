@@ -3,6 +3,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { verifyTOTP } from '@/lib/totp'
 import { rateLimit } from '@/lib/rateLimit'
+import { setTrustCookie } from '@/lib/two-factor-trust'
 
 // POST — verify TOTP during login (user already has a session, twoFactorVerified is still false)
 export async function POST(req: NextRequest) {
@@ -29,10 +30,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid code' }, { status: 400 })
   }
 
-  await prisma.user.update({
-    where: { id: session.user.id },
-    data: { twoFactorTrustedUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) },
-  })
-
-  return NextResponse.json({ success: true })
+  // Trust this device (browser) for 30 days; the client then refreshes its session.
+  const res = NextResponse.json({ success: true })
+  setTrustCookie(res, session.user.id, user.twoFactorSecret)
+  return res
 }

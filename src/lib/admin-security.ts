@@ -6,6 +6,8 @@ import { isAdminRole } from '@/lib/roles'
 export async function requireAdminWithCompany() {
   const session = await auth()
   if (!session?.user?.id) return null
+  // Defence in depth: the proxy already refuses admin API calls before the 2FA code.
+  if (!session.user.twoFactorVerified) return null
 
   const admin = await prisma.user.findUnique({
     where: { id: session.user.id },

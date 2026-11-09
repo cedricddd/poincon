@@ -4,6 +4,9 @@ import { prisma } from '@/lib/prisma'
 import { rateLimit } from '@/lib/rateLimit'
 import bcrypt from 'bcryptjs'
 import { accountStateSelect, isAccountUsable, isAccountUsableById } from '@/lib/account-access'
+import { isTrustTokenValid, trustTokenFromCookieHeader, TRUST_COOKIE } from '@/lib/two-factor-trust'
+import { isAdminRole } from '@/lib/roles'
+import { cookies } from 'next/headers'
 
 // Sessions are JWTs: re-check the account in DB at most this often, so a deactivated
 // user or a deleted company loses access within minutes instead of at token expiry.
@@ -47,7 +50,10 @@ export const authConfig: NextAuthConfig = {
             role: user.role,
             rememberMe: credentials?.rememberMe === 'true',
             twoFactorEnabled: user.twoFactorEnabled,
-            twoFactorTrustedUntil: user.twoFactorTrustedUntil,
+            // 2FA is skipped only on a device that passed the code in the last 30 days
+            twoFactorVerified: user.twoFactorEnabled && isTrustTokenValid(
+              trustTokenFromCookieHeader(request?.headers?.get('cookie')), user.id, user.twoFactorSecret,
+            ),
           }
         } catch (error) {
           console.error('Auth error:', error)
@@ -89,21 +95,21 @@ export const authConfig: NextAuthConfig = {
         token.sessionExpiry = Date.now() + sessionDurationMs
         token.accountCheckedAt = Date.now()
         token.twoFactorEnabled = (user as { twoFactorEnabled?: boolean }).twoFactorEnabled ?? false
-        const trustedUntil = (user as { twoFactorTrustedUntil?: Date | null }).twoFactorTrustedUntil
-        token.twoFactorVerified = trustedUntil != null && new Date(trustedUntil) > new Date()
+        token.twoFactorVerified = (user as { twoFactorVerified?: boolean }).twoFactorVerified ?? false
       }
 
       // session.update() from the 2FA pages is only a refresh signal: the client payload
-      // is attacker-controlled, so the 2FA state is re-read from the DB, which the
-      // /api/auth/2fa/* routes only update after a successful TOTP verification.
+      // is attacker-controlled, so the 2FA state is re-read from the DB and from the signed
+      // device cookie, which the /api/auth/2fa/* routes only set after a valid TOTP code.
       if (trigger === 'update' && updateData && token.sub) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.sub },
-          select: { twoFactorEnabled: true, twoFactorTrustedUntil: true },
+          select: { twoFactorEnabled: true, twoFactorSecret: true },
         })
+        const trustToken = (await cookies()).get(TRUST_COOKIE)?.value
         token.twoFactorEnabled = dbUser?.twoFactorEnabled ?? false
-        token.twoFactorVerified =
-          dbUser?.twoFactorTrustedUntil != null && dbUser.twoFactorTrustedUntil > new Date()
+        token.twoFactorVerified = !!dbUser?.twoFactorEnabled
+          && isTrustTokenValid(trustToken, token.sub, dbUser.twoFactorSecret)
       }
 
       if (token.sessionExpiry && Date.now() > token.sessionExpiry) {
@@ -112,6 +118,14 @@ export const authConfig: NextAuthConfig = {
 
       if (token.sub && Date.now() - (token.accountCheckedAt ?? 0) > ACCOUNT_RECHECK_MS) {
         if (!await isAccountUsableById(token.sub)) return null
+        // An admin whose 2FA was reset (new device) loses the verified state of older sessions.
+        if (isAdminRole(token.role) && token.twoFactorVerified) {
+          const tfa = await prisma.user.findUnique({ where: { id: token.sub }, select: { twoFactorEnabled: true } })
+          if (!tfa?.twoFactorEnabled) {
+            token.twoFactorEnabled = false
+            token.twoFactorVerified = false
+          }
+        }
         token.accountCheckedAt = Date.now()
       }
 

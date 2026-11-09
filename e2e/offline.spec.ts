@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test.describe('Offline Behavior', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/app/clock')
-    await page.waitForURL('/app/clock')
+    await page.waitForURL(/\/app\/clock/)
   })
 
   test('shows pending badge when API fails', async ({ page }) => {

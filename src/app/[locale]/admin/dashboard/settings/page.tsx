@@ -39,7 +39,7 @@ export default function SettingsPage() {
   const t = useTranslations('settings')
   const locale = useLocale()
   const bcp = BCP47[locale] ?? 'fr-BE'
-  const { data: session } = useSession()
+  const { data: session, update: updateSession } = useSession()
   const [settings, setSettings] = useState<CompanySettings | null>(null)
   const [form, setForm] = useState({ name: '', domain: '', address: '', phone: '', vatNumber: '', contactEmail: '' })
   const [loading, setLoading] = useState(true)
@@ -227,6 +227,9 @@ export default function SettingsPage() {
       }
       setTfaDisableSuccess(t('tfaDisabledSuccess'))
       setTfaDisableCode('')
+      // 2FA stays mandatory: set up the new device right away (hard navigation, see 2fa pages).
+      await updateSession({ twoFactorReset: true })
+      window.location.href = '/2fa/setup'
     } catch {
       setTfaDisableError(t('tfaNetworkError'))
     } finally {
