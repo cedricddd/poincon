@@ -1,5 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { requireAdminWithCompany, forbiddenError } from '@/lib/admin-security'
+import { requestLeaveDays } from '@/lib/leave-days'
+import { loadWorkDays } from '@/lib/leave-days-server'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(req: NextRequest) {
@@ -60,6 +62,8 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: 'desc' },
     })
 
+    const workDays = await loadWorkDays(timeOffs.map(to => to.userId))
+
     const statusOrder = (s: string) => (s === 'PENDING' ? 0 : 1)
 
     const sort = <T extends { status: string; createdAt?: Date }>(arr: T[]) =>
@@ -82,6 +86,7 @@ export async function GET(req: NextRequest) {
         userId: to.userId,
         startDate: to.startDate.toISOString(),
         endDate: to.endDate.toISOString(),
+        days: requestLeaveDays(to, workDays.get(to.userId)!),
         leaveType: to.leaveType,
         reason: to.reason,
         status: to.status,

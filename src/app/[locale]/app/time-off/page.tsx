@@ -8,6 +8,7 @@ import { Card } from '@/components/Card'
 import { showToast } from '@/hooks/useToast'
 import { LEAVE_TYPES, LEAVE_TYPE_KEY_TYPE_PREFIX, LEAVE_TYPE_COLOR_CLASSES, BALANCE_NEUTRAL_LEAVE_TYPES, type LeaveType } from '@/lib/leaveTypes'
 import { LeaveTypeIcon } from '@/components/LeaveTypeIcon'
+import { countLeaveDays, DEFAULT_WORK_DAYS, type WorkDays } from '@/lib/leave-days'
 
 const BCP47: Record<string, string> = { fr: 'fr-BE', nl: 'nl-BE', en: 'en-GB', de: 'de-DE' }
 
@@ -23,6 +24,7 @@ interface TimeOffRequest {
   status: 'PENDING' | 'APPROVED' | 'REJECTED'
   approvedAt?: string
   rejectionReason?: string
+  days: number // working days (schedule days, public holidays excluded)
 }
 
 function StatusBadge({ status }: { status: TimeOffRequest['status'] }) {
@@ -40,10 +42,6 @@ function StatusBadge({ status }: { status: TimeOffRequest['status'] }) {
   )
 }
 
-function daysBetween(start: string, end: string) {
-  return Math.ceil((new Date(end).getTime() - new Date(start).getTime()) / 86400000) + 1
-}
-
 export default function TimeOffPage() {
   const t = useTranslations('timeoff')
   const locale = useLocale()
@@ -52,8 +50,12 @@ export default function TimeOffPage() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [formData, setFormData] = useState({ startDate: '', endDate: '', leaveType: 'ANNUAL' as LeaveType, reason: '' })
+  const [workDays, setWorkDays] = useState<WorkDays>(DEFAULT_WORK_DAYS)
 
-  useEffect(() => { loadRequests() }, [])
+  useEffect(() => {
+    loadRequests()
+    fetch('/api/user/work-days').then(r => (r.ok ? r.json() : null)).then(d => { if (d?.workDays) setWorkDays(d.workDays) }).catch(() => {})
+  }, [])
 
   const loadRequests = async () => {
     try {
@@ -98,7 +100,7 @@ export default function TimeOffPage() {
   })
 
   const totalApproved = requests.filter(r => r.status === 'APPROVED' && !BALANCE_NEUTRAL_LEAVE_TYPES.includes(r.leaveType))
-    .reduce((s, r) => s + daysBetween(r.startDate, r.endDate), 0)
+    .reduce((s, r) => s + r.days, 0)
 
   return (
     <div className="min-h-screen bg-[var(--pp-bg)] pb-20">
@@ -154,7 +156,7 @@ export default function TimeOffPage() {
                   <div className="p-3 rounded-xl bg-[var(--pp-pos-btn)]/10 border border-[var(--pp-pos)]/20">
                     <p className="text-xs text-[var(--pp-muted)] mb-0.5">{t('duration')}</p>
                     <p className="text-base font-bold text-[var(--pp-pos)]">
-                      {t('days', { count: daysBetween(formData.startDate, formData.endDate) })}
+                      {t('days', { count: countLeaveDays(formData.startDate, formData.endDate, workDays) })}
                     </p>
                   </div>
                 )}
@@ -218,7 +220,7 @@ export default function TimeOffPage() {
                             {fmt(req.startDate)} → {fmt(req.endDate)}
                           </p>
                           <p className="text-xs text-[var(--pp-muted)] mt-0.5">
-                            {t('days', { count: daysBetween(req.startDate, req.endDate) })}
+                            {t('days', { count: req.days })}
                           </p>
                           {req.reason && <p className="text-xs text-[var(--pp-muted)] mt-1 italic">« {req.reason} »</p>}
                         </div>

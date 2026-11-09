@@ -2,6 +2,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { isAdminRole } from '@/lib/roles'
 import { BALANCE_NEUTRAL_LEAVE_TYPES, type LeaveType } from '@/lib/leaveTypes'
+import { requestLeaveDays, workDaysFromSchedule } from '@/lib/leave-days'
 import { NextRequest, NextResponse } from 'next/server'
 
 async function requireAdmin() {
@@ -86,15 +87,17 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const rttHours = Number(approvedRTT._sum.hoursToRecover ?? 0)
   // Un jour férié (ou son jour de remplacement) est distinct des congés payés en
   // droit belge — il ne doit pas être déduit du solde de congés de l'employé.
+  // Working days only (schedule days, public holidays excluded).
+  const workDays = workDaysFromSchedule(user.userSchedule?.workSchedule)
   const timeOffDays = approvedTO.reduce((sum, r) => {
     if (BALANCE_NEUTRAL_LEAVE_TYPES.includes(r.leaveType as LeaveType)) return sum
-    const days = Math.round((new Date(r.endDate).getTime() - new Date(r.startDate).getTime()) / 86400000) + 1
-    return sum + days
+    return sum + requestLeaveDays(r, workDays)
   }, 0)
   const balance = overtimeHours - rttHours - timeOffDays * 8
 
   return NextResponse.json({
-    user,
+    user: { ...user, timeOffRequests: user.timeOffRequests.map(r => ({ ...r, days: requestLeaveDays(r, workDays) })) },
+    workDays,
     balance: { overtimeHours, rttHours, timeOffDays, balance },
   })
 }

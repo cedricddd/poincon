@@ -8,6 +8,7 @@ import { Link } from '@/i18n/navigation'
 import { Card } from '@/components/Card'
 import { Button } from '@/components/Button'
 import { formatHours } from '@/lib/format-hours'
+import { countLeaveDays, DEFAULT_WORK_DAYS, type WorkDays } from '@/lib/leave-days'
 
 type ClockRecord = {
   id: string; date: string; arrivalTime: string; departureTime: string | null; duration: number | null; location: string
@@ -16,6 +17,7 @@ type ClockRecord = {
 }
 type TimeOff = {
   id: string; startDate: string; endDate: string; reason: string | null; status: string; createdAt: string
+  days: number // working days (schedule days, public holidays excluded)
 }
 type RTT = {
   id: string; date: string; hoursToRecover: number; reason: string | null; status: string; createdAt: string
@@ -61,9 +63,6 @@ function toDateInput(iso: string) {
 }
 function toTimeInput(iso: string) {
   return new Date(iso).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', hour12: false })
-}
-function daysBetween(start: string, end: string) {
-  return Math.round((new Date(end).getTime() - new Date(start).getTime()) / 86400000) + 1
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -378,7 +377,7 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
 }
 
 // ── Time Off Tab ──────────────────────────────────────────────────────────────
-function TimeOffTab({ timeoffs, userId, onRefresh }: { timeoffs: TimeOff[]; userId: string; onRefresh: () => void }) {
+function TimeOffTab({ timeoffs, userId, workDays, onRefresh }: { timeoffs: TimeOff[]; userId: string; workDays: WorkDays; onRefresh: () => void }) {
   const t = useTranslations('userDetail')
   const locale = useLocale()
   const [editId, setEditId] = useState<string | null>(null)
@@ -497,7 +496,7 @@ function TimeOffTab({ timeoffs, userId, onRefresh }: { timeoffs: TimeOff[]; user
                       </div>
                     </td>
                     <td className="py-2 pr-2 text-xs text-[var(--pp-muted)]">
-                      {editData.startDate && editData.endDate ? daysBetween(editData.startDate, editData.endDate) + t('dayShort') : '—'}
+                      {editData.startDate && editData.endDate ? countLeaveDays(editData.startDate, editData.endDate, workDays) + t('dayShort') : '—'}
                     </td>
                     <td className="py-2 pr-2"><input value={editData.reason} onChange={e => setEditData(p => ({ ...p, reason: e.target.value }))} className={`${inp} w-32`} /></td>
                     <td className="py-2 pr-2">
@@ -513,7 +512,7 @@ function TimeOffTab({ timeoffs, userId, onRefresh }: { timeoffs: TimeOff[]; user
                 ) : (
                   <>
                     <td className="py-3 pr-4 text-[var(--pp-ink)]">{fmtDate(to.startDate, locale)} → {fmtDate(to.endDate, locale)}</td>
-                    <td className="py-3 pr-4 text-[var(--pp-ink)]">{daysBetween(to.startDate, to.endDate)}{t('dayShort')}</td>
+                    <td className="py-3 pr-4 text-[var(--pp-ink)]">{to.days}{t('dayShort')}</td>
                     <td className="py-3 pr-4 text-[var(--pp-muted)] max-w-xs truncate">{to.reason ?? '—'}</td>
                     <td className="py-3 pr-4"><StatusBadge status={to.status} /></td>
                     <td className="py-3">
@@ -689,7 +688,7 @@ export default function UserDetailPage() {
   const tc = useTranslations('common')
   const locale = useLocale()
   const { id } = useParams<{ id: string }>()
-  const [data, setData] = useState<{ user: UserDetail; balance: Balance } | null>(null)
+  const [data, setData] = useState<{ user: UserDetail; balance: Balance; workDays?: WorkDays } | null>(null)
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<Tab>('overview')
   const [sites, setSites] = useState<Site[]>([])
@@ -920,7 +919,7 @@ export default function UserDetailPage() {
       )}
 
       {tab === 'timeoffs' && (
-        <TimeOffTab timeoffs={user.timeOffRequests} userId={user.id} onRefresh={load} />
+        <TimeOffTab timeoffs={user.timeOffRequests} userId={user.id} workDays={data.workDays ?? DEFAULT_WORK_DAYS} onRefresh={load} />
       )}
 
       {tab === 'rtts' && (

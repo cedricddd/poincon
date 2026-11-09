@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma'
 import { logAudit } from '@/lib/audit'
 import { dispatchWebhookSafe } from '@/lib/webhook'
 import { isValidLeaveType } from '@/lib/leaveTypes'
+import { requestLeaveDays } from '@/lib/leave-days'
+import { loadWorkDays } from '@/lib/leave-days-server'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
@@ -93,8 +95,9 @@ export async function GET(req: NextRequest) {
       },
       orderBy: { createdAt: 'desc' },
     })
+    const workDays = (await loadWorkDays([session.user.id])).get(session.user.id)!
 
-    return NextResponse.json(requests)
+    return NextResponse.json(requests.map(r => ({ ...r, days: requestLeaveDays(r, workDays) })))
   } catch (error) {
     console.error('Time off fetch error:', error)
     return NextResponse.json({ error: 'Failed to fetch requests' }, { status: 500 })

@@ -21,6 +21,7 @@ interface TimeOffRequest {
   leaveType?: LeaveType
   reason?: string
   status: string
+  days: number // working days (schedule days, public holidays excluded)
   userName?: string
   userEmail?: string
 }
@@ -296,7 +297,6 @@ export default function TimeoffsPage() {
               timeOffs.map(to => {
                 const start = new Date(to.startDate)
                 const end = new Date(to.endDate)
-                const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
                 return (
                   <AdminRequestRow
                     key={to.id}
@@ -307,7 +307,7 @@ export default function TimeoffsPage() {
                     employee={to.userName || t('unknown')}
                     email={to.userEmail || ''}
                     status={to.status}
-                    details={`${start.toLocaleDateString(bcp)} → ${end.toLocaleDateString(bcp)} (${days}${t('daysSuffix')})${to.reason ? ` — ${to.reason}` : ''}`}
+                    details={`${start.toLocaleDateString(bcp)} → ${end.toLocaleDateString(bcp)} (${to.days}${t('daysSuffix')})${to.reason ? ` — ${to.reason}` : ''}`}
                     disabled={actionInProgress === to.id}
                     onApprove={() => handleAction(to.id, 'approve')}
                     onReject={() => {

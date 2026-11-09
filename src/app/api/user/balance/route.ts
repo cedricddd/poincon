@@ -1,5 +1,8 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { BALANCE_NEUTRAL_LEAVE_TYPES, type LeaveType } from '@/lib/leaveTypes'
+import { requestLeaveDays } from '@/lib/leave-days'
+import { loadWorkDays } from '@/lib/leave-days-server'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(req: NextRequest) {
@@ -37,13 +40,12 @@ export async function GET(req: NextRequest) {
       },
     })
 
-    let totalDaysOff = 0
-    approvedTimeOffs.forEach(request => {
-      const start = new Date(request.startDate)
-      const end = new Date(request.endDate)
-      const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
-      totalDaysOff += days
-    })
+    // Working days only (schedule days, public holidays excluded); a public holiday
+    // leave type never counts as leave taken (same rule as the admin user page).
+    const workDays = (await loadWorkDays([session.user.id])).get(session.user.id)!
+    const totalDaysOff = approvedTimeOffs
+      .filter(r => !BALANCE_NEUTRAL_LEAVE_TYPES.includes(r.leaveType as LeaveType))
+      .reduce((sum, r) => sum + requestLeaveDays(r, workDays), 0)
 
     // Get pending requests
     const pendingTimeOff = await prisma.timeOffRequest.count({
