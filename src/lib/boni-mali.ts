@@ -25,7 +25,7 @@ export type ArrivalRules = {
 
 export type Interval = { start: Date; end: Date }
 
-export type DayFlag = 'after_latest' | 'over_daily_max'
+export type DayFlag = 'after_latest' | 'over_daily_max' | 'auto_break'
 
 export type Block = { in: Date; out: Date; minutes: number }
 
@@ -35,8 +35,12 @@ export type DayResult = {
   baseMinutes: number
   boniMinutes: number
   maliMinutes: number // <= 0
+  autoBreakMinutes: number // unpaid break taken off because the clocked one was shorter than the minimum
   flags: DayFlag[]
 }
+
+/** The minimum unpaid break only applies to days with more than 6 h worked (Belgian rule). */
+export const MIN_BREAK_THRESHOLD_MINUTES = 360
 
 type BreakLike = { startedAt: Date; endedAt: Date | null }
 
@@ -91,13 +95,24 @@ export function computeDay({
   intervals,
   mode,
   baseMinutes,
+  minBreakMinutes = 0,
 }: {
   intervals: Interval[]
   mode: WorkModeRules | null
   baseMinutes: number
+  minBreakMinutes?: number // schedule's unpaid break: the day loses at least this much (0 = off)
 }): DayResult {
   const flags: DayFlag[] = []
   const workedMinutes = intervals.reduce((sum, i) => sum + minutesBetween(i.start, i.end), 0)
+
+  // Break actually taken = gaps inside the day (break button or separate clock records).
+  let autoBreakMinutes = 0
+  if (minBreakMinutes > 0 && workedMinutes > MIN_BREAK_THRESHOLD_MINUTES) {
+    const first = Math.min(...intervals.map(i => i.start.getTime()))
+    const last = Math.max(...intervals.map(i => i.end.getTime()))
+    const takenBreak = Math.round((last - first) / 60000) - workedMinutes
+    autoBreakMinutes = Math.max(0, minBreakMinutes - takenBreak)
+  }
 
   let counted = workedMinutes
   if (mode?.latestClockTime) {
@@ -109,6 +124,11 @@ export function computeDay({
     }
     if (clipped < counted) flags.push('after_latest')
     counted = clipped
+  }
+
+  if (autoBreakMinutes > 0) {
+    counted = Math.max(0, counted - autoBreakMinutes)
+    flags.push('auto_break')
   }
 
   if (mode?.dailyMaxMinutes != null && counted > mode.dailyMaxMinutes) {
@@ -124,6 +144,7 @@ export function computeDay({
     baseMinutes,
     boniMinutes: Math.max(0, Math.min(delta, cap)),
     maliMinutes: Math.min(delta, 0),
+    autoBreakMinutes,
     flags,
   }
 }

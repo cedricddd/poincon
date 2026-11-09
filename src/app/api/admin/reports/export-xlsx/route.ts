@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
   const [users, modes] = await Promise.all([
     prisma.user.findMany({
       where: { companyId, deletedAt: null, ...(userId ? { id: userId } : {}) },
-      select: { id: true, name: true, email: true, userSchedule: { select: { hoursPerDay: true } } },
+      select: { id: true, name: true, email: true, userSchedule: { select: { hoursPerDay: true, workSchedule: { select: { unpaidBreakMinutes: true } } } } },
       orderBy: [{ name: 'asc' }, { email: 'asc' }],
     }),
     prisma.workMode.findMany({ where: { companyId }, orderBy: [{ sortOrder: 'asc' }, { code: 'asc' }] }),
@@ -83,6 +83,7 @@ export async function GET(req: NextRequest) {
       baseMinutes: baseMinutesFromHours(u.userSchedule?.hoursPerDay ?? DEFAULT_HOURS_PER_DAY),
       leaves,
       defaultMode,
+      minBreakMinutes: u.userSchedule?.workSchedule?.unpaidBreakMinutes ?? 0,
     })
     return { name: u.name ?? '', email: u.email, days, totals }
   })

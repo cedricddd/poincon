@@ -19,6 +19,7 @@ const WEEKDAYS = ['', 'lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim']
 const FLAG_LABELS: Record<DayFlag, string> = {
   after_latest: 'Temps après l\'heure limite non compté',
   over_daily_max: 'Plafonné au maximum journalier',
+  auto_break: 'Pause minimum appliquée',
 }
 
 export const PAYROLL_FLAG_LABELS: Record<string, string> = {
@@ -79,7 +80,9 @@ function addEmployeeSheet(wb: ExcelJS.Workbook, emp: EmployeeSheet, name: string
 
   for (const day of emp.days) {
     const remarks = [
-      ...day.flags.map(f => FLAG_LABELS[f]),
+      ...day.flags.map(f => f === 'auto_break'
+        ? `${FLAG_LABELS[f]} : ${day.autoBreakMinutes} min retirées`
+        : FLAG_LABELS[f]),
       ...(day.hasOpenRecord ? ['Pointage en cours / non clôturé'] : []),
       ...(!day.isWeekend && !day.hasRecords && !day.label ? ['Aucun pointage'] : []),
     ].join(' · ')

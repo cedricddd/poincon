@@ -23,6 +23,7 @@ export type ReportDay = {
   baseMinutes: number      // 0 on weekends and leave days
   boniMinutes: number
   maliMinutes: number
+  autoBreakMinutes: number // minimum unpaid break applied on top of the clocked one
   code: string             // work code, or '' on leave / empty days
   label: string            // work code label, leave label, or ''
   payrollFlag: string | null
@@ -65,6 +66,7 @@ export function buildEmployeeReport({
   baseMinutes,
   leaves,
   defaultMode,
+  minBreakMinutes = 0,
 }: {
   from: string
   to: string
@@ -72,6 +74,7 @@ export function buildEmployeeReport({
   baseMinutes: number
   leaves: Map<string, string> // dateKey → leave label
   defaultMode: WorkModeRules | null // applied to records clocked without a code (kiosk, QR…)
+  minBreakMinutes?: number // schedule's unpaid break (WorkSchedule.unpaidBreakMinutes)
 }): { days: ReportDay[]; totals: ReportTotals } {
   const byDay = groupByBrusselsDay(records)
   const days: ReportDay[] = []
@@ -94,8 +97,8 @@ export function buildEmployeeReport({
     // A working day without any clocking is left empty (not counted as mali): it is
     // usually a missing leave request or a holiday the admin has to regularise.
     const result = hasRecords
-      ? computeDay({ intervals, mode, baseMinutes: dayBase })
-      : { workedMinutes: 0, countedMinutes: 0, baseMinutes: dayBase, boniMinutes: 0, maliMinutes: 0, flags: [] as DayFlag[] }
+      ? computeDay({ intervals, mode, baseMinutes: dayBase, minBreakMinutes })
+      : { workedMinutes: 0, countedMinutes: 0, baseMinutes: dayBase, boniMinutes: 0, maliMinutes: 0, autoBreakMinutes: 0, flags: [] as DayFlag[] }
 
     const day: ReportDay = {
       dateKey,
@@ -107,6 +110,7 @@ export function buildEmployeeReport({
       baseMinutes: dayBase,
       boniMinutes: result.boniMinutes,
       maliMinutes: result.maliMinutes,
+      autoBreakMinutes: result.autoBreakMinutes,
       code: mode?.code ?? '',
       label: leave ?? mode?.label ?? '',
       payrollFlag: mode?.payrollFlag ?? null,

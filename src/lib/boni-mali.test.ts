@@ -224,3 +224,41 @@ describe('arrivalRefusal', () => {
     expect(arrivalRefusal(null, at('2026-10-21', '23:00'), false)).toBeNull()
   })
 })
+
+describe('computeDay — minimum unpaid break (schedule break, 30 min)', () => {
+  const one = (date: string, from: string, to: string) => [{ start: at(date, from), end: at(date, to) }]
+  const withBreak = (intervals: { start: Date; end: Date }[], minBreakMinutes = 30) =>
+    computeDay({ intervals, mode: mode('PR'), baseMinutes: BASE, minBreakMinutes })
+
+  it('lunch not clocked: 08:30–16:36 → 30 min taken off, exactly the base', () => {
+    const r = withBreak(one('2026-11-23', '08:30', '16:36'))
+    expect(r.workedMinutes).toBe(486)
+    expect(r.autoBreakMinutes).toBe(30)
+    expect(r.countedMinutes).toBe(456)
+    expect(r.boniMinutes).toBe(0)
+    expect(r.maliMinutes).toBe(0)
+    expect(r.flags).toContain('auto_break')
+  })
+  it('1 h lunch clocked as two records → nothing added, mali 30 min', () => {
+    const r = withBreak(day('2026-11-23', '08:30', '12:00', '13:00', '16:36'))
+    expect(r.autoBreakMinutes).toBe(0)
+    expect(r.maliMinutes).toBe(-30)
+    expect(r.flags).not.toContain('auto_break')
+  })
+  it('20 min lunch clocked → topped up to 30', () => {
+    const r = withBreak(day('2026-11-23', '08:30', '12:00', '12:20', '16:36'))
+    expect(r.autoBreakMinutes).toBe(10)
+    expect(r.countedMinutes).toBe(456)
+  })
+  it('half day of 5 h → no break taken off', () => {
+    const r = withBreak(one('2026-11-23', '08:00', '13:00'))
+    expect(r.autoBreakMinutes).toBe(0)
+    expect(r.countedMinutes).toBe(300)
+  })
+  it('no break in the schedule (minBreak 0) → same result as before', () => {
+    const intervals = one('2026-11-23', '08:30', '16:36')
+    const before = computeDay({ intervals, mode: mode('PR'), baseMinutes: BASE })
+    expect(withBreak(intervals, 0)).toEqual(before)
+    expect(before.autoBreakMinutes).toBe(0)
+  })
+})
