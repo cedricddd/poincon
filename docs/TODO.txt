@@ -642,6 +642,11 @@ BLOQUEURS EXTERNES RÉSOLUS
 ✓ Email domain SPF/DKIM/DMARC — validés 2026-07-10 (XML rapport agrégé Microsoft :
     dkim=pass, spf=pass, policy quarantine/pct=100). BREVO_FROM_EMAIL en noreply@pointon.be
     côté code (commit 6ea8017).
+✓ Emails app sans Brevo (2026-11-14, commits 69baeb9 + b0a095c) : nodemailer envoie
+    directement par Mailcow (10.0.0.110:587, STARTTLS, cert vérifié au nom
+    mail.pointon.be) avec la boîte noreply@pointon.be → plus de pixel de suivi Brevo.
+    Variables .env : SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_TLS_SERVERNAME,
+    MAIL_FROM (remplacent BREVO_*). Retour arrière Brevo = changer le .env seulement.
 [ ] Tester délivrabilité (mail-tester.com)
 
 ================================================================================
