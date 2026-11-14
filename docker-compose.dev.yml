@@ -31,9 +31,11 @@ services:
       NODE_ENV: development
       WATCHPACK_POLLING: "true"
       CRON_SECRET: ${CRON_SECRET:-dev-cron-secret-change-in-production}
-      BREVO_SMTP_USER: ${BREVO_SMTP_USER:-}
-      BREVO_SMTP_KEY: ${BREVO_SMTP_KEY:-}
-      BREVO_FROM_EMAIL: ${BREVO_FROM_EMAIL:-noreply@example.com}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      MAIL_FROM: ${MAIL_FROM:-noreply@example.com}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_test_dummy}
       STRIPE_PRICE_SOLO_MONTHLY: ${STRIPE_PRICE_SOLO_MONTHLY:-}
       STRIPE_PRICE_SOLO_YEARLY: ${STRIPE_PRICE_SOLO_YEARLY:-}

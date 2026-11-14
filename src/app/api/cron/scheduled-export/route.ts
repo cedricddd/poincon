@@ -2,17 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 import { PLAN_LIMITS, PlanName } from '@/lib/plan'
 import { brusselsDateParts, brusselsMonthRange, brusselsDayOffset } from '@/lib/clock'
-import nodemailer from 'nodemailer'
-
-const transporter = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.BREVO_SMTP_USER,
-    pass: process.env.BREVO_SMTP_KEY,
-  },
-})
+import { isMailConfigured, sendRawMail } from '@/lib/mail'
 
 function formatDuration(minutes: number | null): string {
   if (minutes == null) return ''
@@ -47,7 +37,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  if (!process.env.BREVO_SMTP_KEY) {
+  if (!isMailConfigured()) {
     return NextResponse.json({ error: 'Email not configured' }, { status: 500 })
   }
 
@@ -115,8 +105,7 @@ export async function GET(req: NextRequest) {
       : `mois de ${periodStart.toLocaleDateString('fr-BE', { month: 'long', year: 'numeric', timeZone: 'Europe/Brussels' })}`
     const filename = `pointages-${periodLabel.replace(/\s/g, '-')}.csv`
 
-    await transporter.sendMail({
-      from: `Pointon <${process.env.BREVO_FROM_EMAIL ?? 'noreply@ced-it.be'}>`,
+    await sendRawMail({
       to: company.admin.email,
       subject: `📊 Pointon — Export pointages ${periodLabel}`,
       html: `

@@ -1,20 +1,46 @@
-import nodemailer from 'nodemailer'
+import nodemailer, { type SendMailOptions, type Transporter } from 'nodemailer'
 import { getTranslations } from 'next-intl/server'
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.BREVO_SMTP_USER,
-    pass: process.env.BREVO_SMTP_KEY,
-  },
-}, {
-  // FROM is a "noreply" address — route replies to a monitored inbox instead of the void.
-  replyTo: 'contact@pointon.be',
-})
+// SMTP settings come from the environment so the provider (our Mailcow, or any
+// relay) can be switched without touching the code.
+const DEFAULT_FROM_ADDRESS = 'noreply@pointon.be'
+// The sender is a "noreply" address — route replies to a monitored inbox instead of the void.
+const REPLY_TO = 'contact@pointon.be'
 
-const FROM = `Pointon <${process.env.BREVO_FROM_EMAIL ?? 'noreply@pointon.be'}>`
+/** True when SMTP is configured; without it every send is silently skipped. */
+export function isMailConfigured(): boolean {
+  return Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS)
+}
+
+function mailFrom(): string {
+  return `Pointon <${process.env.MAIL_FROM || DEFAULT_FROM_ADDRESS}>`
+}
+
+let transporter: Transporter | null = null
+
+function getTransporter(): Transporter {
+  if (!transporter) {
+    transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT || 587),
+      secure: false,
+      // Never send the SMTP password over an unencrypted connection.
+      requireTLS: true,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    }, {
+      replyTo: REPLY_TO,
+    })
+  }
+  return transporter
+}
+
+/** Low-level send (attachments allowed). Callers must check isMailConfigured() first. */
+export async function sendRawMail(options: SendMailOptions) {
+  return getTransporter().sendMail({ from: mailFrom(), ...options })
+}
 
 type ApprovalEmailParams = {
   to: string
@@ -27,7 +53,7 @@ type ApprovalEmailParams = {
 }
 
 export async function sendApprovalEmail(params: ApprovalEmailParams) {
-  if (!process.env.BREVO_SMTP_KEY) return
+  if (!isMailConfigured()) return
 
   const { to, name, type, action, rejectionReason, detail, locale = 'fr' } = params
   const t = await getTranslations({ locale, namespace: 'emails' })
@@ -68,11 +94,11 @@ export async function sendApprovalEmail(params: ApprovalEmailParams) {
     </div>
   `
 
-  await transporter.sendMail({ from: FROM, to, subject, html: body })
+  await sendRawMail({ to, subject, html: body })
 }
 
 export async function sendEndOfDayReminderEmail(params: { to: string; name: string | null; locale?: string }) {
-  if (!process.env.BREVO_SMTP_KEY) return
+  if (!isMailConfigured()) return
 
   const { to, name, locale = 'fr' } = params
   const t = await getTranslations({ locale, namespace: 'emails' })
@@ -97,7 +123,7 @@ export async function sendEndOfDayReminderEmail(params: { to: string; name: stri
     </div>
   `
 
-  await transporter.sendMail({ from: FROM, to, subject: t('endOfDay.subject'), html: body })
+  await sendRawMail({ to, subject: t('endOfDay.subject'), html: body })
 }
 
 export async function sendInvitationEmail(params: {
@@ -107,7 +133,7 @@ export async function sendInvitationEmail(params: {
   token: string
   locale?: string
 }) {
-  if (!process.env.BREVO_SMTP_KEY) return
+  if (!isMailConfigured()) return
 
   const { to, name, companyName, token, locale = 'fr' } = params
   const t = await getTranslations({ locale, namespace: 'emails' })
@@ -166,7 +192,7 @@ export async function sendInvitationEmail(params: {
     </div>
   `
 
-  await transporter.sendMail({ from: FROM, to, subject: t('invitation.subject', { company: companyName }), html })
+  await sendRawMail({ to, subject: t('invitation.subject', { company: companyName }), html })
 }
 
 export async function sendDemoAccountEmail(params: {
@@ -175,7 +201,7 @@ export async function sendDemoAccountEmail(params: {
   password: string
   locale?: string
 }) {
-  if (!process.env.BREVO_SMTP_KEY) return
+  if (!isMailConfigured()) return
 
   const { to, name, password, locale = 'fr' } = params
   const t = await getTranslations({ locale, namespace: 'emails' })
@@ -213,7 +239,7 @@ export async function sendDemoAccountEmail(params: {
     </div>
   `
 
-  await transporter.sendMail({ from: FROM, to, subject: t('demoAccount.subject'), html })
+  await sendRawMail({ to, subject: t('demoAccount.subject'), html })
 }
 
 export async function sendPasswordResetEmail(params: {
@@ -222,7 +248,7 @@ export async function sendPasswordResetEmail(params: {
   token: string
   locale?: string
 }) {
-  if (!process.env.BREVO_SMTP_KEY) return
+  if (!isMailConfigured()) return
 
   const { to, name, token, locale = 'fr' } = params
   const t = await getTranslations({ locale, namespace: 'emails' })
@@ -260,7 +286,7 @@ export async function sendPasswordResetEmail(params: {
     </div>
   `
 
-  await transporter.sendMail({ from: FROM, to, subject: t('passwordReset.subject'), html })
+  await sendRawMail({ to, subject: t('passwordReset.subject'), html })
 }
 
 export async function sendWelcomeEmail(params: {
@@ -269,7 +295,7 @@ export async function sendWelcomeEmail(params: {
   companyName: string
   locale?: string
 }) {
-  if (!process.env.BREVO_SMTP_KEY) return
+  if (!isMailConfigured()) return
 
   const { to, name, companyName, locale = 'fr' } = params
   const t = await getTranslations({ locale, namespace: 'emails' })
@@ -307,8 +333,7 @@ export async function sendWelcomeEmail(params: {
     </div>
   `
 
-  await transporter.sendMail({
-    from: FROM,
+  await sendRawMail({
     to,
     subject: t('welcome.subject', { company: companyName }),
     html,
@@ -322,7 +347,7 @@ export async function sendNewCompanyNotification(params: {
   vatNumber: string
   companyId: string
 }) {
-  if (!process.env.BREVO_SMTP_KEY) return
+  if (!isMailConfigured()) return
 
   const { companyName, adminName, adminEmail, vatNumber, companyId } = params
   const appUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
@@ -358,8 +383,7 @@ export async function sendNewCompanyNotification(params: {
     </div>
   `
 
-  await transporter.sendMail({
-    from: FROM,
+  await sendRawMail({
     to: notifyEmail,
     subject: `🆕 Nouvelle société : ${companyName}`,
     html,
@@ -375,7 +399,7 @@ export async function sendKioskVisitorEmail(params: {
   arrivedAt: Date
   locale?: string
 }) {
-  if (!process.env.BREVO_SMTP_KEY) return
+  if (!isMailConfigured()) return
 
   const { to, hostName, visitorName, visitorEmail, companyName, arrivedAt, locale = 'fr' } = params
   const t = await getTranslations({ locale, namespace: 'emails' })
@@ -405,8 +429,7 @@ export async function sendKioskVisitorEmail(params: {
     </div>
   `
 
-  await transporter.sendMail({
-    from: FROM,
+  await sendRawMail({
     to,
     subject: t('kioskVisitor.subject', { visitor: visitorName }),
     html,
@@ -418,10 +441,10 @@ export async function sendEmail(params: {
   subject: string
   html: string
 }) {
-  if (!process.env.BREVO_SMTP_KEY) return
+  if (!isMailConfigured()) return
 
   const { to, subject, html } = params
-  await transporter.sendMail({ from: FROM, to, subject, html })
+  await sendRawMail({ to, subject, html })
 }
 
 export async function sendInternalInvoiceAlert(params: {
@@ -433,7 +456,7 @@ export async function sendInternalInvoiceAlert(params: {
   stripeInvoiceId: string
   odooInvoiceId: number | null
 }) {
-  if (!process.env.BREVO_SMTP_KEY) return
+  if (!isMailConfigured()) return
 
   const { companyName, amountPaid, currency, plan, billingCycle, stripeInvoiceId, odooInvoiceId } = params
   const notifyEmail = process.env.SUPER_ADMIN_NOTIFY_EMAIL ?? 'cedric@ced-it.be'
@@ -478,8 +501,7 @@ export async function sendInternalInvoiceAlert(params: {
     </div>
   `
 
-  await transporter.sendMail({
-    from: FROM,
+  await sendRawMail({
     to: notifyEmail,
     subject: `💰 Paiement reçu : ${companyName} — ${amount}`,
     html,
