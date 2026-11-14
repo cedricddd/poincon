@@ -19,6 +19,18 @@ const securityHeaders = [
 
 const nextConfig = {
   output: 'standalone',
+  // Sentry v11 loads its diagnostics-channel hook by path at runtime, so Next's
+  // file tracing misses it in the standalone output ("Failed to register
+  // diagnostics-channel injection hooks"). Ship the package and the ESM build
+  // of @sentry/core it imports (the traced output only keeps the CJS build).
+  outputFileTracingIncludes: {
+    '/*': [
+      './node_modules/@sentry/server-runtime-injection/**/*',
+      './node_modules/@sentry/core/build/esm/**/*',
+      './node_modules/@sentry/core/package.json',
+      './node_modules/@sentry/conventions/dist/**/*.mjs',
+    ],
+  },
   reactStrictMode: true,
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
