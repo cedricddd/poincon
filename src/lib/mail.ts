@@ -26,6 +26,12 @@ function getTransporter(): Transporter {
       secure: false,
       // Never send the SMTP password over an unencrypted connection.
       requireTLS: true,
+      // When SMTP_HOST is an IP (e.g. the Mailcow LXC on the private network),
+      // still validate the certificate against the real mail hostname.
+      // Note: nodemailer does its own DNS resolution and ignores /etc/hosts.
+      ...(process.env.SMTP_TLS_SERVERNAME
+        ? { tls: { servername: process.env.SMTP_TLS_SERVERNAME } }
+        : {}),
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,

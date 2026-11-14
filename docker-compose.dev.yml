@@ -35,6 +35,7 @@ services:
       SMTP_PORT: ${SMTP_PORT:-587}
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_TLS_SERVERNAME: ${SMTP_TLS_SERVERNAME:-}
       MAIL_FROM: ${MAIL_FROM:-noreply@example.com}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_test_dummy}
       STRIPE_PRICE_SOLO_MONTHLY: ${STRIPE_PRICE_SOLO_MONTHLY:-}

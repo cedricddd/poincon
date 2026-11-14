@@ -9,7 +9,7 @@ const { sendMail, createTransport } = vi.hoisted(() => {
 vi.mock('nodemailer', () => ({ default: { createTransport } }))
 vi.mock('next-intl/server', () => ({ getTranslations: vi.fn() }))
 
-const SMTP_VARS = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS', 'MAIL_FROM'] as const
+const SMTP_VARS = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS', 'SMTP_TLS_SERVERNAME', 'MAIL_FROM'] as const
 
 async function loadMail() {
   // Fresh module each time: the transporter is created once per module instance.
@@ -66,6 +66,19 @@ describe('mail transport', () => {
         auth: { user: 'noreply@pointon.be', pass: 'secret' },
       }),
       { replyTo: 'contact@pointon.be' },
+    )
+  })
+
+  it('validates TLS against SMTP_TLS_SERVERNAME when connecting by IP', async () => {
+    vi.stubEnv('SMTP_HOST', '10.0.0.110')
+    vi.stubEnv('SMTP_TLS_SERVERNAME', 'mail.pointon.be')
+    const { sendRawMail } = await loadMail()
+
+    await sendRawMail({ to: 'a@example.com', subject: 's', html: 'h' })
+
+    expect(createTransport).toHaveBeenCalledWith(
+      expect.objectContaining({ host: '10.0.0.110', tls: { servername: 'mail.pointon.be' } }),
+      expect.anything(),
     )
   })
 
