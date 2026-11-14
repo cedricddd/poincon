@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import type { ErrorEvent } from '@sentry/nextjs'
-import { beforeSendError } from '@/lib/sentry-shared'
+import { SENTRY_DATA_COLLECTION, beforeSendError } from '@/lib/sentry-shared'
 
 function makeEvent(partial: Partial<ErrorEvent>): ErrorEvent {
   return { type: undefined, ...partial } as ErrorEvent
@@ -123,5 +123,35 @@ describe('beforeSendError', () => {
     })
     const result = beforeSendError(event)
     expect(result?.request?.headers).toEqual({ 'user-agent': 'ua' })
+  })
+})
+
+// Sentry v11 collects bodies, cookies, user info and DB data by default. These
+// guards fail loudly if someone loosens the GDPR-restrictive configuration.
+describe('SENTRY_DATA_COLLECTION', () => {
+  it('never sends request/response bodies (passwords, PINs, employee data)', () => {
+    expect(SENTRY_DATA_COLLECTION.httpBodies).toEqual([])
+  })
+
+  it('never sends cookies, user info (incl. IP) or local variables', () => {
+    expect(SENTRY_DATA_COLLECTION.cookies).toBe(false)
+    expect(SENTRY_DATA_COLLECTION.userInfo).toBe(false)
+    expect(SENTRY_DATA_COLLECTION.stackFrameVariables).toBe(false)
+  })
+
+  it('never sends database, queue, GraphQL, AI or MCP payloads', () => {
+    expect(SENTRY_DATA_COLLECTION.databaseQueryData).toBe(false)
+    expect(SENTRY_DATA_COLLECTION.queues).toBe(false)
+    expect(SENTRY_DATA_COLLECTION.graphQL).toEqual({ document: false, variables: false })
+    expect(SENTRY_DATA_COLLECTION.genAI).toEqual({ inputs: false, outputs: false })
+    expect(SENTRY_DATA_COLLECTION.mcp).toEqual({ inputs: false, outputs: false })
+  })
+
+  it('filters credentials and IP-revealing names out of headers and query params', () => {
+    const headers = SENTRY_DATA_COLLECTION.httpHeaders as { request: { deny: string[] }; response: { deny: string[] } }
+    const query = SENTRY_DATA_COLLECTION.urlQueryParams as { deny: string[] }
+    for (const deny of [headers.request.deny, headers.response.deny, query.deny]) {
+      expect(deny).toEqual(expect.arrayContaining(['authorization', 'cookie', 'token', 'forwarded', '-ip', 'password', 'pin']))
+    }
   })
 })

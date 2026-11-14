@@ -1,6 +1,8 @@
 // Shared Sentry configuration used by the server, edge and client inits.
 // Keeps the three `Sentry.init` call sites in sync and centralises noise filtering.
-import type { ErrorEvent } from '@sentry/nextjs'
+import type { ErrorEvent, init } from '@sentry/nextjs'
+
+type DataCollection = NonNullable<NonNullable<Parameters<typeof init>[0]>['dataCollection']>
 
 // Sentry only reports from production. Local dev and CI never reach the dashboard
 // or Slack — this kills the browser-extension hydration mismatches that fire on
@@ -13,6 +15,32 @@ export const SENTRY_ENABLED =
   process.env.NEXT_PUBLIC_SENTRY_FORCE_ENABLE === '1'
 
 export const SENTRY_TRACES_SAMPLE_RATE = process.env.NODE_ENV === 'production' ? 0.1 : 1.0
+
+// Header / query-param name fragments never sent to Sentry. The first five are
+// the SDK's own v10 default denylist; the rest are explicit belt-and-braces.
+const SENSITIVE_KEYS = ['forwarded', '-ip', 'remote-', 'via', '-user', 'authorization', 'cookie', 'token', 'secret', 'password', 'pin']
+
+// Sentry v11 collects request/response bodies, cookies, user info, DB query data
+// and more BY DEFAULT (`sendDefaultPii` is gone). Pointon handles employee data
+// (GDPR) and credentials (passwords, kiosk PINs) travel in request bodies, so we
+// keep the restrictive v10 behaviour explicitly. Do not loosen without a privacy review.
+export const SENTRY_DATA_COLLECTION: DataCollection = {
+  userInfo: false, // also disables IP address inference
+  cookies: false,
+  httpHeaders: {
+    request: { deny: SENSITIVE_KEYS },
+    response: { deny: SENSITIVE_KEYS },
+  },
+  httpBodies: [],
+  urlQueryParams: { deny: SENSITIVE_KEYS },
+  graphQL: { document: false, variables: false },
+  genAI: { inputs: false, outputs: false },
+  mcp: { inputs: false, outputs: false },
+  databaseQueryData: false,
+  queues: false,
+  // Local variables can hold passwords or PINs mid-request.
+  stackFrameVariables: false,
+}
 
 // Substrings left in the DOM / stack by password-manager & other browser
 // extensions that rewrite the page before React hydrates.
@@ -64,7 +92,7 @@ function isCredentialPage(event: ErrorEvent): boolean {
 // Microsoft Outlook Safe Links / Defender pre-scans every link in an e-mail with a
 // headless CefSharp browser; its .NET bridge rejects promises with a plain object,
 // e.g. "Object Not Found Matching Id:3, MethodName:update, ParamCount:4". Not a
-// real visitor and nothing in our code — pure noise from invitation/Brevo e-mails.
+// real visitor and nothing in our code — pure noise from invitation e-mails.
 const LINK_SCANNER_RE = /Object Not Found Matching Id:\d+, MethodName:\w+, ParamCount:\d+/
 
 function isLinkScannerNoise(event: ErrorEvent): boolean {
