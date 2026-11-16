@@ -20,10 +20,27 @@ function base32Decode(str: string): Buffer {
   return Buffer.from(output)
 }
 
+function base32Encode(buf: Buffer): string {
+  let bits = 0
+  let value = 0
+  let output = ''
+  for (const byte of buf) {
+    value = (value << 8) | byte
+    bits += 8
+    while (bits >= 5) {
+      output += BASE32_CHARS[(value >>> (bits - 5)) & 31]
+      bits -= 5
+    }
+  }
+  if (bits > 0) output += BASE32_CHARS[(value << (5 - bits)) & 31]
+  return output
+}
+
+// 160-bit secret (RFC 4226 §4 recommends 160, requires at least 128),
+// encoded as 32 base32 characters. Authenticator apps such as Aegis or
+// Bitwarden warn about shorter secrets.
 export function generateSecret(): string {
-  return Array.from(crypto.randomBytes(20))
-    .map((b) => BASE32_CHARS[b % 32])
-    .join('')
+  return base32Encode(crypto.randomBytes(20))
 }
 
 function hotp(secret: string, counter: number): string {
