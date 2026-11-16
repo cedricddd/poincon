@@ -13,7 +13,7 @@ const sections = [
   { id: 'conservation', label: 'Durée de conservation' },
   { id: 'droits', label: 'Vos droits RGPD' },
   { id: 'sous-traitants', label: 'Sous-traitants' },
-  { id: 'contact', label: 'Contact DPO' },
+  { id: 'contact', label: 'Contact protection des données' },
 ]
 
 export default function PrivacyPage() {
@@ -196,9 +196,8 @@ export default function PrivacyPage() {
           </p>
           <div className="space-y-3">
             {[
-              { nom: 'OVH SAS', role: 'Hébergement des serveurs et de la base de données — datacenter Roubaix, France', pays: 'France (UE)' },
+              { nom: 'OVH SAS', role: 'Hébergement des serveurs, de la base de données et du serveur e-mail — datacenter Roubaix, France', pays: 'France (UE)' },
               { nom: 'pCloud AG', role: "Copie de sauvegarde hors site — chiffrée sur le serveur de Pointon avant envoi, illisible pour pCloud. Société suisse, stockage au Luxembourg", pays: 'Luxembourg (UE)' },
-              { nom: 'Brevo (ex-Sendinblue)', role: "Envoi d'emails transactionnels", pays: 'France (UE)' },
               { nom: 'Stripe', role: 'Traitement des paiements', pays: 'UE / USA (SCCs)' },
               { nom: 'Google Ireland Ltd (Google Ads)', role: "Mesure des inscriptions issues des annonces Pointon — uniquement après acceptation du bandeau cookies (cookies _gcl_*, 90 jours). Aucune publicité personnalisée", pays: 'Irlande (UE) / USA (DPF)' },
               { nom: 'Sentry (Sentry GmbH)', role: "Surveillance des erreurs et exceptions techniques — les données d'erreur sont anonymisées (cookies et tokens supprimés avant envoi)", pays: 'Allemagne (UE)' },
@@ -215,7 +214,7 @@ export default function PrivacyPage() {
         </section>
 
         <section id="contact">
-          <h2 className="font-display text-xl font-bold mb-4 text-[var(--pp-ink)]">7. Contact DPO</h2>
+          <h2 className="font-display text-xl font-bold mb-4 text-[var(--pp-ink)]">7. Contact protection des données</h2>
           <div className="bg-[var(--pp-bg2)] border border-[var(--pp-line)] rounded-xl p-6">
             <p className="text-[var(--pp-muted)] mb-4">
               Pour toute question relative à la protection de vos données personnelles :

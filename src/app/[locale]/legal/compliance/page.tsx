@@ -41,7 +41,7 @@ const checklistItems = [
       'Durées de conservation documentées',
       'Droits des personnes concernées respectés',
       'Pseudo-anonymisation des données après la période légale',
-      'Sous-traitants conformes RGPD (Brevo, Stripe, Hostinger)',
+      'Sous-traitants conformes RGPD (OVH, pCloud, Stripe, Sentry)',
     ],
   },
   {

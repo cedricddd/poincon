@@ -138,7 +138,7 @@ export default function SecurityPage() {
               { title: 'Docker isolé', desc: 'L\'application et la base de données sont isolées dans des conteneurs Docker, limitant la surface d\'attaque.' },
               { title: 'PostgreSQL', desc: 'Base de données relationnelle robuste avec contraintes d\'intégrité, transactions ACID et journalisation des modifications.' },
               { title: 'Sauvegardes régulières', desc: 'Les données sont sauvegardées quotidiennement. Les sauvegardes sont chiffrées et stockées dans une localisation géographique distincte.' },
-              { title: 'VPS dédié (Hostinger)', desc: 'Hébergement sur serveur virtuel dédié en zone UE, sans partage de ressources avec d\'autres clients.' },
+              { title: 'Serveur dédié (OVH)', desc: 'Hébergement sur serveur dédié OVH dans le datacenter de Roubaix (France, UE), sans partage de ressources avec d\'autres clients.' },
             ].map(item => (
               <div key={item.title} className="flex gap-3 border border-[var(--pp-line)] rounded-lg p-4">
                 <div className="w-2 h-2 rounded-full bg-[var(--pp-sky)] mt-1.5 flex-shrink-0" />
