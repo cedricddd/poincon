@@ -36,9 +36,11 @@ export const authConfig: NextAuthConfig = {
 
         try {
           const include = { companyMember: { select: accountStateSelect.companyMember.select } }
-          // Accounts created before emails were normalized may still hold capitals:
-          // fall back to a case-insensitive match so they can log in.
+          // Exact match first (previous behaviour, unchanged for every existing login),
+          // then the normalized form, then a case-insensitive match for accounts created
+          // before emails were normalized ("Name@x.com" stored, "name@x.com" typed).
           const user =
+            (await prisma.user.findUnique({ where: { email: rawEmail }, include })) ??
             (await prisma.user.findUnique({ where: { email }, include })) ??
             (await prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } }, include }))
           if (!user || !user.password) return null
