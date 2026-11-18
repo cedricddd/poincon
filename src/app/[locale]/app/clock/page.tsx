@@ -22,6 +22,7 @@ interface ClockRecord {
   duration: number | null
   date: string
   createdAt: string
+  workModeId?: string | null
 }
 
 interface WeeklyRecord {
@@ -44,7 +45,7 @@ const MODES = [
   { value: 'Déplacement', key: 'modeTravel' },
 ] as const
 
-type WorkModeOption = { id: string; code: string; label: string; isDefault: boolean; requireOnSiteArrival?: boolean; arrivalLimit?: string | null }
+type WorkModeOption = { id: string; code: string; label: string; isDefault: boolean; requireOnSiteArrival?: boolean; requireOnSiteDeparture?: boolean; arrivalLimit?: string | null }
 
 export default function ClockPage() {
   const { data: session } = useSession()
@@ -59,6 +60,7 @@ export default function ClockPage() {
   const [arrivalTime, setArrivalTime] = useState<string | null>(null)
   const [departureTime, setDepartureTime] = useState<string | null>(null)
   const [currentRecordId, setCurrentRecordId] = useState<string | null>(null)
+  const [openWorkModeId, setOpenWorkModeId] = useState<string | null>(null)
   const [clockedInAt, setClockedInAt] = useState<Date | null>(null)
   const [elapsed, setElapsed] = useState('')
   const [sessions, setSessions] = useState<ClockRecord[]>([])
@@ -132,6 +134,7 @@ export default function ClockPage() {
         let totalHours = 0
         let currentlyClocked = false
         let lastRecordId = null
+        let lastWorkModeId: string | null = null
         let lastArrival = null
         let lastArrivalDate: Date | null = null
         let lastDeparture = null
@@ -143,6 +146,7 @@ export default function ClockPage() {
           if (!record.departureTime) {
             currentlyClocked = true
             lastRecordId = record.id
+            lastWorkModeId = record.workModeId ?? null
             lastArrivalDate = new Date(record.arrivalTime)
             lastArrival = lastArrivalDate.toLocaleTimeString(bcp, {
               hour: '2-digit', minute: '2-digit', second: '2-digit',
@@ -157,6 +161,7 @@ export default function ClockPage() {
         setDailyHours(totalHours)
         setIsClockedIn(currentlyClocked)
         setCurrentRecordId(lastRecordId)
+        setOpenWorkModeId(lastWorkModeId)
         setArrivalTime(lastArrival)
         setDepartureTime(lastDeparture)
         if (currentlyClocked && lastArrivalDate) setClockedInAt(lastArrivalDate)
@@ -249,6 +254,10 @@ export default function ClockPage() {
   // A code may require the arrival through a site QR code or a kiosk: the app button is then off.
   const selectedWorkMode = workModes.find(m => m.id === workModeId)
   const onSiteOnly = !isClockedIn && !!selectedWorkMode?.requireOnSiteArrival
+  // Same for the departure, read from the code the open record was clocked with.
+  const openWorkMode = workModes.find(m => m.id === openWorkModeId)
+  const departureOnSiteOnly = isClockedIn && !!openWorkMode?.requireOnSiteDeparture
+  const buttonLocked = onSiteOnly || departureOnSiteOnly
 
   // Translated message for the server's arrival refusals, falling back to its own text.
   const arrivalErrorMessage = (data: any): string => {
@@ -286,6 +295,7 @@ export default function ClockPage() {
           if ((res as Response).ok) {
             const record = await (res as Response).json()
             setCurrentRecordId(record.id)
+            setOpenWorkModeId(record.workModeId ?? null)
             setArrivalTime(timeStr)
             setDepartureTime(null)
             setIsClockedIn(true)
@@ -360,8 +370,13 @@ export default function ClockPage() {
 
           // 4xx = server validation error → show message, do NOT queue for offline retry
           if ((res as Response).status < 500) {
-            const errorData = await (res as Response).json().catch(() => ({}))
-            showToast((errorData as any).error || t('errorValidation'), 'error')
+            const errorData: any = await (res as Response).json().catch(() => ({}))
+            showToast(
+              errorData?.code === 'DEPARTURE_ON_SITE_ONLY'
+                ? t('departureOnSiteOnly', { label: errorData.workMode?.label ?? '' })
+                : errorData.error || t('errorValidation'),
+              'error',
+            )
             return
           }
 
@@ -548,12 +563,12 @@ export default function ClockPage() {
             <div className={isClockedIn && !isOnBreak ? 'pp-clock-active rounded-2xl' : ''}>
               <Button
                 onClick={handleClockToggle}
-                disabled={loading || isOnBreak || onSiteOnly}
+                disabled={loading || isOnBreak || buttonLocked}
                 className="w-full h-24 md:h-32 text-2xl md:text-3xl font-bold tracking-wide rounded-2xl touch-manipulation"
                 variant="primary"
                 style={{
                   backgroundColor: isClockedIn ? 'var(--pp-neg)' : 'var(--pp-pos)',
-                  opacity: (loading || isOnBreak || onSiteOnly) ? 0.5 : 1,
+                  opacity: (loading || isOnBreak || buttonLocked) ? 0.5 : 1,
                   letterSpacing: '0.1em',
                   fontSize: 'clamp(1.25rem, 5vw, 1.875rem)',
                 }}
@@ -565,6 +580,13 @@ export default function ClockPage() {
             {onSiteOnly && selectedWorkMode && (
               <p className="text-sm text-center text-[var(--pp-muted)]">
                 {t('onSiteOnly', { label: selectedWorkMode.label })}{' '}
+                <Link href="/qr" className="font-semibold text-[var(--pp-pos)] underline">{t('scanQr')}</Link>
+              </p>
+            )}
+
+            {departureOnSiteOnly && openWorkMode && (
+              <p className="text-sm text-center text-[var(--pp-muted)]">
+                {t('departureOnSiteOnly', { label: openWorkMode.label })}{' '}
                 <Link href="/qr" className="font-semibold text-[var(--pp-pos)] underline">{t('scanQr')}</Link>
               </p>
             )}

@@ -298,6 +298,7 @@
     "errorValidation": "Validierungsfehler",
     "arrivalAfterLimit": "Einstempeln nach {time} mit {code} nicht möglich. Wählen Sie einen anderen Code (zum Beispiel Mission) oder wenden Sie sich an Ihren Vorgesetzten.",
     "onSiteOnly": "Für {label} stempeln Sie Ihre Ankunft mit dem QR-Code des Standorts oder am Terminal ein.",
+    "departureOnSiteOnly": "Für {label} stempeln Sie Ihr Gehen mit dem QR-Code des Standorts oder am Terminal aus.",
     "scanQr": "QR-Code scannen",
     "errorBreakStart": "Fehler beim Starten der Pause",
     "errorBreakEnd": "Fehler beim Beenden der Pause",
@@ -569,6 +570,8 @@
     "onSiteArrivalOption": "Ankunft vor Ort erforderlich: QR-Code des Standorts oder Terminal, nicht die Schaltfläche in der App",
     "noArrivalAfter": "kein Einstempeln nach {time}",
     "onSiteArrival": "Ankunft vor Ort (QR / Terminal)",
+    "onSiteDepartureOption": "Gehen vor Ort erforderlich: QR-Code des Standorts oder Terminal, nicht die Schaltfläche in der App",
+    "onSiteDeparture": "Gehen vor Ort (QR / Terminal)",
     "exportXlsx": "Excel-Export Boni/Mali"
   },
   "settings": {

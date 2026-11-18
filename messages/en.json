@@ -298,6 +298,7 @@
     "errorValidation": "Validation error",
     "arrivalAfterLimit": "Clock-in not allowed after {time} with {code}. Choose another code (for example mission) or contact your manager.",
     "onSiteOnly": "For {label}, clock in with the site QR code or the kiosk.",
+    "departureOnSiteOnly": "For {label}, clock out with the site QR code or the kiosk.",
     "scanQr": "Scan the QR code",
     "errorBreakStart": "Error starting the break",
     "errorBreakEnd": "Error ending the break",
@@ -569,6 +570,8 @@
     "onSiteArrivalOption": "On-site clock-in required: site QR code or kiosk, not the app button",
     "noArrivalAfter": "no clock-in after {time}",
     "onSiteArrival": "on-site clock-in (QR / kiosk)",
+    "onSiteDepartureOption": "On-site clock-out required: site QR code or kiosk, not the app button",
+    "onSiteDeparture": "on-site clock-out (QR / kiosk)",
     "exportXlsx": "Excel export Boni/Mali"
   },
   "settings": {

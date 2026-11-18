@@ -4,7 +4,7 @@ import { logAudit } from '@/lib/audit'
 import { dispatchWebhookSafe } from '@/lib/webhook'
 import { closeClockRecord, brusselsDayRange } from '@/lib/clock'
 import { isUserActive } from '@/lib/user-status'
-import { resolveWorkMode, checkArrivalAllowed } from '@/lib/work-modes'
+import { resolveWorkMode, checkArrivalAllowed, checkDepartureAllowed } from '@/lib/work-modes'
 import { NextRequest, NextResponse } from 'next/server'
 
 // SECURITY: Validate timestamp is within reasonable range
@@ -159,6 +159,18 @@ export async function PATCH(req: NextRequest) {
         { error: 'Record not found or not authorized' },
         { status: 403 }
       )
+    }
+
+    // The app button is off-site: the code the record was clocked with may require the tablet / site QR.
+    if (existingRecord.workModeId && !existingRecord.departureTime) {
+      const workMode = await prisma.workMode.findUnique({
+        where: { id: existingRecord.workModeId },
+        select: { code: true, label: true, requireOnSiteDeparture: true },
+      })
+      const refused = checkDepartureAllowed(workMode, false)
+      if (refused) {
+        return NextResponse.json(refused.body, { status: refused.status })
+      }
     }
 
     // SECURITY: Validate departure timestamp

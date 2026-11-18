@@ -15,6 +15,7 @@ type WorkMode = {
   payrollFlag: string | null
   blockArrivalAfterLatest: boolean
   requireOnSiteArrival: boolean
+  requireOnSiteDeparture: boolean
   isDefault: boolean
   sortOrder: number
   active: boolean
@@ -30,10 +31,11 @@ type Draft = {
   noSocialTransport: boolean
   blockArrivalAfterLatest: boolean
   requireOnSiteArrival: boolean
+  requireOnSiteDeparture: boolean
   isDefault: boolean
 }
 
-const EMPTY_DRAFT: Draft = { code: '', label: '', boniCap: '', dailyMax: '', latestClockTime: '', noSocialTransport: false, blockArrivalAfterLatest: false, requireOnSiteArrival: false, isDefault: false }
+const EMPTY_DRAFT: Draft = { code: '', label: '', boniCap: '', dailyMax: '', latestClockTime: '', noSocialTransport: false, blockArrivalAfterLatest: false, requireOnSiteArrival: false, requireOnSiteDeparture: false, isDefault: false }
 
 const toHM = (minutes: number | null) =>
   minutes == null ? '' : `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, '0')}`
@@ -55,6 +57,7 @@ const toDraft = (m: WorkMode): Draft => ({
   noSocialTransport: m.payrollFlag === 'no_social_transport',
   blockArrivalAfterLatest: m.blockArrivalAfterLatest,
   requireOnSiteArrival: m.requireOnSiteArrival,
+  requireOnSiteDeparture: m.requireOnSiteDeparture,
   isDefault: m.isDefault,
 })
 
@@ -103,6 +106,7 @@ export function WorkModesSettings() {
       payrollFlag: draft.noSocialTransport ? 'no_social_transport' : null,
       blockArrivalAfterLatest: !!draft.latestClockTime && draft.blockArrivalAfterLatest,
       requireOnSiteArrival: draft.requireOnSiteArrival,
+      requireOnSiteDeparture: draft.requireOnSiteDeparture,
       isDefault: draft.isDefault,
       ...(editingId === 'new' && { sortOrder: modes.length }),
     }
@@ -150,6 +154,7 @@ export function WorkModesSettings() {
     if (m.latestClockTime) parts.push(t('notAfter', { time: m.latestClockTime }))
     if (m.latestClockTime && m.blockArrivalAfterLatest) parts.push(t('noArrivalAfter', { time: m.latestClockTime }))
     if (m.requireOnSiteArrival) parts.push(t('onSiteArrival'))
+    if (m.requireOnSiteDeparture) parts.push(t('onSiteDeparture'))
     if (m.payrollFlag === 'no_social_transport') parts.push(t('noSocialTransport'))
     return parts.join(' · ')
   }
@@ -224,6 +229,10 @@ export function WorkModesSettings() {
           <label className="flex items-center gap-2 text-sm text-[var(--pp-ink)]">
             <input type="checkbox" checked={draft.requireOnSiteArrival} onChange={e => setDraft({ ...draft, requireOnSiteArrival: e.target.checked })} />
             {t('onSiteArrivalOption')}
+          </label>
+          <label className="flex items-center gap-2 text-sm text-[var(--pp-ink)]">
+            <input type="checkbox" checked={draft.requireOnSiteDeparture} onChange={e => setDraft({ ...draft, requireOnSiteDeparture: e.target.checked })} />
+            {t('onSiteDepartureOption')}
           </label>
           <label className="flex items-center gap-2 text-sm text-[var(--pp-ink)]">
             <input type="checkbox" checked={draft.noSocialTransport} onChange={e => setDraft({ ...draft, noSocialTransport: e.target.checked })} />

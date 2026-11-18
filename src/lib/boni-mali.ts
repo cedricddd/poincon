@@ -5,7 +5,7 @@ import { brusselsDateKey, parseShiftTime } from '@/lib/clock'
 //   delta = counted − base ; boni = clamp(delta, 0, boniCap) ; mali = min(delta, 0)
 // "counted" applies the work mode's rules (latest clock time, daily max) to the raw worked time.
 // Time beyond a rule is ignored in the calculation and flagged. A mode may additionally refuse
-// the clock-in itself (see ArrivalRules) — departures are never refused.
+// the clock-in itself (see ArrivalRules), and may require the departure to be clocked on site (DepartureRules).
 
 export type WorkModeRules = {
   code: string
@@ -21,6 +21,11 @@ export type ArrivalRules = {
   latestClockTime: string | null
   blockArrivalAfterLatest: boolean // refuse an arrival at or after latestClockTime
   requireOnSiteArrival: boolean    // arrival only through a site QR code or a kiosk
+}
+
+/** Clock-out restriction of a work mode, checked when a departure is recorded. */
+export type DepartureRules = {
+  requireOnSiteDeparture: boolean // departure only through a site QR code or a kiosk
 }
 
 export type Interval = { start: Date; end: Date }
@@ -189,6 +194,16 @@ export function arrivalRefusal(
   if (mode.blockArrivalAfterLatest && mode.latestClockTime && at >= parseShiftTime(mode.latestClockTime, at)) {
     return 'after_latest'
   }
+  return null
+}
+
+/**
+ * Departure check: refuses a clock-out from the app button when the mode requires it on site.
+ * Never refuses on a site QR code or a kiosk, so an employee can always leave through the tablet.
+ */
+export function departureRefusal(mode: DepartureRules | null, onSite: boolean): 'on_site_only' | null {
+  if (!mode) return null
+  if (mode.requireOnSiteDeparture && !onSite) return 'on_site_only'
   return null
 }
 

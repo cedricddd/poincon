@@ -420,6 +420,7 @@ model WorkMode {
   payrollFlag     String?       // ex. "no_social_transport" (jours mission)
   blockArrivalAfterLatest Boolean @default(false) // refuse un pointage d'arrivée après latestClockTime (le départ reste permis)
   requireOnSiteArrival    Boolean @default(false) // arrivée uniquement par QR du site ou borne, pas par le bouton de l'appli
+  requireOnSiteDeparture  Boolean @default(false) // départ uniquement par QR du site ou borne, pas par le bouton de l'appli
   isDefault       Boolean       @default(false)
   sortOrder       Int           @default(0)
   active          Boolean       @default(true)

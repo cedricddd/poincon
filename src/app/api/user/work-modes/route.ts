@@ -21,6 +21,7 @@ export async function GET() {
     modes: modes.map(m => ({
       id: m.id, code: m.code, label: m.label, isDefault: m.isDefault,
       requireOnSiteArrival: m.requireOnSiteArrival,
+      requireOnSiteDeparture: m.requireOnSiteDeparture,
       arrivalLimit: m.blockArrivalAfterLatest ? m.latestClockTime : null,
     })),
   })

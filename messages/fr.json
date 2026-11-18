@@ -298,6 +298,7 @@
     "errorValidation": "Erreur de validation",
     "arrivalAfterLimit": "Arrivée impossible après {time} en {code}. Choisissez un autre code (par exemple mission) ou contactez votre responsable.",
     "onSiteOnly": "Pour {label}, pointez votre arrivée avec le QR code du site ou la borne.",
+    "departureOnSiteOnly": "Pour {label}, pointez votre départ avec le QR code du site ou la borne.",
     "scanQr": "Scanner le QR code",
     "errorBreakStart": "Erreur lors du démarrage de la pause",
     "errorBreakEnd": "Erreur lors de la fin de pause",
@@ -569,6 +570,8 @@
     "onSiteArrivalOption": "Arrivée sur site obligatoire : QR code du site ou borne, pas le bouton de l'appli",
     "noArrivalAfter": "arrivée refusée après {time}",
     "onSiteArrival": "arrivée sur site (QR / borne)",
+    "onSiteDepartureOption": "Départ sur site obligatoire : QR code du site ou borne, pas le bouton de l'appli",
+    "onSiteDeparture": "départ sur site (QR / borne)",
     "exportXlsx": "Export Excel Boni/Mali"
   },
   "settings": {

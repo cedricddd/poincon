@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import { arrivalRefusal, type ArrivalRules } from '@/lib/boni-mali'
+import { arrivalRefusal, departureRefusal, type ArrivalRules, type DepartureRules } from '@/lib/boni-mali'
 
 // Work codes (TT / PR / MIS…) are gated by the `work_rules` feature flag, toggled by the super-admin.
 export const WORK_RULES_FLAG = 'work_rules'
@@ -61,6 +61,25 @@ export function checkArrivalAllowed(mode: ArrivalMode | null, at: Date, onSite: 
   }
 }
 
+/**
+ * Clock-out gate for the app button (onSite = false): null when the departure is allowed,
+ * otherwise the 422 payload. Site QR codes and kiosks always pass onSite = true.
+ */
+export function checkDepartureAllowed(
+  mode: (DepartureRules & { code: string; label: string }) | null,
+  onSite: boolean,
+) {
+  if (!departureRefusal(mode, onSite) || !mode) return null
+  return {
+    status: 422,
+    body: {
+      error: `Départ en ${mode.label} : pointez avec le QR code du site ou la borne.`,
+      code: 'DEPARTURE_ON_SITE_ONLY',
+      workMode: { code: mode.code, label: mode.label },
+    },
+  }
+}
+
 const HHMM_RE = /^([01]\d|2[0-3]):[0-5]\d$/
 
 /** Validates an admin-submitted work mode payload. Returns the clean data or an error message. */
@@ -73,6 +92,7 @@ export function parseWorkModeInput(body: any): { data: {
   payrollFlag: string | null
   blockArrivalAfterLatest: boolean
   requireOnSiteArrival: boolean
+  requireOnSiteDeparture: boolean
   isDefault: boolean
   sortOrder: number
   active: boolean
@@ -111,6 +131,7 @@ export function parseWorkModeInput(body: any): { data: {
       // Refusing late arrivals only makes sense with a latest clock time to compare against.
       blockArrivalAfterLatest: latestClockTime !== null && body.blockArrivalAfterLatest === true,
       requireOnSiteArrival: body.requireOnSiteArrival === true,
+      requireOnSiteDeparture: body.requireOnSiteDeparture === true,
       isDefault: body.isDefault === true,
       sortOrder: Number.isInteger(body.sortOrder) ? body.sortOrder : 0,
       active: body.active !== false,

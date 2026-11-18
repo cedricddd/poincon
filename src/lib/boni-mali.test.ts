@@ -7,6 +7,7 @@ import {
   fmtSignedMinutes,
   baseMinutesFromHours,
   arrivalRefusal,
+  departureRefusal,
   DEFAULT_WORK_MODES,
 } from './boni-mali'
 
@@ -260,5 +261,20 @@ describe('computeDay — minimum unpaid break (schedule break, 30 min)', () => {
     const before = computeDay({ intervals, mode: mode('PR'), baseMinutes: BASE })
     expect(withBreak(intervals, 0)).toEqual(before)
     expect(before.autoBreakMinutes).toBe(0)
+  })
+})
+
+describe('departureRefusal', () => {
+  it('refuses the app button only when the code requires an on-site departure', () => {
+    expect(departureRefusal({ requireOnSiteDeparture: true }, false)).toBe('on_site_only')
+    expect(departureRefusal({ requireOnSiteDeparture: false }, false)).toBeNull()
+  })
+
+  it('never refuses a departure on site (site QR, dynamic QR, kiosk)', () => {
+    expect(departureRefusal({ requireOnSiteDeparture: true }, true)).toBeNull()
+  })
+
+  it('no code, no rule', () => {
+    expect(departureRefusal(null, false)).toBeNull()
   })
 })
