@@ -24,6 +24,8 @@ type KioskToken = {
   accentColor: string | null
   autoRotateEnabled: boolean
   autoRotateIntervalHours: number | null
+  displayMode: 'pin' | 'qr' | 'qr_pin'
+  qrIntervalSeconds: number
 }
 
 export default function KioskPage() {
@@ -45,6 +47,8 @@ export default function KioskPage() {
   const [hasAdvancedKiosk, setHasAdvancedKiosk] = useState(false)
   const [savingAdvanced, setSavingAdvanced] = useState<string | null>(null)
   const [uploadingLogo, setUploadingLogo] = useState<string | null>(null)
+  const [qrAccountOnly, setQrAccountOnly] = useState(false)
+  const [savingDisplay, setSavingDisplay] = useState<string | null>(null)
 
   const fetchTokens = () => {
     setLoading(true)
@@ -56,6 +60,7 @@ export default function KioskPage() {
         setSites(d.sites ?? [])
         setPlan(d.plan ?? '')
         setHasAdvancedKiosk(!!d.hasAdvancedKiosk)
+        setQrAccountOnly(!!d.qrAccountOnly)
       })
       .finally(() => setLoading(false))
   }
@@ -115,6 +120,26 @@ export default function KioskPage() {
       }
     } finally {
       setTogglingVisitors(null)
+    }
+  }
+
+  // Display mode (PIN pad / rotating QR / both) and how often the QR changes.
+  const updateDisplay = async (tok: KioskToken, patch: Partial<Pick<KioskToken, 'displayMode' | 'qrIntervalSeconds'>>) => {
+    setSavingDisplay(tok.id)
+    setError('')
+    try {
+      const res = await fetch(`/api/admin/kiosk/tokens/${tok.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patch),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) { setError(data.error ?? t('displayError')); return }
+      setTokens(prev => prev.map(tk => tk.id === tok.id
+        ? { ...tk, displayMode: data.displayMode, qrIntervalSeconds: data.qrIntervalSeconds }
+        : tk))
+    } finally {
+      setSavingDisplay(null)
     }
   }
 
@@ -378,6 +403,44 @@ export default function KioskPage() {
                       {t('delete')}
                     </button>
                   </div>
+                </div>
+
+                <div className="mt-3 pt-3 border-t border-[var(--pp-line)] space-y-2">
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <label className="text-xs font-medium text-[var(--pp-muted)] flex items-center gap-2">
+                      {t('displayTitle')}
+                      <select
+                        value={tk.displayMode ?? 'pin'}
+                        onChange={e => updateDisplay(tk, { displayMode: e.target.value as KioskToken['displayMode'] })}
+                        disabled={savingDisplay === tk.id}
+                        className="px-2 py-1 border border-[var(--pp-line)] rounded-lg text-xs bg-[var(--pp-bg)] text-[var(--pp-ink)]"
+                      >
+                        <option value="pin">{t('displayPin')}</option>
+                        <option value="qr">{t('displayQr')}</option>
+                        <option value="qr_pin">{t('displayQrPin')}</option>
+                      </select>
+                    </label>
+                    {tk.displayMode !== 'pin' && (
+                      <label className="text-xs font-medium text-[var(--pp-muted)] flex items-center gap-2">
+                        {t('qrIntervalTitle')}
+                        <select
+                          value={tk.qrIntervalSeconds ?? 30}
+                          onChange={e => updateDisplay(tk, { qrIntervalSeconds: Number(e.target.value) })}
+                          disabled={savingDisplay === tk.id}
+                          className="px-2 py-1 border border-[var(--pp-line)] rounded-lg text-xs bg-[var(--pp-bg)] text-[var(--pp-ink)]"
+                        >
+                          <option value={30}>{t('qrInterval30')}</option>
+                          <option value={60}>{t('qrInterval60')}</option>
+                        </select>
+                      </label>
+                    )}
+                  </div>
+                  {tk.displayMode !== 'pin' && (
+                    <div className="text-xs text-[var(--pp-muted)] space-y-1">
+                      <p>{qrAccountOnly ? t('qrNoteAccount') : t('qrNotePin')}</p>
+                      <p>{tk.site ? t('qrNoteStaticSite', { site: tk.site.name }) : t('qrNoteStaticAll')}</p>
+                    </div>
+                  )}
                 </div>
 
                 {!hasAdvancedKiosk && (

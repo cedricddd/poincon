@@ -4,6 +4,7 @@ import { isAdminRole } from '@/lib/roles'
 import { getCompanyPlan, planCanAccess, companyHasAddon } from '@/lib/plan'
 import { NextRequest, NextResponse } from 'next/server'
 import { randomBytes } from 'crypto'
+import { publicTerminal } from '@/lib/kiosk-qr-server'
 
 async function requireAdminCompany(req: NextRequest) {
   const session = await auth()
@@ -26,7 +27,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Upgrade required', plan }, { status: 403 })
     }
 
-    const [tokens, sites, hasAdvancedKiosk] = await Promise.all([
+    const [tokens, sites, hasAdvancedKiosk, company] = await Promise.all([
       prisma.kioskToken.findMany({
         where: { companyId: ctx.companyId },
         include: { site: { select: { id: true, name: true } } },
@@ -38,9 +39,16 @@ export async function GET(req: NextRequest) {
         orderBy: { name: 'asc' },
       }),
       companyHasAddon(ctx.companyId, 'addon_kiosk_advanced'),
+      prisma.company.findUnique({ where: { id: ctx.companyId }, select: { qrAccountOnly: true } }),
     ])
 
-    return NextResponse.json({ tokens, sites, plan, hasAdvancedKiosk })
+    return NextResponse.json({
+      tokens: tokens.map(publicTerminal),
+      sites,
+      plan,
+      hasAdvancedKiosk,
+      qrAccountOnly: company?.qrAccountOnly ?? false,
+    })
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
@@ -80,7 +88,7 @@ export async function POST(req: NextRequest) {
       include: { site: { select: { id: true, name: true } } },
     })
 
-    return NextResponse.json(kioskToken, { status: 201 })
+    return NextResponse.json(publicTerminal(kioskToken), { status: 201 })
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }

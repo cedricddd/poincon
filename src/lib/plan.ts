@@ -24,7 +24,7 @@ export type AddonFlag = typeof ADDON_FLAGS[number]
 export const ADDON_INFO: Record<AddonFlag, { name: string; description: string; price: number }> = {
   addon_api_access:      { name: 'Accès API',          description: 'Clés API REST pour intégrations tierces',           price: 29 },
   addon_webhooks:        { name: 'Webhooks sortants',  description: 'Notifications push vers vos systèmes externes',     price: 19 },
-  addon_kiosk_advanced:  { name: 'Kiosk avancé',       description: 'Multi-sites, logo custom, QR code rotatif',         price: 19 },
+  addon_kiosk_advanced:  { name: 'Kiosk avancé',       description: 'Multi-sites, logo custom, rotation du lien',        price: 19 },
   addon_rgpd_export:     { name: 'Export RGPD',        description: 'Export anonymisé et purge planifiée des données',   price: 15 },
   addon_custom_reports:  { name: 'Rapports custom',    description: 'Builder de rapports par filtres et exports avancés', price: 15 },
 }

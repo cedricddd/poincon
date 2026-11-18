@@ -231,7 +231,9 @@ export default function AuditPage() {
       if (c.email) parts.push(`${t('lblEmail')}: ${c.email}`)
 
       // Kiosk / QR clocking — never print the terminal token (it is a clocking credential)
-      if (c.via === 'kiosk' || c.via === 'qr') parts.push(`${t('lblVia')}: ${c.via === 'kiosk' ? t('viaKiosk') : t('viaQr')}`)
+      if (c.via === 'kiosk' || c.via === 'qr' || c.via === 'qr_dynamic') {
+        parts.push(`${t('lblVia')}: ${c.via === 'kiosk' ? t('viaKiosk') : c.via === 'qr' ? t('viaQr') : t('viaQrDynamic')}`)
+      }
       if (typeof c.duration === 'number') {
         const h = Math.floor(c.duration / 60)
         const m = c.duration % 60
@@ -239,7 +241,7 @@ export default function AuditPage() {
       }
 
       // settings_change
-      if (c.before && c.after && ('mealBreakEnabled' in (c.before ?? {}) || 'qrAccountOnly' in (c.before ?? {}))) {
+      if (c.before && c.after && ('mealBreakEnabled' in (c.before ?? {}) || 'qrAccountOnly' in (c.before ?? {}) || 'displayMode' in (c.before ?? {}))) {
         Object.keys(c.after as Record<string, unknown>).forEach(k => {
           if ((c.before as Record<string, unknown>)[k] !== (c.after as Record<string, unknown>)[k])
             parts.push(`${k}: ${(c.before as Record<string, unknown>)[k]} -> ${(c.after as Record<string, unknown>)[k]}`)

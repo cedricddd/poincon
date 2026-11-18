@@ -343,6 +343,15 @@ export function QrScannerApp() {
         inversionAttempts: 'dontInvert',
       })
       if (code?.data) {
+        // Rotating QR of a kiosk terminal: open its page, which checks the code and clocks.
+        const dynamicMatch = code.data.match(/\/qr\/t\/([A-Za-z0-9_-]+)\?c=([A-Za-z0-9_-]+)/)
+        if (dynamicMatch) {
+          processingRef.current = true
+          running = false
+          stopCamera()
+          window.location.assign(`/qr/t/${dynamicMatch[1]}?c=${dynamicMatch[2]}`)
+          return
+        }
         const match = code.data.match(/\/qr\/([a-f0-9]+)/)
         if (match) {
           processingRef.current = true

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Image from 'next/image'
+import { KioskQrPanel } from './KioskQrPanel'
 
 type Screen = 'home' | 'employee' | 'visitor' | 'visitor_depart' | 'result'
 type ResultData = { success: boolean; title: string; subtitle: string }
@@ -14,6 +15,7 @@ type KioskInfo = {
   label: string | null
   theme: string | null
   visitorsEnabled: boolean
+  displayMode?: 'pin' | 'qr' | 'qr_pin'
 }
 type Employee = { id: string; name: string | null }
 
@@ -569,6 +571,10 @@ export default function KioskPage() {
 
   // ── Home screen ─────────────────────────────────────────────────────────────
   if (screen === 'home') {
+    // Dynamic QR terminals show the rotating code instead of the welcome word; the PIN pad
+    // stays reachable only in "QR + PIN" mode.
+    const qrMode = info?.displayMode === 'qr' || info?.displayMode === 'qr_pin'
+    const logoSize = qrMode ? 112 : 192
     return (
       <div className="kiosk-root" style={rootSx}>
         <style>{styles}</style>
@@ -585,14 +591,14 @@ export default function KioskPage() {
         </div>
 
         {/* Logo */}
-        <div style={{ marginBottom: 44 }}>
+        <div style={{ marginBottom: qrMode ? 24 : 44 }}>
           {info?.logoUrl ? (
-            <div className="kiosk-logo" style={{ width: 192, height: 192, borderRadius: 32, overflow: 'hidden', background: t.s1, border: `1px solid ${t.b1}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="kiosk-logo" style={{ width: logoSize, height: logoSize, borderRadius: 32, overflow: 'hidden', background: t.s1, border: `1px solid ${t.b1}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Image src={info.logoUrl} alt="Logo" width={192} height={192} style={{ objectFit: 'contain', width: '100%', height: '100%', padding: 20 }} />
             </div>
           ) : (
             <div style={{ textAlign: 'center' }}>
-              <div className="kiosk-logo" style={{ width: 192, height: 192, borderRadius: 32, background: t.s1, border: `1px solid ${t.b1}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '4rem', marginBottom: 16 }}>
+              <div className="kiosk-logo" style={{ width: logoSize, height: logoSize, borderRadius: 32, background: t.s1, border: `1px solid ${t.b1}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: qrMode ? '2.5rem' : '4rem', marginBottom: 16, marginInline: 'auto' }}>
                 🏢
               </div>
               <h1 style={{ fontSize: '1.375rem', fontWeight: 600, color: t.c1, letterSpacing: '0.01em' }}>
@@ -602,23 +608,44 @@ export default function KioskPage() {
           )}
         </div>
 
-        {/* Welcome word */}
-        <div style={{ marginBottom: 52, textAlign: 'center', minHeight: '5.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <p key={welcomeIdx} className="kiosk-display kiosk-welcome-word" style={{ fontSize: 'clamp(3.5rem, 8vw, 5.5rem)', color: t.c1, letterSpacing: '-0.01em', lineHeight: 1 }}>
-            {WELCOME[welcomeIdx]}
-          </p>
-        </div>
+        {qrMode ? (
+          <div style={{ marginBottom: 28 }}>
+            <KioskQrPanel token={token} colors={{ c1: t.c1, c2: t.c2, c3: t.c3, b1: t.b1, s1: t.s1 }} />
+          </div>
+        ) : (
+          <>
+            {/* Welcome word */}
+            <div style={{ marginBottom: 52, textAlign: 'center', minHeight: '5.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <p key={welcomeIdx} className="kiosk-display kiosk-welcome-word" style={{ fontSize: 'clamp(3.5rem, 8vw, 5.5rem)', color: t.c1, letterSpacing: '-0.01em', lineHeight: 1 }}>
+                {WELCOME[welcomeIdx]}
+              </p>
+            </div>
 
-        {/* Divider */}
-        <div style={{ width: 40, height: 1, background: t.b1, marginBottom: 44 }} />
+            {/* Divider */}
+            <div style={{ width: 40, height: 1, background: t.b1, marginBottom: 44 }} />
+          </>
+        )}
 
         {/* Action buttons */}
         <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', justifyContent: 'center' }}>
-          <button className="kiosk-btn-emp" onClick={() => setScreen('employee')}>
-            <div style={{ color: t.empIcon }}><IconPerson /></div>
-            <span style={{ fontSize: '1.05rem', fontWeight: 600, letterSpacing: '0.01em' }}>Je suis employé</span>
-            <span style={{ fontSize: '0.7rem', color: t.c3, letterSpacing: '0.05em', fontWeight: 400 }}>Pointer mon arrivée · départ</span>
-          </button>
+          {!qrMode && (
+            <button className="kiosk-btn-emp" onClick={() => setScreen('employee')}>
+              <div style={{ color: t.empIcon }}><IconPerson /></div>
+              <span style={{ fontSize: '1.05rem', fontWeight: 600, letterSpacing: '0.01em' }}>Je suis employé</span>
+              <span style={{ fontSize: '0.7rem', color: t.c3, letterSpacing: '0.05em', fontWeight: 400 }}>Pointer mon arrivée · départ</span>
+            </button>
+          )}
+          {info?.displayMode === 'qr_pin' && (
+            <button
+              onClick={() => setScreen('employee')}
+              style={{
+                cursor: 'pointer', fontSize: '0.85rem', color: t.c2, background: t.s1,
+                border: `1px solid ${t.b1}`, padding: '12px 22px', borderRadius: 12,
+              }}
+            >
+              Pas de téléphone ? Code PIN
+            </button>
+          )}
           {info?.visitorsEnabled && (
             <button className="kiosk-btn-vis" onClick={() => setScreen('visitor')}>
               <div style={{ color: t.visIcon }}><IconBadge /></div>

@@ -1,7 +1,10 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { isAdminRole } from '@/lib/roles'
-import { companyHasAddon } from '@/lib/plan'
+import { companyHasAddon, getCompanyPlan, planCanAccess } from '@/lib/plan'
+import { logAudit } from '@/lib/audit'
+import { KIOSK_DISPLAY_MODES, isDynamicQrMode, isValidInterval, generateQrPublicId, generateQrSecret } from '@/lib/kiosk-qr'
+import { publicTerminal } from '@/lib/kiosk-qr-server'
 import { NextRequest, NextResponse } from 'next/server'
 
 async function requireAdminToken(req: NextRequest, id: string) {
@@ -14,7 +17,7 @@ async function requireAdminToken(req: NextRequest, id: string) {
   if (!isAdminRole(user?.role) || !user?.companyId) return null
   const token = await prisma.kioskToken.findUnique({ where: { id } })
   if (!token || token.companyId !== user.companyId) return null
-  return token
+  return { ...token, adminId: session.user.id }
 }
 
 export async function PATCH(
@@ -79,6 +82,29 @@ export async function PATCH(
       }
     }
 
+    // Dynamic QR (all plans with the kiosk): display mode and code interval.
+    if ('displayMode' in body) {
+      if (!(KIOSK_DISPLAY_MODES as readonly unknown[]).includes(body.displayMode)) {
+        return NextResponse.json({ error: 'displayMode invalide' }, { status: 400 })
+      }
+      if (isDynamicQrMode(body.displayMode)) {
+        const plan = await getCompanyPlan(token.companyId)
+        if (!planCanAccess(plan, 'kiosk')) {
+          return NextResponse.json({ error: 'Plan insuffisant' }, { status: 403 })
+        }
+        // The QR id and secret are created once and kept, so switching modes does not break anything.
+        if (!token.qrPublicId) updates.qrPublicId = generateQrPublicId()
+        if (!token.qrSecret) updates.qrSecret = generateQrSecret()
+      }
+      updates.displayMode = body.displayMode
+    }
+    if ('qrIntervalSeconds' in body) {
+      if (!isValidInterval(body.qrIntervalSeconds)) {
+        return NextResponse.json({ error: 'qrIntervalSeconds doit valoir 30 ou 60' }, { status: 400 })
+      }
+      updates.qrIntervalSeconds = body.qrIntervalSeconds
+    }
+
     if (Object.keys(updates).length === 0) {
       return NextResponse.json({ error: 'Aucune donnée' }, { status: 400 })
     }
@@ -88,7 +114,22 @@ export async function PATCH(
       data: updates,
       include: { site: { select: { id: true, name: true } } },
     })
-    return NextResponse.json(updated)
+
+    if ('displayMode' in updates || 'qrIntervalSeconds' in updates) {
+      await logAudit({
+        userId: token.adminId,
+        action: 'settings_change',
+        resource: 'kioskToken',
+        resourceId: token.id,
+        changes: {
+          before: { displayMode: token.displayMode, qrIntervalSeconds: token.qrIntervalSeconds },
+          after: { displayMode: updated.displayMode, qrIntervalSeconds: updated.qrIntervalSeconds },
+        },
+        ipAddress: req.headers.get('x-forwarded-for') ?? undefined,
+      })
+    }
+
+    return NextResponse.json(publicTerminal(updated))
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }

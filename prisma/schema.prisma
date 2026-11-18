@@ -732,6 +732,12 @@ model KioskToken {
   autoRotateIntervalHours Int?
   lastRotatedAt           DateTime?
 
+  // Dynamic QR shown on the tablet: pin = PIN pad only, qr = rotating QR only, qr_pin = QR + PIN fallback
+  displayMode             String    @default("pin")
+  qrPublicId              String?   @unique // goes into the scanned URL; never the terminal token
+  qrSecret                String?           // HMAC key for the rotating codes — server side only
+  qrIntervalSeconds       Int       @default(30) // 30 | 60
+
   company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   site      Site?    @relation(fields: [siteId], references: [id])
 

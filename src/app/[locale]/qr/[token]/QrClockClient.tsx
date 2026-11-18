@@ -16,6 +16,10 @@ type ClockResult = {
 
 interface Props {
   token: string
+  /** Clock endpoint; defaults to the printed site QR route. */
+  endpoint?: string
+  /** Rotating code of a kiosk's dynamic QR, sent with every request. */
+  code?: string
   siteName: string
   companyName: string
   logoUrl: string | null
@@ -128,7 +132,7 @@ function CompanyLogo({ logoUrl, companyName }: { logoUrl: string | null; company
   )
 }
 
-export function QrClockClient({ token, siteName, companyName, logoUrl, mode, firstName }: Props) {
+export function QrClockClient({ token, endpoint, code, siteName, companyName, logoUrl, mode, firstName }: Props) {
   const [screen, setScreen] = useState<Screen>('pin')
   const [pin, setPin] = useState('')
   const [error, setError] = useState('')
@@ -169,10 +173,10 @@ export function QrClockClient({ token, siteName, companyName, logoUrl, mode, fir
     setScreen('loading')
     setError('')
     try {
-      const res = await fetch(`/api/qr/${token}/clock`, {
+      const res = await fetch(endpoint ?? `/api/qr/${token}/clock`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...(pinValue ? { pin: pinValue } : {}), ...(action ? { action } : {}) }),
+        body: JSON.stringify({ ...(pinValue ? { pin: pinValue } : {}), ...(action ? { action } : {}), ...(code ? { code } : {}) }),
       })
       const data = await res.json()
       if (!res.ok) {

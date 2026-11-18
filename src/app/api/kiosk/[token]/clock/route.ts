@@ -21,9 +21,13 @@ export async function POST(
 
     const kioskToken = await prisma.kioskToken.findUnique({
       where: { token },
-      select: { companyId: true, siteId: true },
+      select: { companyId: true, siteId: true, displayMode: true },
     })
     if (!kioskToken) return NextResponse.json({ error: 'Terminal introuvable' }, { status: 404 })
+    // A terminal set to "QR only" has no PIN pad: refuse PINs typed through its API.
+    if (kioskToken.displayMode === 'qr') {
+      return NextResponse.json({ error: 'Ce terminal fonctionne uniquement par QR code.', code: 'PIN_DISABLED' }, { status: 403 })
+    }
 
     const plan = await getCompanyPlan(kioskToken.companyId)
     if (!planCanAccess(plan, 'kiosk')) {
