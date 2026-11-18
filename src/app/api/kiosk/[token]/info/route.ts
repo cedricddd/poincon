@@ -39,7 +39,8 @@ export async function GET(
       visitorsEnabled: kioskToken.visitorsEnabled,
       displayMode: kioskToken.displayMode,
     })
-  } catch {
+  } catch (err) {
+    console.error('Kiosk info error:', err)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }
