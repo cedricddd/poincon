@@ -62,7 +62,7 @@ export function KioskQrPanel({ token, colors }: { token: string; colors: Colors 
       <style>{`@keyframes kiosk-qr-countdown { from { transform: scaleX(1) } to { transform: scaleX(0) } }`}</style>
       <div
         style={{
-          width: 'min(380px, 62vw)', aspectRatio: '1 / 1', borderRadius: 24, background: '#fff',
+          width: 'min(380px, 62vw, 42vh)', aspectRatio: '1 / 1', borderRadius: 24, background: '#fff',
           border: `1px solid ${colors.b1}`, display: 'flex', alignItems: 'center', justifyContent: 'center',
           overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.25)',
         }}
@@ -78,7 +78,7 @@ export function KioskQrPanel({ token, colors }: { token: string; colors: Colors 
       </div>
 
       {/* Time left before the code changes */}
-      <div style={{ width: 'min(380px, 62vw)', height: 3, background: colors.s1, borderRadius: 2, overflow: 'hidden' }}>
+      <div style={{ width: 'min(380px, 62vw, 42vh)', height: 3, background: colors.s1, borderRadius: 2, overflow: 'hidden' }}>
         {qr && (
           <div
             key={qr.key}
