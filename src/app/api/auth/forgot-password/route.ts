@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendPasswordResetEmail } from '@/lib/mail'
 import { rateLimit } from '@/lib/rateLimit'
+import { normalizeEmail } from '@/lib/email'
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for') ?? 'unknown'
@@ -15,10 +16,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Email invalide.' }, { status: 400 })
   }
 
-  const user = await prisma.user.findUnique({
-    where: { email: email.toLowerCase().trim() },
-    select: { id: true, name: true, email: true, active: true, locale: true },
-  })
+  const normalized = normalizeEmail(email)
+  const select = { id: true, name: true, email: true, active: true, locale: true }
+  // Legacy accounts may still hold capitals in their stored email (see normalize-emails script)
+  const user =
+    (await prisma.user.findUnique({ where: { email: normalized }, select })) ??
+    (await prisma.user.findFirst({ where: { email: { equals: normalized, mode: 'insensitive' } }, select }))
 
   // Always return success to prevent user enumeration
   if (!user || !user.active) {

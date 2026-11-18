@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs'
 import { accountStateSelect, isAccountUsable, isAccountUsableById } from '@/lib/account-access'
 import { isTrustTokenValid, trustTokenFromCookieHeader, TRUST_COOKIE } from '@/lib/two-factor-trust'
 import { isAdminRole } from '@/lib/roles'
+import { normalizeEmail } from '@/lib/email'
 import { cookies } from 'next/headers'
 
 // Sessions are JWTs: re-check the account in DB at most this often, so a deactivated
@@ -22,21 +23,24 @@ export const authConfig: NextAuthConfig = {
         rememberMe: { label: 'Se souvenir de moi', type: 'text' },
       },
       async authorize(credentials, request) {
-        const email = credentials?.email as string | undefined
+        const rawEmail = credentials?.email as string | undefined
         const password = credentials?.password as string | undefined
-        if (!email || !password) return null
+        if (!rawEmail || !password) return null
+        const email = normalizeEmail(rawEmail)
 
         // Per-account limit (brute force) + per-IP limit (password spraying across accounts)
         const ip = request?.headers?.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
-        const perAccount = rateLimit(`login:${email.toLowerCase().trim()}`, 10, 15 * 60 * 1000)
+        const perAccount = rateLimit(`login:${email}`, 10, 15 * 60 * 1000)
         const perIp = rateLimit(`login-ip:${ip}`, 50, 15 * 60 * 1000)
         if (!perAccount.allowed || !perIp.allowed) throw new Error('TooManyAttempts')
 
         try {
-          const user = await prisma.user.findUnique({
-            where: { email },
-            include: { companyMember: { select: accountStateSelect.companyMember.select } },
-          })
+          const include = { companyMember: { select: accountStateSelect.companyMember.select } }
+          // Accounts created before emails were normalized may still hold capitals:
+          // fall back to a case-insensitive match so they can log in.
+          const user =
+            (await prisma.user.findUnique({ where: { email }, include })) ??
+            (await prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } }, include }))
           if (!user || !user.password) return null
           if (!isAccountUsable(user)) return null
 

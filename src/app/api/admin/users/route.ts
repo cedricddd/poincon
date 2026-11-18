@@ -5,6 +5,7 @@ import { getCompanyPlan, planCanAccess, PLAN_LIMITS } from '@/lib/plan'
 import { syncSeatQuantitySafe } from '@/lib/billing'
 import { dispatchWebhookSafe } from '@/lib/webhook'
 import { setUserActive } from '@/lib/user-status'
+import { normalizeEmail } from '@/lib/email'
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { createHash } from 'crypto'
@@ -108,7 +109,7 @@ export async function PATCH(req: NextRequest) {
     const allowedRoles = ['EMPLOYEE', 'MANAGER', 'ADMIN']
     const data: Record<string, unknown> = {}
     if (name) data.name = name
-    if (email) data.email = email
+    if (typeof email === 'string' && email.trim()) data.email = normalizeEmail(email)
     if (role && allowedRoles.includes(role)) {
       if (role === 'MANAGER') {
         const plan = await getCompanyPlan(admin.companyId)

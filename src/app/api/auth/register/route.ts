@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { sendWelcomeEmail, sendNewCompanyNotification } from '@/lib/mail'
 import { rateLimit } from '@/lib/rateLimit'
 import { isDisposableEmail } from '@/lib/disposable-email'
+import { normalizeEmail } from '@/lib/email'
 import { logAudit, requestMeta } from '@/lib/audit'
 
 export async function POST(req: NextRequest) {
@@ -20,7 +21,8 @@ export async function POST(req: NextRequest) {
 
     const locale = req.headers.get('x-next-intl-locale') ?? 'fr'
     const body = await req.json()
-    const { firstName, lastName, email, password, companyName } = body
+    const { firstName, lastName, password, companyName } = body
+    const email = typeof body.email === 'string' ? normalizeEmail(body.email) : ''
 
     if (!firstName || !lastName || !email || !password || !companyName) {
       return NextResponse.json(
@@ -59,7 +61,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { email } })
+    const existingUser = await prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } })
     if (existingUser) {
       return NextResponse.json({ error: 'Cet email est déjà utilisé' }, { status: 400 })
     }

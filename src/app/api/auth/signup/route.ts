@@ -4,6 +4,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { isAdminRole } from '@/lib/roles'
 import { getCompanyPlan, planCanAccess } from '@/lib/plan'
+import { normalizeEmail } from '@/lib/email'
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,7 +22,8 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { email, password, name, role, defaultSiteId } = body
+    const { password, name, role, defaultSiteId } = body
+    const email = typeof body.email === 'string' ? normalizeEmail(body.email) : ''
 
     if (!email || !password || !name) {
       return NextResponse.json({ error: 'Email, mot de passe et nom sont requis' }, { status: 400 })
@@ -42,8 +44,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Vérifier si l'utilisateur existe déjà
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
+    const existingUser = await prisma.user.findFirst({
+      where: { email: { equals: email, mode: 'insensitive' } },
     })
 
     if (existingUser) {
