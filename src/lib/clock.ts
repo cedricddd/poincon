@@ -90,13 +90,22 @@ export function brusselsMidnightFromDateString(dateStr: string): Date {
   return parseShiftTime('00:00', noonUtc)
 }
 
+// A record carrying a work code is settled by the Boni/Mali rules on actual times
+// (src/lib/boni-mali.ts): snapping it onto the schedule would silently drop real
+// worked minutes from the stored duration. Records without a code keep the
+// historical snapping, whatever the schedule type.
+export function shouldSnapToSchedule(workModeId: string | null | undefined): boolean {
+  return !workModeId
+}
+
 export function computeShiftDuration(
   actualArrival: Date,
   actualDeparture: Date,
   startTimeStr: string | null | undefined,
   endTimeStr: string | null | undefined,
   hoursPerDay: number,
-  unpaidBreakMinutes = 0
+  unpaidBreakMinutes = 0,
+  snapToSchedule = true
 ): { duration: number; hoursWorked: number; hoursStandard: number } {
   if (!startTimeStr || !endTimeStr) {
     const duration = Math.round((actualDeparture.getTime() - actualArrival.getTime()) / 60000)
@@ -107,11 +116,12 @@ export function computeShiftDuration(
   let shiftEnd = parseShiftTime(endTimeStr, actualArrival)
   if (shiftEnd <= shiftStart) shiftEnd.setDate(shiftEnd.getDate() + 1)
 
-  const effectiveArrival = actualArrival < shiftStart ? shiftStart : actualArrival
   const graceEnd = new Date(shiftEnd.getTime() + OVERTIME_GRACE_MINUTES * 60000)
-  // Only snap to shiftEnd if departure is AT or after shiftEnd (within grace).
-  // Early departures use actual time — grace must not be applied before shiftEnd.
-  const effectiveDeparture = actualDeparture >= shiftEnd && actualDeparture <= graceEnd
+  // Fixed shifts only: an early arrival counts from the shift start, and a departure
+  // AT or after shiftEnd (within grace) is snapped back to shiftEnd. Early departures
+  // always use the actual time — grace must not be applied before shiftEnd.
+  const effectiveArrival = snapToSchedule && actualArrival < shiftStart ? shiftStart : actualArrival
+  const effectiveDeparture = snapToSchedule && actualDeparture >= shiftEnd && actualDeparture <= graceEnd
     ? shiftEnd
     : actualDeparture
 
@@ -128,7 +138,7 @@ export async function closeClockRecord({
   departureTime,
 }: {
   userId: string
-  record: { id: string; arrivalTime: Date; date: Date }
+  record: { id: string; arrivalTime: Date; date: Date; workModeId?: string | null }
   departureTime: Date
 }) {
   const userSchedule = await prisma.userSchedule.findUnique({
@@ -142,7 +152,8 @@ export async function closeClockRecord({
     userSchedule?.workSchedule?.startTime,
     userSchedule?.workSchedule?.endTime,
     hoursPerDay,
-    userSchedule?.workSchedule?.unpaidBreakMinutes ?? 0
+    userSchedule?.workSchedule?.unpaidBreakMinutes ?? 0,
+    shouldSnapToSchedule(record.workModeId)
   )
 
   const openBreak = await prisma.breakEntry.findFirst({
