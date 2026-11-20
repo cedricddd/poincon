@@ -308,7 +308,11 @@
       "Mer",
       "Jeu",
       "Ven"
-    ]
+    ],
+    "onLeaveToday": "En congé aujourd'hui",
+    "onLeaveUntil": "Jusqu'au {date} inclus",
+    "onLeaveHint": "Aucun pointage n'est attendu aujourd'hui.",
+    "clockAnyway": "Je travaille quand même, pointer"
   },
   "kiosk": {
     "employee": "Je suis employé",

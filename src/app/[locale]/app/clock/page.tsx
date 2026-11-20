@@ -12,6 +12,7 @@ import { showToast } from '@/hooks/useToast'
 import { useOfflineSync } from '@/hooks/useOfflineSync'
 import { formatHours } from '@/lib/format-hours'
 import { Link } from '@/i18n/navigation'
+import { LEAVE_TYPE_KEY_TYPE_PREFIX, LEAVE_TYPE_COLOR_CLASSES, isValidLeaveType } from '@/lib/leaveTypes'
 
 interface ClockRecord {
   id: string
@@ -50,6 +51,7 @@ type WorkModeOption = { id: string; code: string; label: string; isDefault: bool
 export default function ClockPage() {
   const { data: session } = useSession()
   const t = useTranslations('clock')
+  const tLeave = useTranslations('timeoff')
   const locale = useLocale()
   const bcp = BCP47[locale] ?? 'fr-BE'
   const { savePendingAction, pendingCount } = useOfflineSync()
@@ -79,6 +81,9 @@ export default function ClockPage() {
   // Company work codes (feature flag work_rules) — empty = legacy MODES
   const [workModes, setWorkModes] = useState<WorkModeOption[]>([])
   const [workModeId, setWorkModeId] = useState('')
+  // Approved leave covering today: replaces the clock-in button unless the employee insists
+  const [leaveToday, setLeaveToday] = useState<{ leaveType: string; endDate: string } | null>(null)
+  const [clockAnyway, setClockAnyway] = useState(false)
 
   // Meal break state
   const [mealBreakEnabled, setMealBreakEnabled] = useState(false)
@@ -119,6 +124,14 @@ export default function ClockPage() {
         setWorkModeId(initial.id)
         setLocation(initial.label)
       })
+      .catch(() => {})
+  }, [])
+
+  // Load approved leave covering today
+  useEffect(() => {
+    fetch('/api/user/leave-today')
+      .then(r => (r.ok ? r.json() : { leave: null }))
+      .then(({ leave }) => setLeaveToday(leave ?? null))
       .catch(() => {})
   }, [])
 
@@ -451,6 +464,12 @@ export default function ClockPage() {
 
   const maxHours = Math.max(...weeklyRecords.map(r => r.hours), 1)
 
+  const showLeave = !!leaveToday && !isClockedIn && !clockAnyway
+  const leaveType = leaveToday && isValidLeaveType(leaveToday.leaveType) ? leaveToday.leaveType : 'ANNUAL'
+  const leaveUntil = leaveToday
+    ? new Date(`${leaveToday.endDate}T12:00:00Z`).toLocaleDateString(bcp, { weekday: 'long', day: 'numeric', month: 'long' })
+    : ''
+
   return (
     <div className="min-h-screen bg-[var(--pp-bg)] pb-24 md:pb-10" suppressHydrationWarning>
       <div className="max-w-7xl mx-auto px-4 pt-6 md:pt-8" suppressHydrationWarning>
@@ -509,6 +528,27 @@ export default function ClockPage() {
               </Card>
             ) : null}
 
+            {showLeave ? (
+              <div className="space-y-3">
+                <Card>
+                  <div className="text-center py-4" data-testid="leave-today">
+                    <span className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${LEAVE_TYPE_COLOR_CLASSES[leaveType]}`}>
+                      {tLeave(LEAVE_TYPE_KEY_TYPE_PREFIX[leaveType])}
+                    </span>
+                    <p className="text-2xl font-bold text-[var(--pp-ink)] mt-3">{t('onLeaveToday')}</p>
+                    <p className="text-sm text-[var(--pp-muted)] mt-1">{t('onLeaveUntil', { date: leaveUntil })}</p>
+                    <p className="text-sm text-[var(--pp-muted)] mt-3">{t('onLeaveHint')}</p>
+                  </div>
+                </Card>
+                <button
+                  type="button"
+                  onClick={() => setClockAnyway(true)}
+                  className="w-full text-sm text-[var(--pp-muted)] underline py-2 touch-manipulation"
+                >
+                  {t('clockAnyway')}
+                </button>
+              </div>
+            ) : (<>
             {/* Site + Mode side-by-side on mobile */}
             <div className={`grid gap-3 ${sites.length > 0 ? 'grid-cols-2' : 'grid-cols-1'}`}>
               {sites.length > 0 && (
@@ -583,6 +623,7 @@ export default function ClockPage() {
                 <Link href="/qr" className="font-semibold text-[var(--pp-pos)] underline">{t('scanQr')}</Link>
               </p>
             )}
+            </>)}
 
             {departureOnSiteOnly && openWorkMode && (
               <p className="text-sm text-center text-[var(--pp-muted)]">

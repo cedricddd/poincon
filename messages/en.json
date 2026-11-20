@@ -308,7 +308,11 @@
       "Wed",
       "Thu",
       "Fri"
-    ]
+    ],
+    "onLeaveToday": "On leave today",
+    "onLeaveUntil": "Until {date} inclusive",
+    "onLeaveHint": "No clocking is expected today.",
+    "clockAnyway": "I'm working anyway, clock in"
   },
   "kiosk": {
     "employee": "I am an employee",

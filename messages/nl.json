@@ -308,7 +308,11 @@
       "Wo",
       "Do",
       "Vr"
-    ]
+    ],
+    "onLeaveToday": "Vandaag met verlof",
+    "onLeaveUntil": "Tot en met {date}",
+    "onLeaveHint": "Vandaag hoeft u niet te prikken.",
+    "clockAnyway": "Ik werk toch, prikken"
   },
   "kiosk": {
     "employee": "Ik ben medewerker",

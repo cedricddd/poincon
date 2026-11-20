@@ -308,7 +308,11 @@
       "Mi",
       "Do",
       "Fr"
-    ]
+    ],
+    "onLeaveToday": "Heute im Urlaub",
+    "onLeaveUntil": "Bis einschließlich {date}",
+    "onLeaveHint": "Heute ist keine Zeiterfassung nötig.",
+    "clockAnyway": "Ich arbeite trotzdem, einstempeln"
   },
   "kiosk": {
     "employee": "Ich bin Mitarbeiter",
