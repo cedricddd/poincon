@@ -1,3 +1,4 @@
+import { netHoursBalance } from '@/lib/balance'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { BALANCE_NEUTRAL_LEAVE_TYPES, type LeaveType } from '@/lib/leaveTypes'
@@ -73,7 +74,7 @@ export async function GET(req: NextRequest) {
       overtimeHours: totalOvertimeHours,
       rttHours: totalRTTHours,
       daysOff: totalDaysOff,
-      balance: totalOvertimeHours - totalRTTHours - (totalDaysOff * 8),
+      balance: netHoursBalance(totalOvertimeHours, totalRTTHours),
       pendingRequests: {
         timeOff: pendingTimeOff,
         overtime: pendingOvertimes,

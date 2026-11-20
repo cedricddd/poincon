@@ -76,6 +76,7 @@ test.describe.serial('Leave in working days + minimum break in Boni/Mali', () =>
     expect(list[0].days).toBe(7)
     const balance = await (await page.request.get('/api/user/balance')).json()
     expect(balance.daysOff).toBe(7)
+    expect(balance.balance).toBe(0) // paid leave is not hours to make up
 
     await page.goto('/fr/app/time-off')
     await expect(page.getByText('7 jours').first()).toBeVisible()
@@ -86,6 +87,7 @@ test.describe.serial('Leave in working days + minimum break in Boni/Mali', () =>
     await signInAdmin(page, fx.adminEmail)
     const detail = await (await page.request.get(`/api/admin/users/${fx.employeeId}`)).json()
     expect(detail.balance.timeOffDays).toBe(7)
+    expect(detail.balance.balance).toBe(0)
     expect(detail.user.timeOffRequests[0].days).toBe(7)
     const requests = await (await page.request.get('/api/admin/requests')).json()
     expect(requests.timeOffs[0].days).toBe(7)

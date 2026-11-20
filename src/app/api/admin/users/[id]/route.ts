@@ -1,3 +1,4 @@
+import { netHoursBalance } from '@/lib/balance'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { isAdminRole } from '@/lib/roles'
@@ -93,7 +94,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     if (BALANCE_NEUTRAL_LEAVE_TYPES.includes(r.leaveType as LeaveType)) return sum
     return sum + requestLeaveDays(r, workDays)
   }, 0)
-  const balance = overtimeHours - rttHours - timeOffDays * 8
+  const balance = netHoursBalance(overtimeHours, rttHours)
 
   return NextResponse.json({
     user: { ...user, timeOffRequests: user.timeOffRequests.map(r => ({ ...r, days: requestLeaveDays(r, workDays) })) },
