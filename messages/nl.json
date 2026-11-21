@@ -1343,7 +1343,8 @@
     "reportDateRequired": "De datum is verplicht.",
     "reportTimeRequired": "Geef minstens één uur op om te corrigeren.",
     "reportNoteRequired": "Een opmerking is verplicht bij de reden « Andere ».",
-    "cancel": "Annuleren"
+    "cancel": "Annuleren",
+    "reasonForgotBreak": "Pauze vergeten te prikken"
   },
   "adminRequests": {
     "colType": "Type",
@@ -1847,7 +1848,17 @@
     "notePlaceholder": "Opmerking (optioneel)…",
     "noteRequired": "Een opmerking is verplicht bij de reden « Andere ».",
     "noteRequiredHint": "Opmerking verplicht bij deze reden.",
-    "noteExportHint": "De opmerking verschijnt in de export en in de audit trail."
+    "noteExportHint": "De opmerking verschijnt in de export en in de audit trail.",
+    "reasonForgotBreak": "Pauze vergeten te prikken",
+    "addBreakShort": "+ Pauze",
+    "addBreak": "Pauze toevoegen",
+    "addBreakFor": "Vergeten pauze voor de prikking van {date} ({from} → {to}). Het dagtotaal wordt herberekend.",
+    "breakStart": "Begin van de pauze",
+    "breakEnd": "Einde van de pauze",
+    "breakTimesRequired": "Geef het begin en het einde van de pauze op.",
+    "breakLabel": "Pauze {from}–{to}",
+    "removeBreak": "Deze pauze verwijderen",
+    "confirmDeleteBreak": "Deze pauze verwijderen? Het dagtotaal wordt herberekend."
   },
   "integrations": {
     "loading": "Laden...",
@@ -2003,7 +2014,11 @@
     "rForgotOut": "Uitklokken vergeten (vertrek)",
     "rCorrection": "Foutcorrectie",
     "rOther": "Andere",
-    "rManualCreate": "Handmatige aanmaak"
+    "rManualCreate": "Handmatige aanmaak",
+    "actAdminAddBreak": "Pauze toegevoegd (admin)",
+    "actAdminRemoveBreak": "Pauze verwijderd (admin)",
+    "rForgotBreak": "Pauze vergeten te prikken",
+    "lblBreaks": "Pauzes"
   },
   "kioskAdmin": {
     "title": "Kioskmodus",

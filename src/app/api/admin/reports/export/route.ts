@@ -38,6 +38,7 @@ const LEAVE_TAGS: Record<string, string> = LEAVE_TYPE_LABEL_FR
 const EDIT_REASON_LABELS: Record<string, string> = {
   forgot_clockin: 'Oubli de pointage (entrée)',
   forgot_clockout: 'Oubli de pointage (sortie)',
+  forgot_break: 'Oubli de pointage (pause)',
   correction: 'Correction',
   employee_request: 'Demande de l\'employé',
   manual_create: 'Encodage manuel',

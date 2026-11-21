@@ -47,6 +47,7 @@ type CorrectionRequest = {
 const REASON_KEY: Record<string, string> = {
   forgot_clockin: 'reasonForgotIn',
   forgot_clockout: 'reasonForgotOut',
+  forgot_break: 'reasonForgotBreak',
   correction: 'reasonCorrection',
   employee_request: 'reasonEmployeeRequest',
   manual_create: 'reasonManualCreate',

@@ -1343,7 +1343,8 @@
     "reportDateRequired": "Das Datum ist erforderlich.",
     "reportTimeRequired": "Geben Sie mindestens eine zu korrigierende Zeit an.",
     "reportNoteRequired": "Für den Grund „Sonstiges“ ist eine Bemerkung erforderlich.",
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "reasonForgotBreak": "Pause nicht gestempelt"
   },
   "adminRequests": {
     "colType": "Typ",
@@ -1847,7 +1848,17 @@
     "notePlaceholder": "Bemerkung (optional)…",
     "noteRequired": "Für den Grund „Sonstiges“ ist eine Bemerkung erforderlich.",
     "noteRequiredHint": "Bemerkung für diesen Grund erforderlich.",
-    "noteExportHint": "Die Bemerkung erscheint im Export und im Audit Trail."
+    "noteExportHint": "Die Bemerkung erscheint im Export und im Audit Trail.",
+    "reasonForgotBreak": "Pause nicht gestempelt",
+    "addBreakShort": "+ Pause",
+    "addBreak": "Pause hinzufügen",
+    "addBreakFor": "Vergessene Pause für die Stempelung vom {date} ({from} → {to}). Die Tagessumme wird neu berechnet.",
+    "breakStart": "Pausenbeginn",
+    "breakEnd": "Pausenende",
+    "breakTimesRequired": "Geben Sie Beginn und Ende der Pause an.",
+    "breakLabel": "Pause {from}–{to}",
+    "removeBreak": "Diese Pause entfernen",
+    "confirmDeleteBreak": "Diese Pause entfernen? Die Tagessumme wird neu berechnet."
   },
   "integrations": {
     "loading": "Laden...",
@@ -2003,7 +2014,11 @@
     "rForgotOut": "Ausstempeln vergessen (Abfahrt)",
     "rCorrection": "Fehlerkorrektur",
     "rOther": "Andere",
-    "rManualCreate": "Manuelle Erstellung"
+    "rManualCreate": "Manuelle Erstellung",
+    "actAdminAddBreak": "Pause hinzugefügt (Admin)",
+    "actAdminRemoveBreak": "Pause entfernt (Admin)",
+    "rForgotBreak": "Pause nicht gestempelt",
+    "lblBreaks": "Pausen"
   },
   "kioskAdmin": {
     "title": "Kiosk-Modus",

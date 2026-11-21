@@ -1343,7 +1343,8 @@
     "reportDateRequired": "La date est requise.",
     "reportTimeRequired": "Indiquez au moins une heure à corriger.",
     "reportNoteRequired": "Une remarque est requise pour le motif « Autre ».",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "reasonForgotBreak": "Oublié de pointer la pause"
   },
   "adminRequests": {
     "colType": "Type",
@@ -1848,7 +1849,17 @@
     "notePlaceholder": "Remarque (facultative)…",
     "noteRequired": "Une remarque est requise pour le motif « Autre ».",
     "noteRequiredHint": "Remarque obligatoire pour ce motif.",
-    "noteExportHint": "La remarque apparaît dans l’export et dans l’audit trail."
+    "noteExportHint": "La remarque apparaît dans l’export et dans l’audit trail.",
+    "reasonForgotBreak": "Oublié de pointer la pause",
+    "addBreakShort": "+ Pause",
+    "addBreak": "Ajouter la pause",
+    "addBreakFor": "Pause oubliée pour le pointage du {date} ({from} → {to}). Le total du jour sera recalculé.",
+    "breakStart": "Début de la pause",
+    "breakEnd": "Fin de la pause",
+    "breakTimesRequired": "Indiquez le début et la fin de la pause.",
+    "breakLabel": "Pause {from}–{to}",
+    "removeBreak": "Retirer cette pause",
+    "confirmDeleteBreak": "Retirer cette pause ? Le total du jour sera recalculé."
   },
   "integrations": {
     "loading": "Chargement...",
@@ -2004,7 +2015,11 @@
     "rForgotOut": "Oublié dépointer (départ)",
     "rCorrection": "Correction d’erreur",
     "rOther": "Autre",
-    "rManualCreate": "Création manuelle"
+    "rManualCreate": "Création manuelle",
+    "actAdminAddBreak": "Pause ajoutée (admin)",
+    "actAdminRemoveBreak": "Pause retirée (admin)",
+    "rForgotBreak": "Oublié de pointer la pause",
+    "lblBreaks": "Pauses"
   },
   "kioskAdmin": {
     "title": "Mode Kiosque",

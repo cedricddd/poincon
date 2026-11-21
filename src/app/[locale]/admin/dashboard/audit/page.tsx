@@ -38,6 +38,8 @@ const actionBadgeColor: Record<string, string> = {
   clock_out: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
   admin_create: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
   admin_edit: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
+  admin_add_break: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
+  admin_remove_break: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
   admin_delete: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
   admin_update_user: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
   admin_delete_user: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
@@ -57,6 +59,8 @@ const ACTION_KEY: Record<string, string> = {
   clock_out: 'actClockOut',
   admin_create: 'actAdminCreate',
   admin_edit: 'actAdminEdit',
+  admin_add_break: 'actAdminAddBreak',
+  admin_remove_break: 'actAdminRemoveBreak',
   admin_delete: 'actAdminDelete',
   admin_update_user: 'actAdminUpdateUser',
   admin_delete_user: 'actAdminDeleteUser',
@@ -203,6 +207,7 @@ export default function AuditPage() {
       const clockReasonLabels: Record<string, string> = {
         forgot_clockin: t('rForgotIn'),
         forgot_clockout: t('rForgotOut'),
+        forgot_break: t('rForgotBreak'),
         correction: t('rCorrection'),
         other: t('rOther'),
         manual_create: t('rManualCreate'),
@@ -221,6 +226,13 @@ export default function AuditPage() {
           parts.push(`${t('lblDeparture')}: ${depBefore} -> ${depAfter}`)
         if (c.before.location !== c.after.location)
           parts.push(`${t('lblLocation')}: ${c.before.location} -> ${c.after.location}`)
+        // Break added or removed by an admin: list of breaks and worked time, before -> after
+        if (Array.isArray(c.before.breaks) && Array.isArray(c.after.breaks)) {
+          const list = (b: string[]) => (b.length ? b.join(', ') : '—')
+          const dur = (m: unknown) => (typeof m === 'number' ? `${Math.floor(m / 60)}h${String(m % 60).padStart(2, '0')}` : '—')
+          parts.push(`${t('lblBreaks')}: ${list(c.before.breaks)} -> ${list(c.after.breaks)}`)
+          parts.push(`${t('lblDuration')}: ${dur(c.before.duration)} -> ${dur(c.after.duration)}`)
+        }
       } else {
         if (c.arrivalTime)   parts.push(`${t('lblArrival')}: ${fmtTimeVal(c.arrivalTime)}`)
         if (c.departureTime) parts.push(`${t('lblDeparture')}: ${fmtTimeVal(c.departureTime)}`)

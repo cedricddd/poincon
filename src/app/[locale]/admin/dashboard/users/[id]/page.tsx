@@ -15,6 +15,7 @@ type ClockRecord = {
   id: string; date: string; arrivalTime: string; departureTime: string | null; duration: number | null; location: string
   editedAt: string | null; editReason: string | null; editNote: string | null
   editor: { name: string | null; email: string } | null
+  breaks?: { id: string; startedAt: string; endedAt: string | null }[]
 }
 type TimeOff = {
   id: string; startDate: string; endDate: string; reason: string | null; status: string; createdAt: string
@@ -97,6 +98,7 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
 const EDIT_REASONS: { value: string; key: string }[] = [
   { value: 'forgot_clockin', key: 'reasonForgotIn' },
   { value: 'forgot_clockout', key: 'reasonForgotOut' },
+  { value: 'forgot_break', key: 'reasonForgotBreak' },
   { value: 'correction', key: 'reasonCorrection' },
   { value: 'other', key: 'reasonOther' },
 ]
@@ -105,6 +107,7 @@ const EDIT_REASONS: { value: string; key: string }[] = [
 const REASON_KEY: Record<string, string> = {
   forgot_clockin: 'reasonForgotIn',
   forgot_clockout: 'reasonForgotOut',
+  forgot_break: 'reasonForgotBreak',
   correction: 'reasonCorrection',
   employee_request: 'reasonEmployeeRequest',
   manual_create: 'reasonManualCreate',
@@ -146,8 +149,12 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
   const [addData, setAddData] = useState({ date: '', arrival: '', departure: '', location: 'Sur site' })
   const [saving, setSaving] = useState(false)
   const [err, setErr] = useState('')
-  // 'edit' = correction d'un pointage existant, 'add' = encodage manuel — même modale de motif
-  const [reasonStep, setReasonStep] = useState<null | 'edit' | 'add'>(null)
+  // 'edit' = correction d'un pointage existant, 'add' = encodage manuel,
+  // 'break' / 'removeBreak' = pause ajoutée ou retirée — même modale de motif
+  const [reasonStep, setReasonStep] = useState<null | 'edit' | 'add' | 'break' | 'removeBreak'>(null)
+  const [breakRecord, setBreakRecord] = useState<ClockRecord | null>(null)
+  const [breakData, setBreakData] = useState({ start: '12:00', end: '12:30' })
+  const [removeBreak, setRemoveBreak] = useState<{ recordId: string; breakId: string } | null>(null)
   const [reason, setReason] = useState('forgot_clockin')
   const [reasonNote, setReasonNote] = useState('')
 
@@ -198,6 +205,76 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
     if (!res.ok) { setErr(await readErrorMessage(res, tc('error'))); return }
     setEditId(null)
     onRefresh()
+  }
+
+  // Forgotten meal break: the admin enters it, then gives the reason in the shared modal
+  const openBreak = (r: ClockRecord) => {
+    setBreakRecord(r)
+    setBreakData({ start: '12:00', end: '12:30' })
+    setEditId(null)
+    setShowAdd(false)
+    setErr('')
+  }
+
+  const startBreak = () => {
+    if (!breakData.start || !breakData.end) { setErr(t('breakTimesRequired')); return }
+    setErr('')
+    setReason('forgot_break')
+    setReasonNote('')
+    setReasonStep('break')
+  }
+
+  const confirmBreak = async () => {
+    if (!breakRecord) return
+    if (reason === 'other' && !reasonNote.trim()) { setErr(t('noteRequired')); return }
+    setSaving(true); setErr('')
+    // Same day as the record, local time of the browser (as for the time correction above)
+    const day = toDateInput(breakRecord.date)
+    const res = await fetch(`/api/admin/clock-records/${breakRecord.id}/breaks`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        startedAt: new Date(`${day}T${breakData.start}:00`).toISOString(),
+        endedAt: new Date(`${day}T${breakData.end}:00`).toISOString(),
+        reason,
+        note: reasonNote.trim() || undefined,
+      }),
+    })
+    setSaving(false)
+    setReasonStep(null)
+    if (!res.ok) { setErr(await readErrorMessage(res, tc('error'))); return }
+    setBreakRecord(null)
+    onRefresh()
+  }
+
+  const startRemoveBreak = (recordId: string, breakId: string) => {
+    if (!confirm(t('confirmDeleteBreak'))) return
+    setRemoveBreak({ recordId, breakId })
+    setErr('')
+    setReason('correction')
+    setReasonNote('')
+    setReasonStep('removeBreak')
+  }
+
+  const confirmRemoveBreak = async () => {
+    if (!removeBreak) return
+    if (reason === 'other' && !reasonNote.trim()) { setErr(t('noteRequired')); return }
+    setSaving(true); setErr('')
+    const qs = new URLSearchParams({ breakId: removeBreak.breakId, reason })
+    if (reasonNote.trim()) qs.set('note', reasonNote.trim())
+    const res = await fetch(`/api/admin/clock-records/${removeBreak.recordId}/breaks?${qs}`, { method: 'DELETE' })
+    setSaving(false)
+    setReasonStep(null)
+    if (!res.ok) { setErr(await readErrorMessage(res, tc('error'))); return }
+    setRemoveBreak(null)
+    onRefresh()
+  }
+
+  const confirmReason = () => {
+    if (reasonStep === 'add') return confirmAdd()
+    if (reasonStep === 'break') return confirmBreak()
+    if (reasonStep === 'removeBreak') return confirmRemoveBreak()
+    return confirmSave()
   }
 
   const del = async (id: string) => {
@@ -267,7 +344,7 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
             </p>
             {err && <p className="text-xs text-[var(--pp-neg)] mb-2">{err}</p>}
             <div className="flex gap-2 mt-1">
-              <Button size="sm" onClick={reasonStep === 'add' ? confirmAdd : confirmSave} disabled={saving}>
+              <Button size="sm" onClick={confirmReason} disabled={saving}>
                 {saving ? '…' : t('confirm')}
               </Button>
               <Button size="sm" variant="outline" onClick={() => setReasonStep(null)}>{t('cancel')}</Button>
@@ -303,6 +380,28 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
           </div>
           <Button size="sm" onClick={startAdd} disabled={saving}>{saving ? '…' : t('create')}</Button>
           <Button size="sm" variant="outline" onClick={() => { setShowAdd(false); setErr('') }}>{t('cancel')}</Button>
+        </div>
+      )}
+
+      {breakRecord && (
+        <div data-testid="add-break" className="mb-4 p-3 bg-[var(--pp-line)]/20 rounded-lg border border-[var(--pp-line)] flex flex-wrap gap-2 items-end">
+          <p className="w-full text-xs text-[var(--pp-muted)]">
+            {t('addBreakFor', {
+              date: fmtDate(breakRecord.date, locale),
+              from: fmtTime(breakRecord.arrivalTime, locale),
+              to: breakRecord.departureTime ? fmtTime(breakRecord.departureTime, locale) : '…',
+            })}
+          </p>
+          <div>
+            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">{t('breakStart')}</label>
+            <input type="time" aria-label={t('breakStart')} value={breakData.start} onChange={e => setBreakData(p => ({ ...p, start: e.target.value }))} className={inp} />
+          </div>
+          <div>
+            <label className="block text-xs text-[var(--pp-muted)] mb-0.5">{t('breakEnd')}</label>
+            <input type="time" aria-label={t('breakEnd')} value={breakData.end} onChange={e => setBreakData(p => ({ ...p, end: e.target.value }))} className={inp} />
+          </div>
+          <Button size="sm" onClick={startBreak} disabled={saving}>{saving ? '…' : t('addBreak')}</Button>
+          <Button size="sm" variant="outline" onClick={() => { setBreakRecord(null); setErr('') }}>{t('cancel')}</Button>
         </div>
       )}
 
@@ -356,11 +455,23 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
                       {r.duration != null
                         ? <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--pp-info)]/10 text-[var(--pp-info)]">{fmt(r.duration)}</span>
                         : <span className="text-xs text-[var(--pp-muted)]">—</span>}
+                      {(r.breaks ?? []).map(b => (
+                        <div key={b.id} className="mt-1 flex items-center gap-1 text-xs text-[var(--pp-muted)]">
+                          <span>{t('breakLabel', { from: fmtTime(b.startedAt, locale), to: b.endedAt ? fmtTime(b.endedAt, locale) : '…' })}</span>
+                          <button
+                            onClick={() => startRemoveBreak(r.id, b.id)}
+                            aria-label={t('removeBreak')}
+                            title={t('removeBreak')}
+                            className="text-[var(--pp-neg)] hover:underline"
+                          >✕</button>
+                        </div>
+                      ))}
                     </td>
                     <td className="py-3 pr-4 hidden md:table-cell text-xs text-[var(--pp-muted)]">{r.location}</td>
                     <td className="py-3">
                       <div className="flex gap-2">
                         <button onClick={() => startEdit(r)} className="text-xs text-[var(--pp-info)] hover:underline">{t('edit')}</button>
+                        <button onClick={() => openBreak(r)} className="text-xs text-[var(--pp-info)] hover:underline">{t('addBreakShort')}</button>
                         <button onClick={() => del(r.id)} className="text-xs text-[var(--pp-neg)] hover:underline">{t('delete')}</button>
                       </div>
                     </td>

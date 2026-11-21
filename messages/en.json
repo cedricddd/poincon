@@ -1343,7 +1343,8 @@
     "reportDateRequired": "The date is required.",
     "reportTimeRequired": "Enter at least one time to correct.",
     "reportNoteRequired": "A note is required for the reason “Other”.",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "reasonForgotBreak": "Forgot to clock the break"
   },
   "adminRequests": {
     "colType": "Type",
@@ -1847,7 +1848,17 @@
     "notePlaceholder": "Note (optional)…",
     "noteRequired": "A note is required for the reason “Other”.",
     "noteRequiredHint": "Note required for this reason.",
-    "noteExportHint": "The note appears in the export and in the audit trail."
+    "noteExportHint": "The note appears in the export and in the audit trail.",
+    "reasonForgotBreak": "Forgot to clock the break",
+    "addBreakShort": "+ Break",
+    "addBreak": "Add the break",
+    "addBreakFor": "Forgotten break for the {date} record ({from} → {to}). The day total will be recalculated.",
+    "breakStart": "Break start",
+    "breakEnd": "Break end",
+    "breakTimesRequired": "Enter the start and end of the break.",
+    "breakLabel": "Break {from}–{to}",
+    "removeBreak": "Remove this break",
+    "confirmDeleteBreak": "Remove this break? The day total will be recalculated."
   },
   "integrations": {
     "loading": "Loading...",
@@ -2003,7 +2014,11 @@
     "rForgotOut": "Forgot clock out (departure)",
     "rCorrection": "Error correction",
     "rOther": "Other",
-    "rManualCreate": "Manual creation"
+    "rManualCreate": "Manual creation",
+    "actAdminAddBreak": "Break added (admin)",
+    "actAdminRemoveBreak": "Break removed (admin)",
+    "rForgotBreak": "Forgot to clock the break",
+    "lblBreaks": "Breaks"
   },
   "kioskAdmin": {
     "title": "Kiosk Mode",

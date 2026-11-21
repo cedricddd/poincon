@@ -46,7 +46,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       clockRecords: {
         orderBy: { date: 'desc' },
         take: 30,
-        include: { editor: { select: { name: true, email: true } } },
+        include: {
+          editor: { select: { name: true, email: true } },
+          breaks: { select: { id: true, startedAt: true, endedAt: true }, orderBy: { startedAt: 'asc' } },
+        },
       },
       timeOffRequests: {
         orderBy: { createdAt: 'desc' },
