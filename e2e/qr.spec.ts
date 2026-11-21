@@ -39,10 +39,12 @@ async function anonymousPage(browser: Browser) {
 
 async function signIn(page: Page, email: string, callbackUrl?: string) {
   await page.goto(callbackUrl ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}` : '/login')
+  await page.waitForLoadState('networkidle') // see auth-helpers: no click before hydration
   await page.fill('input#email', email)
   await page.fill('input#password', PASSWORD)
   await page.click('button[type="submit"]')
   await page.waitForURL(url => !url.pathname.endsWith('/login'))
+  await page.waitForLoadState('networkidle')
 }
 
 test.describe.serial('QR clocking — company lock and account mode', () => {
@@ -89,6 +91,7 @@ test.describe.serial('QR clocking — company lock and account mode', () => {
   test('anonymous PIN flow is unchanged by default', async ({ browser }) => {
     const page = await anonymousPage(browser)
     await page.goto(`/qr/${qrCo.token}`)
+    await page.waitForLoadState('networkidle') // the keypad only responds once hydrated
     await expect(page.getByText('Entrez votre code PIN')).toBeVisible()
     for (const d of '4821') await page.getByRole('button', { name: d, exact: true }).click()
     await expect(page.getByText('Bienvenue au travail,')).toBeVisible()

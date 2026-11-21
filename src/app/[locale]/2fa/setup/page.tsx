@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/navigation'
@@ -22,6 +22,9 @@ export default function TwoFactorSetupPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showManualKey, setShowManualKey] = useState(false)
+  // Set once the code is accepted: handleSubmit then navigates itself, and the session
+  // update must not start a second (soft) navigation that races the hard one.
+  const leaving = useRef(false)
 
   useEffect(() => {
     if (!session?.user) return
@@ -36,7 +39,7 @@ export default function TwoFactorSetupPage() {
 
   // Already set up and verified → go to dashboard
   useEffect(() => {
-    if (session?.user?.twoFactorVerified) {
+    if (session?.user?.twoFactorVerified && !leaving.current) {
       router.replace('/admin/dashboard')
     }
   }, [session?.user?.twoFactorVerified, router])
@@ -61,6 +64,7 @@ export default function TwoFactorSetupPage() {
       }
 
       // Mark session as 2FA verified + enabled
+      leaving.current = true
       await update({ twoFactorVerified: true, twoFactorEnabled: true })
       // Hard navigation: a soft router.replace can land back on this page, since the
       // Next.js router cache/refresh targets the route we're leaving, not the destination.

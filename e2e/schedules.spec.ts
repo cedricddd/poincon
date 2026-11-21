@@ -84,6 +84,7 @@ test.describe.serial('Schedule templates — unpaid break', () => {
 
     await page.request.patch('/api/admin/work-schedules', { data: { id: tpl.id, unpaidBreakMinutes: 30 } })
     await page.goto('/fr/admin/dashboard/schedules')
+    await page.waitForLoadState('networkidle') // the tabs only respond once hydrated
     await page.getByRole('button', { name: 'Gabarits' }).click()
     await page.getByRole('button', { name: 'Modifier' }).first().click()
     await expect(page.getByLabel('Pause non rémunérée (minutes)')).toHaveValue('30')

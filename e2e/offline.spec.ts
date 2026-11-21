@@ -1,79 +1,65 @@
 import { test, expect } from '@playwright/test'
+import { createClockEmployee, resetClockDay, deleteClockCompanies, saveSession, openClock, type ClockEmployee } from './clock-fixture'
 
-test.describe('Offline Behavior', () => {
+const PREFIX = 'e2e-offline-'
+const SESSION = 'e2e/.auth/offline-employee.json'
+let emp: ClockEmployee
+
+// page.route() does not see requests made through the PWA service worker: once it controls
+// the page, the "network down" routes below would be bypassed and the punch would reach the server.
+test.use({ storageState: SESSION, serviceWorkers: 'block' })
+
+/** Number of punches waiting in the browser's offline queue. */
+const pendingActions = (page: import('@playwright/test').Page) =>
+  page.evaluate(() => new Promise<number>(resolve => {
+    const req = indexedDB.open('PointonDB')
+    req.onsuccess = () => {
+      const db = req.result
+      if (!db.objectStoreNames.contains('pendingActions')) return resolve(0)
+      const getAll = db.transaction(['pendingActions']).objectStore('pendingActions').getAll()
+      getAll.onsuccess = () => resolve(getAll.result.length)
+    }
+    req.onerror = () => resolve(0)
+  }))
+
+test.describe.serial('Offline Behavior', () => {
+  test.beforeAll(async ({ browser }) => {
+    emp = createClockEmployee(PREFIX)
+    await saveSession(browser, emp.email, SESSION)
+  })
+
+  test.afterAll(() => deleteClockCompanies(PREFIX))
+
   test.beforeEach(async ({ page }) => {
-    await page.goto('/app/clock')
-    await page.waitForURL(/\/app\/clock/)
+    resetClockDay(emp.userId)
+    await openClock(page)
   })
 
-  test('shows pending badge when API fails', async ({ page }) => {
+  test('a failed clock-in is queued: pending badge and IndexedDB entry', async ({ page }) => {
     await page.route('**/api/clock/record', route => route.abort('failed'))
+    await page.getByRole('button', { name: /ARRIVÉE/i }).click()
 
-    const clockInButton = page.getByRole('button', { name: /ARRIVÉE/i })
-    await clockInButton.click()
-
-    const pendingBadge = page.locator('text=/⏳|en attente/')
-    await expect(pendingBadge).toBeVisible({ timeout: 5000 })
+    await expect(page.getByText(/⏳ \d+ en attente/)).toBeVisible()
+    await expect(page.getByRole('button', { name: /DÉPART/i })).toBeVisible()
+    await expect.poll(() => pendingActions(page)).toBeGreaterThan(0)
   })
 
-  test('shows offline sync message on network timeout', async ({ page }) => {
+  test('a network timeout still records the arrival locally', async ({ page }) => {
     await page.route('**/api/clock/record', route => {
       setTimeout(() => route.abort('timedout'), 100)
     })
-
-    const clockInButton = page.getByRole('button', { name: /ARRIVÉE/i })
-    await clockInButton.click()
-
-    await page.waitForTimeout(2000)
-    await page.unroute('**/api/clock/record')
-    const depButton = page.getByRole('button', { name: /DÉPART/i })
-    await expect(depButton).toBeVisible({ timeout: 8000 })
+    await page.getByRole('button', { name: /ARRIVÉE/i }).click()
+    await expect(page.getByRole('button', { name: /DÉPART/i })).toBeVisible({ timeout: 8000 })
   })
 
   test('retry sync after network recovery', async ({ page }) => {
     let requestCount = 0
-
     await page.route('**/api/clock/record', route => {
       requestCount++
-      if (requestCount === 1) {
-        route.abort('failed')
-      } else {
-        route.continue()
-      }
+      if (requestCount === 1) route.abort('failed')
+      else route.continue()
     })
-
-    const clockInButton = page.getByRole('button', { name: /ARRIVÉE/i })
-    await clockInButton.click()
-
-    await page.waitForTimeout(1000)
-
-    await page.unroute('**/api/clock/record')
-
-    const departButton = page.getByRole('button', { name: /DÉPART/i })
-    await expect(departButton).toBeVisible({ timeout: 8000 })
-  })
-
-  test('IndexedDB stores pending actions', async ({ page }) => {
-    await page.route('**/api/clock/record', route => route.abort('failed'))
-
-    const clockInButton = page.getByRole('button', { name: /ARRIVÉE/i })
-    await clockInButton.click()
-
-    const pendingCount = await page.evaluate(() => {
-      return new Promise((resolve) => {
-        const request = indexedDB.open('PointonDB')
-        request.onsuccess = () => {
-          const db = request.result
-          const txn = db.transaction(['pendingActions'])
-          const store = txn.objectStore('pendingActions')
-          const getRequest = store.getAll()
-          getRequest.onsuccess = () => {
-            resolve(getRequest.result.length)
-          }
-        }
-      })
-    })
-
-    expect(pendingCount).toBeGreaterThan(0)
+    await page.getByRole('button', { name: /ARRIVÉE/i }).click()
+    await expect(page.getByRole('button', { name: /DÉPART/i })).toBeVisible({ timeout: 8000 })
   })
 })

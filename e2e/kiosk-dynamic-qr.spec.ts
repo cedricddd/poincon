@@ -80,6 +80,7 @@ test.describe.serial('Kiosk dynamic QR', () => {
   test('a current code opens the PIN screen and clocks in', async ({ browser }) => {
     const page = await anonymousPage(browser)
     await page.goto(`/qr/t/${PUBLIC_ID}?c=${code()}`)
+    await page.waitForLoadState('networkidle') // the keypad only responds once hydrated
     await expect(page.getByText('Entrez votre code PIN')).toBeVisible()
     for (const d of '5831') await page.getByRole('button', { name: d, exact: true }).click()
     await expect(page.getByText('Bienvenue au travail,')).toBeVisible()

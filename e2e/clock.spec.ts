@@ -1,103 +1,64 @@
 import { test, expect } from '@playwright/test'
+import { db } from './db'
+import { createClockEmployee, resetClockDay, deleteClockCompanies, saveSession, openClock, type ClockEmployee } from './clock-fixture'
 
-test.describe('Clock Punch (Online)', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/app/clock')
-    await page.waitForURL(/\/app\/clock/)
+const PREFIX = 'e2e-clock-'
+const SESSION = 'e2e/.auth/clock-employee.json'
+let emp: ClockEmployee
+
+test.use({ storageState: SESSION })
+
+test.describe.serial('Clock Punch (Online)', () => {
+  test.beforeAll(async ({ browser }) => {
+    emp = createClockEmployee(PREFIX)
+    await saveSession(browser, emp.email, SESSION)
   })
 
-  test('clock in button is visible', async ({ page }) => {
-    const clockInButton = page.getByRole('button', { name: /ARRIVÉE/i })
-    await expect(clockInButton).toBeVisible()
+  test.afterAll(() => deleteClockCompanies(PREFIX))
+
+  test.beforeEach(async ({ page }) => {
+    resetClockDay(emp.userId)
+    await openClock(page)
   })
 
   test('clock in sends correct API request', async ({ page }) => {
     const responsePromise = page.waitForResponse(res =>
       res.url().includes('/api/clock/record') && res.request().method() === 'POST'
     )
-
-    const clockInButton = page.getByRole('button', { name: /ARRIVÉE/i })
-    await clockInButton.click()
-
-    const response = await responsePromise
-    expect(response.status()).toBeLessThan(400)
+    await page.getByRole('button', { name: /ARRIVÉE/i }).click()
+    expect((await responsePromise).status()).toBe(201)
   })
 
-  test('button changes to DEPART after clock in', async ({ page }) => {
-    const clockInButton = page.getByRole('button', { name: /ARRIVÉE/i })
-    await clockInButton.click()
-
-    await page.waitForTimeout(500)
-    const clockOutButton = page.getByRole('button', { name: /DÉPART/i })
-    await expect(clockOutButton).toBeVisible({ timeout: 5000 })
+  test('button changes to DEPART and the timer runs after clock in', async ({ page }) => {
+    await page.getByRole('button', { name: /ARRIVÉE/i }).click()
+    await expect(page.getByRole('button', { name: /DÉPART/i })).toBeVisible()
+    await expect(page.getByText('En cours').first()).toBeVisible()
   })
 
-  test('En cours badge visible after clock in', async ({ page }) => {
-    const clockInButton = page.getByRole('button', { name: /ARRIVÉE/i })
-    await clockInButton.click()
+  test('clock out sends the record id and the departure time', async ({ page }) => {
+    await page.getByRole('button', { name: /ARRIVÉE/i }).click()
+    const clockOut = page.getByRole('button', { name: /DÉPART/i })
+    await expect(clockOut).toBeEnabled()
+    // The screen clock ticks once a second: a departure in the same second as the arrival
+    // is refused by the server (departure must be after arrival). Wait for the timer to move.
+    await expect(page.getByText(/^00:00:0[1-9]$/)).toBeVisible()
 
-    const enCoursBadge = page.locator('text=En cours')
-    await expect(enCoursBadge).toBeVisible({ timeout: 5000 })
+    const patch = page.waitForRequest(req => req.url().includes('/api/clock/record') && req.method() === 'PATCH')
+    await clockOut.click()
+    const payload = (await patch).postDataJSON()
+    expect(payload).toHaveProperty('recordId')
+    expect(payload).toHaveProperty('departureTime')
+
+    // Back to the arrival button once the session is closed
+    await expect(page.getByRole('button', { name: /ARRIVÉE/i })).toBeVisible()
   })
 
-  test('timer starts counting after clock in', async ({ page }) => {
-    const clockInButton = page.getByRole('button', { name: /ARRIVÉE/i })
-    await clockInButton.click()
-
-    await page.waitForTimeout(2000)
-    const enCoursBadge = page.getByText('En cours', { exact: false }).first()
-    await expect(enCoursBadge).toBeVisible({ timeout: 5000 })
-  })
-
-  test('clock out sends correct API request', async ({ page }) => {
-    const clockInButton = page.getByRole('button', { name: /ARRIVÉE/i })
-    await clockInButton.click()
-
-    await page.waitForTimeout(1000)
-
-    let patchPayload: any
-    page.on('request', request => {
-      if (request.url().includes('/api/clock/record') && request.method() === 'PATCH') {
-        patchPayload = request.postDataJSON()
-      }
-    })
-
-    const clockOutButton = page.getByRole('button', { name: /DÉPART/i })
-    await clockOutButton.click()
-
-    await page.waitForTimeout(1000)
-    expect(patchPayload).toBeDefined()
-    expect(patchPayload).toHaveProperty('recordId')
-    expect(patchPayload).toHaveProperty('departureTime')
-  })
-
-  test('sessions card appears after clock out', async ({ page }) => {
-    const clockInButton = page.getByRole('button', { name: /ARRIVÉE/i })
-    await clockInButton.click()
-
-    await page.waitForTimeout(1500)
-
-    const clockOutButton = page.getByRole('button', { name: /DÉPART/i })
-    await clockOutButton.click()
-
-    await page.waitForTimeout(2000)
-    const departButton = page.getByRole('button', { name: /ARRIVÉE/i })
-    await expect(departButton).toBeVisible({ timeout: 5000 })
-  })
-
-  test('audit log created after clock in', async ({ page, context }) => {
-    const clockInButton = page.getByRole('button', { name: /ARRIVÉE/i })
-    await clockInButton.click()
-
-    await page.waitForTimeout(1500)
-
-    const adminPage = await context.newPage()
-    await adminPage.goto('/admin/dashboard/audit')
-    await adminPage.waitForURL(/\/admin\/dashboard\/audit/)
-
-    await adminPage.waitForTimeout(2000)
-    const tableBody = adminPage.locator('tbody tr')
-    const rowCount = await tableBody.count()
-    expect(rowCount).toBeGreaterThan(0)
+  test('audit log created after clock in', async ({ page }) => {
+    const count = () => db<number>(`return prisma.auditLog.count({ where: { userId: ARGS.userId, action: 'clock_in' } })`, { userId: emp.userId })
+    const before = count()
+    const posted = page.waitForResponse(res => res.url().includes('/api/clock/record') && res.request().method() === 'POST')
+    await page.getByRole('button', { name: /ARRIVÉE/i }).click()
+    expect((await posted).status()).toBe(201)
+    expect(count()).toBe(before + 1)
   })
 })
