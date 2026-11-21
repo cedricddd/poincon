@@ -8,6 +8,7 @@ import { hasWorkRules } from '@/lib/work-modes'
 import { baseMinutesFromHours, type WorkModeRules } from '@/lib/boni-mali'
 import { buildEmployeeReport, dayKeysBetween } from '@/lib/boni-mali-report'
 import { buildBoniMaliWorkbook, type EmployeeSheet } from '@/lib/boni-mali-xlsx'
+import { clientIp } from '@/lib/client-ip'
 
 // Boni/Mali timesheet export (.xlsx) — feature flag work_rules.
 // GET ?from=YYYY-MM-DD&to=YYYY-MM-DD[&userId=…]  (default: current month to date, max 93 days)
@@ -93,7 +94,7 @@ export async function GET(req: NextRequest) {
   await logAudit({
     userId: auth.admin.id, action: 'export_boni_mali', resource: 'report', resourceId: companyId,
     changes: { from, to, userId: userId ?? null, employees: employees.length },
-    ipAddress: req.headers.get('x-forwarded-for') ?? undefined,
+    ipAddress: clientIp(req.headers),
   })
 
   return new NextResponse(new Uint8Array(buffer), {

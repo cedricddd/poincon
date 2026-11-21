@@ -6,6 +6,7 @@ import { closeClockRecord, brusselsDayRange } from '@/lib/clock'
 import { NextRequest, NextResponse } from 'next/server'
 import { findUsersByPin, PIN_REGEX } from '@/lib/kiosk-pin'
 import { resolveWorkMode, checkArrivalAllowed } from '@/lib/work-modes'
+import { clientIp } from '@/lib/client-ip'
 
 export async function POST(
   req: NextRequest,
@@ -13,7 +14,7 @@ export async function POST(
 ) {
   try {
     const { token } = await params
-    const ip = req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? 'unknown'
+    const ip = clientIp(req.headers) ?? 'unknown'
     const rl = rateLimit(`kiosk-clock:${ip}:${token}`, 10, 5 * 60 * 1000)
     if (!rl.allowed) {
       return NextResponse.json({ error: 'Trop de tentatives. Réessayez dans 5 minutes.' }, { status: 429 })

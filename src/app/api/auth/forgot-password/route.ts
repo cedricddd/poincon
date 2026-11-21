@@ -3,9 +3,10 @@ import { prisma } from '@/lib/prisma'
 import { sendPasswordResetEmail } from '@/lib/mail'
 import { rateLimit } from '@/lib/rateLimit'
 import { normalizeEmail } from '@/lib/email'
+import { clientIp } from '@/lib/client-ip'
 
 export async function POST(req: NextRequest) {
-  const ip = req.headers.get('x-forwarded-for') ?? 'unknown'
+  const ip = clientIp(req.headers) ?? 'unknown'
   const { allowed } = rateLimit(`forgot-password:${ip}`, 3, 15 * 60 * 1000)
   if (!allowed) {
     return NextResponse.json({ error: 'Trop de tentatives. Réessayez dans 15 minutes.' }, { status: 429 })

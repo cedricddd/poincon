@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { resolveQrAccess, QR_ACCESS_ERRORS } from '@/lib/qr-access'
 import { handleQrClock } from '@/lib/qr-clock'
 import { siteHasDynamicQr, STATIC_QR_DISABLED } from '@/lib/kiosk-qr-server'
+import { clientIp } from '@/lib/client-ip'
 
 export async function GET(
   _req: NextRequest,
@@ -47,7 +48,7 @@ export async function POST(
 ) {
   try {
     const { token } = await params
-    const ip = req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? 'unknown'
+    const ip = clientIp(req.headers) ?? 'unknown'
     const rl = rateLimit(`qr-clock:${ip}:${token}`, 30, 5 * 60 * 1000)
     if (!rl.allowed) {
       return NextResponse.json({ error: 'Trop de tentatives. Réessayez dans 5 minutes.' }, { status: 429 })

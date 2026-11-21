@@ -4,6 +4,7 @@ import { logAudit } from '@/lib/audit'
 import { applyClockCorrection } from '@/lib/clock-record'
 import { dispatchWebhookSafe } from '@/lib/webhook'
 import { NextRequest, NextResponse } from 'next/server'
+import { clientIp } from '@/lib/client-ip'
 
 export async function GET(req: NextRequest) {
   const auth = await requireAdminWithCompany()
@@ -69,7 +70,7 @@ export async function PATCH(req: NextRequest) {
       resource: 'clockCorrectionRequest',
       resourceId: id,
       changes: { date: when, reason: request.reason, rejectionReason: rejectionReason ?? null },
-      ipAddress: req.headers.get('x-forwarded-for') ?? undefined,
+      ipAddress: clientIp(req.headers),
     })
 
     await prisma.notification.create({
@@ -134,7 +135,7 @@ export async function PATCH(req: NextRequest) {
       before: result.before,
       after: result.after,
     },
-    ipAddress: req.headers.get('x-forwarded-for') ?? undefined,
+    ipAddress: clientIp(req.headers),
   })
 
   await prisma.notification.create({

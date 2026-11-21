@@ -6,6 +6,7 @@ import { closeClockRecord, brusselsDayRange } from '@/lib/clock'
 import { isUserActive } from '@/lib/user-status'
 import { resolveWorkMode, checkArrivalAllowed, checkDepartureAllowed } from '@/lib/work-modes'
 import { NextRequest, NextResponse } from 'next/server'
+import { clientIp } from '@/lib/client-ip'
 
 // SECURITY: Validate timestamp is within reasonable range
 function validateTimestamp(timestamp: any): Date | null {
@@ -122,7 +123,7 @@ export async function POST(req: NextRequest) {
       resource: 'clockRecord',
       resourceId: record.id,
       changes: { arrivalTime, location: record.location, siteId: siteId ?? null, workModeId: record.workModeId },
-      ipAddress: req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? undefined,
+      ipAddress: clientIp(req.headers),
       userAgent: req.headers.get('user-agent') ?? undefined,
     })
 
@@ -227,7 +228,7 @@ export async function PATCH(req: NextRequest) {
       resource: 'clockRecord',
       resourceId: record.id,
       changes: { departureTime, duration: record.duration },
-      ipAddress: req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? undefined,
+      ipAddress: clientIp(req.headers),
       userAgent: req.headers.get('user-agent') ?? undefined,
     })
 

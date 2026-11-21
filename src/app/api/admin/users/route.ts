@@ -9,6 +9,7 @@ import { normalizeEmail } from '@/lib/email'
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { createHash } from 'crypto'
+import { clientIp } from '@/lib/client-ip'
 
 async function requireAdmin(req: NextRequest) {
   const session = await auth()
@@ -100,7 +101,7 @@ export async function PATCH(req: NextRequest) {
         actorId: session.user.id,
         targetId: id,
         active: body.active,
-        ipAddress: req.headers.get('x-forwarded-for') ?? undefined,
+        ipAddress: clientIp(req.headers),
       })
       if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status })
       return NextResponse.json({ id, active: body.active })

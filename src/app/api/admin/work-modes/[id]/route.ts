@@ -3,6 +3,7 @@ import { requireAdminWithCompany } from '@/lib/admin-security'
 import { prisma } from '@/lib/prisma'
 import { logAudit } from '@/lib/audit'
 import { hasWorkRules, parseWorkModeInput } from '@/lib/work-modes'
+import { clientIp } from '@/lib/client-ip'
 
 // Loads the mode only if it belongs to the admin's company (anti cross-tenant IDOR).
 async function loadOwnedMode(id: string, companyId: string) {
@@ -38,7 +39,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   await logAudit({
     userId: auth.admin.id, action: 'work_mode_update', resource: 'workMode', resourceId: id,
-    changes: { before, after: parsed.data }, ipAddress: req.headers.get('x-forwarded-for') ?? undefined,
+    changes: { before, after: parsed.data }, ipAddress: clientIp(req.headers),
   })
   return NextResponse.json(mode)
 }
@@ -64,7 +65,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
   await logAudit({
     userId: auth.admin.id, action: used > 0 ? 'work_mode_deactivate' : 'work_mode_delete', resource: 'workMode', resourceId: id,
-    changes: { before: mode }, ipAddress: req.headers.get('x-forwarded-for') ?? undefined,
+    changes: { before: mode }, ipAddress: clientIp(req.headers),
   })
   return NextResponse.json({ deleted: used === 0, deactivated: used > 0 })
 }

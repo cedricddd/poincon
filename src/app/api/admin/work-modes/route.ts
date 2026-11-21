@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { logAudit } from '@/lib/audit'
 import { hasWorkRules, parseWorkModeInput } from '@/lib/work-modes'
 import { DEFAULT_WORK_MODES } from '@/lib/boni-mali'
+import { clientIp } from '@/lib/client-ip'
 
 export async function GET() {
   const auth = await requireAdminWithCompany()
@@ -28,7 +29,7 @@ export async function POST(req: NextRequest) {
   if (!await hasWorkRules(companyId)) return NextResponse.json({ error: 'Fonctionnalité non activée' }, { status: 403 })
 
   const body = await req.json().catch(() => null)
-  const ip = req.headers.get('x-forwarded-for') ?? undefined
+  const ip = clientIp(req.headers)
 
   if (body?.prefill === true) {
     const existing = await prisma.workMode.findMany({ where: { companyId }, select: { code: true, isDefault: true } })

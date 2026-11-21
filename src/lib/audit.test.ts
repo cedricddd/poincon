@@ -8,15 +8,15 @@ function req(headers: Record<string, string>) {
 }
 
 describe('requestMeta', () => {
-  it('takes the first IP of x-forwarded-for', () => {
-    expect(requestMeta(req({ 'x-forwarded-for': '77.32.148.27, 10.0.0.1', 'user-agent': 'Firefox' }))).toEqual({
+  it('takes the IP written by the proxy, not a forged first x-forwarded-for entry', () => {
+    expect(requestMeta(req({ 'x-forwarded-for': '6.6.6.6, 77.32.148.27', 'user-agent': 'Firefox' }))).toEqual({
       ipAddress: '77.32.148.27',
       userAgent: 'Firefox',
     })
   })
 
-  it('falls back to x-real-ip', () => {
-    expect(requestMeta(req({ 'x-real-ip': '1.2.3.4' })).ipAddress).toBe('1.2.3.4')
+  it('prefers x-real-ip', () => {
+    expect(requestMeta(req({ 'x-real-ip': '1.2.3.4', 'x-forwarded-for': '6.6.6.6, 1.2.3.4' })).ipAddress).toBe('1.2.3.4')
   })
 
   it('returns undefined when no IP/UA headers', () => {

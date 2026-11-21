@@ -3,6 +3,7 @@ import { requireAdminWithCompany } from '@/lib/admin-security'
 import { getCompanyPlan, planCanAccess } from '@/lib/plan'
 import { prisma } from '@/lib/prisma'
 import { logAudit } from '@/lib/audit'
+import { clientIp } from '@/lib/client-ip'
 
 export async function GET() {
   const auth = await requireAdminWithCompany()
@@ -48,7 +49,7 @@ export async function PATCH(req: NextRequest) {
     resource: 'company',
     resourceId: auth.admin.companyId,
     changes: { before, after: company },
-    ipAddress: req.headers.get('x-forwarded-for') ?? undefined,
+    ipAddress: clientIp(req.headers),
   })
 
   return NextResponse.json(company)

@@ -4,6 +4,7 @@ import { getCompanyPlan, planCanAccess } from '@/lib/plan'
 import { rateLimit } from '@/lib/rateLimit'
 import { NextRequest, NextResponse } from 'next/server'
 import { currentStep, qrCode, qrScanUrl, safeInterval, stepExpiresAt, isDynamicQrMode } from '@/lib/kiosk-qr'
+import { clientIp } from '@/lib/client-ip'
 
 // Current rotating QR of a kiosk terminal, polled by the tablet. Only the terminal's secret link
 // can read it; the HMAC secret itself never leaves the server.
@@ -13,7 +14,7 @@ export async function GET(
 ) {
   try {
     const { token } = await params
-    const ip = req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? 'unknown'
+    const ip = clientIp(req.headers) ?? 'unknown'
     // Two calls per minute at 30 s; the margin covers retries after a network drop.
     const rl = rateLimit(`kiosk-qr:${ip}:${token}`, 30, 5 * 60 * 1000)
     if (!rl.allowed) {

@@ -8,6 +8,7 @@ import { isTrustTokenValid, trustTokenFromCookieHeader, TRUST_COOKIE } from '@/l
 import { isAdminRole } from '@/lib/roles'
 import { normalizeEmail } from '@/lib/email'
 import { cookies } from 'next/headers'
+import { clientIp } from '@/lib/client-ip'
 
 // Sessions are JWTs: re-check the account in DB at most this often, so a deactivated
 // user or a deleted company loses access within minutes instead of at token expiry.
@@ -29,7 +30,7 @@ export const authConfig: NextAuthConfig = {
         const email = normalizeEmail(rawEmail)
 
         // Per-account limit (brute force) + per-IP limit (password spraying across accounts)
-        const ip = request?.headers?.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+        const ip = (request?.headers ? clientIp(request.headers) : undefined) ?? 'unknown'
         const perAccount = rateLimit(`login:${email}`, 10, 15 * 60 * 1000)
         const perIp = rateLimit(`login-ip:${ip}`, 50, 15 * 60 * 1000)
         if (!perAccount.allowed || !perIp.allowed) throw new Error('TooManyAttempts')

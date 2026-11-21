@@ -6,6 +6,7 @@ import { logAudit } from '@/lib/audit'
 import { KIOSK_DISPLAY_MODES, isDynamicQrMode, isValidInterval, generateQrPublicId, generateQrSecret } from '@/lib/kiosk-qr'
 import { publicTerminal } from '@/lib/kiosk-qr-server'
 import { NextRequest, NextResponse } from 'next/server'
+import { clientIp } from '@/lib/client-ip'
 
 async function requireAdminToken(req: NextRequest, id: string) {
   const session = await auth()
@@ -125,7 +126,7 @@ export async function PATCH(
           before: { displayMode: token.displayMode, qrIntervalSeconds: token.qrIntervalSeconds },
           after: { displayMode: updated.displayMode, qrIntervalSeconds: updated.qrIntervalSeconds },
         },
-        ipAddress: req.headers.get('x-forwarded-for') ?? undefined,
+        ipAddress: clientIp(req.headers),
       })
     }
 

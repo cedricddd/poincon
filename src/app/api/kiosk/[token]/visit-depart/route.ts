@@ -3,6 +3,7 @@ import { getCompanyPlan, planCanAccess } from '@/lib/plan'
 import { rateLimit } from '@/lib/rateLimit'
 import { brusselsDayRange } from '@/lib/clock'
 import { NextRequest, NextResponse } from 'next/server'
+import { clientIp } from '@/lib/client-ip'
 
 export async function POST(
   req: NextRequest,
@@ -10,7 +11,7 @@ export async function POST(
 ) {
   try {
     const { token } = await params
-    const ip = req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? 'unknown'
+    const ip = clientIp(req.headers) ?? 'unknown'
     const rl = rateLimit(`kiosk-depart:${ip}:${token}`, 10, 60 * 1000)
     if (!rl.allowed) {
       return NextResponse.json({ error: 'Trop de tentatives. Réessayez dans 1 minute.' }, { status: 429 })

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { logAudit } from '@/lib/audit'
 import { applyClockCorrection, isValidEditReason, fmtBrussels, fmtDateBrussels } from '@/lib/clock-record'
 import { NextRequest, NextResponse } from 'next/server'
+import { clientIp } from '@/lib/client-ip'
 
 export async function GET() {
   const authData = await requireAdminWithCompany()
@@ -56,7 +57,7 @@ export async function PATCH(req: NextRequest) {
       before: result.before,
       after: result.after,
     },
-    ipAddress: req.headers.get('x-forwarded-for') ?? undefined,
+    ipAddress: clientIp(req.headers),
   })
 
   return NextResponse.json({ ok: true })
@@ -101,7 +102,7 @@ export async function POST(req: NextRequest) {
       note: note ?? null,
       after: result.after,
     },
-    ipAddress: req.headers.get('x-forwarded-for') ?? undefined,
+    ipAddress: clientIp(req.headers),
   })
 
   return NextResponse.json({ ok: true, id: result.recordId })
@@ -132,7 +133,7 @@ export async function DELETE(req: NextRequest) {
       departureTime: fmtBrussels(existing.departureTime),
       location: existing.location,
     },
-    ipAddress: req.headers.get('x-forwarded-for') ?? undefined,
+    ipAddress: clientIp(req.headers),
   })
 
   return NextResponse.json({ ok: true })

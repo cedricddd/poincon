@@ -5,6 +5,7 @@ import { resolveQrAccess, QR_ACCESS_ERRORS } from '@/lib/qr-access'
 import { handleQrClock } from '@/lib/qr-clock'
 import { findDynamicTerminal } from '@/lib/kiosk-qr-server'
 import { verifyQrCode, safeInterval } from '@/lib/kiosk-qr'
+import { clientIp } from '@/lib/client-ip'
 
 // Clocking from the rotating QR shown on a kiosk terminal. The scanned link carries the code of
 // the time step; it is checked again here, so a photo of the screen expires within two intervals.
@@ -14,7 +15,7 @@ export async function POST(
 ) {
   try {
     const { id } = await params
-    const ip = req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? 'unknown'
+    const ip = clientIp(req.headers) ?? 'unknown'
     const rl = rateLimit(`qr-dyn-clock:${ip}:${id}`, 30, 5 * 60 * 1000)
     if (!rl.allowed) {
       return NextResponse.json({ error: 'Trop de tentatives. Réessayez dans 5 minutes.' }, { status: 429 })

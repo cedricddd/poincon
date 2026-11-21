@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { clientIp } from '@/lib/client-ip'
 
 // Extract client IP and user-agent from a request, for audit trails on
 // unauthenticated or sensitive flows (signup, invitations, password set).
@@ -6,10 +7,7 @@ export function requestMeta(req: { headers: { get(name: string): string | null }
   ipAddress?: string
   userAgent?: string
 } {
-  const ipAddress =
-    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    req.headers.get('x-real-ip')?.trim() ||
-    undefined
+  const ipAddress = clientIp(req.headers)
   const userAgent = req.headers.get('user-agent')?.slice(0, 500) || undefined
   return { ipAddress, userAgent }
 }
