@@ -84,11 +84,13 @@ test.describe.serial('Employee requests notify the reviewers', () => {
 
   test('an admin ticks the box in My profile', async ({ page }) => {
     await signInAdmin(page, fx.otherAdminEmail)
-    await page.goto('/fr/app/profile')
-    await page.waitForLoadState('networkidle')
     await page.getByRole('button', { name: 'Refuser' }).click({ timeout: 3000 }).catch(() => {}) // cookie banner
     // With unread notifications (the 3 requests above) the bell opens itself for 5 s and covers the page
     await expect(page.getByText(/non lues?$/)).toBeHidden({ timeout: 10_000 })
+    // Reached the way an admin would: the sidebar link, not the URL (it was hidden for admins)
+    await page.getByRole('link', { name: 'Mon profil' }).click()
+    await page.waitForURL(/\/app\/profile/)
+    await page.waitForLoadState('networkidle')
     const card = page.getByTestId('request-emails')
     const box = card.getByRole('checkbox', { name: /Recevoir un e-mail à chaque nouvelle demande/ })
     await expect(box).not.toBeChecked()

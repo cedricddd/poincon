@@ -443,7 +443,9 @@ export function Sidebar() {
           </div>
         )}
 
-        {!isSuperAdmin && !isAdmin && (
+        {/* Admins too: e-mail language, personal data export and the request e-mails setting
+            live there (the super-admin has its own profile page) */}
+        {!isSuperAdmin && (
           <Link
             href="/app/profile"
             title={c ? t('mon_profil') : undefined}
