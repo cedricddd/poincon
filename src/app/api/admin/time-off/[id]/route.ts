@@ -4,6 +4,8 @@ import { logAudit } from '@/lib/audit'
 import { isValidLeaveType } from '@/lib/leaveTypes'
 import { NextRequest, NextResponse } from 'next/server'
 
+const TIME_OFF_STATUSES = ['PENDING', 'APPROVED', 'REJECTED']
+
 async function findScopedRequest(id: string, companyId: string) {
   const record = await prisma.timeOffRequest.findUnique({
     where: { id },
@@ -21,10 +23,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const record = await findScopedRequest(id, auth.admin.companyId)
   if (!record) return NextResponse.json({ error: 'Introuvable' }, { status: 404 })
 
-  const { startDate, endDate, reason, leaveType } = await req.json()
+  const { startDate, endDate, reason, leaveType, status } = await req.json()
   if (!startDate || !endDate) return NextResponse.json({ error: 'Champs requis' }, { status: 400 })
+  // Optional: the employee page edits the status too (the leave page does not send it)
+  if (status !== undefined && !TIME_OFF_STATUSES.includes(status)) {
+    return NextResponse.json({ error: 'Statut invalide' }, { status: 400 })
+  }
 
   const resolvedLeaveType = isValidLeaveType(leaveType) ? leaveType : record.leaveType
+  const statusChanged = status !== undefined && status !== record.status
   const updated = await prisma.timeOffRequest.update({
     where: { id },
     data: {
@@ -32,6 +39,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       endDate: new Date(endDate),
       leaveType: resolvedLeaveType,
       reason: reason ?? null,
+      ...(statusChanged && {
+        status,
+        approvedBy: status === 'PENDING' ? null : auth.session.user.id,
+        approvedAt: status === 'PENDING' ? null : new Date(),
+      }),
     },
   })
 
@@ -42,7 +54,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       action: 'admin_update',
       resource: 'timeOff',
       resourceId: id,
-      changes: { targetUserId: record.userId, startDate, endDate, leaveType: resolvedLeaveType, reason: reason ?? null },
+      changes: {
+        targetUserId: record.userId, startDate, endDate, leaveType: resolvedLeaveType, reason: reason ?? null,
+        ...(statusChanged && { status: { from: record.status, to: status } }),
+      },
     }),
   ])
 

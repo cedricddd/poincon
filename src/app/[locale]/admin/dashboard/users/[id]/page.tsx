@@ -8,6 +8,7 @@ import { Link } from '@/i18n/navigation'
 import { Card } from '@/components/Card'
 import { Button } from '@/components/Button'
 import { formatHours } from '@/lib/format-hours'
+import { readErrorMessage } from '@/lib/response-error'
 import { countLeaveDays, DEFAULT_WORK_DAYS, type WorkDays } from '@/lib/leave-days'
 
 type ClockRecord = {
@@ -137,6 +138,7 @@ function EditedBadge({ record }: { record: ClockRecord }) {
 // ── Clock Records Tab ─────────────────────────────────────────────────────────
 function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; userId: string; onRefresh: () => void }) {
   const t = useTranslations('userDetail')
+  const tc = useTranslations('common')
   const locale = useLocale()
   const [editId, setEditId] = useState<string | null>(null)
   const [editData, setEditData] = useState({ date: '', arrival: '', departure: '', location: '' })
@@ -193,7 +195,7 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
     })
     setSaving(false)
     setReasonStep(null)
-    if (!res.ok) { setErr((await res.json()).error); return }
+    if (!res.ok) { setErr(await readErrorMessage(res, tc('error'))); return }
     setEditId(null)
     onRefresh()
   }
@@ -201,7 +203,7 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
   const del = async (id: string) => {
     if (!confirm(t('confirmDeleteClock'))) return
     const res = await fetch(`/api/admin/clock-records?id=${id}`, { method: 'DELETE' })
-    if (!res.ok) { setErr((await res.json()).error); return }
+    if (!res.ok) { setErr(await readErrorMessage(res, tc('error'))); return }
     onRefresh()
   }
 
@@ -235,7 +237,7 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
     })
     setSaving(false)
     setReasonStep(null)
-    if (!res.ok) { setErr((await res.json()).error); return }
+    if (!res.ok) { setErr(await readErrorMessage(res, tc('error'))); return }
     setShowAdd(false)
     setAddData({ date: '', arrival: '', departure: '', location: 'Sur site' })
     onRefresh()
@@ -379,6 +381,7 @@ function ClockTab({ records, userId, onRefresh }: { records: ClockRecord[]; user
 // ── Time Off Tab ──────────────────────────────────────────────────────────────
 function TimeOffTab({ timeoffs, userId, workDays, onRefresh }: { timeoffs: TimeOff[]; userId: string; workDays: WorkDays; onRefresh: () => void }) {
   const t = useTranslations('userDetail')
+  const tc = useTranslations('common')
   const locale = useLocale()
   const [editId, setEditId] = useState<string | null>(null)
   const [editData, setEditData] = useState({ startDate: '', endDate: '', reason: '', status: 'APPROVED' })
@@ -396,21 +399,21 @@ function TimeOffTab({ timeoffs, userId, workDays, onRefresh }: { timeoffs: TimeO
   const saveEdit = async () => {
     if (!editData.startDate || !editData.endDate) { setErr(t('datesRequired')); return }
     setSaving(true); setErr('')
-    const res = await fetch('/api/admin/time-off', {
+    const res = await fetch(`/api/admin/time-off/${editId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: editId, ...editData }),
+      body: JSON.stringify(editData),
     })
     setSaving(false)
-    if (!res.ok) { setErr((await res.json()).error); return }
+    if (!res.ok) { setErr(await readErrorMessage(res, tc('error'))); return }
     setEditId(null)
     onRefresh()
   }
 
   const del = async (id: string) => {
     if (!confirm(t('confirmDeleteTimeOff'))) return
-    const res = await fetch(`/api/admin/time-off?id=${id}`, { method: 'DELETE' })
-    if (!res.ok) { setErr((await res.json()).error); return }
+    const res = await fetch(`/api/admin/time-off/${id}`, { method: 'DELETE' })
+    if (!res.ok) { setErr(await readErrorMessage(res, tc('error'))); return }
     onRefresh()
   }
 
@@ -423,7 +426,7 @@ function TimeOffTab({ timeoffs, userId, workDays, onRefresh }: { timeoffs: TimeO
       body: JSON.stringify({ userId, ...addData }),
     })
     setSaving(false)
-    if (!res.ok) { setErr((await res.json()).error); return }
+    if (!res.ok) { setErr(await readErrorMessage(res, tc('error'))); return }
     setShowAdd(false)
     setAddData({ startDate: '', endDate: '', reason: '', status: 'APPROVED' })
     onRefresh()
@@ -535,6 +538,7 @@ function TimeOffTab({ timeoffs, userId, workDays, onRefresh }: { timeoffs: TimeO
 // ── RTT Tab ───────────────────────────────────────────────────────────────────
 function RTTTab({ rtts, userId, onRefresh }: { rtts: RTT[]; userId: string; onRefresh: () => void }) {
   const t = useTranslations('userDetail')
+  const tc = useTranslations('common')
   const locale = useLocale()
   const [editId, setEditId] = useState<string | null>(null)
   const [editData, setEditData] = useState({ date: '', hours: '', reason: '', status: 'APPROVED' })
@@ -558,7 +562,7 @@ function RTTTab({ rtts, userId, onRefresh }: { rtts: RTT[]; userId: string; onRe
       body: JSON.stringify({ id: editId, date: editData.date, hoursToRecover: editData.hours, reason: editData.reason, status: editData.status }),
     })
     setSaving(false)
-    if (!res.ok) { setErr((await res.json()).error); return }
+    if (!res.ok) { setErr(await readErrorMessage(res, tc('error'))); return }
     setEditId(null)
     onRefresh()
   }
@@ -566,7 +570,7 @@ function RTTTab({ rtts, userId, onRefresh }: { rtts: RTT[]; userId: string; onRe
   const del = async (id: string) => {
     if (!confirm(t('confirmDeleteRtt'))) return
     const res = await fetch(`/api/admin/rtt?id=${id}`, { method: 'DELETE' })
-    if (!res.ok) { setErr((await res.json()).error); return }
+    if (!res.ok) { setErr(await readErrorMessage(res, tc('error'))); return }
     onRefresh()
   }
 
@@ -579,7 +583,7 @@ function RTTTab({ rtts, userId, onRefresh }: { rtts: RTT[]; userId: string; onRe
       body: JSON.stringify({ userId, date: addData.date, hoursToRecover: addData.hours, reason: addData.reason, status: addData.status }),
     })
     setSaving(false)
-    if (!res.ok) { setErr((await res.json()).error); return }
+    if (!res.ok) { setErr(await readErrorMessage(res, tc('error'))); return }
     setShowAdd(false)
     setAddData({ date: '', hours: '', reason: '', status: 'APPROVED' })
     onRefresh()
@@ -736,7 +740,7 @@ export default function UserDetailPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ balanceAdjustment: val, adjustmentReason: adjustReason }),
     })
-    if (!res.ok) { setAdjustErr((await res.json()).error); setAdjusting(false); return }
+    if (!res.ok) { setAdjustErr(await readErrorMessage(res, tc('error'))); setAdjusting(false); return }
     setAdjustment(''); setAdjustReason('')
     setAdjusting(false)
     load()
