@@ -782,6 +782,17 @@
       "subject": "🏷️ Visitor arrived: {visitor}",
       "body": "Your visitor {visitor} has just arrived at reception at {time}.",
       "sectionVisitor": "<strong>Visitor</strong>"
+    },
+    "request": {
+      "subjectTimeoff": "{name} is requesting leave",
+      "subjectRtt": "{name} is requesting time off in lieu",
+      "subjectCorrection": "{name} reports a missed clocking",
+      "lineTimeoff": "is requesting leave ({type}) from {from} to {to}.",
+      "lineTimeoffOneDay": "is requesting leave ({type}) on {date}.",
+      "lineRtt": "is requesting {hours} h of time off in lieu on {date}.",
+      "lineCorrection": "reports a missed clocking on {date}.",
+      "button": "View the request",
+      "footerPrefs": "You are receiving this e-mail because you turned it on in My profile. You can turn it off there at any time."
     }
   },
   "landing": {
@@ -1293,7 +1304,12 @@
     "rgpdDownloadPdf": "Download as PDF",
     "rgpdDownloadJson": "Download as JSON",
     "rgpdGenerating": "Generating…",
-    "rgpdError": "Error downloading data"
+    "rgpdError": "Error downloading data",
+    "requestEmailsTitle": "Employee requests",
+    "requestEmailsLabel": "Get an e-mail for each new request (leave, time off in lieu, missed clocking)",
+    "requestEmailsHint": "One e-mail per request. For a large team, leave it off: requests also appear under the bell.",
+    "requestEmailsOn": "On: you will get an e-mail for each new request.",
+    "requestEmailsOff": "Off: no more e-mails, requests stay under the bell."
   },
   "myReports": {
     "title": "My reports",

@@ -513,3 +513,51 @@ export async function sendInternalInvoiceAlert(params: {
     html,
   })
 }
+
+/** Escapes user-typed text (names) before it goes into an HTML e-mail. */
+function escapeHtml(s: string): string {
+  return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!)
+}
+
+export type RequestKind = 'timeoff' | 'rtt' | 'correction'
+
+/**
+ * Tells an admin or manager that an employee made a request to review.
+ * `line` is the already translated, plain-text description ("asks for leave from … to …").
+ */
+export async function sendRequestNotificationEmail(params: {
+  to: string
+  name: string | null
+  employee: string
+  kind: RequestKind
+  line: string
+  path: string
+  locale?: string
+}) {
+  if (!isMailConfigured()) return
+
+  const { to, name, employee, kind, line, path, locale = 'fr' } = params
+  const t = await getTranslations({ locale, namespace: 'emails' })
+  const appUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
+  const greeting = name ? t('greeting', { name: escapeHtml(name) }) : t('greetingGeneric')
+  const subjectKey = `request.subject${kind.charAt(0).toUpperCase()}${kind.slice(1)}` as Parameters<typeof t>[0]
+
+  const body = `
+    <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f8fafc;">
+      <div style="background:#ffffff;border-radius:12px;padding:32px;border:1px solid #e2e8f0;">
+        <img src="${appUrl}/images/logo-email.png" alt="Pointon" width="160" style="display:block;height:auto;margin:0 0 16px;">
+        <hr style="border:none;border-top:1px solid #e2e8f0;margin:16px 0;">
+        <p style="color:#334155;margin:0 0 16px;">${greeting}</p>
+        <p style="color:#334155;margin:0 0 24px;"><strong>${escapeHtml(employee)}</strong> ${escapeHtml(line)}</p>
+        <a href="${appUrl}${path}"
+           style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;">
+          ${t('request.button')}
+        </a>
+        <p style="color:#64748b;font-size:13px;margin-top:24px;">${t('request.footerPrefs')}</p>
+        <p style="color:#94a3b8;font-size:12px;margin-top:16px;">${t('footer', { year: String(new Date().getFullYear()) })}</p>
+      </div>
+    </div>
+  `
+
+  await sendRawMail({ to, subject: t(subjectKey, { name: employee }), html: body })
+}

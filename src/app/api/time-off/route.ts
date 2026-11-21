@@ -5,6 +5,7 @@ import { dispatchWebhookSafe } from '@/lib/webhook'
 import { isValidLeaveType } from '@/lib/leaveTypes'
 import { requestLeaveDays } from '@/lib/leave-days'
 import { loadWorkDays } from '@/lib/leave-days-server'
+import { notifyRequestReviewers } from '@/lib/request-notify'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
@@ -70,6 +71,10 @@ export async function POST(req: NextRequest) {
         timeOffId: request.id, userId: request.userId, startDate: request.startDate, endDate: request.endDate, leaveType: request.leaveType,
       })
     }
+
+    await notifyRequestReviewers(session.user.id, {
+      kind: 'timeoff', leaveType: request.leaveType, start: request.startDate, end: request.endDate,
+    })
 
     return NextResponse.json(request, { status: 201 })
   } catch (error) {

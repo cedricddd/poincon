@@ -1,5 +1,6 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { notifyRequestReviewers } from '@/lib/request-notify'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
@@ -47,6 +48,8 @@ export async function POST(req: NextRequest) {
         reason: reason || '',
       },
     })
+
+    await notifyRequestReviewers(session.user.id, { kind: 'rtt', date: request.date, hours: request.hoursToRecover })
 
     return NextResponse.json(request, { status: 201 })
   } catch (error) {

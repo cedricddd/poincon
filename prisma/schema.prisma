@@ -55,6 +55,8 @@ model User {
   kioskPin              String?
   kioskVisitsHosted     KioskVisit[]
   locale                String?
+  // Admins/managers: one e-mail per new employee request (leave, TOIL, missed clocking). Opt-in.
+  emailOnRequests       Boolean         @default(false)
 
   @@index([email])
   @@index([companyId])

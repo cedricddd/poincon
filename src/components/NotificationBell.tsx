@@ -17,6 +17,8 @@ export function NotificationBell() {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [shown, setShown] = useState(false)
+  // True while the panel is open because of new notifications (not opened by the user)
+  const [autoOpened, setAutoOpened] = useState(false)
 
   const fetchNotifications = async () => {
     try {
@@ -44,17 +46,29 @@ export function NotificationBell() {
     return () => clearInterval(interval)
   }, [])
 
+  // Show new notifications once. The close timer lives in its own effect: kept here, it was
+  // cleared by the re-run that setShown triggers, and the panel (with its full-page overlay)
+  // never closed by itself.
   useEffect(() => {
     if (unreadCount > 0 && !shown) {
-      setOpen(true)
       setShown(true)
-      const timer = setTimeout(() => setOpen(false), 5000)
-      return () => clearTimeout(timer)
+      setOpen(true)
+      setAutoOpened(true)
     }
   }, [unreadCount, shown])
 
+  useEffect(() => {
+    if (!autoOpened) return
+    const timer = setTimeout(() => {
+      setOpen(false)
+      setAutoOpened(false)
+    }, 5000)
+    return () => clearTimeout(timer)
+  }, [autoOpened])
+
   const handleOpen = async () => {
     const isOpen = !open
+    setAutoOpened(false) // the user took over: no automatic close
     setOpen(isOpen)
 
     if (isOpen && unreadCount > 0) {

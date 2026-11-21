@@ -782,6 +782,17 @@
       "subject": "🏷️ Bezoeker aangekomen: {visitor}",
       "body": "Uw bezoeker {visitor} is zojuist aangekomen aan de receptie om {time}.",
       "sectionVisitor": "<strong>Bezoeker</strong>"
+    },
+    "request": {
+      "subjectTimeoff": "{name} vraagt verlof aan",
+      "subjectRtt": "{name} vraagt recuperatie aan",
+      "subjectCorrection": "{name} meldt een vergeten prikking",
+      "lineTimeoff": "vraagt verlof aan ({type}) van {from} tot {to}.",
+      "lineTimeoffOneDay": "vraagt verlof aan ({type}) op {date}.",
+      "lineRtt": "vraagt {hours} u recuperatie aan op {date}.",
+      "lineCorrection": "meldt een vergeten prikking op {date}.",
+      "button": "Aanvraag bekijken",
+      "footerPrefs": "U ontvangt deze e-mail omdat u dit hebt ingeschakeld in Mijn profiel. U kunt het daar op elk moment uitschakelen."
     }
   },
   "landing": {
@@ -1293,7 +1304,12 @@
     "rgpdDownloadPdf": "Downloaden als PDF",
     "rgpdDownloadJson": "Downloaden als JSON",
     "rgpdGenerating": "Genereren…",
-    "rgpdError": "Fout bij het downloaden"
+    "rgpdError": "Fout bij het downloaden",
+    "requestEmailsTitle": "Aanvragen van medewerkers",
+    "requestEmailsLabel": "Een e-mail ontvangen bij elke nieuwe aanvraag (verlof, recuperatie, vergeten prikking)",
+    "requestEmailsHint": "Eén e-mail per aanvraag. Voor een groot team laat u dit beter uit: aanvragen verschijnen ook bij het belletje.",
+    "requestEmailsOn": "Ingeschakeld: u ontvangt een e-mail bij elke nieuwe aanvraag.",
+    "requestEmailsOff": "Uitgeschakeld: geen e-mails meer, aanvragen blijven bij het belletje."
   },
   "myReports": {
     "title": "Mijn rapporten",

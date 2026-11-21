@@ -1,5 +1,6 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { notifyRequestReviewers } from '@/lib/request-notify'
 import { NextRequest, NextResponse } from 'next/server'
 
 /** Motifs qu'un employé peut invoquer (employee_request et manual_create sont réservés au système). */
@@ -66,28 +67,8 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // Prévenir les admins de la société
-    const me = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { name: true, email: true, companyId: true },
-    })
-    if (me?.companyId) {
-      const admins = await prisma.user.findMany({
-        where: { companyId: me.companyId, role: { in: ['ADMIN', 'SUPER_ADMIN'] }, active: true },
-        select: { id: true },
-      })
-      const who = me.name ?? me.email
-      const when = requestDate.toLocaleDateString('fr-BE', { timeZone: 'Europe/Brussels' })
-      if (admins.length > 0) {
-        await prisma.notification.createMany({
-          data: admins.map(a => ({
-            userId: a.id,
-            message: `${who} signale un oubli de pointage pour le ${when}.`,
-            type: 'info',
-          })),
-        })
-      }
-    }
+    // Prévenir les admins (et managers) : cloche, et e-mail pour ceux qui l'ont activé
+    await notifyRequestReviewers(session.user.id, { kind: 'correction', date: requestDate })
 
     return NextResponse.json(request, { status: 201 })
   } catch (error) {

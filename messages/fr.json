@@ -782,6 +782,17 @@
       "subject": "🏷️ Visiteur arrivé : {visitor}",
       "body": "Votre visiteur {visitor} vient d'arriver à la réception à {time}.",
       "sectionVisitor": "<strong>Visiteur</strong>"
+    },
+    "request": {
+      "subjectTimeoff": "{name} demande un congé",
+      "subjectRtt": "{name} demande une récupération",
+      "subjectCorrection": "{name} signale un oubli de pointage",
+      "lineTimeoff": "demande un congé ({type}) du {from} au {to}.",
+      "lineTimeoffOneDay": "demande un congé ({type}) le {date}.",
+      "lineRtt": "demande une récupération de {hours} h le {date}.",
+      "lineCorrection": "signale un oubli de pointage pour le {date}.",
+      "button": "Voir la demande",
+      "footerPrefs": "Vous recevez cet e-mail parce que vous l'avez activé dans Mon profil. Vous pouvez le désactiver à tout moment au même endroit."
     }
   },
   "landing": {
@@ -1293,7 +1304,12 @@
     "rgpdDownloadPdf": "Télécharger en PDF",
     "rgpdDownloadJson": "Télécharger en JSON",
     "rgpdGenerating": "Génération…",
-    "rgpdError": "Erreur lors du téléchargement"
+    "rgpdError": "Erreur lors du téléchargement",
+    "requestEmailsTitle": "Demandes des employés",
+    "requestEmailsLabel": "Recevoir un e-mail à chaque nouvelle demande (congé, récupération, oubli de pointage)",
+    "requestEmailsHint": "Un e-mail par demande. Pour une grande équipe, laissez décoché : les demandes apparaissent aussi dans la cloche.",
+    "requestEmailsOn": "Activé : vous recevrez un e-mail à chaque nouvelle demande.",
+    "requestEmailsOff": "Désactivé : plus d'e-mail, les demandes restent dans la cloche."
   },
   "myReports": {
     "title": "Mes rapports",

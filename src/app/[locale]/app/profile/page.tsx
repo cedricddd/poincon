@@ -35,6 +35,12 @@ export default function ProfilePage() {
   const [rgpdError, setRgpdError] = useState('')
   const [rgpdLoading, setRgpdLoading] = useState<'pdf' | 'json' | null>(null)
 
+  // Admins and managers: one e-mail per new employee request (opt-in)
+  const [canReview, setCanReview] = useState(false)
+  const [emailOnRequests, setEmailOnRequests] = useState(false)
+  const [prefsSaving, setPrefsSaving] = useState(false)
+  const [prefsMsg, setPrefsMsg] = useState<{ ok: boolean; text: string } | null>(null)
+
   useEffect(() => {
     fetch('/api/user/locale')
       .then(r => r.json())
@@ -42,7 +48,35 @@ export default function ProfilePage() {
         if (data.locale) setEmailLocale(data.locale)
       })
       .catch(() => {})
+    fetch('/api/user/notification-prefs')
+      .then(r => r.json())
+      .then(data => {
+        setCanReview(Boolean(data.canReview))
+        setEmailOnRequests(Boolean(data.emailOnRequests))
+      })
+      .catch(() => {})
   }, [])
+
+  const toggleEmailOnRequests = async (value: boolean) => {
+    // The box follows the click at once, and goes back if saving fails
+    setEmailOnRequests(value)
+    setPrefsSaving(true)
+    setPrefsMsg(null)
+    try {
+      const res = await fetch('/api/user/notification-prefs', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ emailOnRequests: value }),
+      })
+      if (!res.ok) throw new Error()
+      setPrefsMsg({ ok: true, text: value ? t('requestEmailsOn') : t('requestEmailsOff') })
+    } catch {
+      setEmailOnRequests(!value)
+      setPrefsMsg({ ok: false, text: tc('error') })
+    } finally {
+      setPrefsSaving(false)
+    }
+  }
 
   const roleLabel: Record<string, string> = {
     EMPLOYEE: tc('roleEmployee'),
@@ -230,6 +264,28 @@ export default function ProfilePage() {
           </Button>
         </div>
       </Card>
+
+      {canReview && (
+        <Card>
+          <div className="space-y-3" data-testid="request-emails">
+            <h2 className="text-sm font-semibold text-[var(--pp-ink)]">{t('requestEmailsTitle')}</h2>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={emailOnRequests}
+                disabled={prefsSaving}
+                onChange={e => toggleEmailOnRequests(e.target.checked)}
+                className="mt-0.5 h-4 w-4 accent-[var(--pp-info)]"
+              />
+              <span className="text-sm text-[var(--pp-ink)]">{t('requestEmailsLabel')}</span>
+            </label>
+            <p className="text-xs text-[var(--pp-muted)]">{t('requestEmailsHint')}</p>
+            {prefsMsg && (
+              <p className={`text-xs ${prefsMsg.ok ? 'text-[var(--pp-pos)]' : 'text-[var(--pp-neg)]'}`}>{prefsMsg.text}</p>
+            )}
+          </div>
+        </Card>
+      )}
 
       <Card>
         <div className="space-y-4">

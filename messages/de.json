@@ -782,6 +782,17 @@
       "subject": "🏷️ Besucher eingetroffen: {visitor}",
       "body": "Ihr Besucher {visitor} ist soeben um {time} an der Rezeption eingetroffen.",
       "sectionVisitor": "<strong>Besucher</strong>"
+    },
+    "request": {
+      "subjectTimeoff": "{name} beantragt Urlaub",
+      "subjectRtt": "{name} beantragt Freizeitausgleich",
+      "subjectCorrection": "{name} meldet eine vergessene Stempelung",
+      "lineTimeoff": "beantragt Urlaub ({type}) vom {from} bis {to}.",
+      "lineTimeoffOneDay": "beantragt Urlaub ({type}) am {date}.",
+      "lineRtt": "beantragt {hours} Std. Freizeitausgleich am {date}.",
+      "lineCorrection": "meldet eine vergessene Stempelung am {date}.",
+      "button": "Antrag ansehen",
+      "footerPrefs": "Sie erhalten diese E-Mail, weil Sie sie in Mein Profil aktiviert haben. Sie können sie dort jederzeit deaktivieren."
     }
   },
   "landing": {
@@ -1293,7 +1304,12 @@
     "rgpdDownloadPdf": "Als PDF herunterladen",
     "rgpdDownloadJson": "Als JSON herunterladen",
     "rgpdGenerating": "Wird erstellt…",
-    "rgpdError": "Fehler beim Herunterladen"
+    "rgpdError": "Fehler beim Herunterladen",
+    "requestEmailsTitle": "Anträge der Mitarbeitenden",
+    "requestEmailsLabel": "Bei jedem neuen Antrag eine E-Mail erhalten (Urlaub, Freizeitausgleich, vergessene Stempelung)",
+    "requestEmailsHint": "Eine E-Mail pro Antrag. Bei einem großen Team besser deaktiviert lassen: Anträge erscheinen auch unter der Glocke.",
+    "requestEmailsOn": "Aktiviert: Sie erhalten bei jedem neuen Antrag eine E-Mail.",
+    "requestEmailsOff": "Deaktiviert: keine E-Mails mehr, Anträge bleiben unter der Glocke."
   },
   "myReports": {
     "title": "Meine Berichte",
